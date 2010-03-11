@@ -5,27 +5,61 @@ class TestFunctional(unittest.TestCase):
         import cereal
 
         integer = cereal.Structure(
-            'int', cereal.Integer(), validator=cereal.Range(0, 10))
-        ob = cereal.Structure('ob', cereal.GlobalObject(package=cereal))
+            'int',
+            cereal.Integer(),
+            validator=cereal.Range(0, 10)
+            )
 
-        tup = cereal.Structure('tup', cereal.Tuple())
-        tup.add(cereal.Structure('tupint', cereal.Integer()))
-        tup.add(cereal.Structure('tupstring', cereal.String()))
+        ob = cereal.Structure(
+            'ob',
+            cereal.GlobalObject(package=cereal),
+            )
 
-        seq = cereal.Structure('seq', cereal.Sequence(tup))
+        tup = cereal.Structure(
+            'tup',
+            cereal.Tuple(),
+            cereal.Structure(
+                'tupint',
+                cereal.Integer(),
+                ),
+            cereal.Structure(
+                'tupstring',
+                cereal.String(),
+                ),
+            )
 
-        mapping = cereal.Structure('mapping', cereal.Mapping())
-        seq2 = cereal.Structure('seq2', cereal.Sequence(mapping))
-        mapping.add(cereal.Structure('key', cereal.Integer()))
-        mapping.add(cereal.Structure('key2', cereal.Integer()))
+        seq = cereal.Structure(
+            'seq',
+            cereal.Sequence(tup),
+            )
 
-        schema = cereal.Structure('', cereal.Mapping())
+        seq2 = cereal.Structure(
+            'seq2',
+            cereal.Sequence(
+                cereal.Structure(
+                    'mapping',
+                    cereal.Mapping(),
+                    cereal.Structure(
+                        'key',
+                        cereal.Integer(),
+                        ),
+                    cereal.Structure(
+                        'key2',
+                        cereal.Integer(),
+                        ),
+                    )
+                ),
+            )
 
-        schema.add(integer)
-        schema.add(ob)
-        schema.add(tup)
-        schema.add(seq)
-        schema.add(seq2)
+        schema = cereal.Structure(
+            None,
+            cereal.Mapping(),
+            integer,
+            ob,
+            tup,
+            seq,
+            seq2)
+
         return schema
 
     def test_deserialize_ok(self):

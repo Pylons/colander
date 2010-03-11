@@ -335,13 +335,13 @@ class GlobalObject(object):
                           'The dotted name %r cannot be imported' % value)
 
 class Structure(object):
-    def __init__(self, name, typ, validator=None, default=None, required=True):
-        self.typ = typ
+    def __init__(self, name, typ, *structs, **kw):
         self.name = name
-        self.validator = validator
-        self.default = default
-        self.required = required
-        self.structs = []
+        self.typ = typ
+        self.validator = kw.get('validator', None)
+        self.default = kw.get('default', None)
+        self.required = kw.get('required', True)
+        self.structs = list(structs)
 
     def serialize(self, value):
         return self.typ.serialize(self, value)
