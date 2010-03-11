@@ -30,23 +30,6 @@ class Invalid(Exception):
         error.parent = self
         self.subexceptions.append(error)
 
-    def expand(self):
-        L = []
-        L.append(self.msg)
-        for exc in self.subexceptions:
-            L.append((exc.pos, self.struct, exc.expand()))
-        return L
-
-    def pprint(self, indent=0):
-        istring = ' ' * indent
-        for exc in self.subexceptions:
-            if exc.msg:
-                print '%s%s (%s): %s' % (
-                    istring, exc.struct.name, exc.pos, exc.msg)
-            else:
-                print '%s%s (%s):' % (istring, exc.struct.name, exc.pos)
-            exc.pprint(indent+2)
-
     def paths(self):
         # thanks chris rossi ;-)
         def traverse(node, stack):
