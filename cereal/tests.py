@@ -33,19 +33,19 @@ class TestFunctional(unittest.TestCase):
         data = {
             'int':'10',
             'ob':'cereal.tests',
-            'tup':('1', 's'),
             'seq':[('1', 's'),('2', 's'), ('3', 's'), ('4', 's')],
             'seq2':[{'key':'1', 'key2':'2'}, {'key':'3', 'key2':'4'}],
+            'tup':('1', 's'),
             }
         schema = self._makeSchema()
         result = schema.deserialize(data)
         self.assertEqual(result['int'], 10)
         self.assertEqual(result['ob'], cereal.tests)
-        self.assertEqual(result['tup'], (1, 's'))
         self.assertEqual(result['seq'],
                          [(1, 's'), (2, 's'), (3, 's'), (4, 's')])
         self.assertEqual(result['seq2'],
                          [{'key':1, 'key2':2}, {'key':3, 'key2':4}])
+        self.assertEqual(result['tup'], (1, 's'))
         
     def test_invalid_asdict(self):
         expected = {
@@ -64,9 +64,9 @@ class TestFunctional(unittest.TestCase):
         data = {
             'int':'20',
             'ob':'no.way.this.exists',
-            'tup':('s', 's'),
             'seq':[('q', 's'),('w', 's'), ('e', 's'), ('r', 's')],
             'seq2':[{'key':'t', 'key2':'y'}, {'key':'u', 'key2':'i'}],
+            'tup':('s', 's'),
             }
         schema = self._makeSchema()
         try:

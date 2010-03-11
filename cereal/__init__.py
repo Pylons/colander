@@ -47,7 +47,7 @@ class Invalid(Exception):
         return traverse(self, [])
 
     def asdict(self):
-        paths = list(self.paths())
+        paths = self.paths()
         D = {}
         for path in paths:
             L = []
@@ -56,9 +56,10 @@ class Invalid(Exception):
                 msg = exc.msg
                 if exc.parent is not None:
                     if isinstance(exc.parent.struct.typ, Positional):
-                        L.append(str(exc.pos))
+                        val = exc.pos
                     else:
-                        L.append(exc.struct.name)
+                        val = exc.struct.name
+                    L.append(str(val))
             D['.'.join(L)] = msg
         return D
 
@@ -96,8 +97,10 @@ class Range(object):
                     '%r is greater than maximum value %r' % (value, self.max))
 
 class Mapping(object):
+    """ A type which represents a mapping of names to data 
+    structures. """
     def _validate(self, struct, value):
-        if not isinstance(value, dict):
+        if not hasattr(value, 'get'):
             raise Invalid(struct, '%r is not a mapping type' % value)
         return value
 
@@ -226,11 +229,11 @@ class Tuple(Positional):
             raise error
 
         return tuple(result)
-                
+
 class Sequence(Positional):
     """ A type which represents a variable-length sequence of values,
     all of which must be of the same type as denoted by the type of
-    ``substruct``"""
+    the Structure instance ``substruct``"""
     def __init__(self, substruct):
         self.substruct = substruct
 
