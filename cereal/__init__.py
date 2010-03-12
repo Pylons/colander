@@ -356,17 +356,17 @@ class Integer(object):
     The substructures of the :class:`cereal.Structure` that wraps this
     type are ignored.
     """
-    def _validate(self, struct, value):
+    def deserialize(self, struct, value):
         try:
             return int(value)
-        except:
+        except Exception, e:
             raise Invalid(struct, '%r is not a number' % value)
 
-    def deserialize(self, struct, value):
-        return self._validate(struct, value)
-
     def serialize(self, struct, value):
-        return str(self._validate(struct, value))
+        try:
+            return str(int(value))
+        except Exception, e:
+            raise Invalid(struct, '%r is not a number' % value)
 
 Int = Integer
 

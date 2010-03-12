@@ -464,6 +464,13 @@ class TestString(unittest.TestCase):
         from cereal import String
         return String(encoding)
 
+    def test_deserialize_uncooperative(self):
+        val = Uncooperative()
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, val)
+        self.failUnless(e.msg)
+
     def test_deserialize_unicode(self):
         uni = u'\xf8'
         struct = DummyStructure(None)
@@ -487,6 +494,13 @@ class TestString(unittest.TestCase):
         result = typ.deserialize(struct, utf16)
         self.assertEqual(result, uni)
 
+    def test_serialize_uncooperative(self):
+        val = Uncooperative()
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, val)
+        self.failUnless(e.msg)
+
     def test_serialize_to_utf8(self):
         utf8 = '\xc3\xb8'
         uni = u'\xf8'
@@ -502,6 +516,40 @@ class TestString(unittest.TestCase):
         typ = self._makeOne('utf-16')
         result = typ.serialize(struct, uni)
         self.assertEqual(result, utf16)
+
+class TestInteger(unittest.TestCase):
+    def _makeOne(self):
+        from cereal import Integer
+        return Integer()
+
+    def test_deserialize_fails(self):
+        val = 'P'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, val)
+        self.failUnless(e.msg)
+
+    def test_deserialize_ok(self):
+        val = '1'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.deserialize(struct, val)
+        self.assertEqual(result, 1)
+
+    def test_serialize_fails(self):
+        val = 'P'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, val)
+        self.failUnless(e.msg)
+
+    def test_serialize_ok(self):
+        val = 1
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.serialize(struct, val)
+        self.assertEqual(result, '1')
+
 
 class TestFunctional(object):
     def test_deserialize_ok(self):
@@ -666,3 +714,10 @@ class DummyValidator(object):
         from cereal import Invalid
         if self.msg:
             raise Invalid(struct, self.msg)
+
+class Uncooperative(object):
+    def __str__(self):
+        raise ValueError('I wont cooperate')
+
+    __unicode__ = __str__
+    
