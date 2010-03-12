@@ -27,9 +27,19 @@ Types
 
   .. autoclass:: Sequence
 
+  .. autoclass:: Seq
+
   .. autoclass:: String
 
+  .. autoclass:: Str
+
   .. autoclass:: Integer
+
+  .. autoclass:: Int
+
+  .. autoclass:: Boolean
+
+  .. autoclass:: Bool
 
   .. autoclass:: GlobalObject
 
@@ -38,6 +48,8 @@ Other
 
   .. autoclass:: Structure(typ,*structs,name='',default=MISSING,validator=None)
      :members:
+
+  .. autoclass:: Struct
 
   .. autoclass:: Schema
 

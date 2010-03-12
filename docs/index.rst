@@ -14,7 +14,8 @@ data serialization.  Cereal can be used to:
   lists into an arbitrary Python structure after validating the data
   structure against a data schema.
 
-Out of the box, Cereal can serialize the following types of objects:
+Out of the box, Cereal can serialize the various types of objects,
+including:
 
 - A mapping object (e.g. dictionary)
 
@@ -27,6 +28,8 @@ Out of the box, Cereal can serialize the following types of objects:
 - A string or Unicode object.
 
 - An integer.
+
+- A boolean value.
 
 - An importable Python object (to a dotted Python object path).
 
