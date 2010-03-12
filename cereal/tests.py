@@ -1,67 +1,6 @@
 import unittest
 
-class TestFunctional(unittest.TestCase):
-    def _makeSchema(self):
-        import cereal
-
-        integer = cereal.Structure(
-            'int',
-            cereal.Integer(),
-            validator=cereal.Range(0, 10)
-            )
-
-        ob = cereal.Structure(
-            'ob',
-            cereal.GlobalObject(package=cereal),
-            )
-
-        tup = cereal.Structure(
-            'tup',
-            cereal.Tuple(),
-            cereal.Structure(
-                'tupint',
-                cereal.Integer(),
-                ),
-            cereal.Structure(
-                'tupstring',
-                cereal.String(),
-                ),
-            )
-
-        seq = cereal.Structure(
-            'seq',
-            cereal.Sequence(tup),
-            )
-
-        seq2 = cereal.Structure(
-            'seq2',
-            cereal.Sequence(
-                cereal.Structure(
-                    'mapping',
-                    cereal.Mapping(),
-                    cereal.Structure(
-                        'key',
-                        cereal.Integer(),
-                        ),
-                    cereal.Structure(
-                        'key2',
-                        cereal.Integer(),
-                        ),
-                    )
-                ),
-            )
-
-        schema = cereal.Structure(
-            None,
-            cereal.Mapping(),
-            integer,
-            ob,
-            tup,
-            seq,
-            seq2)
-
-        return schema
-
+class TestFunctional(object):
     def test_deserialize_ok(self):
         import cereal.tests
         data = {
@@ -108,3 +47,90 @@ class TestFunctional(unittest.TestCase):
         except cereal.Invalid, e:
             errors = e.asdict()
             self.assertEqual(errors, expected)
+
+class TestImperative(unittest.TestCase, TestFunctional):
+    
+    def _makeSchema(self):
+        import cereal
+
+        integer = cereal.Structure(
+            cereal.Integer(),
+            name='int',
+            validator=cereal.Range(0, 10)
+            )
+
+        ob = cereal.Structure(
+            cereal.GlobalObject(package=cereal),
+            name='ob',
+            )
+
+        tup = cereal.Structure(
+            cereal.Tuple(),
+            cereal.Structure(
+                cereal.Integer(),
+                name='tupint',
+                ),
+            cereal.Structure(
+                cereal.String(),
+                name='tupstring',
+                ),
+            name='tup',
+            )
+
+        seq = cereal.Structure(
+            cereal.Sequence(tup),
+            name='seq',
+            )
+
+        seq2 = cereal.Structure(
+            cereal.Sequence(
+                cereal.Structure(
+                    cereal.Mapping(),
+                    cereal.Structure(
+                        cereal.Integer(),
+                        name='key',
+                        ),
+                    cereal.Structure(
+                        cereal.Integer(),
+                        name='key2',
+                        ),
+                    name='mapping',
+                    )
+                ),
+            name='seq2',
+            )
+
+        schema = cereal.Structure(
+            cereal.Mapping(),
+            integer,
+            ob,
+            tup,
+            seq,
+            seq2)
+
+        return schema
+
+class TestDeclarative(unittest.TestCase, TestFunctional):
+    
+    def _makeSchema(self):
+
+        import cereal
+
+        class TupleSchema(cereal.TupleSchema):
+            tupint = cereal.Structure(cereal.Int())
+            tupstring = cereal.Structure(cereal.String())
+
+        class MappingSchema(cereal.MappingSchema):
+            key = cereal.Structure(cereal.Int())
+            key2 = cereal.Structure(cereal.Int())
+
+        class MainSchema(cereal.MappingSchema):
+            int = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 10))
+            ob = cereal.Structure(cereal.GlobalObject(package=cereal))
+            seq = cereal.Structure(cereal.Sequence(TupleSchema()))
+            tup = TupleSchema()
+            seq2 = cereal.SequenceSchema(MappingSchema())
+
+        schema = MainSchema()
+        return schema
+

@@ -1,4 +1,5 @@
 import pkg_resources
+import itertools
 
 def resolve_dotted(dottedname, package=None):
     if dottedname.startswith('.') or dottedname.startswith(':'):
@@ -310,6 +311,8 @@ class Integer(object):
     def deserialize(self, struct, value):
         return self._validate(struct, value)
 
+Int = Integer
+
 class GlobalObject(object):
     """ A type representing an importable Python object """
     def __init__(self, package):
@@ -331,12 +334,19 @@ class GlobalObject(object):
                           'The dotted name %r cannot be imported' % value)
 
 class Structure(object):
-    def __init__(self, name, typ, *structs, **kw):
-        self.name = name
+    _counter = itertools.count()
+    
+    def __new__(cls, *arg, **kw):
+        inst = object.__new__(cls)
+        inst._order = cls._counter.next()
+        return inst
+        
+    def __init__(self, typ, *structs, **kw):
         self.typ = typ
         self.validator = kw.get('validator', None)
         self.default = kw.get('default', None)
         self.required = kw.get('required', True)
+        self.name = kw.get('name', '')
         self.structs = list(structs)
 
     def serialize(self, value):
@@ -351,3 +361,44 @@ class Structure(object):
     def add(self, struct):
         self.structs.append(struct)
 
+class _SchemaMeta(type):
+    def __init__(cls, name, bases, clsattrs):
+        structs = []
+        for name, value in clsattrs.items():
+            if isinstance(value, Structure):
+                value.name = name
+                structs.append((value._order, value))
+        cls.__schema_structures__ = structs
+        # Combine all attrs from this class and its subclasses.
+        extended = []
+        for c in cls.__mro__:
+            extended.extend(getattr(c, '__schema_structures__', []))
+        # Sort the attrs to maintain the order as defined, and assign to the
+        # class.
+        extended.sort()
+        cls.structs = [x[1] for x in extended]
+
+class Schema(object):
+    struct_type = Mapping
+    __metaclass__ = _SchemaMeta
+
+    def __new__(cls, *args, **kw):
+        inst = object.__new__(Structure)
+        inst.name = None
+        inst._order = Structure._counter.next()
+        struct = cls.struct_type(*args, **kw)
+        inst.__init__(struct)
+        for s in cls.structs:
+            inst.add(s)
+        return inst
+
+MappingSchema = Schema
+
+class SequenceSchema(Schema):
+    struct_type = Sequence
+
+class TupleSchema(Schema):
+    struct_type = Tuple
+    
+    
+        
