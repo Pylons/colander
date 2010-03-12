@@ -7,6 +7,7 @@ Exceptions
 .. automodule:: cereal
 
   .. autoclass:: Invalid
+     :members:
 
 Validators
 ~~~~~~~~~~
@@ -35,7 +36,8 @@ Types
 Other
 ~~~~~
 
-  .. autoclass:: Structure
+  .. autoclass:: Structure(typ,*structs,name='',default=MISSING,validator=None)
+     :members:
 
   .. autoclass:: Schema
 

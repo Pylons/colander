@@ -1,11 +1,12 @@
 def Validator(struct, value):
     """
-    If ``value`` is not valid, raise a ``cereal.Invalid`` exception.
+    If ``value`` is not valid, raise a :class:`cereal.Invalid`
+    instance as an exception.
 
-    ``struct`` is the ``cereal.Structure`` instance which
-    contains, among other things, the default value, the name of
-    the value, and a ``required`` flag indicating whether this
-    value is required.
+    ``struct`` is a :class:`cereal.Structure` instance which
+    contains, among other things, the default value, the name of the
+    value, and a ``required`` flag indicating whether this value is
+    required.  It is often ignored in simple validators.
     """
 
 class Type(object):
@@ -19,13 +20,13 @@ class Type(object):
 
         This method should also do type validation of ``value``.
 
-        ``struct`` is the ``cereal.Structure`` instance which
+        ``struct`` is a :class:`cereal.Structure` instance which
         contains, among other things, the default value, the name of
         the value, and a ``required`` flag indicating whether this
         value is required.
 
         If the object cannot be serialized, or type validation for
-        ``value`` fails, a ``cereal.Invalid`` exception should be
+        ``value`` fails, a :exc:`cereal.Invalid` exception should be
         raised.
         """
 
@@ -40,13 +41,13 @@ class Type(object):
 
         This method should also do type validation of ``value``.
 
-        ``struct`` is the ``cereal.Structure`` instance which
+        ``struct`` is a :class:`cereal.Structure` instance which
         contains, among other things, the default value, the name of
         the value, and a ``required`` flag indicating whether this
         value is required.
 
         If the object cannot be deserialized, or type validation for
-        ``value`` fails, a ``cereal.Invalid`` exception should be
+        ``value`` fails, a :exc:`cereal.Invalid` exception should be
         raised.
         """
         

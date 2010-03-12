@@ -28,7 +28,7 @@ Out of the box, Cereal can serialize the following types of objects:
 
 - An integer.
 
-- A dotted Python object path.
+- An importable Python object (to a dotted Python object path).
 
 Cereal allows additional data structures to be serialized and
 deserialized by allowing a developer to define new "types".
@@ -106,7 +106,8 @@ Structure Objects
 
 A schema is composed of one or more *structure* objects, usually in a
 nested arrangement.  Each structure object has a required *type*, an
-optional *validator*, and a slightly less optional *name*.
+optional *validator*, an optional *default*, and a slightly less
+optional *name*.
 
 The *type* of a structure indicates its data type (such as
 ``cereal.Int`` or ``cereal.String``).
@@ -116,6 +117,11 @@ makes sure the deserialized value matches a constraint.  An example of
 such a validator is provided in the schema above:
 ``validator=cereal.Range(0, 200)``. The *name* of a structure appears
 in error reports.
+
+The *default* of a structure indicates its default value if a value
+for the structure is not found in the input data during
+deserialization.  If a structure does not have a default, it is
+considered required.
 
 The *name* of a structure that is introduced as a class-level
 attribute of a ``cereal.MappingSchema`` or ``cereal.TupleSchema`` is

@@ -1,5 +1,8 @@
 import itertools
 
+class _missing(object):
+    pass
+
 class Invalid(Exception):
     """
     An exception raised by data types and validators indicating that
@@ -12,22 +15,28 @@ class Invalid(Exception):
         Exception.__init__(self, struct, msg)
         self.struct = struct
         self.msg = msg
-        self.subexceptions = []
+        self.children = []
 
-    def add(self, error):
-        """ Add a subexception to this exception """
-        error.parent = self
-        self.subexceptions.append(error)
+    def add(self, exc):
+        # not an API
+        exc.parent = self
+        self.children.append(exc)
+
+    def keyname(self):
+        # not an API
+        if self.parent and isinstance(self.parent.struct.typ, Positional):
+            return str(self.pos)
+        return str(self.struct.name)
 
     def paths(self):
-        """ Return all paths through the exception graph """
+        """ Return all paths through the exception graph  """
         def traverse(node, stack):
             stack.append(node)
 
-            if not node.subexceptions:
+            if not node.children:
                 yield tuple(stack)
 
-            for child in node.subexceptions:
+            for child in node.children:
                 for path in traverse(child, stack):
                     yield path
 
@@ -39,24 +48,20 @@ class Invalid(Exception):
         """ Return a dictionary containing an error report for this
         exception"""
         paths = self.paths()
-        D = {}
+        errors = {}
         for path in paths:
             keyparts = []
             msgs = []
             for exc in path:
                 exc.msg and msgs.append(exc.msg)
-                if exc.parent is not None:
-                    if isinstance(exc.parent.struct.typ, Positional):
-                        val = exc.pos
-                    else:
-                        val = exc.struct.name
-                    keyparts.append(str(val))
-            D['.'.join(keyparts)] = '; '.join(msgs)
-        return D
+                keyname = exc.keyname()
+                keyname and keyparts.append(keyname)
+            errors['.'.join(keyparts)] = '; '.join(msgs)
+        return errors
 
 class All(object):
     """ Composite validator which succeeds if none of its
-    subvalidators raises an Invalid exception """
+    subvalidators raises an :class:`cereal.Invalid` exception"""
     def __init__(self, *validators):
         self.validators = validators
 
@@ -73,7 +78,10 @@ class All(object):
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
-    or equal to ``min`` and less than or equal to ``max``."""
+    or equal to ``min`` and less than or equal to ``max``.  If ``min``
+    is not specified, or is specified as ``None``, no lower bound
+    exists.  If ``max`` is not specified, or is specified as ``None``,
+    no upper bound exists."""
     def __init__(self, min=None, max=None):
         self.min = min
         self.max = max
@@ -102,40 +110,37 @@ class OneOf(object):
             raise Invalid(struct, '%r is not one of %r' % (value, self.values))
 
 class Mapping(object):
-    """ A type which represents a mapping of names to structures. """
+    """ A type which represents a mapping of names to structures.
+
+    The constructor of a mapping type accepts a single optional
+    keyword argument named ``unknown_keys``.  By default, this
+    argument is ``ignore``.
+
+    The potential values of ``unknown_keys`` are:
+
+    - ``ignore`` means that keys that are not present in the schema
+      associated with this type will be ignored during
+      deserialization.
+
+    - ``raise`` will cause a :exc:`cereal.Invalid` exception to
+      be raised when unknown keys are present during deserialization.
+
+    - ``preserve`` will preserve the 'raw' unknown keys and values in
+      the returned data structure during deserialization.
+    """
+
+    def __init__(self, unknown_keys='ignore'):
+        if not unknown_keys in ['ignore', 'raise', 'preserve']:
+            raise ValueError(
+                'unknown_keys argument must be one of "ignore", "raise", '
+                'or "preserve"')
+        self.unknown_keys = unknown_keys
+        
     def _validate(self, struct, value):
-        if not hasattr(value, 'get'):
-            raise Invalid(struct, '%r is not a mapping type' % value)
-        return value
-
-    def serialize(self, struct, value):
-        value = self._validate(struct, value)
-        result = {}
-
-        error = None
-
-        for num, substruct in enumerate(struct.structs):
-            name = substruct.name
-            subval = value.get(name)
-            try:
-                if subval is None:
-                    if substruct.required and substruct.default is None:
-                        raise Invalid(
-                            substruct,
-                            '%r is required but empty' % substruct.name)
-                    result[name] = substruct.serialize(struct.default)
-                else:
-                    result[name] = substruct.serialize(subval)
-            except Invalid, e:
-                if error is None:
-                    error = Invalid(substruct)
-                e.pos = num
-                error.add(e)
-
-        if error is not None:
-            raise error
-                
-        return result
+        try:
+            return dict(value)
+        except Exception, e:
+            raise Invalid(struct, '%r is not a mapping type: %s' % (value, e))
 
     def deserialize(self, struct, value):
         value = self._validate(struct, value)
@@ -145,14 +150,14 @@ class Mapping(object):
 
         for num, substruct in enumerate(struct.structs):
             name = substruct.name
-            subval = value.get(name)
+            subval = value.pop(name, _missing)
 
             try:
-                if subval is None:
-                    if substruct.required and substruct.default is None:
+                if subval is _missing:
+                    if substruct.required:
                         raise Invalid(
                             substruct,
-                            '%r is required but empty' % substruct.name)
+                            '%r is required but missing' % substruct.name)
                     result[name] = substruct.default
                 else:
                     result[name] = substruct.deserialize(subval)
@@ -161,6 +166,51 @@ class Mapping(object):
                     error = Invalid(struct)
                 e.pos = num
                 error.add(e)
+
+        if self.unknown_keys == 'raise':
+            if value:
+                raise Invalid(struct,
+                              'Unrecognized keys in mapping: %r' % value)
+
+        elif self.unknown_keys == 'preserve':
+            result.update(value)
+
+        if error is not None:
+            raise error
+                
+        return result
+
+    def serialize(self, struct, value):
+        value = self._validate(struct, value)
+        result = {}
+
+        error = None
+
+        for num, substruct in enumerate(struct.structs):
+            name = substruct.name
+            subval = value.pop(name, _missing)
+            try:
+                if subval is _missing:
+                    if substruct.required:
+                        raise Invalid(
+                            substruct,
+                            '%r is required but missing' % substruct.name)
+                    result[name] = substruct.serialize(substruct.default)
+                else:
+                    result[name] = substruct.serialize(subval)
+            except Invalid, e:
+                if error is None:
+                    error = Invalid(substruct)
+                e.pos = num
+                error.add(e)
+
+        if self.unknown_keys == 'raise':
+            if value:
+                raise Invalid(struct,
+                              'Unrecognized keys in mapping: %r' % value)
+
+        elif self.unknown_keys == 'preserve':
+            result.update(value)
 
         if error is not None:
             raise error
@@ -176,36 +226,13 @@ class Positional(object):
     """
 
 class Tuple(Positional):
-    """ A type which represents a fixed-length sequence of structures. """
+    """ A type which represents a fixed-length sequence of structures.
+    The subsctructures of the :class:`cereal.Structure` that
+    represents this type imply the elements of the tuple."""
     def _validate(self, struct, value):
         if not hasattr(value, '__iter__'):
             raise Invalid(struct, '%r is not an iterable value' % value)
         return list(value)
-
-    def serialize(self, struct, value):
-        value = self._validate(struct, value)
-
-        error = None
-        result = []
-
-        for num, substruct in enumerate(struct.structs):
-            try:
-                subval = value[num]
-            except IndexError:
-                raise Invalid(struct, 'Wrong number of elements in %r' % value)
-            try:
-                result.append(substruct.serialize(subval))
-            except Invalid, e:
-                if error is None:
-                    error = Invalid(struct)
-                e.pos = num
-                e.sequence_child = True
-                error.add(e)
-                
-        if error:
-            raise error
-
-        return tuple(result)
 
     def deserialize(self, struct, value):
         value = self._validate(struct, value)
@@ -232,10 +259,35 @@ class Tuple(Positional):
 
         return tuple(result)
 
+    def serialize(self, struct, value):
+        value = self._validate(struct, value)
+
+        error = None
+        result = []
+
+        for num, substruct in enumerate(struct.structs):
+            try:
+                subval = value[num]
+            except IndexError:
+                raise Invalid(struct, 'Wrong number of elements in %r' % value)
+            try:
+                result.append(substruct.serialize(subval))
+            except Invalid, e:
+                if error is None:
+                    error = Invalid(struct)
+                e.pos = num
+                e.sequence_child = True
+                error.add(e)
+                
+        if error:
+            raise error
+
+        return tuple(result)
+
 class Sequence(Positional):
     """ A type which represents a variable-length sequence of
     structures, all of which must be of the same type as denoted by
-    the type of the Structure instance ``substruct``"""
+    the type of the :class:`cereal.Structure` instance ``substruct``."""
     def __init__(self, substruct):
         self.substruct = substruct
 
@@ -243,25 +295,6 @@ class Sequence(Positional):
         if not hasattr(value, '__iter__'):
             raise Invalid(struct, '%r is not an iterable value' % value)
         return list(value)
-
-    def serialize(self, struct, value):
-        value = self._validate(struct, value)
-
-        error = None
-        result = []
-        for num, subval in enumerate(value):
-            try:
-                result.append(self.substruct.serialize(subval))
-            except Invalid, e:
-                if error is None:
-                    error = Invalid(struct)
-                e.pos = num
-                error.add(e)
-                
-        if error:
-            raise error
-
-        return result
 
     def deserialize(self, struct, value):
         value = self._validate(struct, value)
@@ -282,10 +315,32 @@ class Sequence(Positional):
 
         return result
 
+    def serialize(self, struct, value):
+        value = self._validate(struct, value)
+
+        error = None
+        result = []
+        for num, subval in enumerate(value):
+            try:
+                result.append(self.substruct.serialize(subval))
+            except Invalid, e:
+                if error is None:
+                    error = Invalid(struct)
+                e.pos = num
+                error.add(e)
+                
+        if error:
+            raise error
+
+        return result
+
 Seq = Sequence
 
 class String(object):
-    """ A type representing a Unicode string """
+    """ A type representing a Unicode string.  This type constructor
+    accepts a single argument ``encoding``, representing the encoding
+    which should be applied to object serialization.  It defaults to
+    ``utf-8`` if not provided."""
     def __init__(self, encoding='utf-8'):
         self.encoding = encoding
     
@@ -297,12 +352,12 @@ class String(object):
         except:
             raise Invalid(struct, '%r is not a string' % value)
 
+    def deserialize(self, struct, value):
+        return self._validate(struct, value)
+
     def serialize(self, struct, value):
         decoded = self._validate(struct, value)
         return decoded.encode(struct.encoding)
-
-    def deserialize(self, struct, value):
-        return self._validate(struct, value)
 
 Str = String
 
@@ -314,25 +369,25 @@ class Integer(object):
         except:
             raise Invalid(struct, '%r is not a number' % value)
 
-    def serialize(self, struct, value):
-        return str(self._validate(struct, value))
-
     def deserialize(self, struct, value):
         return self._validate(struct, value)
+
+    def serialize(self, struct, value):
+        return str(self._validate(struct, value))
 
 Int = Integer
 
 class GlobalObject(object):
-    """ A type representing an importable Python object """
+    """ A type representing an importable Python object.  This type
+    serializes 'global' Python objects (objects which can be imported)
+    to dotted Python names.  The constructor accepts a single argument
+    named ``package`` which should be a Python module or package
+    object; it is used when 'relative' dotted names are supplied (ones
+    which start with a dot) as the package which the import should be
+    considered relative to."""
     def __init__(self, package):
         self.package = package
 
-    def serialize(self, struct, value):
-        try:
-            return value.__name__
-        except AttributeError:
-            raise Invalid(struct, '%r has no __name__' % value)
-        
     def deserialize(self, struct, value):
         import pkg_resources
         if not isinstance(value, basestring):
@@ -352,9 +407,35 @@ class GlobalObject(object):
             raise Invalid(struct,
                           'The dotted name %r cannot be imported' % value)
 
+    def serialize(self, struct, value):
+        try:
+            return value.__name__
+        except AttributeError:
+            raise Invalid(struct, '%r has no __name__' % value)
+
 class Structure(object):
     """
     Fundamental building block of schemas.
+
+    The constructor accepts these arguments:
+
+    - ``typ`` (required): The 'type' for this structure.  It should be
+      an instance of a class that implements the
+      :class:`cereal.interfaces.Type` interface.
+
+    - ``structs``: a sequence of substructures.  If the substructures
+      of this structure are not known at construction time, they can
+      later be added via the ``add`` method.
+
+    - ``name``: The name of this structure.
+
+    - ``default``: The default value for this structure; if it is not
+      provided, this structure has no default value and it will be
+      considered 'required' (the ``required`` attribute will be True).
+
+    - ``validator``: Optional validator for this structure.  It should be
+      an object that implements the
+      :class:`cereal.interfaces.Validator` interface.
     """
     
     _counter = itertools.count()
@@ -367,21 +448,31 @@ class Structure(object):
     def __init__(self, typ, *structs, **kw):
         self.typ = typ
         self.validator = kw.get('validator', None)
-        self.default = kw.get('default', None)
-        self.required = kw.get('required', True)
+        self.default = kw.get('default', _missing)
         self.name = kw.get('name', '')
         self.structs = list(structs)
 
-    def serialize(self, value):
-        return self.typ.serialize(self, value)
+    @property
+    def required(self):
+        """ Property which returns true if this structure is required in the
+        schema """
+        return self.default is _missing
 
     def deserialize(self, value):
+        """ Derialize the value based on the schema represented by this
+        structure """
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
         return value
 
+    def serialize(self, value):
+        """ Serialize the value based on the schema represented by this
+        structure """
+        return self.typ.serialize(self, value)
+
     def add(self, struct):
+        """ Add a substructure to this structure """
         self.structs.append(struct)
 
 Struct = Structure
