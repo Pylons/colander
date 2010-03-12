@@ -396,6 +396,113 @@ class TestTuple(unittest.TestCase):
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
+class TestSequence(unittest.TestCase):
+    def _makeOne(self, substruct):
+        from cereal import Sequence
+        return Sequence(substruct)
+
+    def test_deserialize_not_iterable(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne(struct)
+        e = invalid_exc(typ.deserialize, struct, None)
+        self.assertEqual(
+            e.msg,
+            'None is not iterable')
+        self.assertEqual(e.struct, struct)
+
+    def test_deserialize_no_substructs(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne(struct)
+        result = typ.deserialize(struct, ())
+        self.assertEqual(result, [])
+
+    def test_deserialize_ok(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne(struct)
+        result = typ.deserialize(struct, ('a',))
+        self.assertEqual(result, ['a'])
+
+    def test_deserialize_substructs_raise(self):
+        struct = DummyStructure(None, exc='Wrong')
+        typ = self._makeOne(struct)
+        e = invalid_exc(typ.deserialize, struct, ('1', '2'))
+        self.assertEqual(e.msg, None)
+        self.assertEqual(len(e.children), 2)
+
+    def test_serialize_not_iterable(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne(struct)
+        e = invalid_exc(typ.serialize, struct, None)
+        self.assertEqual(
+            e.msg,
+            'None is not iterable')
+        self.assertEqual(e.struct, struct)
+
+    def test_serialize_no_substructs(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne(struct)
+        result = typ.serialize(struct, ())
+        self.assertEqual(result, [])
+
+    def test_serialize_ok(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne(struct)
+        result = typ.serialize(struct, ('a',))
+        self.assertEqual(result, ['a'])
+
+    def test_serialize_substructs_raise(self):
+        struct = DummyStructure(None, exc='Wrong')
+        typ = self._makeOne(struct)
+        e = invalid_exc(typ.serialize, struct, ('1', '2'))
+        self.assertEqual(e.msg, None)
+        self.assertEqual(len(e.children), 2)
+
+class TestString(unittest.TestCase):
+    def _makeOne(self, encoding='utf-8'):
+        from cereal import String
+        return String(encoding)
+
+    def test_deserialize_unicode(self):
+        uni = u'\xf8'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.deserialize(struct, uni)
+        self.assertEqual(result, uni)
+
+    def test_deserialize_from_utf8(self):
+        utf8 = '\xc3\xb8'
+        uni = u'\xf8'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.deserialize(struct, utf8)
+        self.assertEqual(result, uni)
+
+    def test_deserialize_from_utf16(self):
+        utf16 = '\xff\xfe\xf8\x00'
+        uni = u'\xf8'
+        struct = DummyStructure(None)
+        typ = self._makeOne('utf-16')
+        result = typ.deserialize(struct, utf16)
+        self.assertEqual(result, uni)
+
+    def test_serialize_to_utf8(self):
+        utf8 = '\xc3\xb8'
+        uni = u'\xf8'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.serialize(struct, uni)
+        self.assertEqual(result, utf8)
+
+    def test_serialize_to_utf16(self):
+        utf16 = '\xff\xfe\xf8\x00'
+        uni = u'\xf8'
+        struct = DummyStructure(None)
+        typ = self._makeOne('utf-16')
+        result = typ.serialize(struct, uni)
+        self.assertEqual(result, utf16)
+
 class TestFunctional(object):
     def test_deserialize_ok(self):
         import cereal.tests

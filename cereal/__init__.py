@@ -268,49 +268,33 @@ class Tuple(Positional):
         return self._impl(struct, value, callback)
 
 class Sequence(Positional):
-    """ A type which represents a variable-length sequence of
-    structures, all of which must be of the same type as denoted by
-    the type of the :class:`cereal.Structure` instance ``substruct``.
+    """
+    A type which represents a variable-length sequence of structures,
+    all of which must be of the same type.  This type is defined by the
+    the :class:`cereal.Structure` instance passed to the constructor
+    as ``struct``.
+
+    The ``struct`` argument to this type's constructor is required.
 
     The substructures of the :class:`cereal.Structure` that wraps this
     type are ignored.
-
     """
-    def __init__(self, substruct):
-        self.substruct = substruct
+    def __init__(self, struct):
+        self.struct = struct
 
     def _validate(self, struct, value):
         if not hasattr(value, '__iter__'):
-            raise Invalid(struct, '%r is not an iterable value' % value)
+            raise Invalid(struct, '%r is not iterable' % value)
         return list(value)
 
-    def deserialize(self, struct, value):
-        value = self._validate(struct, value)
-
-        error = None
-        result = []
-        for num, sub in enumerate(value):
-            try:
-                result.append(self.substruct.deserialize(sub))
-            except Invalid, e:
-                if error is None:
-                    error = Invalid(struct)
-                e.pos = num
-                error.add(e)
-                
-        if error is not None:
-            raise error
-
-        return result
-
-    def serialize(self, struct, value):
+    def _impl(self, struct, value, callback):
         value = self._validate(struct, value)
 
         error = None
         result = []
         for num, subval in enumerate(value):
             try:
-                result.append(self.substruct.serialize(subval))
+                result.append(callback(self.struct, subval))
             except Invalid, e:
                 if error is None:
                     error = Invalid(struct)
@@ -322,7 +306,19 @@ class Sequence(Positional):
 
         return result
 
+    def deserialize(self, struct, value):
+        def callback(substruct, subval):
+            return substruct.deserialize(subval)
+        return self._impl(struct, value, callback)
+
+    def serialize(self, struct, value):
+        def callback(substruct, subval):
+            return substruct.serialize(subval)
+        return self._impl(struct, value, callback)
+
 Seq = Sequence
+
+default_encoding = 'utf-8'
 
 class String(object):
     """ A type representing a Unicode string.  This type constructor
@@ -333,23 +329,24 @@ class String(object):
     The substructures of the :class:`cereal.Structure` that wraps this
     type are ignored.
     """
-    def __init__(self, encoding='utf-8'):
+    def __init__(self, encoding=None):
         self.encoding = encoding
     
-    def _validate(self, struct, value):
+    def deserialize(self, struct, value):
         try:
             if isinstance(value, unicode):
                 return value
-            return unicode(value, self.encoding)
-        except:
-            raise Invalid(struct, '%r is not a string' % value)
-
-    def deserialize(self, struct, value):
-        return self._validate(struct, value)
+            else:
+                return unicode(str(value), self.encoding or default_encoding)
+        except Exception, e:
+            raise Invalid(struct, '%r is not a string: %s' % (value, e))
 
     def serialize(self, struct, value):
-        decoded = self._validate(struct, value)
-        return decoded.encode(struct.encoding)
+        try:
+            return unicode(value).encode(self.encoding or default_encoding)
+        except Exception, e:
+            raise Invalid(struct,
+                          '%r is cannot be serialized to str: %s' % (value, e))
 
 Str = String
 
