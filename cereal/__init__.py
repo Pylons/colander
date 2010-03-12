@@ -1,20 +1,10 @@
-import pkg_resources
 import itertools
 
-def resolve_dotted(dottedname, package=None):
-    if dottedname.startswith('.') or dottedname.startswith(':'):
-        if not package:
-            raise ImportError('name "%s" is irresolveable (no package)' %
-                dottedname)
-        if dottedname in ['.', ':']:
-            dottedname = package.__name__
-        else:
-            dottedname = package.__name__ + dottedname
-    return pkg_resources.EntryPoint.parse(
-        'x=%s' % dottedname).load(False)
-
 class Invalid(Exception):
-
+    """
+    An exception raised by data types and validators indicating that
+    the value for a particular structure was not valid.
+    """
     pos = None
     parent = None
 
@@ -25,10 +15,12 @@ class Invalid(Exception):
         self.subexceptions = []
 
     def add(self, error):
+        """ Add a subexception to this exception """
         error.parent = self
         self.subexceptions.append(error)
 
     def paths(self):
+        """ Return all paths through the exception graph """
         def traverse(node, stack):
             stack.append(node)
 
@@ -44,6 +36,8 @@ class Invalid(Exception):
         return traverse(self, [])
 
     def asdict(self):
+        """ Return a dictionary containing an error report for this
+        exception"""
         paths = self.paths()
         D = {}
         for path in paths:
@@ -61,6 +55,8 @@ class Invalid(Exception):
         return D
 
 class All(object):
+    """ Composite validator which succeeds if none of its
+    subvalidators raises an Invalid exception """
     def __init__(self, *validators):
         self.validators = validators
 
@@ -76,6 +72,8 @@ class All(object):
             raise Invalid(struct, msgs)
 
 class Range(object):
+    """ Validator which succeeds if the value it is passed is greater
+    or equal to ``min`` and less than or equal to ``max``."""
     def __init__(self, min=None, max=None):
         self.min = min
         self.max = max
@@ -93,9 +91,18 @@ class Range(object):
                     struct,
                     '%r is greater than maximum value %r' % (value, self.max))
 
+class OneOf(object):
+    """ Validator which succeeds if the value passed to it is one of
+    a fixed set of values """
+    def __init__(self, values):
+        self.values = values
+
+    def __call__(self, struct, value):
+        if not value in self.values:
+            raise Invalid(struct, '%r is not one of %r' % (value, self.values))
+
 class Mapping(object):
-    """ A type which represents a mapping of names to data 
-    structures. """
+    """ A type which represents a mapping of names to structures. """
     def _validate(self, struct, value):
         if not hasattr(value, 'get'):
             raise Invalid(struct, '%r is not a mapping type' % value)
@@ -169,9 +176,7 @@ class Positional(object):
     """
 
 class Tuple(Positional):
-    """ A type which represents a fixed-length sequence of data
-    structures, each one of which may be different as denoted by the
-    types of the associated structure's children."""
+    """ A type which represents a fixed-length sequence of structures. """
     def _validate(self, struct, value):
         if not hasattr(value, '__iter__'):
             raise Invalid(struct, '%r is not an iterable value' % value)
@@ -228,9 +233,9 @@ class Tuple(Positional):
         return tuple(result)
 
 class Sequence(Positional):
-    """ A type which represents a variable-length sequence of values,
-    all of which must be of the same type as denoted by the type of
-    the Structure instance ``substruct``"""
+    """ A type which represents a variable-length sequence of
+    structures, all of which must be of the same type as denoted by
+    the type of the Structure instance ``substruct``"""
     def __init__(self, substruct):
         self.substruct = substruct
 
@@ -329,15 +334,29 @@ class GlobalObject(object):
             raise Invalid(struct, '%r has no __name__' % value)
         
     def deserialize(self, struct, value):
+        import pkg_resources
         if not isinstance(value, basestring):
             raise Invalid(struct, '%r is not a global object specification')
         try:
-            return resolve_dotted(value, package=self.package)
+            if value.startswith('.') or value.startswith(':'):
+                if not self.package:
+                    raise ImportError(
+                        'name "%s" is irresolveable (no package)' % value)
+                if value in ['.', ':']:
+                    value = self.package.__name__
+                else:
+                    value = self.package.__name__ + value
+            return pkg_resources.EntryPoint.parse(
+                'x=%s' % value).load(False)
         except ImportError:
             raise Invalid(struct,
                           'The dotted name %r cannot be imported' % value)
 
 class Structure(object):
+    """
+    Fundamental building block of schemas.
+    """
+    
     _counter = itertools.count()
     
     def __new__(cls, *arg, **kw):
@@ -405,6 +424,3 @@ class SequenceSchema(Schema):
 
 class TupleSchema(Schema):
     struct_type = Tuple
-    
-    
-        
