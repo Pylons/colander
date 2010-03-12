@@ -277,6 +277,8 @@ class Sequence(Positional):
 
         return result
 
+Seq = Sequence
+
 class String(object):
     """ A type representing a Unicode string """
     def __init__(self, encoding='utf-8'):
@@ -296,6 +298,8 @@ class String(object):
 
     def deserialize(self, struct, value):
         return self._validate(struct, value)
+
+Str = String
 
 class Integer(object):
     """ A type representing an integer """
@@ -360,6 +364,8 @@ class Structure(object):
 
     def add(self, struct):
         self.structs.append(struct)
+
+Struct = Structure
 
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
