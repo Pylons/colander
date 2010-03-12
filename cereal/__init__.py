@@ -24,14 +24,10 @@ class Invalid(Exception):
         self.subexceptions = []
 
     def add(self, error):
-        if self.msg is not None:
-            raise ValueError(
-                'Exceptions with a message cannot have subexceptions')
         error.parent = self
         self.subexceptions.append(error)
 
     def paths(self):
-        # thanks chris rossi ;-)
         def traverse(node, stack):
             stack.append(node)
 
@@ -50,17 +46,17 @@ class Invalid(Exception):
         paths = self.paths()
         D = {}
         for path in paths:
-            L = []
-            msg = None
+            keyparts = []
+            msgs = []
             for exc in path:
-                msg = exc.msg
+                exc.msg and msgs.append(exc.msg)
                 if exc.parent is not None:
                     if isinstance(exc.parent.struct.typ, Positional):
                         val = exc.pos
                     else:
                         val = exc.struct.name
-                    L.append(str(val))
-            D['.'.join(L)] = msg
+                    keyparts.append(str(val))
+            D['.'.join(keyparts)] = '; '.join(msgs)
         return D
 
 class All(object):
