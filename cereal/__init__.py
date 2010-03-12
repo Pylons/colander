@@ -112,6 +112,9 @@ class OneOf(object):
 class Mapping(object):
     """ A type which represents a mapping of names to structures.
 
+    The substructures of the :class:`cereal.Structure` that represents
+    this type imply the named keys and values in the mapping.
+
     The constructor of a mapping type accepts a single optional
     keyword argument named ``unknown_keys``.  By default, this
     argument is ``ignore``.
@@ -227,8 +230,10 @@ class Positional(object):
 
 class Tuple(Positional):
     """ A type which represents a fixed-length sequence of structures.
-    The subsctructures of the :class:`cereal.Structure` that
-    represents this type imply the elements of the tuple."""
+
+    The substructures of the :class:`cereal.Structure` that
+    represents this type imply the positional elements of the tuple.
+    """
     def _validate(self, struct, value):
         if not hasattr(value, '__iter__'):
             raise Invalid(struct, '%r is not an iterable value' % value)
@@ -287,7 +292,11 @@ class Tuple(Positional):
 class Sequence(Positional):
     """ A type which represents a variable-length sequence of
     structures, all of which must be of the same type as denoted by
-    the type of the :class:`cereal.Structure` instance ``substruct``."""
+    the type of the :class:`cereal.Structure` instance ``substruct``.
+
+    The substructures of the :class:`cereal.Structure` that represents
+    this type are ignored.
+    """
     def __init__(self, substruct):
         self.substruct = substruct
 
@@ -340,7 +349,11 @@ class String(object):
     """ A type representing a Unicode string.  This type constructor
     accepts a single argument ``encoding``, representing the encoding
     which should be applied to object serialization.  It defaults to
-    ``utf-8`` if not provided."""
+    ``utf-8`` if not provided.
+
+    The substructures of the :class:`cereal.Structure` that represents
+    this type are ignored.
+    """
     def __init__(self, encoding='utf-8'):
         self.encoding = encoding
     
@@ -362,7 +375,11 @@ class String(object):
 Str = String
 
 class Integer(object):
-    """ A type representing an integer """
+    """ A type representing an integer.
+
+    The substructures of the :class:`cereal.Structure` that represents
+    this type are ignored.
+    """
     def _validate(self, struct, value):
         try:
             return int(value)
@@ -384,7 +401,11 @@ class GlobalObject(object):
     named ``package`` which should be a Python module or package
     object; it is used when 'relative' dotted names are supplied (ones
     which start with a dot) as the package which the import should be
-    considered relative to."""
+    considered relative to.
+
+    The substructures of the :class:`cereal.Structure` that represents
+    this type are ignored.
+    """
     def __init__(self, package):
         self.package = package
 
