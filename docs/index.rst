@@ -75,15 +75,15 @@ different types.
                                    validator=cereal.OneOf(['home', 'work']))
        number = cereal.Structure(cereal.String())
 
-   class PersonSchema(cereal.MappingSchema):
+   class Person(cereal.MappingSchema):
        name = cereal.Structure(cereal.String())
        age = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 200))
        friends = cereal.Structure(cereal.Sequence(Friend()))
        phones = cereal.Structure(cereal.Sequence(Phone()))
        
 For ease of reading, we've actually defined *three* schemas above, but
-we coalesce them all into a single ``PersonSchema``.  As the result of
-our definitions, a ``PersonSchema`` represents:
+we coalesce them all into a single ``Person`` schema.  As the result
+of our definitions, a ``Person`` represents:
 
 - A ``name``, which must be a string.
 
@@ -168,7 +168,7 @@ Earlier we defined a schema:
                                    validator=cereal.OneOf(['home', 'work']))
        number = cereal.Structure(cereal.String())
 
-   class PersonSchema(cereal.MappingSchema):
+   class Person(cereal.MappingSchema):
        name = cereal.Structure(cereal.String())
        age = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 200))
        friends = cereal.Structure(cereal.Sequence(Friend()))
@@ -190,7 +190,7 @@ Deserializing A Valid Serialization
             'phones':[{'location':'home', 'number':'555-1212'},
                       {'location':'work', 'number':'555-8989'},],
             }
-     schema = PersonSchema()
+     schema = Person()
      deserialized = schema.deserialize(data)
 
 When ``schema.deserialize(data)`` is called, because all the data in
@@ -233,7 +233,7 @@ or a validation error?
             'phones':[{'location':'bar', 'number':'555-1212'},
                       {'location':'work', 'number':'555-8989'},],
             }
-     schema = PersonSchema()
+     schema = Person()
      try:
          schema.deserialize(data)
      except cereal.Invalid, e:
@@ -282,7 +282,7 @@ schema configuration.  Here's our previous declarative schema:
                                    validator=cereal.OneOf(['home', 'work']))
        number = cereal.Structure(cereal.String())
 
-   class PersonSchema(cereal.MappingSchema):
+   class Person(cereal.MappingSchema):
        name = cereal.Structure(cereal.String())
        age = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 200))
        friends = cereal.Structure(cereal.Sequence(Friend()))
