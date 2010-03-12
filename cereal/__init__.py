@@ -394,6 +394,33 @@ class Integer(object):
 
 Int = Integer
 
+class Boolean(object):
+    """ A type representing a boolean object.
+
+    During deserialization, a value in the set (``true``, ``yes``,
+    ``y``, ``on``, ``t``, ``1``) will be considered ``True``.
+    Anything else is considered ``False``. Case is ignored.
+
+    Serialization will produce ``true`` or ``false`` based on the
+    value.
+
+    The substructures of the :class:`cereal.Structure` that represents
+    this type are ignored.
+    """
+    
+    def deserialize(self, struct, value):
+        if not isinstance(value, basestring):
+            raise Invalid(struct, '%r is not a string' % value)
+        value = value.lower()
+        if value in ('true', 'yes', 'y', 'on', 't', '1'):
+            return True
+        return False
+
+    def serialize(self, struct, value):
+        return value and 'true' or 'false'
+
+Bool = Boolean
+
 class GlobalObject(object):
     """ A type representing an importable Python object.  This type
     serializes 'global' Python objects (objects which can be imported)
