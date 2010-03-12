@@ -122,9 +122,9 @@ such a validator is provided in the schema above:
 in error reports.
 
 The *default* of a structure indicates its default value if a value
-for the structure is not found in the input data during
-deserialization.  If a structure does not have a default, it is
-considered required.
+for the structure is not found in the input data during serialization
+and deserialization.  It should be the *deserialized* representation.
+If a structure does not have a default, it is considered required.
 
 The *name* of a structure that is introduced as a class-level
 attribute of a ``cereal.MappingSchema`` or ``cereal.TupleSchema`` is

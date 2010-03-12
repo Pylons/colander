@@ -29,29 +29,29 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(other.parent, exc)
         self.assertEqual(exc.children, [other])
 
-    def test_keyname_no_parent(self):
+    def test__keyname_no_parent(self):
         struct = DummyStructure(None, name='name')
         exc = self._makeOne(None, '')
         exc.struct = struct
-        self.assertEqual(exc.keyname(), 'name')
+        self.assertEqual(exc._keyname(), 'name')
 
-    def test_keyname_positional_parent(self):
+    def test__keyname_positional_parent(self):
         from cereal import Positional
         parent = Dummy()
         parent.struct = DummyStructure(Positional())
         exc = self._makeOne(None, '')
         exc.parent = parent
         exc.pos = 2
-        self.assertEqual(exc.keyname(), '2')
+        self.assertEqual(exc._keyname(), '2')
 
-    def test_keyname_nonpositional_parent(self):
+    def test__keyname_nonpositional_parent(self):
         parent = Dummy()
         parent.struct = DummyStructure(None)
         exc = self._makeOne(None, 'me')
         exc.parent = parent
         exc.pos = 2
         exc.struct = DummyStructure(None, name='name')
-        self.assertEqual(exc.keyname(), 'name')
+        self.assertEqual(exc._keyname(), 'name')
 
     def test_paths(self):
         exc1 = self._makeOne(None, 'exc1')
@@ -292,6 +292,109 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, struct, {'a':1})
         self.assertEqual(e.children[0].msg, "'b' is required but missing")
+
+class TestTuple(unittest.TestCase):
+    def _makeOne(self):
+        from cereal import Tuple
+        return Tuple()
+
+    def test_deserialize_not_iterable(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, None)
+        self.assertEqual(
+            e.msg,
+            'None is not iterable')
+        self.assertEqual(e.struct, struct)
+
+    def test_deserialize_no_substructs(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.deserialize(struct, ())
+        self.assertEqual(result, ())
+
+    def test_deserialize_ok(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne()
+        result = typ.deserialize(struct, ('a',))
+        self.assertEqual(result, ('a',))
+
+    def test_deserialize_toobig(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, ('a','b'))
+        self.assertEqual(e.msg,
+           "('a', 'b') has an incorrect number of elements (expected 1, was 2)")
+
+    def test_deserialize_toosmall(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, ())
+        self.assertEqual(e.msg,
+           "() has an incorrect number of elements (expected 1, was 0)")
+
+    def test_deserialize_substructs_raise(self):
+        struct = DummyStructure(None)
+        struct.structs = [
+            DummyStructure(None, name='a', exc='Wrong 2'),
+            DummyStructure(None, name='b', exc='Wrong 2'),
+            ]
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, ('1', '2'))
+        self.assertEqual(e.msg, None)
+        self.assertEqual(len(e.children), 2)
+
+    def test_serialize_not_iterable(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, None)
+        self.assertEqual(
+            e.msg,
+            'None is not iterable')
+        self.assertEqual(e.struct, struct)
+
+    def test_serialize_no_substructs(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.serialize(struct, ())
+        self.assertEqual(result, ())
+
+    def test_serialize_ok(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne()
+        result = typ.serialize(struct, ('a',))
+        self.assertEqual(result, ('a',))
+
+    def test_serialize_toobig(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, ('a','b'))
+        self.assertEqual(e.msg,
+           "('a', 'b') has an incorrect number of elements (expected 1, was 2)")
+
+    def test_serialize_toosmall(self):
+        struct = DummyStructure(None)
+        struct.structs = [DummyStructure(None, name='a')]
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, ())
+        self.assertEqual(e.msg,
+           "() has an incorrect number of elements (expected 1, was 0)")
+
+    def test_serialize_substructs_raise(self):
+        struct = DummyStructure(None)
+        struct.structs = [
+            DummyStructure(None, name='a', exc='Wrong 2'),
+            DummyStructure(None, name='b', exc='Wrong 2'),
+            ]
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, ('1', '2'))
+        self.assertEqual(e.msg, None)
+        self.assertEqual(len(e.children), 2)
 
 class TestFunctional(object):
     def test_deserialize_ok(self):

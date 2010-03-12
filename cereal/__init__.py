@@ -7,6 +7,13 @@ class Invalid(Exception):
     """
     An exception raised by data types and validators indicating that
     the value for a particular structure was not valid.
+
+    The constructor receives a mandatory ``struct`` argument.  This
+    must be an instance of the :class:`cereal.Structure` class.
+
+    The constructor also receives an optional ``msg`` keyword
+    argument, defaulting to ``None``.  The ``msg`` argument is a
+    freeform field indicating the error circumstance.
     """
     pos = None
     parent = None
@@ -18,15 +25,10 @@ class Invalid(Exception):
         self.children = []
 
     def add(self, exc):
-        # not an API
+        """ Add a child exception; ``exc`` must be an instance of
+        :class:`cereal.Invalid`"""
         exc.parent = self
         self.children.append(exc)
-
-    def keyname(self):
-        # not an API
-        if self.parent and isinstance(self.parent.struct.typ, Positional):
-            return str(self.pos)
-        return str(self.struct.name)
 
     def paths(self):
         """ Return all paths through the exception graph  """
@@ -44,6 +46,11 @@ class Invalid(Exception):
 
         return traverse(self, [])
 
+    def _keyname(self):
+        if self.parent and isinstance(self.parent.struct.typ, Positional):
+            return str(self.pos)
+        return str(self.struct.name)
+
     def asdict(self):
         """ Return a dictionary containing an error report for this
         exception"""
@@ -54,7 +61,7 @@ class Invalid(Exception):
             msgs = []
             for exc in path:
                 exc.msg and msgs.append(exc.msg)
-                keyname = exc.keyname()
+                keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
             errors['.'.join(keyparts)] = '; '.join(msgs)
         return errors
@@ -112,8 +119,8 @@ class OneOf(object):
 class Mapping(object):
     """ A type which represents a mapping of names to structures.
 
-    The substructures of the :class:`cereal.Structure` that represents
-    this type imply the named keys and values in the mapping.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type imply the named keys and values in the mapping.
 
     The constructor of a mapping type accepts a single optional
     keyword argument named ``unknown_keys``.  By default, this
@@ -145,7 +152,7 @@ class Mapping(object):
         except Exception, e:
             raise Invalid(struct, '%r is not a mapping type: %s' % (value, e))
 
-    def deserialize(self, struct, value):
+    def _impl(self, struct, value, callback, default_callback):
         value = self._validate(struct, value)
 
         error = None
@@ -161,9 +168,9 @@ class Mapping(object):
                         raise Invalid(
                             substruct,
                             '%r is required but missing' % substruct.name)
-                    result[name] = substruct.default
+                    result[name] = default_callback(substruct)
                 else:
-                    result[name] = substruct.deserialize(subval)
+                    result[name] = callback(substruct, subval)
             except Invalid, e:
                 if error is None:
                     error = Invalid(struct)
@@ -183,42 +190,19 @@ class Mapping(object):
                 
         return result
 
+    def deserialize(self, struct, value):
+        def callback(substruct, subval):
+            return substruct.deserialize(subval)
+        def default_callback(substruct):
+            return substruct.default
+        return self._impl(struct, value, callback, default_callback)
+
     def serialize(self, struct, value):
-        value = self._validate(struct, value)
-        result = {}
-
-        error = None
-
-        for num, substruct in enumerate(struct.structs):
-            name = substruct.name
-            subval = value.pop(name, _missing)
-            try:
-                if subval is _missing:
-                    if substruct.required:
-                        raise Invalid(
-                            substruct,
-                            '%r is required but missing' % substruct.name)
-                    result[name] = substruct.serialize(substruct.default)
-                else:
-                    result[name] = substruct.serialize(subval)
-            except Invalid, e:
-                if error is None:
-                    error = Invalid(substruct)
-                e.pos = num
-                error.add(e)
-
-        if self.unknown_keys == 'raise':
-            if value:
-                raise Invalid(struct,
-                              'Unrecognized keys in mapping: %r' % value)
-
-        elif self.unknown_keys == 'preserve':
-            result.update(value)
-
-        if error is not None:
-            raise error
-                
-        return result
+        def callback(substruct, subval):
+            return substruct.serialize(subval)
+        def default_callback(substruct):
+            return substruct.serialize(substruct.default)
+        return self._impl(struct, value, callback, default_callback)
 
 class Positional(object):
     """
@@ -231,71 +215,66 @@ class Positional(object):
 class Tuple(Positional):
     """ A type which represents a fixed-length sequence of structures.
 
-    The substructures of the :class:`cereal.Structure` that
-    represents this type imply the positional elements of the tuple.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type imply the positional elements of the tuple in the order they
+    are added.
+
+    This type is willing to serialize and deserialized iterables that,
+    when converted to a tuple, have the same number of elements as the
+    number of the associated structure's substructures.
     """
     def _validate(self, struct, value):
         if not hasattr(value, '__iter__'):
-            raise Invalid(struct, '%r is not an iterable value' % value)
+            raise Invalid(struct, '%r is not iterable' % value)
+
+        valuelen, structlen = len(value), len(struct.structs)
+
+        if valuelen != structlen:
+            raise Invalid(
+                struct,
+                ('%s has an incorrect number of elements '
+                 '(expected %s, was %s)' % (value, structlen, valuelen)))
+
         return list(value)
 
-    def deserialize(self, struct, value):
+    def _impl(self, struct, value, callback):
         value = self._validate(struct, value)
-
         error = None
         result = []
 
         for num, substruct in enumerate(struct.structs):
+            subval = value[num]
             try:
-                subval = value[num]
-            except IndexError:
-                raise Invalid(struct, 'Wrong number of elements in %r' % value)
-            try:
-                result.append(substruct.deserialize(subval))
+                result.append(callback(substruct, subval))
             except Invalid, e:
                 if error is None:
                     error = Invalid(struct)
                 e.pos = num
-                e.sequence_child = True
                 error.add(e)
                 
-        if error:
+        if error is not None:
             raise error
 
         return tuple(result)
+
+    def deserialize(self, struct, value):
+        def callback(substruct, subval):
+            return substruct.deserialize(subval)
+        return self._impl(struct, value, callback)
 
     def serialize(self, struct, value):
-        value = self._validate(struct, value)
-
-        error = None
-        result = []
-
-        for num, substruct in enumerate(struct.structs):
-            try:
-                subval = value[num]
-            except IndexError:
-                raise Invalid(struct, 'Wrong number of elements in %r' % value)
-            try:
-                result.append(substruct.serialize(subval))
-            except Invalid, e:
-                if error is None:
-                    error = Invalid(struct)
-                e.pos = num
-                e.sequence_child = True
-                error.add(e)
-                
-        if error:
-            raise error
-
-        return tuple(result)
+        def callback(substruct, subval):
+            return substruct.serialize(subval)
+        return self._impl(struct, value, callback)
 
 class Sequence(Positional):
     """ A type which represents a variable-length sequence of
     structures, all of which must be of the same type as denoted by
     the type of the :class:`cereal.Structure` instance ``substruct``.
 
-    The substructures of the :class:`cereal.Structure` that represents
-    this type are ignored.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type are ignored.
+
     """
     def __init__(self, substruct):
         self.substruct = substruct
@@ -319,7 +298,7 @@ class Sequence(Positional):
                 e.pos = num
                 error.add(e)
                 
-        if error:
+        if error is not None:
             raise error
 
         return result
@@ -338,7 +317,7 @@ class Sequence(Positional):
                 e.pos = num
                 error.add(e)
                 
-        if error:
+        if error is not None:
             raise error
 
         return result
@@ -351,8 +330,8 @@ class String(object):
     which should be applied to object serialization.  It defaults to
     ``utf-8`` if not provided.
 
-    The substructures of the :class:`cereal.Structure` that represents
-    this type are ignored.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type are ignored.
     """
     def __init__(self, encoding='utf-8'):
         self.encoding = encoding
@@ -377,8 +356,8 @@ Str = String
 class Integer(object):
     """ A type representing an integer.
 
-    The substructures of the :class:`cereal.Structure` that represents
-    this type are ignored.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type are ignored.
     """
     def _validate(self, struct, value):
         try:
@@ -404,8 +383,8 @@ class Boolean(object):
     Serialization will produce ``true`` or ``false`` based on the
     value.
 
-    The substructures of the :class:`cereal.Structure` that represents
-    this type are ignored.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type are ignored.
     """
     
     def deserialize(self, struct, value):
@@ -430,8 +409,8 @@ class GlobalObject(object):
     which start with a dot) as the package which the import should be
     considered relative to.
 
-    The substructures of the :class:`cereal.Structure` that represents
-    this type are ignored.
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type are ignored.
     """
     def __init__(self, package):
         self.package = package
