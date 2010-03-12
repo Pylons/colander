@@ -7,15 +7,15 @@ data serialization.  Cereal can be used to:
 
 - Define a data schema
 
-- Serialize an arbitrary Python structure to a data structure composed
-  of strings, mappings, and lists.
-
 - Deserialize a data structure composed of strings, mappings, and
   lists into an arbitrary Python structure after validating the data
   structure against a data schema.
 
-Out of the box, Cereal can serialize the various types of objects,
-including:
+- Serialize an arbitrary Python structure to a data structure composed
+  of strings, mappings, and lists.
+
+Out of the box, Cereal can serialize and deserialize various types of
+objects, including:
 
 - A mapping object (e.g. dictionary)
 
