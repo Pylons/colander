@@ -359,13 +359,13 @@ class Integer(object):
     def deserialize(self, struct, value):
         try:
             return int(value)
-        except Exception, e:
+        except Exception:
             raise Invalid(struct, '%r is not a number' % value)
 
     def serialize(self, struct, value):
         try:
             return str(int(value))
-        except Exception, e:
+        except Exception:
             raise Invalid(struct, '%r is not a number' % value)
 
 Int = Integer
@@ -373,9 +373,9 @@ Int = Integer
 class Boolean(object):
     """ A type representing a boolean object.
 
-    During deserialization, a value in the set (``true``, ``yes``,
-    ``y``, ``on``, ``t``, ``1``) will be considered ``True``.
-    Anything else is considered ``False``. Case is ignored.
+    During deserialization, a value in the set (``false``, ``0``) will
+    be considered ``False``.  Anything else is considered
+    ``True``. Case is ignored.
 
     Serialization will produce ``true`` or ``false`` based on the
     value.
@@ -385,12 +385,14 @@ class Boolean(object):
     """
     
     def deserialize(self, struct, value):
-        if not isinstance(value, basestring):
+        try:
+            value = str(value)
+        except:
             raise Invalid(struct, '%r is not a string' % value)
         value = value.lower()
-        if value in ('true', 'yes', 'y', 'on', 't', '1'):
-            return True
-        return False
+        if value in ('false', '0'):
+            return False
+        return True
 
     def serialize(self, struct, value):
         return value and 'true' or 'false'
@@ -400,11 +402,34 @@ Bool = Boolean
 class GlobalObject(object):
     """ A type representing an importable Python object.  This type
     serializes 'global' Python objects (objects which can be imported)
-    to dotted Python names.  The constructor accepts a single argument
-    named ``package`` which should be a Python module or package
-    object; it is used when 'relative' dotted names are supplied (ones
-    which start with a dot) as the package which the import should be
-    considered relative to.
+    to dotted Python names.
+
+    Two dotted name styles are supported during deserialization:
+
+    - ``pkg_resources``-style dotted names where non-module attributes
+      of a module are separated from the rest of the path using a ':'
+      e.g. ``package.module:attr``.
+
+    - ``zope.dottedname``-style dotted names where non-module
+      attributes of a module are separated from the rest of the path
+      using a '.' e.g. ``package.module.attr``.
+
+    These styles can be used interchangeably.  If the serialization
+    contains a ``:`` (colon), the ``pkg_resources`` resolution
+    mechanism will be chosen, otherwise the ``zope.dottedname``
+    resolution mechanism will be chosen.
+
+    The constructor accepts a single argument named ``package`` which
+    should be a Python module or package object; it is used when
+    *relative* dotted names are supplied to the ``deserialize``
+    method.  A serialization which has a ``.`` (dot) or ``:`` (colon)
+    as its first character is treated as relative.  E.g. if
+    ``.minidom`` is supplied to ``deserialize``, and the ``package``
+    argument to this type was passed the ``xml`` module object, the
+    resulting import would be for ``xml.minidom``.  If a relative
+    package name is supplied to ``deserialize``, and no ``package``
+    was supplied to the constructor, an :exc:`cereal.Invalid` error
+    will be raised.
 
     The substructures of the :class:`cereal.Structure` that wraps this
     type are ignored.
@@ -412,21 +437,64 @@ class GlobalObject(object):
     def __init__(self, package):
         self.package = package
 
-    def deserialize(self, struct, value):
+    def _pkg_resources_style(self, struct, value):
+        """ package.module:attr style """
         import pkg_resources
+        if value.startswith('.') or value.startswith(':'):
+            if not self.package:
+                raise ImportError(
+                    'relative name %r irresolveable without package' % value)
+            if value in ['.', ':']:
+                value = self.package.__name__
+            else:
+                value = self.package.__name__ + value
+        return pkg_resources.EntryPoint.parse(
+            'x=%s' % value).load(False)
+
+    def _zope_dottedname_style(self, struct, value):
+        """ package.module.attr style """
+        module = self.package and self.package.__name__ or None
+        if value == '.':
+            if self.package is None:
+                raise Invalid(
+                    struct,
+                    "relative name %r irresolveable without package" % value)
+            name = module.split('.')
+        else:
+            name = value.split('.')
+            if not name[0]:
+                if module is None:
+                    raise Invalid(
+                        struct,
+                        "relative name %r irresolveable without package" %
+                        value)
+                module = module.split('.')
+                name.pop(0)
+                while not name[0]:
+                    module.pop()
+                    name.pop(0)
+                name = module + name
+
+        used = name.pop(0)
+        found = __import__(used)
+        for n in name:
+            used += '.' + n
+            try:
+                found = getattr(found, n)
+            except AttributeError:
+                __import__(used)
+                found = getattr(found, n)
+
+        return found
+
+    def deserialize(self, struct, value):
         if not isinstance(value, basestring):
-            raise Invalid(struct, '%r is not a global object specification')
+            raise Invalid(struct, '%r is not a string' % value)
         try:
-            if value.startswith('.') or value.startswith(':'):
-                if not self.package:
-                    raise ImportError(
-                        'name "%s" is irresolveable (no package)' % value)
-                if value in ['.', ':']:
-                    value = self.package.__name__
-                else:
-                    value = self.package.__name__ + value
-            return pkg_resources.EntryPoint.parse(
-                'x=%s' % value).load(False)
+            if ':' in value:
+                return self._pkg_resources_style(struct, value)
+            else:
+                return self._zope_dottedname_style(struct, value)
         except ImportError:
             raise Invalid(struct,
                           'The dotted name %r cannot be imported' % value)

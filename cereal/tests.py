@@ -401,6 +401,11 @@ class TestSequence(unittest.TestCase):
         from cereal import Sequence
         return Sequence(substruct)
 
+    def test_alias(self):
+        from cereal import Seq
+        from cereal import Sequence
+        self.assertEqual(Seq, Sequence)
+
     def test_deserialize_not_iterable(self):
         struct = DummyStructure(None)
         typ = self._makeOne(struct)
@@ -464,6 +469,11 @@ class TestString(unittest.TestCase):
         from cereal import String
         return String(encoding)
 
+    def test_alias(self):
+        from cereal import Str
+        from cereal import String
+        self.assertEqual(Str, String)
+
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
         struct = DummyStructure(None)
@@ -522,6 +532,11 @@ class TestInteger(unittest.TestCase):
         from cereal import Integer
         return Integer()
 
+    def test_alias(self):
+        from cereal import Int
+        from cereal import Integer
+        self.assertEqual(Int, Integer)
+
     def test_deserialize_fails(self):
         val = 'P'
         struct = DummyStructure(None)
@@ -550,6 +565,181 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(struct, val)
         self.assertEqual(result, '1')
 
+class TestBoolean(unittest.TestCase):
+    def _makeOne(self):
+        from cereal import Boolean
+        return Boolean()
+
+    def test_alias(self):
+        from cereal import Bool
+        from cereal import Boolean
+        self.assertEqual(Bool, Boolean)
+
+    def test_deserialize(self):
+        typ = self._makeOne()
+        struct = DummyStructure(None)
+        self.assertEqual(typ.deserialize(struct, 'false'), False)
+        self.assertEqual(typ.deserialize(struct, 'FALSE'), False)
+        self.assertEqual(typ.deserialize(struct, '0'), False)
+        self.assertEqual(typ.deserialize(struct, 'true'), True)
+        self.assertEqual(typ.deserialize(struct, 'other'), True)
+
+    def test_deserialize_unstringable(self):
+        typ = self._makeOne()
+        struct = DummyStructure(None)
+        e = invalid_exc(typ.deserialize, struct, Uncooperative())
+        self.failUnless(e.msg.endswith('not a string'))
+
+    def test_serialize(self):
+        typ = self._makeOne()
+        struct = DummyStructure(None)
+        self.assertEqual(typ.serialize(struct, 1), 'true')
+        self.assertEqual(typ.serialize(struct, True), 'true')
+        self.assertEqual(typ.serialize(struct, None), 'false')
+        self.assertEqual(typ.serialize(struct, False), 'false')
+
+class TestGlobalObject(unittest.TestCase):
+    def _makeOne(self, package=None):
+        from cereal import GlobalObject
+        return GlobalObject(package)
+
+    def test_zope_dottedname_style_resolve_absolute(self):
+        typ = self._makeOne()
+        result = typ._zope_dottedname_style(None,
+            'cereal.tests.TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+        
+    def test_zope_dottedname_style_irrresolveable_absolute(self):
+        typ = self._makeOne()
+        self.assertRaises(ImportError, typ._zope_dottedname_style, None,
+            'cereal.tests.nonexisting')
+
+    def test__zope_dottedname_style_resolve_relative(self):
+        import cereal
+        typ = self._makeOne(package=cereal)
+        result = typ._zope_dottedname_style(None, '.tests.TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test__zope_dottedname_style_resolve_relative_leading_dots(self):
+        import cereal
+        typ = self._makeOne(package=cereal.tests)
+        result = typ._zope_dottedname_style(None, '..tests.TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test__zope_dottedname_style_resolve_relative_is_dot(self):
+        import cereal.tests
+        typ = self._makeOne(package=cereal.tests)
+        result = typ._zope_dottedname_style(None, '.')
+        self.assertEqual(result, cereal.tests)
+
+    def test__zope_dottedname_style_irresolveable_relative_is_dot(self):
+        typ = self._makeOne()
+        e = invalid_exc(typ._zope_dottedname_style, None, '.')
+        self.assertEqual(
+            e.msg,
+            "relative name '.' irresolveable without package")
+
+    def test_zope_dottedname_style_resolve_relative_nocurrentpackage(self):
+        typ = self._makeOne()
+        e = invalid_exc(typ._zope_dottedname_style, None, '.whatever')
+        self.assertEqual(
+            e.msg, "relative name '.whatever' irresolveable without package")
+
+    def test_zope_dottedname_style_irrresolveable_relative(self):
+        import cereal.tests
+        typ = self._makeOne(package=cereal)
+        self.assertRaises(ImportError, typ._zope_dottedname_style, None,
+                          '.notexisting')
+
+    def test__zope_dottedname_style_resolveable_relative(self):
+        import cereal
+        typ = self._makeOne(package=cereal)
+        result = typ._zope_dottedname_style(None, '.tests')
+        from cereal import tests
+        self.assertEqual(result, tests)
+
+    def test__zope_dottedname_style_irresolveable_absolute(self):
+        typ = self._makeOne()
+        self.assertRaises(ImportError,
+                          typ._zope_dottedname_style, None, 'cereal.fudge.bar')
+
+    def test__zope_dottedname_style_resolveable_absolute(self):
+        typ = self._makeOne()
+        result = typ._zope_dottedname_style(None,
+                                            'cereal.tests.TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test__pkg_resources_style_resolve_absolute(self):
+        typ = self._makeOne()
+        result = typ._pkg_resources_style(None,
+            'cereal.tests:TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+        
+    def test__pkg_resources_style_irrresolveable_absolute(self):
+        typ = self._makeOne()
+        self.assertRaises(ImportError, typ._pkg_resources_style, None,
+            'cereal.tests:nonexisting')
+
+    def test__pkg_resources_style_resolve_relative_startswith_colon(self):
+        import cereal.tests
+        typ = self._makeOne(package=cereal.tests)
+        result = typ._pkg_resources_style(None, ':TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test__pkg_resources_style_resolve_relative_startswith_dot(self):
+        import cereal
+        typ = self._makeOne(package=cereal)
+        result = typ._pkg_resources_style(None, '.tests:TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test__pkg_resources_style_resolve_relative_is_dot(self):
+        import cereal.tests
+        typ = self._makeOne(package=cereal.tests)
+        result = typ._pkg_resources_style(None, '.')
+        self.assertEqual(result, cereal.tests)
+        
+    def test__pkg_resources_style_resolve_relative_nocurrentpackage(self):
+        typ = self._makeOne()
+        self.assertRaises(ImportError, typ._pkg_resources_style, None,
+                          '.whatever')
+
+    def test__pkg_resources_style_irrresolveable_relative(self):
+        import cereal.tests
+        typ = self._makeOne(package=cereal)
+        self.assertRaises(ImportError, typ._pkg_resources_style, None,
+                          ':notexisting')
+
+    def test_deserialize_not_a_string(self):
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, None, None)
+        self.assertEqual(e.msg, "None is not a string")
+
+    def test_deserialize_using_pkgresources_style(self):
+        typ = self._makeOne()
+        result = typ.deserialize(None, 'cereal.tests:TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test_deserialize_using_zope_dottedname_style(self):
+        typ = self._makeOne()
+        result = typ.deserialize(None, 'cereal.tests.TestGlobalObject')
+        self.assertEqual(result, self.__class__)
+
+    def test_deserialize_style_raises(self):
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, None, 'cant.be.found')
+        self.assertEqual(e.msg,
+                         "The dotted name 'cant.be.found' cannot be imported")
+
+    def test_serialize_ok(self):
+        import cereal.tests
+        typ = self._makeOne()
+        result = typ.serialize(None, cereal.tests)
+        self.assertEqual(result, 'cereal.tests')
+        
+    def test_serialize_fail(self):
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, None, None)
+        self.assertEqual(e.msg, 'None has no __name__')
 
 class TestFunctional(object):
     def test_deserialize_ok(self):
