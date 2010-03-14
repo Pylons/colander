@@ -1,5 +1,5 @@
 Colander API
-----------
+------------
 
 Exceptions
 ~~~~~~~~~~
