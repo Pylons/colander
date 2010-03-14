@@ -1,7 +1,9 @@
 def Validator(struct, value):
     """
+    A validator is called after deserialization of a value.
+    
     If ``value`` is not valid, raise a :class:`cereal.Invalid`
-    instance as an exception.
+    instance as an exception after.
 
     ``struct`` is a :class:`cereal.Structure` instance which
     contains, among other things, the default value, the name of the
