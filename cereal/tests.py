@@ -565,6 +565,39 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(struct, val)
         self.assertEqual(result, '1')
 
+class TestFloat(unittest.TestCase):
+    def _makeOne(self):
+        from cereal import Float
+        return Float()
+
+    def test_deserialize_fails(self):
+        val = 'P'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, struct, val)
+        self.failUnless(e.msg)
+
+    def test_deserialize_ok(self):
+        val = '1.0'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.deserialize(struct, val)
+        self.assertEqual(result, 1.0)
+
+    def test_serialize_fails(self):
+        val = 'P'
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, struct, val)
+        self.failUnless(e.msg)
+
+    def test_serialize_ok(self):
+        val = 1.0
+        struct = DummyStructure(None)
+        typ = self._makeOne()
+        result = typ.serialize(struct, val)
+        self.assertEqual(result, '1.0')
+
 class TestBoolean(unittest.TestCase):
     def _makeOne(self):
         from cereal import Boolean

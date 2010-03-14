@@ -37,6 +37,8 @@ Types
 
   .. autoclass:: Int
 
+  .. autoclass:: Float
+
   .. autoclass:: Boolean
 
   .. autoclass:: Bool

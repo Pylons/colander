@@ -29,7 +29,9 @@ objects, including:
 
 - An integer.
 
-- A boolean value.
+- A float.
+
+- A boolean.
 
 - An importable Python object (to a dotted Python object path).
 

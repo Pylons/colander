@@ -370,6 +370,26 @@ class Integer(object):
 
 Int = Integer
 
+class Float(object):
+    """ A type representing a float.
+
+    The substructures of the :class:`cereal.Structure` that wraps this
+    type are ignored.
+    """
+    def deserialize(self, struct, value):
+        try:
+            return float(value)
+        except Exception:
+            raise Invalid(struct, '%r is not a number' % value)
+
+    def serialize(self, struct, value):
+        try:
+            return str(float(value))
+        except Exception:
+            raise Invalid(struct, '%r is not a number' % value)
+
+Int = Integer
+
 class Boolean(object):
     """ A type representing a boolean object.
 

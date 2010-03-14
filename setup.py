@@ -25,16 +25,17 @@ requires = []
 
 setup(name='cereal',
       version='0.0',
-      description='A schema-based serialization and deserialization library',
+      description=('A simple schema-based serialization and deserialization '
+                   'library'),
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         ],
-      keywords='serialize deserialize validate schema',
+      keywords='serialize deserialize validate schema validation',
       author="Agendaless Consulting",
       author_email="repoze-dev@lists.repoze.org",
-      url="http://www.repoze.org",
+      url="http://docs.repoze.org/cereal",
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
       packages=find_packages(),
       include_package_data=True,
