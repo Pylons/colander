@@ -397,6 +397,9 @@ Note that the only real constraint of a type class is that its
 ``serialize`` method must be able to make sense of a value generated
 by its ``deserialize`` method and vice versa.
 
+For a more formal definition of a the interface of a type, see
+:class:`cereal.interfaces.Type`.
+
 Defining a New Validator
 ------------------------
 
@@ -443,6 +446,9 @@ Note that the validator doesn't need to check if the ``value`` is a
 string: this has already been done as the result of the type of the
 ``cc_number`` structure being ``cereal.String``. Validators are always
 passed the *deserialized* value when they are invoked.
+
+For a more formal definition of a the interface of a validator, see
+:class:`cereal.interfaces.Validator`.
 
 Interface and API Documentation
 -------------------------------
