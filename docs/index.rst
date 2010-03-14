@@ -120,18 +120,19 @@ The *type* of a structure indicates its data type (such as
 The *validator* of a structure is called after deserialization; it
 makes sure the deserialized value matches a constraint.  An example of
 such a validator is provided in the schema above:
-``validator=cereal.Range(0, 200)``. The *name* of a structure appears
-in error reports.  A validator is not called during *serialization*,
-only during deserialization.
+``validator=cereal.Range(0, 200)``.  A validator is not called after
+serialization, only after deserialization.
 
 The *default* of a structure indicates its default value if a value
 for the structure is not found in the input data during serialization
 and deserialization.  It should be the *deserialized* representation.
 If a structure does not have a default, it is considered required.
 
-The *name* of a structure that is introduced as a class-level
-attribute of a ``cereal.MappingSchema`` or ``cereal.TupleSchema`` is
-its class attribute name.  For example:
+The *name* of a structure appears in error reports.
+
+The name of a structure that is introduced as a class-level attribute
+of a ``cereal.MappingSchema`` or ``cereal.TupleSchema`` is its class
+attribute name.  For example:
 
 .. code-block:: python
    :linenos:
@@ -143,8 +144,8 @@ its class attribute name.  For example:
                                    validator=cereal.OneOf(['home', 'work']))
        number = cereal.Structure(cereal.String())
 
-The *name* of the structure defined by ``location =
-cereal.Structure(..)`` is ``location``.
+The name of the structure defined via ``location =
+cereal.Structure(..)`` within the schema above is ``location``.
 
 Schema Objects
 ~~~~~~~~~~~~~~
