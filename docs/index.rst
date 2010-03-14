@@ -109,8 +109,8 @@ Structure Objects
 
 A schema is composed of one or more *structure* objects, usually in a
 nested arrangement.  Each structure object has a required *type*, an
-optional *validator*, an optional *default*, and a slightly less
-optional *name*.
+optional deserialization *validator*, an optional *default*, and a
+slightly less optional *name*.
 
 The *type* of a structure indicates its data type (such as
 ``cereal.Int`` or ``cereal.String``).
@@ -119,7 +119,8 @@ The *validator* of a structure is called after deserialization; it
 makes sure the deserialized value matches a constraint.  An example of
 such a validator is provided in the schema above:
 ``validator=cereal.Range(0, 200)``. The *name* of a structure appears
-in error reports.
+in error reports.  A validator is not called during *serialization*,
+only during deserialization.
 
 The *default* of a structure indicates its default value if a value
 for the structure is not found in the input data during serialization

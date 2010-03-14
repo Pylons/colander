@@ -741,6 +741,95 @@ class TestGlobalObject(unittest.TestCase):
         e = invalid_exc(typ.serialize, None, None)
         self.assertEqual(e.msg, 'None has no __name__')
 
+class TestStructure(unittest.TestCase):
+    def _makeOne(self, *arg, **kw):
+        from cereal import Structure
+        return Structure(*arg, **kw)
+
+    def test_new_sets_order(self):
+        structure = self._makeOne(None)
+        self.failUnless(hasattr(structure, '_order'))
+
+    def test_ctor(self):
+        structure = self._makeOne(None, 0, validator=1, default=2, name=3)
+        self.assertEqual(structure.typ, None)
+        self.assertEqual(structure.structs, [0])
+        self.assertEqual(structure.validator, 1)
+        self.assertEqual(structure.default, 2)
+        self.assertEqual(structure.name, 3)
+
+    def test_required_true(self):
+        structure = self._makeOne(None)
+        self.assertEqual(structure.required, True)
+
+    def test_required_false(self):
+        structure = self._makeOne(None, default=1)
+        self.assertEqual(structure.required, False)
+
+    def test_deserialize_no_validator(self):
+        typ = DummyType()
+        structure = self._makeOne(typ)
+        result = structure.deserialize(1)
+        self.assertEqual(result, 1)
+
+    def test_deserialize_with_validator(self):
+        typ = DummyType()
+        validator = DummyValidator(msg='Wrong')
+        structure = self._makeOne(typ, validator=validator)
+        e = invalid_exc(structure.deserialize, 1)
+        self.assertEqual(e.msg, 'Wrong')
+
+    def test_serialize(self):
+        typ = DummyType()
+        structure = self._makeOne(typ)
+        result = structure.serialize(1)
+        self.assertEqual(result, 1)
+
+    def test_add(self):
+        structure = self._makeOne(None)
+        structure.add(1)
+        self.assertEqual(structure.structs, [1])
+
+class TestSchema(unittest.TestCase):
+    def test_alias(self):
+        from cereal import Schema
+        from cereal import MappingSchema
+        self.assertEqual(Schema, MappingSchema)
+
+    def test_it(self):
+        import cereal
+        class MySchema(cereal.Schema):
+            thing = cereal.Structure(cereal.String())
+        structure = MySchema(unknown_keys='raise')
+        self.failUnless(hasattr(structure, '_order'))
+        self.assertEqual(structure.__class__, cereal.Structure)
+        self.assertEqual(structure.typ.__class__, cereal.Mapping)
+        self.assertEqual(structure.typ.unknown_keys, 'raise')
+        self.assertEqual(structure.structs[0].typ.__class__, cereal.String)
+        
+class TestSequenceSchema(unittest.TestCase):
+    def test_it(self):
+        import cereal
+        class MySchema(cereal.SequenceSchema):
+            pass
+        inner = cereal.Structure(cereal.String())
+        structure = MySchema(inner)
+        self.failUnless(hasattr(structure, '_order'))
+        self.assertEqual(structure.__class__, cereal.Structure)
+        self.assertEqual(structure.typ.__class__, cereal.Sequence)
+        self.assertEqual(structure.typ.struct, inner)
+
+class TestTupleSchema(unittest.TestCase):
+    def test_it(self):
+        import cereal
+        class MySchema(cereal.TupleSchema):
+            thing = cereal.Structure(cereal.String())
+        structure = MySchema()
+        self.failUnless(hasattr(structure, '_order'))
+        self.assertEqual(structure.__class__, cereal.Structure)
+        self.assertEqual(structure.typ.__class__, cereal.Tuple)
+        self.assertEqual(structure.structs[0].typ.__class__, cereal.String)
+
 class TestFunctional(object):
     def test_deserialize_ok(self):
         import cereal.tests
@@ -910,4 +999,11 @@ class Uncooperative(object):
         raise ValueError('I wont cooperate')
 
     __unicode__ = __str__
+    
+class DummyType(object):
+    def serialize(self, struct, value):
+        return value
+
+    def deserialize(self, struct, value):
+        return value
     
