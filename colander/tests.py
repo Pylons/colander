@@ -397,9 +397,9 @@ class TestTuple(unittest.TestCase):
         self.assertEqual(len(e.children), 2)
 
 class TestSequence(unittest.TestCase):
-    def _makeOne(self, substruct):
+    def _makeOne(self, substruct, **kw):
         from colander import Sequence
-        return Sequence(substruct)
+        return Sequence(substruct, **kw)
 
     def test_alias(self):
         from colander import Seq
@@ -414,6 +414,12 @@ class TestSequence(unittest.TestCase):
             e.msg,
             'None is not iterable')
         self.assertEqual(e.struct, struct)
+
+    def test_deserialize_not_iterable_accept_scalar(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne(struct, accept_scalar=True)
+        result = typ.deserialize(struct, None)
+        self.assertEqual(result, [None])
 
     def test_deserialize_no_substructs(self):
         struct = DummyStructure(None)
@@ -443,6 +449,12 @@ class TestSequence(unittest.TestCase):
             e.msg,
             'None is not iterable')
         self.assertEqual(e.struct, struct)
+
+    def test_serialize_not_iterable_accept_scalar(self):
+        struct = DummyStructure(None)
+        typ = self._makeOne(struct, accept_scalar=True)
+        result = typ.serialize(struct, None)
+        self.assertEqual(result, [None])
 
     def test_serialize_no_substructs(self):
         struct = DummyStructure(None)

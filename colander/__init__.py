@@ -276,16 +276,28 @@ class Sequence(Positional):
 
     The ``struct`` argument to this type's constructor is required.
 
+    The ``accept_scalar`` argument to this type's constructor
+    indicates that if the value found during serialization or
+    deserialization does not have an ``__iter__`` method, that the
+    value will be converted to a length-one list.  If
+    ``accept_scalar`` is ``False`` (the default), and the value does
+    not have an ``__iter__`` method, an :exc:`colander.Invalid` error
+    will be raised during serialization and deserialization.
+
     The substructures of the :class:`colander.Structure` that wraps
     this type are ignored.
     """
-    def __init__(self, struct):
+    def __init__(self, struct, accept_scalar=False):
         self.struct = struct
+        self.accept_scalar = accept_scalar
 
     def _validate(self, struct, value):
-        if not hasattr(value, '__iter__'):
+        if hasattr(value, '__iter__') and not hasattr(value, 'get'):
+            return list(value)
+        if self.accept_scalar:
+            return [value]
+        else:
             raise Invalid(struct, '%r is not iterable' % value)
-        return list(value)
 
     def _impl(self, struct, value, callback):
         value = self._validate(struct, value)
