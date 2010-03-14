@@ -1,5 +1,5 @@
-cereal
-======
+colander
+========
 
 An extensible package which can be used to:
 

@@ -1,7 +1,7 @@
 Interfaces
 ----------
 
-.. automodule:: cereal.interfaces
+.. automodule:: colander.interfaces
 
   .. autofunction:: Validator
 

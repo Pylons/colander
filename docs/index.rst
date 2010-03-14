@@ -1,9 +1,9 @@
-Cereal
-======
+Colander
+========
 
-Cereal is useful as a system for validating and deserializing data
+Colander is useful as a system for validating and deserializing data
 obtained via XML, JSON, an HTML form post or any other equally simple
-data serialization.  Cereal can be used to:
+data serialization.  Colander can be used to:
 
 - Define a data schema
 
@@ -14,8 +14,8 @@ data serialization.  Cereal can be used to:
 - Serialize an arbitrary Python structure to a data structure composed
   of strings, mappings, and lists.
 
-Out of the box, Cereal can serialize and deserialize various types of
-objects, including:
+Out of the box, Colander can serialize and deserialize various types
+of objects, including:
 
 - A mapping object (e.g. dictionary)
 
@@ -35,11 +35,11 @@ objects, including:
 
 - An importable Python object (to a dotted Python object path).
 
-Cereal allows additional data structures to be serialized and
+Colander allows additional data structures to be serialized and
 deserialized by allowing a developer to define new "types".
 
-Defining A Cereal Schema
-------------------------
+Defining A Colander Schema
+--------------------------
 
 Imagine you want to deserialize and validate a serialization of data
 you've obtained by reading a YAML document.  An example of such a data
@@ -69,22 +69,24 @@ different types.
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   class Friend(cereal.TupleSchema):
-       rank = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 9999))
-       name = cereal.Structure(cereal.String())
+   class Friend(colander.TupleSchema):
+       rank = colander.Structure(colander.Int(), 
+                                 validator=colander.Range(0, 9999))
+       name = colander.Structure(colander.String())
 
-   class Phone(cereal.MappingSchema):
-       location = cereal.Structure(cereal.String(), 
-                                   validator=cereal.OneOf(['home', 'work']))
-       number = cereal.Structure(cereal.String())
+   class Phone(colander.MappingSchema):
+       location = colander.Structure(colander.String(), 
+                                     validator=colander.OneOf(['home', 'work']))
+       number = colander.Structure(colander.String())
 
-   class Person(cereal.MappingSchema):
-       name = cereal.Structure(cereal.String())
-       age = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 200))
-       friends = cereal.Structure(cereal.Sequence(Friend()))
-       phones = cereal.Structure(cereal.Sequence(Phone()))
+   class Person(colander.MappingSchema):
+       name = colander.Structure(colander.String())
+       age = colander.Structure(colander.Int(), 
+                                validator=colander.Range(0, 200))
+       friends = colander.Structure(colander.Sequence(Friend()))
+       phones = colander.Structure(colander.Sequence(Phone()))
        
 For ease of reading, we've actually defined *three* schemas above, but
 we coalesce them all into a single ``Person`` schema.  As the result
@@ -115,12 +117,12 @@ optional deserialization *validator*, an optional *default*, and a
 slightly less optional *name*.
 
 The *type* of a structure indicates its data type (such as
-``cereal.Int`` or ``cereal.String``).
+``colander.Int`` or ``colander.String``).
 
 The *validator* of a structure is called after deserialization; it
 makes sure the deserialized value matches a constraint.  An example of
 such a validator is provided in the schema above:
-``validator=cereal.Range(0, 200)``.  A validator is not called after
+``validator=colander.Range(0, 200)``.  A validator is not called after
 serialization, only after deserialization.
 
 The *default* of a structure indicates its default value if a value
@@ -131,35 +133,35 @@ If a structure does not have a default, it is considered required.
 The *name* of a structure appears in error reports.
 
 The name of a structure that is introduced as a class-level attribute
-of a ``cereal.MappingSchema`` or ``cereal.TupleSchema`` is its class
-attribute name.  For example:
+of a ``colander.MappingSchema`` or ``colander.TupleSchema`` is its
+class attribute name.  For example:
 
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   class Phone(cereal.MappingSchema):
-       location = cereal.Structure(cereal.String(), 
-                                   validator=cereal.OneOf(['home', 'work']))
-       number = cereal.Structure(cereal.String())
+   class Phone(colander.MappingSchema):
+       location = colander.Structure(colander.String(), 
+                                     validator=colander.OneOf(['home', 'work']))
+       number = colander.Structure(colander.String())
 
 The name of the structure defined via ``location =
-cereal.Structure(..)`` within the schema above is ``location``.
+colander.Structure(..)`` within the schema above is ``location``.
 
 Schema Objects
 ~~~~~~~~~~~~~~
 
-The result of creating an instance of a ``cereal.MappingSchema`` or
-``cereal.TupleSchema`` object is also a *structure* object.
+The result of creating an instance of a ``colander.MappingSchema`` or
+``colander.TupleSchema`` object is also a *structure* object.
 
-Instantiating a ``cereal.MappingSchema`` creates a structure which has
-a *type* value of ``cereal.Mapping``.  Instantiating a
-``cereal.TupleSchema`` creates a structure which has a *type* value of
-``cereal.Tuple``.
+Instantiating a ``colander.MappingSchema`` creates a structure which
+has a *type* value of ``colander.Mapping``.  Instantiating a
+``colander.TupleSchema`` creates a structure which has a *type* value
+of ``colander.Tuple``.
 
-A structure defined by instantiating a ``cereal.MappingSchema`` or a
-``cereal.TupleSchema`` usually has no validator, and has the empty
+A structure defined by instantiating a ``colander.MappingSchema`` or a
+``colander.TupleSchema`` usually has no validator, and has the empty
 string as its name.
 
 Deserializing A Data Structure Using a Schema
@@ -170,22 +172,24 @@ Earlier we defined a schema:
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   class Friend(cereal.TupleSchema):
-       rank = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 9999))
-       name = cereal.Structure(cereal.String())
+   class Friend(colander.TupleSchema):
+       rank = colander.Structure(colander.Int(), 
+                                 validator=colander.Range(0, 9999))
+       name = colander.Structure(colander.String())
 
-   class Phone(cereal.MappingSchema):
-       location = cereal.Structure(cereal.String(), 
-                                   validator=cereal.OneOf(['home', 'work']))
-       number = cereal.Structure(cereal.String())
+   class Phone(colander.MappingSchema):
+       location = colander.Structure(colander.String(), 
+                                     validator=colander.OneOf(['home', 'work']))
+       number = colander.Structure(colander.String())
 
-   class Person(cereal.MappingSchema):
-       name = cereal.Structure(cereal.String())
-       age = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 200))
-       friends = cereal.Structure(cereal.Sequence(Friend()))
-       phones = cereal.Structure(cereal.Sequence(Phone()))
+   class Person(colander.MappingSchema):
+       name = colander.Structure(colander.String())
+       age = colander.Structure(colander.Int(),
+                                validator=colander.Range(0, 200))
+       friends = colander.Structure(colander.Sequence(Friend()))
+       phones = colander.Structure(colander.Sequence(Phone()))
 
 Let's now use this schema to try to deserialize some concrete data
 structures.
@@ -237,7 +241,7 @@ or a validation error?
 .. code-block:: python
    :linenos:
 
-     import cereal
+     import colander
 
      data = {
             'name':'keith',
@@ -249,7 +253,7 @@ or a validation error?
      schema = Person()
      try:
          schema.deserialize(data)
-     except cereal.Invalid, e:
+     except colander.Invalid, e:
          print e.asdict()
 
 The ``deserialize`` method will raise an exception, and the ``except``
@@ -278,53 +282,56 @@ Defining A Schema Imperatively
 
 The above schema we defined was defined declaratively via a set of
 ``class`` statements.  It's often useful to create schemas more
-dynamically.  For this reason, Cereal offers an "imperative" mode of
+dynamically.  For this reason, Colander offers an "imperative" mode of
 schema configuration.  Here's our previous declarative schema:
 
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   class Friend(cereal.TupleSchema):
-       rank = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 9999))
-       name = cereal.Structure(cereal.String())
+   class Friend(colander.TupleSchema):
+       rank = colander.Structure(colander.Int(),
+                                 validator=colander.Range(0, 9999))
+       name = colander.Structure(colander.String())
 
-   class Phone(cereal.MappingSchema):
-       location = cereal.Structure(cereal.String(), 
-                                   validator=cereal.OneOf(['home', 'work']))
-       number = cereal.Structure(cereal.String())
+   class Phone(colander.MappingSchema):
+       location = colander.Structure(colander.String(), 
+                                     validator=colander.OneOf(['home', 'work']))
+       number = colander.Structure(colander.String())
 
-   class Person(cereal.MappingSchema):
-       name = cereal.Structure(cereal.String())
-       age = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 200))
-       friends = cereal.Structure(cereal.Sequence(Friend()))
-       phones = cereal.Structure(cereal.Sequence(Phone()))
+   class Person(colander.MappingSchema):
+       name = colander.Structure(colander.String())
+       age = colander.Structure(colander.Int(),
+                                validator=colander.Range(0, 200))
+       friends = colander.Structure(colander.Sequence(Friend()))
+       phones = colander.Structure(colander.Sequence(Phone()))
 
 We can imperatively construct a completely equivalent schema like so:
 
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   friend = cereal.Structure(Tuple())
-   friend.add(cereal.Structure(cereal.Int(), validator=cereal.Range(0, 9999),
+   friend = colander.Structure(Tuple())
+   friend.add(colander.Structure(colander.Int(),
+                                 validator=colander.Range(0, 9999),
               name='rank'))
-   friend.add(cereal.Structure(cereal.String()), name='name')
+   friend.add(colander.Structure(colander.String()), name='name')
 
-   phone = cereal.Structure(Mapping())
-   phone.add(cereal.Structure(cereal.String(),
-                              validator=cereal.OneOf(['home', 'work']),
-                              name='location'))
-   phone.add(cereal.Structure(cereal.String(), name='number'))
+   phone = colander.Structure(Mapping())
+   phone.add(colander.Structure(colander.String(),
+                                validator=colander.OneOf(['home', 'work']),
+                                name='location'))
+   phone.add(colander.Structure(colander.String(), name='number'))
 
-   schema = cereal.Structure(Mapping())
-   schema.add(cereal.Structure(cereal.String(), name='name'))
-   schema.add(cereal.Structure(cereal.Int(), name='age'), 
-                               validator=cereal.Range(0, 200))
-   schema.add(cereal.Structure(cereal.Sequence(friend), name='friends'))
-   schema.add(cereal.Structure(cereal.Sequence(phone), name='phones'))
+   schema = colander.Structure(Mapping())
+   schema.add(colander.Structure(colander.String(), name='name'))
+   schema.add(colander.Structure(colander.Int(), name='age'), 
+                                 validator=colander.Range(0, 200))
+   schema.add(colander.Structure(colander.Sequence(friend), name='friends'))
+   schema.add(colander.Structure(colander.Sequence(phone), name='phones'))
 
 Defining a schema imperatively is a lot uglier than defining a schema
 declaratively, but it's often more useful when you need to define a
@@ -385,10 +392,10 @@ Here's how you would use the resulting class as part of a schema:
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   class Schema(cereal.MappingSchema):
-       interested = cereal.Structure(Boolean())
+   class Schema(colander.MappingSchema):
+       interested = colander.Structure(Boolean())
 
 The above schema has a member named ``interested`` which will now be
 serialized and deserialized as a boolean, according to the logic
@@ -399,15 +406,16 @@ Note that the only real constraint of a type class is that its
 by its ``deserialize`` method and vice versa.
 
 For a more formal definition of a the interface of a type, see
-:class:`cereal.interfaces.Type`.
+:class:`colander.interfaces.Type`.
 
 Defining a New Validator
 ------------------------
 
 A validator is a callable which accepts two positional arguments:
 ``struct`` and ``value``.  It returns ``None`` if the value is valid.
-It raises a ``cereal.Invalid`` exception if the value is not valid.
-Here's a validator that checks if the value is a valid credit card number.
+It raises a ``colander.Invalid`` exception if the value is not valid.
+Here's a validator that checks if the value is a valid credit card
+number.
 
 .. code-block:: python
    :linenos:
@@ -438,18 +446,18 @@ schema:
 .. code-block:: python
    :linenos:
 
-   import cereal
+   import colander
 
-   class Schema(cereal.MappingSchema):
-       cc_number = cereal.Structure(cereal.String(), validator=lunhnok)
+   class Schema(colander.MappingSchema):
+       cc_number = colander.Structure(colander.String(), validator=lunhnok)
 
 Note that the validator doesn't need to check if the ``value`` is a
 string: this has already been done as the result of the type of the
-``cc_number`` structure being ``cereal.String``. Validators are always
-passed the *deserialized* value when they are invoked.
+``cc_number`` structure being ``colander.String``. Validators are
+always passed the *deserialized* value when they are invoked.
 
 For a more formal definition of a the interface of a validator, see
-:class:`cereal.interfaces.Validator`.
+:class:`colander.interfaces.Validator`.
 
 Interface and API Documentation
 -------------------------------

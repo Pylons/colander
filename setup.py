@@ -23,7 +23,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = []
 
-setup(name='cereal',
+setup(name='colander',
       version='0.0',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
@@ -35,13 +35,13 @@ setup(name='cereal',
       keywords='serialize deserialize validate schema validation',
       author="Agendaless Consulting",
       author_email="repoze-dev@lists.repoze.org",
-      url="http://docs.repoze.org/cereal",
+      url="http://docs.repoze.org/colander",
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
       tests_require = requires,
       install_requires = requires,
-      test_suite="cereal",
+      test_suite="colander",
       )
 

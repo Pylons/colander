@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cereal documentation build configuration file
+# colander documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing
 # dir.
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General substitutions.
-project = 'cereal'
+project = 'colander'
 copyright = '2010, Repoze Developers <repoze-dev@lists.repoze.org>'
 
 # The default replacements for |version| and |release|, also used in various
@@ -172,7 +172,7 @@ htmlhelp_basename = 'atemplatedoc'
 # (source start file, target name, title,
 #  author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'atemplate.tex', 'cereal Documentation',
+  ('index', 'atemplate.tex', 'colander Documentation',
    'Repoze Developers', 'manual'),
 ]
 

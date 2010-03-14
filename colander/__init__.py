@@ -9,7 +9,7 @@ class Invalid(Exception):
     the value for a particular structure was not valid.
 
     The constructor receives a mandatory ``struct`` argument.  This
-    must be an instance of the :class:`cereal.Structure` class.
+    must be an instance of the :class:`colander.Structure` class.
 
     The constructor also receives an optional ``msg`` keyword
     argument, defaulting to ``None``.  The ``msg`` argument is a
@@ -26,7 +26,7 @@ class Invalid(Exception):
 
     def add(self, exc):
         """ Add a child exception; ``exc`` must be an instance of
-        :class:`cereal.Invalid`"""
+        :class:`colander.Invalid`"""
         exc.parent = self
         self.children.append(exc)
 
@@ -68,7 +68,7 @@ class Invalid(Exception):
 
 class All(object):
     """ Composite validator which succeeds if none of its
-    subvalidators raises an :class:`cereal.Invalid` exception"""
+    subvalidators raises an :class:`colander.Invalid` exception"""
     def __init__(self, *validators):
         self.validators = validators
 
@@ -119,8 +119,8 @@ class OneOf(object):
 class Mapping(object):
     """ A type which represents a mapping of names to structures.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type imply the named keys and values in the mapping.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type imply the named keys and values in the mapping.
 
     The constructor of a mapping type accepts a single optional
     keyword argument named ``unknown_keys``.  By default, this
@@ -132,8 +132,8 @@ class Mapping(object):
       associated with this type will be ignored during
       deserialization.
 
-    - ``raise`` will cause a :exc:`cereal.Invalid` exception to
-      be raised when unknown keys are present during deserialization.
+    - ``raise`` will cause a :exc:`colander.Invalid` exception to be
+      raised when unknown keys are present during deserialization.
 
     - ``preserve`` will preserve the 'raw' unknown keys and values in
       the returned data structure during deserialization.
@@ -215,9 +215,9 @@ class Positional(object):
 class Tuple(Positional):
     """ A type which represents a fixed-length sequence of structures.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type imply the positional elements of the tuple in the order they
-    are added.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type imply the positional elements of the tuple in the order
+    they are added.
 
     This type is willing to serialize and deserialized iterables that,
     when converted to a tuple, have the same number of elements as the
@@ -270,14 +270,14 @@ class Tuple(Positional):
 class Sequence(Positional):
     """
     A type which represents a variable-length sequence of structures,
-    all of which must be of the same type.  This type is defined by the
-    the :class:`cereal.Structure` instance passed to the constructor
-    as ``struct``.
+    all of which must be of the same type.  This type is defined by
+    the the :class:`colander.Structure` instance passed to the
+    constructor as ``struct``.
 
     The ``struct`` argument to this type's constructor is required.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type are ignored.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type are ignored.
     """
     def __init__(self, struct):
         self.struct = struct
@@ -326,8 +326,8 @@ class String(object):
     which should be applied to object serialization.  It defaults to
     ``utf-8`` if not provided.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type are ignored.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type are ignored.
     """
     def __init__(self, encoding=None):
         self.encoding = encoding
@@ -353,8 +353,8 @@ Str = String
 class Integer(object):
     """ A type representing an integer.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type are ignored.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type are ignored.
     """
     def deserialize(self, struct, value):
         try:
@@ -373,8 +373,8 @@ Int = Integer
 class Float(object):
     """ A type representing a float.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type are ignored.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type are ignored.
     """
     def deserialize(self, struct, value):
         try:
@@ -400,8 +400,8 @@ class Boolean(object):
     Serialization will produce ``true`` or ``false`` based on the
     value.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type are ignored.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type are ignored.
     """
     
     def deserialize(self, struct, value):
@@ -448,11 +448,11 @@ class GlobalObject(object):
     argument to this type was passed the ``xml`` module object, the
     resulting import would be for ``xml.minidom``.  If a relative
     package name is supplied to ``deserialize``, and no ``package``
-    was supplied to the constructor, an :exc:`cereal.Invalid` error
+    was supplied to the constructor, an :exc:`colander.Invalid` error
     will be raised.
 
-    The substructures of the :class:`cereal.Structure` that wraps this
-    type are ignored.
+    The substructures of the :class:`colander.Structure` that wraps
+    this type are ignored.
     """
     def __init__(self, package):
         self.package = package
@@ -533,7 +533,7 @@ class Structure(object):
 
     - ``typ`` (required): The 'type' for this structure.  It should be
       an instance of a class that implements the
-      :class:`cereal.interfaces.Type` interface.
+      :class:`colander.interfaces.Type` interface.
 
     - ``structs``: a sequence of substructures.  If the substructures
       of this structure are not known at construction time, they can
@@ -545,9 +545,9 @@ class Structure(object):
       provided, this structure has no default value and it will be
       considered 'required' (the ``required`` attribute will be True).
 
-    - ``validator``: Optional validator for this structure.  It should be
-      an object that implements the
-      :class:`cereal.interfaces.Validator` interface.
+    - ``validator``: Optional validator for this structure.  It should
+      be an object that implements the
+      :class:`colander.interfaces.Validator` interface.
     """
     
     _counter = itertools.count()

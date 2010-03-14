@@ -1,10 +1,10 @@
-Cereal API
+Colander API
 ----------
 
 Exceptions
 ~~~~~~~~~~
 
-.. automodule:: cereal
+.. automodule:: colander
 
   .. autoclass:: Invalid
      :members:

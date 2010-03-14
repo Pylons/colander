@@ -1,7 +1,7 @@
 import unittest
 
 def invalid_exc(func, *arg, **kw):
-    from cereal import Invalid
+    from colander import Invalid
     try:
         func(*arg, **kw)
     except Invalid, e:
@@ -11,7 +11,7 @@ def invalid_exc(func, *arg, **kw):
 
 class TestInvalid(unittest.TestCase):
     def _makeOne(self, struct, msg=None, pos=None):
-        from cereal import Invalid
+        from colander import Invalid
         exc = Invalid(struct, msg)
         exc.pos = pos
         return exc
@@ -36,7 +36,7 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(exc._keyname(), 'name')
 
     def test__keyname_positional_parent(self):
-        from cereal import Positional
+        from colander import Positional
         parent = Dummy()
         parent.struct = DummyStructure(Positional())
         exc = self._makeOne(None, '')
@@ -65,7 +65,7 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(paths, [(exc1, exc2, exc3), (exc1, exc4)])
 
     def test_asdict(self):
-        from cereal import Positional
+        from colander import Positional
         struct1 = DummyStructure(None, 'struct1')
         struct2 = DummyStructure(Positional(), 'struct2')
         struct3 = DummyStructure(Positional(), 'struct3')
@@ -84,7 +84,7 @@ class TestInvalid(unittest.TestCase):
 
 class TestAll(unittest.TestCase):
     def _makeOne(self, validators):
-        from cereal import All
+        from colander import All
         return All(*validators)
 
     def test_success(self):
@@ -102,7 +102,7 @@ class TestAll(unittest.TestCase):
 
 class TestRange(unittest.TestCase):
     def _makeOne(self, min=None, max=None):
-        from cereal import Range
+        from colander import Range
         return Range(min=min, max=max)
 
     def test_success_no_bounds(self):
@@ -133,7 +133,7 @@ class TestRange(unittest.TestCase):
 
 class TestOneOf(unittest.TestCase):
     def _makeOne(self, values):
-        from cereal import OneOf
+        from colander import OneOf
         return OneOf(values)
 
     def test_success(self):
@@ -147,7 +147,7 @@ class TestOneOf(unittest.TestCase):
 
 class TestMapping(unittest.TestCase):
     def _makeOne(self, unknown_keys='ignore'):
-        from cereal import Mapping
+        from colander import Mapping
         return Mapping(unknown_keys=unknown_keys)
 
     def test_ctor_bad_unknown_keys(self):
@@ -295,7 +295,7 @@ class TestMapping(unittest.TestCase):
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
-        from cereal import Tuple
+        from colander import Tuple
         return Tuple()
 
     def test_deserialize_not_iterable(self):
@@ -398,12 +398,12 @@ class TestTuple(unittest.TestCase):
 
 class TestSequence(unittest.TestCase):
     def _makeOne(self, substruct):
-        from cereal import Sequence
+        from colander import Sequence
         return Sequence(substruct)
 
     def test_alias(self):
-        from cereal import Seq
-        from cereal import Sequence
+        from colander import Seq
+        from colander import Sequence
         self.assertEqual(Seq, Sequence)
 
     def test_deserialize_not_iterable(self):
@@ -466,12 +466,12 @@ class TestSequence(unittest.TestCase):
 
 class TestString(unittest.TestCase):
     def _makeOne(self, encoding='utf-8'):
-        from cereal import String
+        from colander import String
         return String(encoding)
 
     def test_alias(self):
-        from cereal import Str
-        from cereal import String
+        from colander import Str
+        from colander import String
         self.assertEqual(Str, String)
 
     def test_deserialize_uncooperative(self):
@@ -529,12 +529,12 @@ class TestString(unittest.TestCase):
 
 class TestInteger(unittest.TestCase):
     def _makeOne(self):
-        from cereal import Integer
+        from colander import Integer
         return Integer()
 
     def test_alias(self):
-        from cereal import Int
-        from cereal import Integer
+        from colander import Int
+        from colander import Integer
         self.assertEqual(Int, Integer)
 
     def test_deserialize_fails(self):
@@ -567,7 +567,7 @@ class TestInteger(unittest.TestCase):
 
 class TestFloat(unittest.TestCase):
     def _makeOne(self):
-        from cereal import Float
+        from colander import Float
         return Float()
 
     def test_deserialize_fails(self):
@@ -600,12 +600,12 @@ class TestFloat(unittest.TestCase):
 
 class TestBoolean(unittest.TestCase):
     def _makeOne(self):
-        from cereal import Boolean
+        from colander import Boolean
         return Boolean()
 
     def test_alias(self):
-        from cereal import Bool
-        from cereal import Boolean
+        from colander import Bool
+        from colander import Boolean
         self.assertEqual(Bool, Boolean)
 
     def test_deserialize(self):
@@ -633,37 +633,37 @@ class TestBoolean(unittest.TestCase):
 
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
-        from cereal import GlobalObject
+        from colander import GlobalObject
         return GlobalObject(package)
 
     def test_zope_dottedname_style_resolve_absolute(self):
         typ = self._makeOne()
         result = typ._zope_dottedname_style(None,
-            'cereal.tests.TestGlobalObject')
+            'colander.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
         
     def test_zope_dottedname_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._zope_dottedname_style, None,
-            'cereal.tests.nonexisting')
+            'colander.tests.nonexisting')
 
     def test__zope_dottedname_style_resolve_relative(self):
-        import cereal
-        typ = self._makeOne(package=cereal)
+        import colander
+        typ = self._makeOne(package=colander)
         result = typ._zope_dottedname_style(None, '.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__zope_dottedname_style_resolve_relative_leading_dots(self):
-        import cereal
-        typ = self._makeOne(package=cereal.tests)
+        import colander
+        typ = self._makeOne(package=colander.tests)
         result = typ._zope_dottedname_style(None, '..tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__zope_dottedname_style_resolve_relative_is_dot(self):
-        import cereal.tests
-        typ = self._makeOne(package=cereal.tests)
+        import colander.tests
+        typ = self._makeOne(package=colander.tests)
         result = typ._zope_dottedname_style(None, '.')
-        self.assertEqual(result, cereal.tests)
+        self.assertEqual(result, colander.tests)
 
     def test__zope_dottedname_style_irresolveable_relative_is_dot(self):
         typ = self._makeOne()
@@ -679,57 +679,57 @@ class TestGlobalObject(unittest.TestCase):
             e.msg, "relative name '.whatever' irresolveable without package")
 
     def test_zope_dottedname_style_irrresolveable_relative(self):
-        import cereal.tests
-        typ = self._makeOne(package=cereal)
+        import colander.tests
+        typ = self._makeOne(package=colander)
         self.assertRaises(ImportError, typ._zope_dottedname_style, None,
                           '.notexisting')
 
     def test__zope_dottedname_style_resolveable_relative(self):
-        import cereal
-        typ = self._makeOne(package=cereal)
+        import colander
+        typ = self._makeOne(package=colander)
         result = typ._zope_dottedname_style(None, '.tests')
-        from cereal import tests
+        from colander import tests
         self.assertEqual(result, tests)
 
     def test__zope_dottedname_style_irresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError,
-                          typ._zope_dottedname_style, None, 'cereal.fudge.bar')
+                          typ._zope_dottedname_style, None, 'colander.fudge.bar')
 
     def test__zope_dottedname_style_resolveable_absolute(self):
         typ = self._makeOne()
         result = typ._zope_dottedname_style(None,
-                                            'cereal.tests.TestGlobalObject')
+                                            'colander.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__pkg_resources_style_resolve_absolute(self):
         typ = self._makeOne()
         result = typ._pkg_resources_style(None,
-            'cereal.tests:TestGlobalObject')
+            'colander.tests:TestGlobalObject')
         self.assertEqual(result, self.__class__)
         
     def test__pkg_resources_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
-            'cereal.tests:nonexisting')
+            'colander.tests:nonexisting')
 
     def test__pkg_resources_style_resolve_relative_startswith_colon(self):
-        import cereal.tests
-        typ = self._makeOne(package=cereal.tests)
+        import colander.tests
+        typ = self._makeOne(package=colander.tests)
         result = typ._pkg_resources_style(None, ':TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__pkg_resources_style_resolve_relative_startswith_dot(self):
-        import cereal
-        typ = self._makeOne(package=cereal)
+        import colander
+        typ = self._makeOne(package=colander)
         result = typ._pkg_resources_style(None, '.tests:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__pkg_resources_style_resolve_relative_is_dot(self):
-        import cereal.tests
-        typ = self._makeOne(package=cereal.tests)
+        import colander.tests
+        typ = self._makeOne(package=colander.tests)
         result = typ._pkg_resources_style(None, '.')
-        self.assertEqual(result, cereal.tests)
+        self.assertEqual(result, colander.tests)
         
     def test__pkg_resources_style_resolve_relative_nocurrentpackage(self):
         typ = self._makeOne()
@@ -737,8 +737,8 @@ class TestGlobalObject(unittest.TestCase):
                           '.whatever')
 
     def test__pkg_resources_style_irrresolveable_relative(self):
-        import cereal.tests
-        typ = self._makeOne(package=cereal)
+        import colander.tests
+        typ = self._makeOne(package=colander)
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
                           ':notexisting')
 
@@ -749,12 +749,12 @@ class TestGlobalObject(unittest.TestCase):
 
     def test_deserialize_using_pkgresources_style(self):
         typ = self._makeOne()
-        result = typ.deserialize(None, 'cereal.tests:TestGlobalObject')
+        result = typ.deserialize(None, 'colander.tests:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_deserialize_using_zope_dottedname_style(self):
         typ = self._makeOne()
-        result = typ.deserialize(None, 'cereal.tests.TestGlobalObject')
+        result = typ.deserialize(None, 'colander.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_deserialize_style_raises(self):
@@ -764,10 +764,10 @@ class TestGlobalObject(unittest.TestCase):
                          "The dotted name 'cant.be.found' cannot be imported")
 
     def test_serialize_ok(self):
-        import cereal.tests
+        import colander.tests
         typ = self._makeOne()
-        result = typ.serialize(None, cereal.tests)
-        self.assertEqual(result, 'cereal.tests')
+        result = typ.serialize(None, colander.tests)
+        self.assertEqual(result, 'colander.tests')
         
     def test_serialize_fail(self):
         typ = self._makeOne()
@@ -776,7 +776,7 @@ class TestGlobalObject(unittest.TestCase):
 
 class TestStructure(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
-        from cereal import Structure
+        from colander import Structure
         return Structure(*arg, **kw)
 
     def test_new_sets_order(self):
@@ -825,50 +825,50 @@ class TestStructure(unittest.TestCase):
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):
-        from cereal import Schema
-        from cereal import MappingSchema
+        from colander import Schema
+        from colander import MappingSchema
         self.assertEqual(Schema, MappingSchema)
 
     def test_it(self):
-        import cereal
-        class MySchema(cereal.Schema):
-            thing = cereal.Structure(cereal.String())
+        import colander
+        class MySchema(colander.Schema):
+            thing = colander.Structure(colander.String())
         structure = MySchema(unknown_keys='raise')
         self.failUnless(hasattr(structure, '_order'))
-        self.assertEqual(structure.__class__, cereal.Structure)
-        self.assertEqual(structure.typ.__class__, cereal.Mapping)
+        self.assertEqual(structure.__class__, colander.Structure)
+        self.assertEqual(structure.typ.__class__, colander.Mapping)
         self.assertEqual(structure.typ.unknown_keys, 'raise')
-        self.assertEqual(structure.structs[0].typ.__class__, cereal.String)
+        self.assertEqual(structure.structs[0].typ.__class__, colander.String)
         
 class TestSequenceSchema(unittest.TestCase):
     def test_it(self):
-        import cereal
-        class MySchema(cereal.SequenceSchema):
+        import colander
+        class MySchema(colander.SequenceSchema):
             pass
-        inner = cereal.Structure(cereal.String())
+        inner = colander.Structure(colander.String())
         structure = MySchema(inner)
         self.failUnless(hasattr(structure, '_order'))
-        self.assertEqual(structure.__class__, cereal.Structure)
-        self.assertEqual(structure.typ.__class__, cereal.Sequence)
+        self.assertEqual(structure.__class__, colander.Structure)
+        self.assertEqual(structure.typ.__class__, colander.Sequence)
         self.assertEqual(structure.typ.struct, inner)
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
-        import cereal
-        class MySchema(cereal.TupleSchema):
-            thing = cereal.Structure(cereal.String())
+        import colander
+        class MySchema(colander.TupleSchema):
+            thing = colander.Structure(colander.String())
         structure = MySchema()
         self.failUnless(hasattr(structure, '_order'))
-        self.assertEqual(structure.__class__, cereal.Structure)
-        self.assertEqual(structure.typ.__class__, cereal.Tuple)
-        self.assertEqual(structure.structs[0].typ.__class__, cereal.String)
+        self.assertEqual(structure.__class__, colander.Structure)
+        self.assertEqual(structure.typ.__class__, colander.Tuple)
+        self.assertEqual(structure.structs[0].typ.__class__, colander.String)
 
 class TestFunctional(object):
     def test_deserialize_ok(self):
-        import cereal.tests
+        import colander.tests
         data = {
             'int':'10',
-            'ob':'cereal.tests',
+            'ob':'colander.tests',
             'seq':[('1', 's'),('2', 's'), ('3', 's'), ('4', 's')],
             'seq2':[{'key':'1', 'key2':'2'}, {'key':'3', 'key2':'4'}],
             'tup':('1', 's'),
@@ -876,7 +876,7 @@ class TestFunctional(object):
         schema = self._makeSchema()
         result = schema.deserialize(data)
         self.assertEqual(result['int'], 10)
-        self.assertEqual(result['ob'], cereal.tests)
+        self.assertEqual(result['ob'], colander.tests)
         self.assertEqual(result['seq'],
                          [(1, 's'), (2, 's'), (3, 's'), (4, 's')])
         self.assertEqual(result['seq2'],
@@ -911,47 +911,47 @@ class TestFunctional(object):
 class TestImperative(unittest.TestCase, TestFunctional):
     
     def _makeSchema(self):
-        import cereal
+        import colander
 
-        integer = cereal.Structure(
-            cereal.Integer(),
+        integer = colander.Structure(
+            colander.Integer(),
             name='int',
-            validator=cereal.Range(0, 10)
+            validator=colander.Range(0, 10)
             )
 
-        ob = cereal.Structure(
-            cereal.GlobalObject(package=cereal),
+        ob = colander.Structure(
+            colander.GlobalObject(package=colander),
             name='ob',
             )
 
-        tup = cereal.Structure(
-            cereal.Tuple(),
-            cereal.Structure(
-                cereal.Integer(),
+        tup = colander.Structure(
+            colander.Tuple(),
+            colander.Structure(
+                colander.Integer(),
                 name='tupint',
                 ),
-            cereal.Structure(
-                cereal.String(),
+            colander.Structure(
+                colander.String(),
                 name='tupstring',
                 ),
             name='tup',
             )
 
-        seq = cereal.Structure(
-            cereal.Sequence(tup),
+        seq = colander.Structure(
+            colander.Sequence(tup),
             name='seq',
             )
 
-        seq2 = cereal.Structure(
-            cereal.Sequence(
-                cereal.Structure(
-                    cereal.Mapping(),
-                    cereal.Structure(
-                        cereal.Integer(),
+        seq2 = colander.Structure(
+            colander.Sequence(
+                colander.Structure(
+                    colander.Mapping(),
+                    colander.Structure(
+                        colander.Integer(),
                         name='key',
                         ),
-                    cereal.Structure(
-                        cereal.Integer(),
+                    colander.Structure(
+                        colander.Integer(),
                         name='key2',
                         ),
                     name='mapping',
@@ -960,8 +960,8 @@ class TestImperative(unittest.TestCase, TestFunctional):
             name='seq2',
             )
 
-        schema = cereal.Structure(
-            cereal.Mapping(),
+        schema = colander.Structure(
+            colander.Mapping(),
             integer,
             ob,
             tup,
@@ -974,22 +974,23 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
     
     def _makeSchema(self):
 
-        import cereal
+        import colander
 
-        class TupleSchema(cereal.TupleSchema):
-            tupint = cereal.Structure(cereal.Int())
-            tupstring = cereal.Structure(cereal.String())
+        class TupleSchema(colander.TupleSchema):
+            tupint = colander.Structure(colander.Int())
+            tupstring = colander.Structure(colander.String())
 
-        class MappingSchema(cereal.MappingSchema):
-            key = cereal.Structure(cereal.Int())
-            key2 = cereal.Structure(cereal.Int())
+        class MappingSchema(colander.MappingSchema):
+            key = colander.Structure(colander.Int())
+            key2 = colander.Structure(colander.Int())
 
-        class MainSchema(cereal.MappingSchema):
-            int = cereal.Structure(cereal.Int(), validator=cereal.Range(0, 10))
-            ob = cereal.Structure(cereal.GlobalObject(package=cereal))
-            seq = cereal.Structure(cereal.Sequence(TupleSchema()))
+        class MainSchema(colander.MappingSchema):
+            int = colander.Structure(colander.Int(),
+                                     validator=colander.Range(0, 10))
+            ob = colander.Structure(colander.GlobalObject(package=colander))
+            seq = colander.Structure(colander.Sequence(TupleSchema()))
             tup = TupleSchema()
-            seq2 = cereal.SequenceSchema(MappingSchema())
+            seq2 = colander.SequenceSchema(MappingSchema())
 
         schema = MainSchema()
         return schema
@@ -1007,13 +1008,13 @@ class DummyStructure(object):
         self.structs = []
 
     def deserialize(self, val):
-        from cereal import Invalid
+        from colander import Invalid
         if self.exc:
             raise Invalid(self, self.exc)
         return val
 
     def serialize(self, val):
-        from cereal import Invalid
+        from colander import Invalid
         if self.exc:
             raise Invalid(self, self.exc)
         return val
@@ -1023,7 +1024,7 @@ class DummyValidator(object):
         self.msg = msg
 
     def __call__(self, struct, value):
-        from cereal import Invalid
+        from colander import Invalid
         if self.msg:
             raise Invalid(struct, self.msg)
 
