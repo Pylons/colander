@@ -278,11 +278,12 @@ class Sequence(Positional):
 
     The ``accept_scalar`` argument to this type's constructor
     indicates that if the value found during serialization or
-    deserialization does not have an ``__iter__`` method, that the
-    value will be converted to a length-one list.  If
-    ``accept_scalar`` is ``False`` (the default), and the value does
-    not have an ``__iter__`` method, an :exc:`colander.Invalid` error
-    will be raised during serialization and deserialization.
+    deserialization does not have an ``__iter__`` method or is a
+    mapping type, that the value will be converted to a length-one
+    list.  If ``accept_scalar`` is ``False`` (the default), and the
+    value does not have an ``__iter__`` method, an
+    :exc:`colander.Invalid` error will be raised during serialization
+    and deserialization.
 
     The substructures of the :class:`colander.Structure` that wraps
     this type are ignored.
