@@ -165,9 +165,8 @@ class TestMapping(unittest.TestCase):
         struct = DummyStructure(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, struct, None)
-        self.assertEqual(
-            e.msg,
-            'None is not a mapping type: iteration over non-sequence')
+        self.failUnless(
+            e.msg.startswith('None is not a mapping type'))
 
     def test_deserialize_no_substructs(self):
         struct = DummyStructure(None)
@@ -231,9 +230,8 @@ class TestMapping(unittest.TestCase):
         struct = DummyStructure(None)
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, struct, None)
-        self.assertEqual(
-            e.msg,
-            'None is not a mapping type: iteration over non-sequence')
+        self.failUnless(
+            e.msg.startswith('None is not a mapping type'))
 
     def test_serialize_no_substructs(self):
         struct = DummyStructure(None)
