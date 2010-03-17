@@ -45,13 +45,11 @@ Types
 
   .. autoclass:: GlobalObject
 
-Other
-~~~~~
+Schema-Related
+~~~~~~~~~~~~~~
 
-  .. autoclass:: Structure(typ,*structs,name='',default=MISSING,validator=None)
+  .. autoclass:: SchemaNode(typ,*nodes,name='',default=MISSING,validator=None)
      :members:
-
-  .. autoclass:: Struct
 
   .. autoclass:: Schema
 

@@ -118,8 +118,8 @@ of our definitions, a ``Person`` represents:
 ~~~~~~~~~~~~~~~~~~~~~~
 
 A schema is composed of one or more *schema node* objects, each
-typically of the class ``colander.SchemaNode``, usually in a nested
-arrangement.  Each schema node object has a required *type*, an
+typically of the class :class:`colander.SchemaNode`, usually in a
+nested arrangement.  Each schema node object has a required *type*, an
 optional deserialization *validator*, an optional *default*, and a
 slightly less optional *name*.
 
