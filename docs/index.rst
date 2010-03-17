@@ -167,7 +167,7 @@ noticed that we're defining classes which subclass from
 :class:`colander.SequenceSchema`.  
 
 It's turtles all the way down: the result of creating an instance of
-any of :class:`colander.MappingSchema``, :class:`colander.TupleSchema`
+any of :class:`colander.MappingSchema`, :class:`colander.TupleSchema`
 or :class:`colander.SequenceSchema` object is *also* a
 :class:`colander.SchemaNode` object.
 
