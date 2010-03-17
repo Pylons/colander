@@ -81,14 +81,20 @@ different types.
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.Structure(colander.String())
 
+   class Friends(colander.SequenceSchema):
+       friend = Friend()
+
+   class Phones(colander.SequenceSchema):
+       phone = Phone()
+
    class Person(colander.MappingSchema):
        name = colander.Structure(colander.String())
-       age = colander.Structure(colander.Int(), 
+       age = colander.Structure(colander.Int(),
                                 validator=colander.Range(0, 200))
-       friends = colander.Structure(colander.Sequence(Friend()))
-       phones = colander.Structure(colander.Sequence(Phone()))
+       friends = Friends()
+       phones = Phones()
        
-For ease of reading, we've actually defined *three* schemas above, but
+For ease of reading, we've actually defined *five* schemas above, but
 we coalesce them all into a single ``Person`` schema.  As the result
 of our definitions, a ``Person`` represents:
 
@@ -133,8 +139,8 @@ If a structure does not have a default, it is considered required.
 The *name* of a structure appears in error reports.
 
 The name of a structure that is introduced as a class-level attribute
-of a ``colander.MappingSchema`` or ``colander.TupleSchema`` is its
-class attribute name.  For example:
+of a ``colander.MappingSchema``, ``colander.TupleSchema`` or a
+``colander.SequenceSchema`` is its class attribute name.  For example:
 
 .. code-block:: python
    :linenos:
@@ -152,17 +158,18 @@ colander.Structure(..)`` within the schema above is ``location``.
 Schema Objects
 ~~~~~~~~~~~~~~
 
-The result of creating an instance of a ``colander.MappingSchema`` or
-``colander.TupleSchema`` object is also a *structure* object.
+The result of creating an instance of a ``colander.MappingSchema``,
+``colander.TupleSchema`` or ``colander.SequenceSchema`` object is also
+a *structure* object.
 
 Instantiating a ``colander.MappingSchema`` creates a structure which
-has a *type* value of ``colander.Mapping``.  Instantiating a
-``colander.TupleSchema`` creates a structure which has a *type* value
-of ``colander.Tuple``.
+has a *type* value of ``colander.Mapping``.
 
-A structure defined by instantiating a ``colander.MappingSchema`` or a
-``colander.TupleSchema`` usually has no validator, and has the empty
-string as its name.
+Instantiating a ``colander.TupleSchema`` creates a structure which has
+a *type* value of ``colander.Tuple``.
+
+Instantiating a ``colander.SequenceSchema`` creates a structure which has
+a *type* value of ``colander.Sequence``.
 
 Deserializing A Data Structure Using a Schema
 ---------------------------------------------
@@ -184,12 +191,18 @@ Earlier we defined a schema:
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.Structure(colander.String())
 
+   class Friends(colander.SequenceSchema):
+       friend = Friend()
+
+   class Phones(colander.SequenceSchema):
+       phone = Phone()
+
    class Person(colander.MappingSchema):
        name = colander.Structure(colander.String())
        age = colander.Structure(colander.Int(),
                                 validator=colander.Range(0, 200))
-       friends = colander.Structure(colander.Sequence(Friend()))
-       phones = colander.Structure(colander.Sequence(Phone()))
+       friends = Friends()
+       phones = Phones()
 
 Let's now use this schema to try to deserialize some concrete data
 structures.
@@ -291,7 +304,7 @@ schema configuration.  Here's our previous declarative schema:
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.Structure(colander.Int(),
+       rank = colander.Structure(colander.Int(), 
                                  validator=colander.Range(0, 9999))
        name = colander.Structure(colander.String())
 
@@ -300,12 +313,18 @@ schema configuration.  Here's our previous declarative schema:
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.Structure(colander.String())
 
+   class Friends(colander.SequenceSchema):
+       friend = Friend()
+
+   class Phones(colander.SequenceSchema):
+       phone = Phone()
+
    class Person(colander.MappingSchema):
        name = colander.Structure(colander.String())
        age = colander.Structure(colander.Int(),
                                 validator=colander.Range(0, 200))
-       friends = colander.Structure(colander.Sequence(Friend()))
-       phones = colander.Structure(colander.Sequence(Phone()))
+       friends = Friends()
+       phones = Phones()
 
 We can imperatively construct a completely equivalent schema like so:
 
@@ -330,8 +349,8 @@ We can imperatively construct a completely equivalent schema like so:
    schema.add(colander.Structure(colander.String(), name='name'))
    schema.add(colander.Structure(colander.Int(), name='age'), 
                                  validator=colander.Range(0, 200))
-   schema.add(colander.Structure(colander.Sequence(friend), name='friends'))
-   schema.add(colander.Structure(colander.Sequence(phone), name='phones'))
+   schema.add(colander.Structure(colander.Sequence(), friend, name='friends'))
+   schema.add(colander.Structure(colander.Sequence(), phone, name='phones'))
 
 Defining a schema imperatively is a lot uglier than defining a schema
 declaratively, but it's often more useful when you need to define a

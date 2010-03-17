@@ -270,13 +270,13 @@ class Tuple(Positional):
 class Sequence(Positional):
     """
     A type which represents a variable-length sequence of structures,
-    all of which must be of the same type.  This type is defined by
-    the the :class:`colander.Structure` instance passed to the
-    constructor as ``struct``.
+    all of which must be of the same type.
 
-    The ``struct`` argument to this type's constructor is required.
+    The type of the first substructure of the
+    :class:`colander.Structure` that wraps this type is considered the
+    sequence type.
 
-    The ``accept_scalar`` argument to this type's constructor
+    The optional ``accept_scalar`` argument to this type's constructor
     indicates that if the value found during serialization or
     deserialization does not have an ``__iter__`` method or is a
     mapping type, that the value will be converted to a length-one
@@ -285,11 +285,8 @@ class Sequence(Positional):
     :exc:`colander.Invalid` error will be raised during serialization
     and deserialization.
 
-    The substructures of the :class:`colander.Structure` that wraps
-    this type are ignored.
     """
-    def __init__(self, struct, accept_scalar=False):
-        self.struct = struct
+    def __init__(self, accept_scalar=False):
         self.accept_scalar = accept_scalar
 
     def _validate(self, struct, value):
@@ -307,7 +304,7 @@ class Sequence(Positional):
         result = []
         for num, subval in enumerate(value):
             try:
-                result.append(callback(self.struct, subval))
+                result.append(callback(struct.structs[0], subval))
             except Invalid, e:
                 if error is None:
                     error = Invalid(struct)

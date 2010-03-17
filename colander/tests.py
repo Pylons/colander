@@ -395,9 +395,9 @@ class TestTuple(unittest.TestCase):
         self.assertEqual(len(e.children), 2)
 
 class TestSequence(unittest.TestCase):
-    def _makeOne(self, substruct, **kw):
+    def _makeOne(self, **kw):
         from colander import Sequence
-        return Sequence(substruct, **kw)
+        return Sequence(**kw)
 
     def test_alias(self):
         from colander import Seq
@@ -406,7 +406,8 @@ class TestSequence(unittest.TestCase):
 
     def test_deserialize_not_iterable(self):
         struct = DummyStructure(None)
-        typ = self._makeOne(struct)
+        typ = self._makeOne()
+        struct.structs = [struct]
         e = invalid_exc(typ.deserialize, struct, None)
         self.assertEqual(
             e.msg,
@@ -415,33 +416,38 @@ class TestSequence(unittest.TestCase):
 
     def test_deserialize_not_iterable_accept_scalar(self):
         struct = DummyStructure(None)
-        typ = self._makeOne(struct, accept_scalar=True)
+        typ = self._makeOne(accept_scalar=True)
+        struct.structs = [struct]
         result = typ.deserialize(struct, None)
         self.assertEqual(result, [None])
 
     def test_deserialize_no_substructs(self):
+        typ = self._makeOne()
         struct = DummyStructure(None)
-        typ = self._makeOne(struct)
+        struct.structs = [struct]
         result = typ.deserialize(struct, ())
         self.assertEqual(result, [])
 
     def test_deserialize_ok(self):
         struct = DummyStructure(None)
         struct.structs = [DummyStructure(None, name='a')]
-        typ = self._makeOne(struct)
+        typ = self._makeOne()
+        struct.structs = [struct]
         result = typ.deserialize(struct, ('a',))
         self.assertEqual(result, ['a'])
 
     def test_deserialize_substructs_raise(self):
         struct = DummyStructure(None, exc='Wrong')
-        typ = self._makeOne(struct)
+        typ = self._makeOne()
+        struct.structs = [struct]
         e = invalid_exc(typ.deserialize, struct, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
     def test_serialize_not_iterable(self):
         struct = DummyStructure(None)
-        typ = self._makeOne(struct)
+        typ = self._makeOne()
+        struct.structs = [struct]
         e = invalid_exc(typ.serialize, struct, None)
         self.assertEqual(
             e.msg,
@@ -450,26 +456,29 @@ class TestSequence(unittest.TestCase):
 
     def test_serialize_not_iterable_accept_scalar(self):
         struct = DummyStructure(None)
-        typ = self._makeOne(struct, accept_scalar=True)
+        typ = self._makeOne(accept_scalar=True)
+        struct.structs = [struct]
         result = typ.serialize(struct, None)
         self.assertEqual(result, [None])
 
     def test_serialize_no_substructs(self):
         struct = DummyStructure(None)
-        typ = self._makeOne(struct)
+        struct.structs = [struct]
+        typ = self._makeOne()
         result = typ.serialize(struct, ())
         self.assertEqual(result, [])
 
     def test_serialize_ok(self):
         struct = DummyStructure(None)
         struct.structs = [DummyStructure(None, name='a')]
-        typ = self._makeOne(struct)
+        typ = self._makeOne()
         result = typ.serialize(struct, ('a',))
         self.assertEqual(result, ['a'])
 
     def test_serialize_substructs_raise(self):
         struct = DummyStructure(None, exc='Wrong')
-        typ = self._makeOne(struct)
+        typ = self._makeOne()
+        struct.structs = [struct]
         e = invalid_exc(typ.serialize, struct, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
@@ -870,14 +879,14 @@ class TestSchema(unittest.TestCase):
 class TestSequenceSchema(unittest.TestCase):
     def test_it(self):
         import colander
+        _inner = colander.Structure(colander.String())
         class MySchema(colander.SequenceSchema):
-            pass
-        inner = colander.Structure(colander.String())
-        structure = MySchema(inner)
+            inner = _inner
+        structure = MySchema()
         self.failUnless(hasattr(structure, '_order'))
         self.assertEqual(structure.__class__, colander.Structure)
         self.assertEqual(structure.typ.__class__, colander.Sequence)
-        self.assertEqual(structure.typ.struct, inner)
+        self.assertEqual(structure.structs[0], _inner)
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
@@ -965,24 +974,24 @@ class TestImperative(unittest.TestCase, TestFunctional):
             )
 
         seq = colander.Structure(
-            colander.Sequence(tup),
+            colander.Sequence(),
+            tup,
             name='seq',
             )
 
         seq2 = colander.Structure(
-            colander.Sequence(
+            colander.Sequence(),
+            colander.Structure(
+                colander.Mapping(),
                 colander.Structure(
-                    colander.Mapping(),
-                    colander.Structure(
-                        colander.Integer(),
-                        name='key',
-                        ),
-                    colander.Structure(
-                        colander.Integer(),
-                        name='key2',
-                        ),
-                    name='mapping',
-                    )
+                    colander.Integer(),
+                    name='key',
+                    ),
+                colander.Structure(
+                    colander.Integer(),
+                    name='key2',
+                    ),
+                name='mapping',
                 ),
             name='seq2',
             )
@@ -1011,13 +1020,19 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
             key = colander.Structure(colander.Int())
             key2 = colander.Structure(colander.Int())
 
+        class SequenceOne(colander.SequenceSchema):
+            tuple = TupleSchema()
+
+        class SequenceTwo(colander.SequenceSchema):
+            mapping = MappingSchema()
+
         class MainSchema(colander.MappingSchema):
             int = colander.Structure(colander.Int(),
                                      validator=colander.Range(0, 10))
             ob = colander.Structure(colander.GlobalObject(package=colander))
-            seq = colander.Structure(colander.Sequence(TupleSchema()))
+            seq = SequenceOne()
             tup = TupleSchema()
-            seq2 = colander.SequenceSchema(MappingSchema())
+            seq2 = SequenceTwo()
 
         schema = MainSchema()
         return schema
