@@ -833,6 +833,23 @@ class TestStructure(unittest.TestCase):
         structure.add(1)
         self.assertEqual(structure.structs, [1])
 
+    def test_copy(self):
+        structure = self._makeOne('a', 'b',
+                                  validator='v', name='n', default='d')
+        copy = structure.copy()
+        self.failIf(structure is copy)
+        self.assertEqual(copy.__class__, structure.__class__)
+        self.assertEqual(copy.structs, structure.structs)
+        self.assertEqual(copy.validator, structure.validator)
+        self.assertEqual(copy.name, structure.name)
+        self.assertEqual(copy.default, structure.default)
+
+    def test_repr(self):
+        structure = self._makeOne(None, name='flub')
+        result = repr(structure)
+        self.failUnless(result.startswith('<Structure object at '))
+        self.failUnless(result.endswith("named 'flub'>"))
+
 class TestSchema(unittest.TestCase):
     def test_alias(self):
         from colander import Schema

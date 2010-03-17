@@ -577,6 +577,16 @@ class Structure(object):
         self.name = kw.get('name', '')
         self.structs = list(structs)
 
+    def copy(self):
+        kw = {'validator':self.validator, 'default':self.default,
+              'name':self.name}
+        return self.__class__(self.typ, *self.structs, **kw)
+
+    def __repr__(self):
+        return '<%s object at %x named %r>' % (self.__class__.__name__,
+                                               id(self),
+                                               self.name)
+
     @property
     def required(self):
         """ Property which returns true if this structure is required in the
