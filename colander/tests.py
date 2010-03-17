@@ -10,15 +10,15 @@ def invalid_exc(func, *arg, **kw):
         raise AssertionError('Invalid not raised') # pragma: no cover
 
 class TestInvalid(unittest.TestCase):
-    def _makeOne(self, struct, msg=None, pos=None):
+    def _makeOne(self, node, msg=None, pos=None):
         from colander import Invalid
-        exc = Invalid(struct, msg)
+        exc = Invalid(node, msg)
         exc.pos = pos
         return exc
 
     def test_ctor(self):
         exc = self._makeOne(None, 'msg')
-        self.assertEqual(exc.struct, None)
+        self.assertEqual(exc.node, None)
         self.assertEqual(exc.msg, 'msg')
         self.assertEqual(exc.children, [])
 
@@ -30,15 +30,15 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(exc.children, [other])
 
     def test__keyname_no_parent(self):
-        struct = DummyStructure(None, name='name')
+        node = DummySchemaNode(None, name='name')
         exc = self._makeOne(None, '')
-        exc.struct = struct
+        exc.node = node
         self.assertEqual(exc._keyname(), 'name')
 
     def test__keyname_positional_parent(self):
         from colander import Positional
         parent = Dummy()
-        parent.struct = DummyStructure(Positional())
+        parent.node = DummySchemaNode(Positional())
         exc = self._makeOne(None, '')
         exc.parent = parent
         exc.pos = 2
@@ -46,11 +46,11 @@ class TestInvalid(unittest.TestCase):
 
     def test__keyname_nonpositional_parent(self):
         parent = Dummy()
-        parent.struct = DummyStructure(None)
+        parent.node = DummySchemaNode(None)
         exc = self._makeOne(None, 'me')
         exc.parent = parent
         exc.pos = 2
-        exc.struct = DummyStructure(None, name='name')
+        exc.node = DummySchemaNode(None, name='name')
         self.assertEqual(exc._keyname(), 'name')
 
     def test_paths(self):
@@ -66,20 +66,20 @@ class TestInvalid(unittest.TestCase):
 
     def test_asdict(self):
         from colander import Positional
-        struct1 = DummyStructure(None, 'struct1')
-        struct2 = DummyStructure(Positional(), 'struct2')
-        struct3 = DummyStructure(Positional(), 'struct3')
-        struct4 = DummyStructure(Positional(), 'struct4')
-        exc1 = self._makeOne(struct1, 'exc1', pos=1)
-        exc2 = self._makeOne(struct2, 'exc2', pos=2) 
-        exc3 = self._makeOne(struct3, 'exc3', pos=3)
-        exc4 = self._makeOne(struct4, 'exc4', pos=4)
+        node1 = DummySchemaNode(None, 'node1')
+        node2 = DummySchemaNode(Positional(), 'node2')
+        node3 = DummySchemaNode(Positional(), 'node3')
+        node4 = DummySchemaNode(Positional(), 'node4')
+        exc1 = self._makeOne(node1, 'exc1', pos=1)
+        exc2 = self._makeOne(node2, 'exc2', pos=2) 
+        exc3 = self._makeOne(node3, 'exc3', pos=3)
+        exc4 = self._makeOne(node4, 'exc4', pos=4)
         exc1.add(exc2)
         exc2.add(exc3)
         exc1.add(exc4)
         d = exc1.asdict()
-        self.assertEqual(d, {'struct1.struct2.3': 'exc1; exc2; exc3',
-                             'struct1.struct4': 'exc1; exc4'})
+        self.assertEqual(d, {'node1.node2.3': 'exc1; exc2; exc3',
+                             'node1.node4': 'exc1; exc4'})
 
 
 class TestAll(unittest.TestCase):
@@ -162,133 +162,133 @@ class TestMapping(unittest.TestCase):
             raise AssertionError(e)
 
     def test_deserialize_not_a_mapping(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, None)
+        e = invalid_exc(typ.deserialize, node, None)
         self.failUnless(
             e.msg.startswith('None is not a mapping type'))
 
-    def test_deserialize_no_substructs(self):
-        struct = DummyStructure(None)
+    def test_deserialize_no_subnodes(self):
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(struct, {})
+        result = typ.deserialize(node, {})
         self.assertEqual(result, {})
 
     def test_deserialize_ok(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        result = typ.deserialize(struct, {'a':1})
+        result = typ.deserialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
     def test_deserialize_unknown_keys_raise(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('raise')
-        e = invalid_exc(typ.deserialize, struct, {'a':1, 'b':2})
+        e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
 
     def test_deserialize_unknown_keys_preserve(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('preserve')
-        result = typ.deserialize(struct, {'a':1, 'b':2})
+        result = typ.deserialize(node, {'a':1, 'b':2})
         self.assertEqual(result, {'a':1, 'b':2})
 
-    def test_deserialize_substructs_raise(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a', exc='Wrong 2'),
-            DummyStructure(None, name='b', exc='Wrong 2'),
+    def test_deserialize_subnodes_raise(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a', exc='Wrong 2'),
+            DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, {'a':1, 'b':2})
+        e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
-    def test_deserialize_substruct_missing_default(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a'),
-            DummyStructure(None, name='b', default='abc'),
+    def test_deserialize_subnode_missing_default(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b', default='abc'),
             ]
         typ = self._makeOne()
-        result = typ.deserialize(struct, {'a':1})
+        result = typ.deserialize(node, {'a':1})
         self.assertEqual(result, {'a':1, 'b':'abc'})
 
-    def test_deserialize_substruct_missing_nodefault(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a'),
-            DummyStructure(None, name='b'),
+    def test_deserialize_subnode_missing_nodefault(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
             ]
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, {'a':1})
+        e = invalid_exc(typ.deserialize, node, {'a':1})
         self.assertEqual(e.children[0].msg, "'b' is required but missing")
 
     def test_serialize_not_a_mapping(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, None)
+        e = invalid_exc(typ.serialize, node, None)
         self.failUnless(
             e.msg.startswith('None is not a mapping type'))
 
-    def test_serialize_no_substructs(self):
-        struct = DummyStructure(None)
+    def test_serialize_no_subnodes(self):
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.serialize(struct, {})
+        result = typ.serialize(node, {})
         self.assertEqual(result, {})
 
     def test_serialize_ok(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        result = typ.serialize(struct, {'a':1})
+        result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
     def test_serialize_unknown_keys_raise(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('raise')
-        e = invalid_exc(typ.serialize, struct, {'a':1, 'b':2})
+        e = invalid_exc(typ.serialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
 
     def test_serialize_unknown_keys_preserve(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('preserve')
-        result = typ.serialize(struct, {'a':1, 'b':2})
+        result = typ.serialize(node, {'a':1, 'b':2})
         self.assertEqual(result, {'a':1, 'b':2})
 
-    def test_serialize_substructs_raise(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a', exc='Wrong 2'),
-            DummyStructure(None, name='b', exc='Wrong 2'),
+    def test_serialize_subnodes_raise(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a', exc='Wrong 2'),
+            DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, {'a':1, 'b':2})
+        e = invalid_exc(typ.serialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
-    def test_serialize_substruct_missing_default(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a'),
-            DummyStructure(None, name='b', default='abc'),
+    def test_serialize_subnode_missing_default(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b', default='abc'),
             ]
         typ = self._makeOne()
-        result = typ.serialize(struct, {'a':1})
+        result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1, 'b':'abc'})
 
-    def test_serialize_substruct_missing_nodefault(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a'),
-            DummyStructure(None, name='b'),
+    def test_serialize_subnode_missing_nodefault(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
             ]
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, {'a':1})
+        e = invalid_exc(typ.serialize, node, {'a':1})
         self.assertEqual(e.children[0].msg, "'b' is required but missing")
 
 class TestTuple(unittest.TestCase):
@@ -297,100 +297,100 @@ class TestTuple(unittest.TestCase):
         return Tuple()
 
     def test_deserialize_not_iterable(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, None)
+        e = invalid_exc(typ.deserialize, node, None)
         self.assertEqual(
             e.msg,
             'None is not iterable')
-        self.assertEqual(e.struct, struct)
+        self.assertEqual(e.node, node)
 
-    def test_deserialize_no_substructs(self):
-        struct = DummyStructure(None)
+    def test_deserialize_no_subnodes(self):
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(struct, ())
+        result = typ.deserialize(node, ())
         self.assertEqual(result, ())
 
     def test_deserialize_ok(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        result = typ.deserialize(struct, ('a',))
+        result = typ.deserialize(node, ('a',))
         self.assertEqual(result, ('a',))
 
     def test_deserialize_toobig(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, ('a','b'))
+        e = invalid_exc(typ.deserialize, node, ('a','b'))
         self.assertEqual(e.msg,
            "('a', 'b') has an incorrect number of elements (expected 1, was 2)")
 
     def test_deserialize_toosmall(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, ())
+        e = invalid_exc(typ.deserialize, node, ())
         self.assertEqual(e.msg,
            "() has an incorrect number of elements (expected 1, was 0)")
 
-    def test_deserialize_substructs_raise(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a', exc='Wrong 2'),
-            DummyStructure(None, name='b', exc='Wrong 2'),
+    def test_deserialize_subnodes_raise(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a', exc='Wrong 2'),
+            DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, ('1', '2'))
+        e = invalid_exc(typ.deserialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
     def test_serialize_not_iterable(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, None)
+        e = invalid_exc(typ.serialize, node, None)
         self.assertEqual(
             e.msg,
             'None is not iterable')
-        self.assertEqual(e.struct, struct)
+        self.assertEqual(e.node, node)
 
-    def test_serialize_no_substructs(self):
-        struct = DummyStructure(None)
+    def test_serialize_no_subnodes(self):
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.serialize(struct, ())
+        result = typ.serialize(node, ())
         self.assertEqual(result, ())
 
     def test_serialize_ok(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        result = typ.serialize(struct, ('a',))
+        result = typ.serialize(node, ('a',))
         self.assertEqual(result, ('a',))
 
     def test_serialize_toobig(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, ('a','b'))
+        e = invalid_exc(typ.serialize, node, ('a','b'))
         self.assertEqual(e.msg,
            "('a', 'b') has an incorrect number of elements (expected 1, was 2)")
 
     def test_serialize_toosmall(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, ())
+        e = invalid_exc(typ.serialize, node, ())
         self.assertEqual(e.msg,
            "() has an incorrect number of elements (expected 1, was 0)")
 
-    def test_serialize_substructs_raise(self):
-        struct = DummyStructure(None)
-        struct.structs = [
-            DummyStructure(None, name='a', exc='Wrong 2'),
-            DummyStructure(None, name='b', exc='Wrong 2'),
+    def test_serialize_subnodes_raise(self):
+        node = DummySchemaNode(None)
+        node.nodes = [
+            DummySchemaNode(None, name='a', exc='Wrong 2'),
+            DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, ('1', '2'))
+        e = invalid_exc(typ.serialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
@@ -405,81 +405,81 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(Seq, Sequence)
 
     def test_deserialize_not_iterable(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        struct.structs = [struct]
-        e = invalid_exc(typ.deserialize, struct, None)
+        node.nodes = [node]
+        e = invalid_exc(typ.deserialize, node, None)
         self.assertEqual(
             e.msg,
             'None is not iterable')
-        self.assertEqual(e.struct, struct)
+        self.assertEqual(e.node, node)
 
     def test_deserialize_not_iterable_accept_scalar(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne(accept_scalar=True)
-        struct.structs = [struct]
-        result = typ.deserialize(struct, None)
+        node.nodes = [node]
+        result = typ.deserialize(node, None)
         self.assertEqual(result, [None])
 
-    def test_deserialize_no_substructs(self):
+    def test_deserialize_no_subnodes(self):
         typ = self._makeOne()
-        struct = DummyStructure(None)
-        struct.structs = [struct]
-        result = typ.deserialize(struct, ())
+        node = DummySchemaNode(None)
+        node.nodes = [node]
+        result = typ.deserialize(node, ())
         self.assertEqual(result, [])
 
     def test_deserialize_ok(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        struct.structs = [struct]
-        result = typ.deserialize(struct, ('a',))
+        node.nodes = [node]
+        result = typ.deserialize(node, ('a',))
         self.assertEqual(result, ['a'])
 
-    def test_deserialize_substructs_raise(self):
-        struct = DummyStructure(None, exc='Wrong')
+    def test_deserialize_subnodes_raise(self):
+        node = DummySchemaNode(None, exc='Wrong')
         typ = self._makeOne()
-        struct.structs = [struct]
-        e = invalid_exc(typ.deserialize, struct, ('1', '2'))
+        node.nodes = [node]
+        e = invalid_exc(typ.deserialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
     def test_serialize_not_iterable(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        struct.structs = [struct]
-        e = invalid_exc(typ.serialize, struct, None)
+        node.nodes = [node]
+        e = invalid_exc(typ.serialize, node, None)
         self.assertEqual(
             e.msg,
             'None is not iterable')
-        self.assertEqual(e.struct, struct)
+        self.assertEqual(e.node, node)
 
     def test_serialize_not_iterable_accept_scalar(self):
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne(accept_scalar=True)
-        struct.structs = [struct]
-        result = typ.serialize(struct, None)
+        node.nodes = [node]
+        result = typ.serialize(node, None)
         self.assertEqual(result, [None])
 
-    def test_serialize_no_substructs(self):
-        struct = DummyStructure(None)
-        struct.structs = [struct]
+    def test_serialize_no_subnodes(self):
+        node = DummySchemaNode(None)
+        node.nodes = [node]
         typ = self._makeOne()
-        result = typ.serialize(struct, ())
+        result = typ.serialize(node, ())
         self.assertEqual(result, [])
 
     def test_serialize_ok(self):
-        struct = DummyStructure(None)
-        struct.structs = [DummyStructure(None, name='a')]
+        node = DummySchemaNode(None)
+        node.nodes = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        result = typ.serialize(struct, ('a',))
+        result = typ.serialize(node, ('a',))
         self.assertEqual(result, ['a'])
 
-    def test_serialize_substructs_raise(self):
-        struct = DummyStructure(None, exc='Wrong')
+    def test_serialize_subnodes_raise(self):
+        node = DummySchemaNode(None, exc='Wrong')
         typ = self._makeOne()
-        struct.structs = [struct]
-        e = invalid_exc(typ.serialize, struct, ('1', '2'))
+        node.nodes = [node]
+        e = invalid_exc(typ.serialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
@@ -495,55 +495,55 @@ class TestString(unittest.TestCase):
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, val)
+        e = invalid_exc(typ.deserialize, node, val)
         self.failUnless(e.msg)
 
     def test_deserialize_unicode(self):
         uni = u'\xf8'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(struct, uni)
+        result = typ.deserialize(node, uni)
         self.assertEqual(result, uni)
 
     def test_deserialize_from_utf8(self):
         utf8 = '\xc3\xb8'
         uni = u'\xf8'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(struct, utf8)
+        result = typ.deserialize(node, utf8)
         self.assertEqual(result, uni)
 
     def test_deserialize_from_utf16(self):
         utf16 = '\xff\xfe\xf8\x00'
         uni = u'\xf8'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
-        result = typ.deserialize(struct, utf16)
+        result = typ.deserialize(node, utf16)
         self.assertEqual(result, uni)
 
     def test_serialize_uncooperative(self):
         val = Uncooperative()
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, val)
+        e = invalid_exc(typ.serialize, node, val)
         self.failUnless(e.msg)
 
     def test_serialize_to_utf8(self):
         utf8 = '\xc3\xb8'
         uni = u'\xf8'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.serialize(struct, uni)
+        result = typ.serialize(node, uni)
         self.assertEqual(result, utf8)
 
     def test_serialize_to_utf16(self):
         utf16 = '\xff\xfe\xf8\x00'
         uni = u'\xf8'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
-        result = typ.serialize(struct, uni)
+        result = typ.serialize(node, uni)
         self.assertEqual(result, utf16)
 
 class TestInteger(unittest.TestCase):
@@ -558,30 +558,30 @@ class TestInteger(unittest.TestCase):
 
     def test_deserialize_fails(self):
         val = 'P'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, val)
+        e = invalid_exc(typ.deserialize, node, val)
         self.failUnless(e.msg)
 
     def test_deserialize_ok(self):
         val = '1'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(struct, val)
+        result = typ.deserialize(node, val)
         self.assertEqual(result, 1)
 
     def test_serialize_fails(self):
         val = 'P'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, val)
+        e = invalid_exc(typ.serialize, node, val)
         self.failUnless(e.msg)
 
     def test_serialize_ok(self):
         val = 1
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.serialize(struct, val)
+        result = typ.serialize(node, val)
         self.assertEqual(result, '1')
 
 class TestFloat(unittest.TestCase):
@@ -591,30 +591,30 @@ class TestFloat(unittest.TestCase):
 
     def test_deserialize_fails(self):
         val = 'P'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, struct, val)
+        e = invalid_exc(typ.deserialize, node, val)
         self.failUnless(e.msg)
 
     def test_deserialize_ok(self):
         val = '1.0'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(struct, val)
+        result = typ.deserialize(node, val)
         self.assertEqual(result, 1.0)
 
     def test_serialize_fails(self):
         val = 'P'
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, struct, val)
+        e = invalid_exc(typ.serialize, node, val)
         self.failUnless(e.msg)
 
     def test_serialize_ok(self):
         val = 1.0
-        struct = DummyStructure(None)
+        node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.serialize(struct, val)
+        result = typ.serialize(node, val)
         self.assertEqual(result, '1.0')
 
 class TestBoolean(unittest.TestCase):
@@ -629,26 +629,26 @@ class TestBoolean(unittest.TestCase):
 
     def test_deserialize(self):
         typ = self._makeOne()
-        struct = DummyStructure(None)
-        self.assertEqual(typ.deserialize(struct, 'false'), False)
-        self.assertEqual(typ.deserialize(struct, 'FALSE'), False)
-        self.assertEqual(typ.deserialize(struct, '0'), False)
-        self.assertEqual(typ.deserialize(struct, 'true'), True)
-        self.assertEqual(typ.deserialize(struct, 'other'), True)
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'false'), False)
+        self.assertEqual(typ.deserialize(node, 'FALSE'), False)
+        self.assertEqual(typ.deserialize(node, '0'), False)
+        self.assertEqual(typ.deserialize(node, 'true'), True)
+        self.assertEqual(typ.deserialize(node, 'other'), True)
 
     def test_deserialize_unstringable(self):
         typ = self._makeOne()
-        struct = DummyStructure(None)
-        e = invalid_exc(typ.deserialize, struct, Uncooperative())
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.deserialize, node, Uncooperative())
         self.failUnless(e.msg.endswith('not a string'))
 
     def test_serialize(self):
         typ = self._makeOne()
-        struct = DummyStructure(None)
-        self.assertEqual(typ.serialize(struct, 1), 'true')
-        self.assertEqual(typ.serialize(struct, True), 'true')
-        self.assertEqual(typ.serialize(struct, None), 'false')
-        self.assertEqual(typ.serialize(struct, False), 'false')
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.serialize(node, 1), 'true')
+        self.assertEqual(typ.serialize(node, True), 'true')
+        self.assertEqual(typ.serialize(node, None), 'false')
+        self.assertEqual(typ.serialize(node, False), 'false')
 
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
@@ -752,7 +752,8 @@ class TestGlobalObject(unittest.TestCase):
         
     def test__pkg_resources_style_resolve_relative_nocurrentpackage(self):
         typ = self._makeOne()
-        self.assertRaises(ImportError, typ._pkg_resources_style, None,
+        import colander
+        self.assertRaises(colander.Invalid, typ._pkg_resources_style, None,
                           '.whatever')
 
     def test__pkg_resources_style_irrresolveable_relative(self):
@@ -793,70 +794,59 @@ class TestGlobalObject(unittest.TestCase):
         e = invalid_exc(typ.serialize, None, None)
         self.assertEqual(e.msg, 'None has no __name__')
 
-class TestStructure(unittest.TestCase):
+class TestSchemaNode(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
-        from colander import Structure
-        return Structure(*arg, **kw)
+        from colander import SchemaNode
+        return SchemaNode(*arg, **kw)
 
     def test_new_sets_order(self):
-        structure = self._makeOne(None)
-        self.failUnless(hasattr(structure, '_order'))
+        node = self._makeOne(None)
+        self.failUnless(hasattr(node, '_order'))
 
     def test_ctor(self):
-        structure = self._makeOne(None, 0, validator=1, default=2, name=3)
-        self.assertEqual(structure.typ, None)
-        self.assertEqual(structure.structs, [0])
-        self.assertEqual(structure.validator, 1)
-        self.assertEqual(structure.default, 2)
-        self.assertEqual(structure.name, 3)
+        node = self._makeOne(None, 0, validator=1, default=2, name=3)
+        self.assertEqual(node.typ, None)
+        self.assertEqual(node.nodes, [0])
+        self.assertEqual(node.validator, 1)
+        self.assertEqual(node.default, 2)
+        self.assertEqual(node.name, 3)
 
     def test_required_true(self):
-        structure = self._makeOne(None)
-        self.assertEqual(structure.required, True)
+        node = self._makeOne(None)
+        self.assertEqual(node.required, True)
 
     def test_required_false(self):
-        structure = self._makeOne(None, default=1)
-        self.assertEqual(structure.required, False)
+        node = self._makeOne(None, default=1)
+        self.assertEqual(node.required, False)
 
     def test_deserialize_no_validator(self):
         typ = DummyType()
-        structure = self._makeOne(typ)
-        result = structure.deserialize(1)
+        node = self._makeOne(typ)
+        result = node.deserialize(1)
         self.assertEqual(result, 1)
 
     def test_deserialize_with_validator(self):
         typ = DummyType()
         validator = DummyValidator(msg='Wrong')
-        structure = self._makeOne(typ, validator=validator)
-        e = invalid_exc(structure.deserialize, 1)
+        node = self._makeOne(typ, validator=validator)
+        e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
     def test_serialize(self):
         typ = DummyType()
-        structure = self._makeOne(typ)
-        result = structure.serialize(1)
+        node = self._makeOne(typ)
+        result = node.serialize(1)
         self.assertEqual(result, 1)
 
     def test_add(self):
-        structure = self._makeOne(None)
-        structure.add(1)
-        self.assertEqual(structure.structs, [1])
-
-    def test_copy(self):
-        structure = self._makeOne('a', 'b',
-                                  validator='v', name='n', default='d')
-        copy = structure.copy()
-        self.failIf(structure is copy)
-        self.assertEqual(copy.__class__, structure.__class__)
-        self.assertEqual(copy.structs, structure.structs)
-        self.assertEqual(copy.validator, structure.validator)
-        self.assertEqual(copy.name, structure.name)
-        self.assertEqual(copy.default, structure.default)
+        node = self._makeOne(None)
+        node.add(1)
+        self.assertEqual(node.nodes, [1])
 
     def test_repr(self):
-        structure = self._makeOne(None, name='flub')
-        result = repr(structure)
-        self.failUnless(result.startswith('<Structure object at '))
+        node = self._makeOne(None, name='flub')
+        result = repr(node)
+        self.failUnless(result.startswith('<SchemaNode object at '))
         self.failUnless(result.endswith("named 'flub'>"))
 
 class TestSchema(unittest.TestCase):
@@ -868,36 +858,36 @@ class TestSchema(unittest.TestCase):
     def test_it(self):
         import colander
         class MySchema(colander.Schema):
-            thing = colander.Structure(colander.String())
-        structure = MySchema(unknown_keys='raise')
-        self.failUnless(hasattr(structure, '_order'))
-        self.assertEqual(structure.__class__, colander.Structure)
-        self.assertEqual(structure.typ.__class__, colander.Mapping)
-        self.assertEqual(structure.typ.unknown_keys, 'raise')
-        self.assertEqual(structure.structs[0].typ.__class__, colander.String)
+            thing = colander.SchemaNode(colander.String())
+        node = MySchema(unknown_keys='raise')
+        self.failUnless(hasattr(node, '_order'))
+        self.assertEqual(node.__class__, colander.SchemaNode)
+        self.assertEqual(node.typ.__class__, colander.Mapping)
+        self.assertEqual(node.typ.unknown_keys, 'raise')
+        self.assertEqual(node.nodes[0].typ.__class__, colander.String)
         
 class TestSequenceSchema(unittest.TestCase):
     def test_it(self):
         import colander
-        _inner = colander.Structure(colander.String())
+        _inner = colander.SchemaNode(colander.String())
         class MySchema(colander.SequenceSchema):
             inner = _inner
-        structure = MySchema()
-        self.failUnless(hasattr(structure, '_order'))
-        self.assertEqual(structure.__class__, colander.Structure)
-        self.assertEqual(structure.typ.__class__, colander.Sequence)
-        self.assertEqual(structure.structs[0], _inner)
+        node = MySchema()
+        self.failUnless(hasattr(node, '_order'))
+        self.assertEqual(node.__class__, colander.SchemaNode)
+        self.assertEqual(node.typ.__class__, colander.Sequence)
+        self.assertEqual(node.nodes[0], _inner)
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
         import colander
         class MySchema(colander.TupleSchema):
-            thing = colander.Structure(colander.String())
-        structure = MySchema()
-        self.failUnless(hasattr(structure, '_order'))
-        self.assertEqual(structure.__class__, colander.Structure)
-        self.assertEqual(structure.typ.__class__, colander.Tuple)
-        self.assertEqual(structure.structs[0].typ.__class__, colander.String)
+            thing = colander.SchemaNode(colander.String())
+        node = MySchema()
+        self.failUnless(hasattr(node, '_order'))
+        self.assertEqual(node.__class__, colander.SchemaNode)
+        self.assertEqual(node.typ.__class__, colander.Tuple)
+        self.assertEqual(node.nodes[0].typ.__class__, colander.String)
 
 class TestFunctional(object):
     def test_deserialize_ok(self):
@@ -949,45 +939,45 @@ class TestImperative(unittest.TestCase, TestFunctional):
     def _makeSchema(self):
         import colander
 
-        integer = colander.Structure(
+        integer = colander.SchemaNode(
             colander.Integer(),
             name='int',
             validator=colander.Range(0, 10)
             )
 
-        ob = colander.Structure(
+        ob = colander.SchemaNode(
             colander.GlobalObject(package=colander),
             name='ob',
             )
 
-        tup = colander.Structure(
+        tup = colander.SchemaNode(
             colander.Tuple(),
-            colander.Structure(
+            colander.SchemaNode(
                 colander.Integer(),
                 name='tupint',
                 ),
-            colander.Structure(
+            colander.SchemaNode(
                 colander.String(),
                 name='tupstring',
                 ),
             name='tup',
             )
 
-        seq = colander.Structure(
+        seq = colander.SchemaNode(
             colander.Sequence(),
             tup,
             name='seq',
             )
 
-        seq2 = colander.Structure(
+        seq2 = colander.SchemaNode(
             colander.Sequence(),
-            colander.Structure(
+            colander.SchemaNode(
                 colander.Mapping(),
-                colander.Structure(
+                colander.SchemaNode(
                     colander.Integer(),
                     name='key',
                     ),
-                colander.Structure(
+                colander.SchemaNode(
                     colander.Integer(),
                     name='key2',
                     ),
@@ -996,7 +986,7 @@ class TestImperative(unittest.TestCase, TestFunctional):
             name='seq2',
             )
 
-        schema = colander.Structure(
+        schema = colander.SchemaNode(
             colander.Mapping(),
             integer,
             ob,
@@ -1013,12 +1003,12 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
         import colander
 
         class TupleSchema(colander.TupleSchema):
-            tupint = colander.Structure(colander.Int())
-            tupstring = colander.Structure(colander.String())
+            tupint = colander.SchemaNode(colander.Int())
+            tupstring = colander.SchemaNode(colander.String())
 
         class MappingSchema(colander.MappingSchema):
-            key = colander.Structure(colander.Int())
-            key2 = colander.Structure(colander.Int())
+            key = colander.SchemaNode(colander.Int())
+            key2 = colander.SchemaNode(colander.Int())
 
         class SequenceOne(colander.SequenceSchema):
             tuple = TupleSchema()
@@ -1027,9 +1017,9 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
             mapping = MappingSchema()
 
         class MainSchema(colander.MappingSchema):
-            int = colander.Structure(colander.Int(),
+            int = colander.SchemaNode(colander.Int(),
                                      validator=colander.Range(0, 10))
-            ob = colander.Structure(colander.GlobalObject(package=colander))
+            ob = colander.SchemaNode(colander.GlobalObject(package=colander))
             seq = SequenceOne()
             tup = TupleSchema()
             seq2 = SequenceTwo()
@@ -1040,14 +1030,14 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
 class Dummy(object):
     pass
 
-class DummyStructure(object):
+class DummySchemaNode(object):
     def __init__(self, typ, name='', exc=None, default=None):
         self.typ = typ
         self.name = name
         self.exc = exc
         self.required = default is None
         self.default = default
-        self.structs = []
+        self.nodes = []
 
     def deserialize(self, val):
         from colander import Invalid
@@ -1065,10 +1055,10 @@ class DummyValidator(object):
     def __init__(self, msg=None):
         self.msg = msg
 
-    def __call__(self, struct, value):
+    def __call__(self, node, value):
         from colander import Invalid
         if self.msg:
-            raise Invalid(struct, self.msg)
+            raise Invalid(node, self.msg)
 
 class Uncooperative(object):
     def __str__(self):
@@ -1077,9 +1067,9 @@ class Uncooperative(object):
     __unicode__ = __str__
     
 class DummyType(object):
-    def serialize(self, struct, value):
+    def serialize(self, node, value):
         return value
 
-    def deserialize(self, struct, value):
+    def deserialize(self, node, value):
         return value
     

@@ -72,14 +72,14 @@ different types.
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.Structure(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(), 
                                  validator=colander.Range(0, 9999))
-       name = colander.Structure(colander.String())
+       name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.Structure(colander.String(), 
+       location = colander.SchemaNode(colander.String(), 
                                      validator=colander.OneOf(['home', 'work']))
-       number = colander.Structure(colander.String())
+       number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
        friend = Friend()
@@ -88,8 +88,8 @@ different types.
        phone = Phone()
 
    class Person(colander.MappingSchema):
-       name = colander.Structure(colander.String())
-       age = colander.Structure(colander.Int(),
+       name = colander.SchemaNode(colander.String())
+       age = colander.SchemaNode(colander.Int(),
                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
@@ -114,33 +114,35 @@ of our definitions, a ``Person`` represents:
   ``number``.  The ``location`` must be one of ``work`` or ``home``.
   The number must be a string.
 
-Structure Objects
+SchemaNode Objects
 ~~~~~~~~~~~~~~~~~
 
-A schema is composed of one or more *structure* objects, usually in a
-nested arrangement.  Each structure object has a required *type*, an
-optional deserialization *validator*, an optional *default*, and a
+A schema is composed of one or more *schema node* objects, usually in
+a nested arrangement.  Each schema node object has a required *type*,
+an optional deserialization *validator*, an optional *default*, and a
 slightly less optional *name*.
 
-The *type* of a structure indicates its data type (such as
+The *type* of a schema node indicates its data type (such as
 ``colander.Int`` or ``colander.String``).
 
-The *validator* of a structure is called after deserialization; it
+The *validator* of a schema node is called after deserialization; it
 makes sure the deserialized value matches a constraint.  An example of
 such a validator is provided in the schema above:
 ``validator=colander.Range(0, 200)``.  A validator is not called after
 serialization, only after deserialization.
 
-The *default* of a structure indicates its default value if a value
-for the structure is not found in the input data during serialization
-and deserialization.  It should be the *deserialized* representation.
-If a structure does not have a default, it is considered required.
+The *default* of a schema node indicates its default value if a value
+for the schema node is not found in the input data during
+serialization and deserialization.  It should be the *deserialized*
+representation.  If a schema node does not have a default, it is
+considered required.
 
-The *name* of a structure appears in error reports.
+The *name* of a schema node appears in error reports.
 
-The name of a structure that is introduced as a class-level attribute
-of a ``colander.MappingSchema``, ``colander.TupleSchema`` or a
-``colander.SequenceSchema`` is its class attribute name.  For example:
+The name of a schema node that is introduced as a class-level
+attribute of a ``colander.MappingSchema``, ``colander.TupleSchema`` or
+a ``colander.SequenceSchema`` is its class attribute name.  For
+example:
 
 .. code-block:: python
    :linenos:
@@ -148,28 +150,30 @@ of a ``colander.MappingSchema``, ``colander.TupleSchema`` or a
    import colander
 
    class Phone(colander.MappingSchema):
-       location = colander.Structure(colander.String(), 
+       location = colander.SchemaNode(colander.String(), 
                                      validator=colander.OneOf(['home', 'work']))
-       number = colander.Structure(colander.String())
+       number = colander.SchemaNode(colander.String())
 
-The name of the structure defined via ``location =
-colander.Structure(..)`` within the schema above is ``location``.
+The name of the schema node defined via ``location =
+colander.SchemaNode(..)`` within the schema above is ``location``.
 
 Schema Objects
 ~~~~~~~~~~~~~~
 
+It's turtles all the way down.
+
 The result of creating an instance of a ``colander.MappingSchema``,
 ``colander.TupleSchema`` or ``colander.SequenceSchema`` object is also
-a *structure* object.
+a *schema node* object.
 
-Instantiating a ``colander.MappingSchema`` creates a structure which
+Instantiating a ``colander.MappingSchema`` creates a schema node which
 has a *type* value of ``colander.Mapping``.
 
-Instantiating a ``colander.TupleSchema`` creates a structure which has
+Instantiating a ``colander.TupleSchema`` creates a schema node which has
 a *type* value of ``colander.Tuple``.
 
-Instantiating a ``colander.SequenceSchema`` creates a structure which has
-a *type* value of ``colander.Sequence``.
+Instantiating a ``colander.SequenceSchema`` creates a schema node
+which has a *type* value of ``colander.Sequence``.
 
 Deserializing A Data Structure Using a Schema
 ---------------------------------------------
@@ -182,14 +186,14 @@ Earlier we defined a schema:
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.Structure(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(), 
                                  validator=colander.Range(0, 9999))
-       name = colander.Structure(colander.String())
+       name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.Structure(colander.String(), 
+       location = colander.SchemaNode(colander.String(), 
                                      validator=colander.OneOf(['home', 'work']))
-       number = colander.Structure(colander.String())
+       number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
        friend = Friend()
@@ -198,8 +202,8 @@ Earlier we defined a schema:
        phone = Phone()
 
    class Person(colander.MappingSchema):
-       name = colander.Structure(colander.String())
-       age = colander.Structure(colander.Int(),
+       name = colander.SchemaNode(colander.String())
+       age = colander.SchemaNode(colander.Int(),
                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
@@ -304,14 +308,14 @@ schema configuration.  Here's our previous declarative schema:
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.Structure(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(), 
                                  validator=colander.Range(0, 9999))
-       name = colander.Structure(colander.String())
+       name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.Structure(colander.String(), 
+       location = colander.SchemaNode(colander.String(), 
                                      validator=colander.OneOf(['home', 'work']))
-       number = colander.Structure(colander.String())
+       number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
        friend = Friend()
@@ -320,8 +324,8 @@ schema configuration.  Here's our previous declarative schema:
        phone = Phone()
 
    class Person(colander.MappingSchema):
-       name = colander.Structure(colander.String())
-       age = colander.Structure(colander.Int(),
+       name = colander.SchemaNode(colander.String())
+       age = colander.SchemaNode(colander.Int(),
                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
@@ -333,24 +337,24 @@ We can imperatively construct a completely equivalent schema like so:
 
    import colander
 
-   friend = colander.Structure(Tuple())
-   friend.add(colander.Structure(colander.Int(),
+   friend = colander.SchemaNode(Tuple())
+   friend.add(colander.SchemaNode(colander.Int(),
                                  validator=colander.Range(0, 9999),
               name='rank'))
-   friend.add(colander.Structure(colander.String()), name='name')
+   friend.add(colander.SchemaNode(colander.String()), name='name')
 
-   phone = colander.Structure(Mapping())
-   phone.add(colander.Structure(colander.String(),
+   phone = colander.SchemaNode(Mapping())
+   phone.add(colander.SchemaNode(colander.String(),
                                 validator=colander.OneOf(['home', 'work']),
                                 name='location'))
-   phone.add(colander.Structure(colander.String(), name='number'))
+   phone.add(colander.SchemaNode(colander.String(), name='number'))
 
-   schema = colander.Structure(Mapping())
-   schema.add(colander.Structure(colander.String(), name='name'))
-   schema.add(colander.Structure(colander.Int(), name='age'), 
+   schema = colander.SchemaNode(Mapping())
+   schema.add(colander.SchemaNode(colander.String(), name='name'))
+   schema.add(colander.SchemaNode(colander.Int(), name='age'), 
                                  validator=colander.Range(0, 200))
-   schema.add(colander.Structure(colander.Sequence(), friend, name='friends'))
-   schema.add(colander.Structure(colander.Sequence(), phone, name='phones'))
+   schema.add(colander.SchemaNode(colander.Sequence(), friend, name='friends'))
+   schema.add(colander.SchemaNode(colander.Sequence(), phone, name='phones'))
 
 Defining a schema imperatively is a lot uglier than defining a schema
 declaratively, but it's often more useful when you need to define a
@@ -414,7 +418,7 @@ Here's how you would use the resulting class as part of a schema:
    import colander
 
    class Schema(colander.MappingSchema):
-       interested = colander.Structure(Boolean())
+       interested = colander.SchemaNode(Boolean())
 
 The above schema has a member named ``interested`` which will now be
 serialized and deserialized as a boolean, according to the logic
@@ -468,11 +472,11 @@ schema:
    import colander
 
    class Schema(colander.MappingSchema):
-       cc_number = colander.Structure(colander.String(), validator=lunhnok)
+       cc_number = colander.SchemaNode(colander.String(), validator=lunhnok)
 
 Note that the validator doesn't need to check if the ``value`` is a
 string: this has already been done as the result of the type of the
-``cc_number`` structure being ``colander.String``. Validators are
+``cc_number`` schema node being ``colander.String``. Validators are
 always passed the *deserialized* value when they are invoked.
 
 For a more formal definition of a the interface of a validator, see

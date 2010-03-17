@@ -6,10 +6,10 @@ class _missing(object):
 class Invalid(Exception):
     """
     An exception raised by data types and validators indicating that
-    the value for a particular structure was not valid.
+    the value for a particular node was not valid.
 
-    The constructor receives a mandatory ``struct`` argument.  This
-    must be an instance of the :class:`colander.Structure` class.
+    The constructor receives a mandatory ``node`` argument.  This must
+    be an instance of the :class:`colander.SchemaNode` class.
 
     The constructor also receives an optional ``msg`` keyword
     argument, defaulting to ``None``.  The ``msg`` argument is a
@@ -18,9 +18,9 @@ class Invalid(Exception):
     pos = None
     parent = None
 
-    def __init__(self, struct, msg=None):
-        Exception.__init__(self, struct, msg)
-        self.struct = struct
+    def __init__(self, node, msg=None):
+        Exception.__init__(self, node, msg)
+        self.node = node
         self.msg = msg
         self.children = []
 
@@ -47,9 +47,9 @@ class Invalid(Exception):
         return traverse(self, [])
 
     def _keyname(self):
-        if self.parent and isinstance(self.parent.struct.typ, Positional):
+        if self.parent and isinstance(self.parent.node.typ, Positional):
             return str(self.pos)
-        return str(self.struct.name)
+        return str(self.node.name)
 
     def asdict(self):
         """ Return a dictionary containing an error report for this
@@ -72,16 +72,16 @@ class All(object):
     def __init__(self, *validators):
         self.validators = validators
 
-    def __call__(self, struct, value):
+    def __call__(self, node, value):
         msgs = []
         for validator in self.validators:
             try:
-                validator(struct, value)
+                validator(node, value)
             except Invalid, e:
                 msgs.append(e.msg)
 
         if msgs:
-            raise Invalid(struct, msgs)
+            raise Invalid(node, msgs)
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
@@ -93,17 +93,17 @@ class Range(object):
         self.min = min
         self.max = max
 
-    def __call__(self, struct, value):
+    def __call__(self, node, value):
         if self.min is not None:
             if value < self.min:
                 raise Invalid(
-                    struct,
+                    node,
                     '%r is less than minimum value %r' % (value, self.min))
 
         if self.max is not None:
             if value > self.max:
                 raise Invalid(
-                    struct,
+                    node,
                     '%r is greater than maximum value %r' % (value, self.max))
 
 class OneOf(object):
@@ -112,14 +112,14 @@ class OneOf(object):
     def __init__(self, values):
         self.values = values
 
-    def __call__(self, struct, value):
+    def __call__(self, node, value):
         if not value in self.values:
-            raise Invalid(struct, '%r is not one of %r' % (value, self.values))
+            raise Invalid(node, '%r is not one of %r' % (value, self.values))
 
 class Mapping(object):
-    """ A type which represents a mapping of names to structures.
+    """ A type which represents a mapping of names to nodes.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the named keys and values in the mapping.
 
     The constructor of a mapping type accepts a single optional
@@ -146,40 +146,40 @@ class Mapping(object):
                 'or "preserve"')
         self.unknown_keys = unknown_keys
         
-    def _validate(self, struct, value):
+    def _validate(self, node, value):
         try:
             return dict(value)
         except Exception, e:
-            raise Invalid(struct, '%r is not a mapping type: %s' % (value, e))
+            raise Invalid(node, '%r is not a mapping type: %s' % (value, e))
 
-    def _impl(self, struct, value, callback, default_callback):
-        value = self._validate(struct, value)
+    def _impl(self, node, value, callback, default_callback):
+        value = self._validate(node, value)
 
         error = None
         result = {}
 
-        for num, substruct in enumerate(struct.structs):
-            name = substruct.name
+        for num, subnode in enumerate(node.nodes):
+            name = subnode.name
             subval = value.pop(name, _missing)
 
             try:
                 if subval is _missing:
-                    if substruct.required:
+                    if subnode.required:
                         raise Invalid(
-                            substruct,
-                            '%r is required but missing' % substruct.name)
-                    result[name] = default_callback(substruct)
+                            subnode,
+                            '%r is required but missing' % subnode.name)
+                    result[name] = default_callback(subnode)
                 else:
-                    result[name] = callback(substruct, subval)
+                    result[name] = callback(subnode, subval)
             except Invalid, e:
                 if error is None:
-                    error = Invalid(struct)
+                    error = Invalid(node)
                 e.pos = num
                 error.add(e)
 
         if self.unknown_keys == 'raise':
             if value:
-                raise Invalid(struct,
+                raise Invalid(node,
                               'Unrecognized keys in mapping: %r' % value)
 
         elif self.unknown_keys == 'preserve':
@@ -190,65 +190,65 @@ class Mapping(object):
                 
         return result
 
-    def deserialize(self, struct, value):
-        def callback(substruct, subval):
-            return substruct.deserialize(subval)
-        def default_callback(substruct):
-            return substruct.default
-        return self._impl(struct, value, callback, default_callback)
+    def deserialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.deserialize(subval)
+        def default_callback(subnode):
+            return subnode.default
+        return self._impl(node, value, callback, default_callback)
 
-    def serialize(self, struct, value):
-        def callback(substruct, subval):
-            return substruct.serialize(subval)
-        def default_callback(substruct):
-            return substruct.serialize(substruct.default)
-        return self._impl(struct, value, callback, default_callback)
+    def serialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.serialize(subval)
+        def default_callback(subnode):
+            return subnode.serialize(subnode.default)
+        return self._impl(node, value, callback, default_callback)
 
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
     should be addressed by position instead of name' (e.g. via seq[0],
     but never seq['name']).  This is consulted by Invalid.asdict when
-    creating a dictionary representation of an error structure.
+    creating a dictionary representation of an error tree.
     """
 
 class Tuple(Positional):
-    """ A type which represents a fixed-length sequence of structures.
+    """ A type which represents a fixed-length sequence of nodes.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the positional elements of the tuple in the order
     they are added.
 
     This type is willing to serialize and deserialized iterables that,
     when converted to a tuple, have the same number of elements as the
-    number of the associated structure's substructures.
+    number of the associated node's subnodes.
     """
-    def _validate(self, struct, value):
+    def _validate(self, node, value):
         if not hasattr(value, '__iter__'):
-            raise Invalid(struct, '%r is not iterable' % value)
+            raise Invalid(node, '%r is not iterable' % value)
 
-        valuelen, structlen = len(value), len(struct.structs)
+        valuelen, nodelen = len(value), len(node.nodes)
 
-        if valuelen != structlen:
+        if valuelen != nodelen:
             raise Invalid(
-                struct,
+                node,
                 ('%s has an incorrect number of elements '
-                 '(expected %s, was %s)' % (value, structlen, valuelen)))
+                 '(expected %s, was %s)' % (value, nodelen, valuelen)))
 
         return list(value)
 
-    def _impl(self, struct, value, callback):
-        value = self._validate(struct, value)
+    def _impl(self, node, value, callback):
+        value = self._validate(node, value)
         error = None
         result = []
 
-        for num, substruct in enumerate(struct.structs):
+        for num, subnode in enumerate(node.nodes):
             subval = value[num]
             try:
-                result.append(callback(substruct, subval))
+                result.append(callback(subnode, subval))
             except Invalid, e:
                 if error is None:
-                    error = Invalid(struct)
+                    error = Invalid(node)
                 e.pos = num
                 error.add(e)
                 
@@ -257,23 +257,23 @@ class Tuple(Positional):
 
         return tuple(result)
 
-    def deserialize(self, struct, value):
-        def callback(substruct, subval):
-            return substruct.deserialize(subval)
-        return self._impl(struct, value, callback)
+    def deserialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.deserialize(subval)
+        return self._impl(node, value, callback)
 
-    def serialize(self, struct, value):
-        def callback(substruct, subval):
-            return substruct.serialize(subval)
-        return self._impl(struct, value, callback)
+    def serialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.serialize(subval)
+        return self._impl(node, value, callback)
 
 class Sequence(Positional):
     """
-    A type which represents a variable-length sequence of structures,
+    A type which represents a variable-length sequence of nodes,
     all of which must be of the same type.
 
-    The type of the first substructure of the
-    :class:`colander.Structure` that wraps this type is considered the
+    The type of the first subnode of the
+    :class:`colander.SchemaNode` that wraps this type is considered the
     sequence type.
 
     The optional ``accept_scalar`` argument to this type's constructor
@@ -289,25 +289,25 @@ class Sequence(Positional):
     def __init__(self, accept_scalar=False):
         self.accept_scalar = accept_scalar
 
-    def _validate(self, struct, value):
+    def _validate(self, node, value):
         if hasattr(value, '__iter__') and not hasattr(value, 'get'):
             return list(value)
         if self.accept_scalar:
             return [value]
         else:
-            raise Invalid(struct, '%r is not iterable' % value)
+            raise Invalid(node, '%r is not iterable' % value)
 
-    def _impl(self, struct, value, callback):
-        value = self._validate(struct, value)
+    def _impl(self, node, value, callback):
+        value = self._validate(node, value)
 
         error = None
         result = []
         for num, subval in enumerate(value):
             try:
-                result.append(callback(struct.structs[0], subval))
+                result.append(callback(node.nodes[0], subval))
             except Invalid, e:
                 if error is None:
-                    error = Invalid(struct)
+                    error = Invalid(node)
                 e.pos = num
                 error.add(e)
                 
@@ -316,15 +316,15 @@ class Sequence(Positional):
 
         return result
 
-    def deserialize(self, struct, value):
-        def callback(substruct, subval):
-            return substruct.deserialize(subval)
-        return self._impl(struct, value, callback)
+    def deserialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.deserialize(subval)
+        return self._impl(node, value, callback)
 
-    def serialize(self, struct, value):
-        def callback(substruct, subval):
-            return substruct.serialize(subval)
-        return self._impl(struct, value, callback)
+    def serialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.serialize(subval)
+        return self._impl(node, value, callback)
 
 Seq = Sequence
 
@@ -336,26 +336,26 @@ class String(object):
     which should be applied to object serialization.  It defaults to
     ``utf-8`` if not provided.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
     def __init__(self, encoding=None):
         self.encoding = encoding
     
-    def deserialize(self, struct, value):
+    def deserialize(self, node, value):
         try:
             if isinstance(value, unicode):
                 return value
             else:
                 return unicode(str(value), self.encoding or default_encoding)
         except Exception, e:
-            raise Invalid(struct, '%r is not a string: %s' % (value, e))
+            raise Invalid(node, '%r is not a string: %s' % (value, e))
 
-    def serialize(self, struct, value):
+    def serialize(self, node, value):
         try:
             return unicode(value).encode(self.encoding or default_encoding)
         except Exception, e:
-            raise Invalid(struct,
+            raise Invalid(node,
                           '%r is cannot be serialized to str: %s' % (value, e))
 
 Str = String
@@ -363,40 +363,40 @@ Str = String
 class Integer(object):
     """ A type representing an integer.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def deserialize(self, struct, value):
+    def deserialize(self, node, value):
         try:
             return int(value)
         except Exception:
-            raise Invalid(struct, '%r is not a number' % value)
+            raise Invalid(node, '%r is not a number' % value)
 
-    def serialize(self, struct, value):
+    def serialize(self, node, value):
         try:
             return str(int(value))
         except Exception:
-            raise Invalid(struct, '%r is not a number' % value)
+            raise Invalid(node, '%r is not a number' % value)
 
 Int = Integer
 
 class Float(object):
     """ A type representing a float.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def deserialize(self, struct, value):
+    def deserialize(self, node, value):
         try:
             return float(value)
         except Exception:
-            raise Invalid(struct, '%r is not a number' % value)
+            raise Invalid(node, '%r is not a number' % value)
 
-    def serialize(self, struct, value):
+    def serialize(self, node, value):
         try:
             return str(float(value))
         except Exception:
-            raise Invalid(struct, '%r is not a number' % value)
+            raise Invalid(node, '%r is not a number' % value)
 
 Int = Integer
 
@@ -410,21 +410,21 @@ class Boolean(object):
     Serialization will produce ``true`` or ``false`` based on the
     value.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
     
-    def deserialize(self, struct, value):
+    def deserialize(self, node, value):
         try:
             value = str(value)
         except:
-            raise Invalid(struct, '%r is not a string' % value)
+            raise Invalid(node, '%r is not a string' % value)
         value = value.lower()
         if value in ('false', '0'):
             return False
         return True
 
-    def serialize(self, struct, value):
+    def serialize(self, node, value):
         return value and 'true' or 'false'
 
 Bool = Boolean
@@ -461,18 +461,19 @@ class GlobalObject(object):
     was supplied to the constructor, an :exc:`colander.Invalid` error
     will be raised.
 
-    The substructures of the :class:`colander.Structure` that wraps
+    The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
     def __init__(self, package):
         self.package = package
 
-    def _pkg_resources_style(self, struct, value):
+    def _pkg_resources_style(self, node, value):
         """ package.module:attr style """
         import pkg_resources
         if value.startswith('.') or value.startswith(':'):
             if not self.package:
-                raise ImportError(
+                raise Invalid(
+                    node,
                     'relative name %r irresolveable without package' % value)
             if value in ['.', ':']:
                 value = self.package.__name__
@@ -481,13 +482,13 @@ class GlobalObject(object):
         return pkg_resources.EntryPoint.parse(
             'x=%s' % value).load(False)
 
-    def _zope_dottedname_style(self, struct, value):
+    def _zope_dottedname_style(self, node, value):
         """ package.module.attr style """
         module = self.package and self.package.__name__ or None
         if value == '.':
             if self.package is None:
                 raise Invalid(
-                    struct,
+                    node,
                     "relative name %r irresolveable without package" % value)
             name = module.split('.')
         else:
@@ -495,7 +496,7 @@ class GlobalObject(object):
             if not name[0]:
                 if module is None:
                     raise Invalid(
-                        struct,
+                        node,
                         "relative name %r irresolveable without package" %
                         value)
                 module = module.split('.')
@@ -517,46 +518,46 @@ class GlobalObject(object):
 
         return found
 
-    def deserialize(self, struct, value):
+    def deserialize(self, node, value):
         if not isinstance(value, basestring):
-            raise Invalid(struct, '%r is not a string' % value)
+            raise Invalid(node, '%r is not a string' % value)
         try:
             if ':' in value:
-                return self._pkg_resources_style(struct, value)
+                return self._pkg_resources_style(node, value)
             else:
-                return self._zope_dottedname_style(struct, value)
+                return self._zope_dottedname_style(node, value)
         except ImportError:
-            raise Invalid(struct,
+            raise Invalid(node,
                           'The dotted name %r cannot be imported' % value)
 
-    def serialize(self, struct, value):
+    def serialize(self, node, value):
         try:
             return value.__name__
         except AttributeError:
-            raise Invalid(struct, '%r has no __name__' % value)
+            raise Invalid(node, '%r has no __name__' % value)
 
-class Structure(object):
+class SchemaNode(object):
     """
     Fundamental building block of schemas.
 
     The constructor accepts these arguments:
 
-    - ``typ`` (required): The 'type' for this structure.  It should be
-      an instance of a class that implements the
+    - ``typ`` (required): The 'type' for this node.  It should be an
+      instance of a class that implements the
       :class:`colander.interfaces.Type` interface.
 
-    - ``structs``: a sequence of substructures.  If the substructures
-      of this structure are not known at construction time, they can
-      later be added via the ``add`` method.
+    - ``nodes``: a sequence of subnodes.  If the subnodes of this node
+      are not known at construction time, they can later be added via
+      the ``add`` method.
 
-    - ``name``: The name of this structure.
+    - ``name``: The name of this node.
 
-    - ``default``: The default value for this structure; if it is not
-      provided, this structure has no default value and it will be
+    - ``default``: The default value for this node; if it is not
+      provided, this node has no default value and it will be
       considered 'required' (the ``required`` attribute will be True).
 
-    - ``validator``: Optional validator for this structure.  It should
-      be an object that implements the
+    - ``validator``: Optional validator for this node.  It should be
+      an object that implements the
       :class:`colander.interfaces.Validator` interface.
     """
     
@@ -567,17 +568,17 @@ class Structure(object):
         inst._order = cls._counter.next()
         return inst
         
-    def __init__(self, typ, *structs, **kw):
+    def __init__(self, typ, *nodes, **kw):
         self.typ = typ
         self.validator = kw.get('validator', None)
         self.default = kw.get('default', _missing)
         self.name = kw.get('name', '')
-        self.structs = list(structs)
+        self.nodes = list(nodes)
 
     def copy(self):
         kw = {'validator':self.validator, 'default':self.default,
               'name':self.name}
-        return self.__class__(self.typ, *self.structs, **kw)
+        return self.__class__(self.typ, *self.nodes, **kw)
 
     def __repr__(self):
         return '<%s object at %x named %r>' % (self.__class__.__name__,
@@ -586,13 +587,13 @@ class Structure(object):
 
     @property
     def required(self):
-        """ Property which returns true if this structure is required in the
+        """ Property which returns true if this node is required in the
         schema """
         return self.default is _missing
 
     def deserialize(self, value):
         """ Derialize the value based on the schema represented by this
-        structure """
+        node """
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
@@ -600,50 +601,48 @@ class Structure(object):
 
     def serialize(self, value):
         """ Serialize the value based on the schema represented by this
-        structure """
+        node """
         return self.typ.serialize(self, value)
 
-    def add(self, struct):
-        """ Add a substructure to this structure """
-        self.structs.append(struct)
-
-Struct = Structure
+    def add(self, node):
+        """ Add a subnode to this node """
+        self.nodes.append(node)
 
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
-        structs = []
+        nodes = []
         for name, value in clsattrs.items():
-            if isinstance(value, Structure):
+            if isinstance(value, SchemaNode):
                 value.name = name
-                structs.append((value._order, value))
-        cls.__schema_structures__ = structs
+                nodes.append((value._order, value))
+        cls.__schema_nodes__ = nodes
         # Combine all attrs from this class and its subclasses.
         extended = []
         for c in cls.__mro__:
-            extended.extend(getattr(c, '__schema_structures__', []))
+            extended.extend(getattr(c, '__schema_nodes__', []))
         # Sort the attrs to maintain the order as defined, and assign to the
         # class.
         extended.sort()
-        cls.structs = [x[1] for x in extended]
+        cls.nodes = [x[1] for x in extended]
 
 class Schema(object):
-    struct_type = Mapping
+    schema_type = Mapping
     __metaclass__ = _SchemaMeta
 
     def __new__(cls, *args, **kw):
-        inst = object.__new__(Structure)
-        inst.name = None
-        inst._order = Structure._counter.next()
-        struct = cls.struct_type(*args, **kw)
-        inst.__init__(struct)
-        for s in cls.structs:
-            inst.add(s)
-        return inst
+        node = object.__new__(SchemaNode)
+        node.name = None
+        node._order = SchemaNode._counter.next()
+        typ = cls.schema_type(*args, **kw)
+        node.__init__(typ)
+        for n in cls.nodes:
+            node.add(n)
+        return node
 
 MappingSchema = Schema
 
 class SequenceSchema(Schema):
-    struct_type = Sequence
+    schema_type = Sequence
 
 class TupleSchema(Schema):
-    struct_type = Tuple
+    schema_type = Tuple
