@@ -114,8 +114,8 @@ of our definitions, a ``Person`` represents:
   ``number``.  The ``location`` must be one of ``work`` or ``home``.
   The number must be a string.
 
-``SchemaNode`` Objects
-~~~~~~~~~~~~~~~~~~~~~~
+Schema Node Objects
+~~~~~~~~~~~~~~~~~~~
 
 A schema is composed of one or more *schema node* objects, each
 typically of the class :class:`colander.SchemaNode`, usually in a
@@ -124,7 +124,7 @@ optional deserialization *validator*, an optional *default*, and a
 slightly less optional *name*.
 
 The *type* of a schema node indicates its data type (such as
-``colander.Int`` or ``colander.String``).
+:class:`colander.Int` or :class:`colander.String`).
 
 The *validator* of a schema node is called after deserialization; it
 makes sure the deserialized value matches a constraint.  An example of
@@ -141,9 +141,9 @@ considered required.
 The *name* of a schema node appears in error reports.
 
 The name of a schema node that is introduced as a class-level
-attribute of a ``colander.MappingSchema``, ``colander.TupleSchema`` or
-a ``colander.SequenceSchema`` is its class attribute name.  For
-example:
+attribute of a :class:`colander.MappingSchema`,
+:class:`colander.TupleSchema` or a :class:`colander.SequenceSchema` is
+its class attribute name.  For example:
 
 .. code-block:: python
    :linenos:
@@ -161,20 +161,24 @@ colander.SchemaNode(..)`` within the schema above is ``location``.
 Schema Objects
 ~~~~~~~~~~~~~~
 
-It's turtles all the way down.
+In the examples above, if you've been paying attention, you'll have
+noticed that we're defining classes which subclass from
+:class:`colander.MappingSchema`, :class:`colander.TupleSchema` and
+:class:`colander.SequenceSchema`.  
 
-The result of creating an instance of a ``colander.MappingSchema``,
-``colander.TupleSchema`` or ``colander.SequenceSchema`` object is also
-a *schema node* object.
+It's turtles all the way down: the result of creating an instance of
+any of :class:`colander.MappingSchema``, :class:`colander.TupleSchema`
+or :class:`colander.SequenceSchema` object is *also* a
+:class:`colander.SchemaNode` object.
 
-Instantiating a ``colander.MappingSchema`` creates a schema node which
-has a *type* value of ``colander.Mapping``.
+Instantiating a :class:`colander.MappingSchema` creates a schema node
+which has a *type* value of :class:`colander.Mapping`.
 
-Instantiating a ``colander.TupleSchema`` creates a schema node which has
-a *type* value of ``colander.Tuple``.
+Instantiating a :class:`colander.TupleSchema` creates a schema node
+which has a *type* value of :class:`colander.Tuple`.
 
-Instantiating a ``colander.SequenceSchema`` creates a schema node
-which has a *type* value of ``colander.Sequence``.
+Instantiating a :class:`colander.SequenceSchema` creates a schema node
+which has a *type* value of :class:`colander.Sequence`.
 
 Deserializing A Data Structure Using a Schema
 ---------------------------------------------
@@ -249,7 +253,7 @@ likewise for the age.
 Deserializing An Invalid Serialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Below, the ``data` structure has some problems.  The ``age`` is a
+Below, the ``data`` structure has some problems.  The ``age`` is a
 negative number.  The rank for ``bob`` is ``t`` which is not a valid
 integer.  The ``location`` of the first phone is ``bar``, which is not
 a valid location (it is not one of "work" or "home").  What happens
@@ -437,9 +441,9 @@ Defining a New Validator
 
 A validator is a callable which accepts two positional arguments:
 ``struct`` and ``value``.  It returns ``None`` if the value is valid.
-It raises a ``colander.Invalid`` exception if the value is not valid.
-Here's a validator that checks if the value is a valid credit card
-number.
+It raises a :class:`colander.Invalid` exception if the value is not
+valid.  Here's a validator that checks if the value is a valid credit
+card number.
 
 .. code-block:: python
    :linenos:
@@ -477,8 +481,8 @@ schema:
 
 Note that the validator doesn't need to check if the ``value`` is a
 string: this has already been done as the result of the type of the
-``cc_number`` schema node being ``colander.String``. Validators are
-always passed the *deserialized* value when they are invoked.
+``cc_number`` schema node being :class:`colander.String`. Validators
+are always passed the *deserialized* value when they are invoked.
 
 For a more formal definition of a the interface of a validator, see
 :class:`colander.interfaces.Validator`.
