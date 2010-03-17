@@ -114,12 +114,13 @@ of our definitions, a ``Person`` represents:
   ``number``.  The ``location`` must be one of ``work`` or ``home``.
   The number must be a string.
 
-SchemaNode Objects
-~~~~~~~~~~~~~~~~~
+``SchemaNode`` Objects
+~~~~~~~~~~~~~~~~~~~~~~
 
-A schema is composed of one or more *schema node* objects, usually in
-a nested arrangement.  Each schema node object has a required *type*,
-an optional deserialization *validator*, an optional *default*, and a
+A schema is composed of one or more *schema node* objects, each
+typically of the class ``colander.SchemaNode``, usually in a nested
+arrangement.  Each schema node object has a required *type*, an
+optional deserialization *validator*, an optional *default*, and a
 slightly less optional *name*.
 
 The *type* of a schema node indicates its data type (such as
