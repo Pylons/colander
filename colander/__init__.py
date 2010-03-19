@@ -573,12 +573,8 @@ class SchemaNode(object):
         self.validator = kw.get('validator', None)
         self.default = kw.get('default', _missing)
         self.name = kw.get('name', '')
+        self.title = kw.get('title', self.name.capitalize())
         self.nodes = list(nodes)
-
-    def copy(self):
-        kw = {'validator':self.validator, 'default':self.default,
-              'name':self.name}
-        return self.__class__(self.typ, *self.nodes, **kw)
 
     def __repr__(self):
         return '<%s object at %x named %r>' % (self.__class__.__name__,

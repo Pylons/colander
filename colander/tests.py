@@ -803,13 +803,24 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None)
         self.failUnless(hasattr(node, '_order'))
 
-    def test_ctor(self):
-        node = self._makeOne(None, 0, validator=1, default=2, name=3)
+    def test_ctor_no_title(self):
+        node = self._makeOne(None, 0, validator=1, default=2, name='name')
         self.assertEqual(node.typ, None)
         self.assertEqual(node.nodes, [0])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
-        self.assertEqual(node.name, 3)
+        self.assertEqual(node.name, 'name')
+        self.assertEqual(node.title, 'Name')
+
+    def test_ctor_with_title(self):
+        node = self._makeOne(None, 0, validator=1, default=2, name='name',
+                             title='title')
+        self.assertEqual(node.typ, None)
+        self.assertEqual(node.nodes, [0])
+        self.assertEqual(node.validator, 1)
+        self.assertEqual(node.default, 2)
+        self.assertEqual(node.name, 'name')
+        self.assertEqual(node.title, 'title')
 
     def test_required_true(self):
         node = self._makeOne(None)
