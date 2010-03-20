@@ -573,7 +573,8 @@ class SchemaNode(object):
         self.validator = kw.get('validator', None)
         self.default = kw.get('default', _missing)
         self.name = kw.get('name', '')
-        self.title = kw.get('title', self.name.capitalize())
+        self.title = kw.get('title', self.name)
+        self.description = kw.get('description', '')
         self.nodes = list(nodes)
 
     def __repr__(self):
@@ -610,6 +611,8 @@ class _SchemaMeta(type):
         for name, value in clsattrs.items():
             if isinstance(value, SchemaNode):
                 value.name = name
+                if not value.title:
+                    value.title = name
                 nodes.append((value._order, value))
         cls.__schema_nodes__ = nodes
         # Combine all attrs from this class and its subclasses.
