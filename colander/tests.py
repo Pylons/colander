@@ -493,6 +493,20 @@ class TestString(unittest.TestCase):
         from colander import String
         self.assertEqual(Str, String)
 
+    def test_serialize_emptystring_required(self):
+        val = ''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, val)
+        self.assertEqual(e.msg, 'Required')
+
+    def test_serialize_emptystring_notrequired(self):
+        val = ''
+        node = DummySchemaNode(None, default='default')
+        typ = self._makeOne()
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, 'default')
+
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
         node = DummySchemaNode(None)
@@ -556,6 +570,20 @@ class TestInteger(unittest.TestCase):
         from colander import Integer
         self.assertEqual(Int, Integer)
 
+    def test_serialize_emptystring_required(self):
+        val = ''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, val)
+        self.assertEqual(e.msg, 'Required')
+
+    def test_serialize_emptystring_notrequired(self):
+        val = ''
+        node = DummySchemaNode(None, default='default')
+        typ = self._makeOne()
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, 'default')
+
     def test_deserialize_fails(self):
         val = 'P'
         node = DummySchemaNode(None)
@@ -588,6 +616,20 @@ class TestFloat(unittest.TestCase):
     def _makeOne(self):
         from colander import Float
         return Float()
+
+    def test_serialize_emptystring_required(self):
+        val = ''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, val)
+        self.assertEqual(e.msg, 'Required')
+
+    def test_serialize_emptystring_notrequired(self):
+        val = ''
+        node = DummySchemaNode(None, default='default')
+        typ = self._makeOne()
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, 'default')
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -626,6 +668,20 @@ class TestBoolean(unittest.TestCase):
         from colander import Bool
         from colander import Boolean
         self.assertEqual(Bool, Boolean)
+
+    def test_serialize_emptystring_required(self):
+        val = ''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, val)
+        self.assertEqual(e.msg, 'Required')
+
+    def test_serialize_emptystring_notrequired(self):
+        val = ''
+        node = DummySchemaNode(None, default='default')
+        typ = self._makeOne()
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, True)
 
     def test_deserialize(self):
         typ = self._makeOne()

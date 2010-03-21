@@ -344,12 +344,15 @@ class String(object):
     
     def deserialize(self, node, value):
         try:
-            if isinstance(value, unicode):
-                return value
-            else:
-                return unicode(str(value), self.encoding or default_encoding)
+            if not isinstance(value, unicode):
+                value = unicode(str(value), self.encoding or default_encoding)
         except Exception, e:
             raise Invalid(node, '%r is not a string: %s' % (value, e))
+        if not value:
+            if node.required:
+                raise Invalid(node, 'Required')
+            value = node.default
+        return value
 
     def serialize(self, node, value):
         try:
@@ -370,6 +373,10 @@ class Integer(object):
         try:
             return int(value)
         except Exception:
+            if value == '':
+                if node.required:
+                    raise Invalid(node, 'Required')
+                return node.default
             raise Invalid(node, '%r is not a number' % value)
 
     def serialize(self, node, value):
@@ -390,6 +397,10 @@ class Float(object):
         try:
             return float(value)
         except Exception:
+            if value == '':
+                if node.required:
+                    raise Invalid(node, 'Required')
+                return node.default
             raise Invalid(node, '%r is not a number' % value)
 
     def serialize(self, node, value):
@@ -419,6 +430,10 @@ class Boolean(object):
             value = str(value)
         except:
             raise Invalid(node, '%r is not a string' % value)
+        if not value:
+            if node.required:
+                raise Invalid(node, 'Required')
+            value = node.default
         value = value.lower()
         if value in ('false', '0'):
             return False
