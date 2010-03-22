@@ -141,9 +141,9 @@ class TestOneOf(unittest.TestCase):
         self.assertEqual(validator(None, 1), None)
 
     def test_failure(self):
-        validator = self._makeOne([1])
+        validator = self._makeOne([1, 2])
         e = invalid_exc(validator, None, None)
-        self.assertEqual(e.msg, '"None" is not one of 1')
+        self.assertEqual(e.msg, '"None" is not one of 1, 2')
 
 class TestMapping(unittest.TestCase):
     def _makeOne(self, unknown_keys='ignore'):
