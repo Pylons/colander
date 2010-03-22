@@ -114,7 +114,8 @@ class OneOf(object):
 
     def __call__(self, node, value):
         if not value in self.values:
-            raise Invalid(node, '%r is not one of %r' % (value, self.values))
+            raise Invalid(node, '"%s" is not one of %s' % (
+                value, ', '.join(['%s' % x for x in self.values])))
 
 class Mapping(object):
     """ A type which represents a mapping of names to nodes.

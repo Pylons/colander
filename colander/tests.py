@@ -143,7 +143,7 @@ class TestOneOf(unittest.TestCase):
     def test_failure(self):
         validator = self._makeOne([1])
         e = invalid_exc(validator, None, None)
-        self.assertEqual(e.msg, 'None is not one of [1]')
+        self.assertEqual(e.msg, '"None" is not one of 1')
 
 class TestMapping(unittest.TestCase):
     def _makeOne(self, unknown_keys='ignore'):
