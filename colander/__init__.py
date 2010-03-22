@@ -621,6 +621,12 @@ class SchemaNode(object):
         """ Add a subnode to this node """
         self.nodes.append(node)
 
+    def __getitem__(self, name):
+        for node in self.nodes:
+            if node.name == name:
+                return node
+        raise KeyError(name)
+
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []

@@ -921,6 +921,16 @@ class TestSchemaNode(unittest.TestCase):
         self.failUnless(result.startswith('<SchemaNode object at '))
         self.failUnless(result.endswith("named 'flub'>"))
 
+    def test___getitem__success(self):
+        node = self._makeOne(None)
+        another = self._makeOne(None, name='another')
+        node.add(another)
+        self.assertEqual(node['another'], another)
+        
+    def test___getitem__failure(self):
+        node = self._makeOne(None)
+        self.assertRaises(KeyError, node.__getitem__, 'another')
+
 class TestSchema(unittest.TestCase):
     def test_alias(self):
         from colander import Schema
