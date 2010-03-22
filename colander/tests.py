@@ -866,7 +866,7 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
         self.assertEqual(node.name, 'name')
-        self.assertEqual(node.title, 'name')
+        self.assertEqual(node.title, 'Name')
 
     def test_ctor_with_title(self):
         node = self._makeOne(None, 0, validator=1, default=2, name='name',
@@ -938,7 +938,7 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.typ.__class__, colander.Mapping)
         self.assertEqual(node.typ.unknown_keys, 'raise')
         self.assertEqual(node.nodes[0].typ.__class__, colander.String) 
-        self.assertEqual(node.nodes[0].title, 'thing')
+        self.assertEqual(node.nodes[0].title, 'Thing')
         self.assertEqual(node.nodes[1].title, 'bar')
         
 class TestSequenceSchema(unittest.TestCase):
