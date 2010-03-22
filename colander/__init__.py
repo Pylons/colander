@@ -648,10 +648,11 @@ class _SchemaMeta(type):
 
 class Schema(object):
     schema_type = Mapping
+    node_type = SchemaNode
     __metaclass__ = _SchemaMeta
 
     def __new__(cls, *args, **kw):
-        node = object.__new__(SchemaNode)
+        node = object.__new__(cls.node_type)
         node.name = None
         node._order = SchemaNode._counter.next()
         typ = cls.schema_type(*args, **kw)
