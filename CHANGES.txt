@@ -1,6 +1,36 @@
 Changes
 =======
 
+0.2 (2010-03-23)
+----------------
+
+- Make nodetype overrideable.
+
+- Add __getitem__ to SchemaNode.
+
+- Fix OneOf message.
+
+- Capitalize node titles.
+
+- Deal with empty strings in String, Boolean, and Float types.
+
+- Introduce description; make title the same as name.
+
+- Remove copy method from schemanode.
+
+- Allow schema nodes to have titles.
+
+- The term "structure" is too overloaded to use for schema purposes:
+  structure -> schema node.
+
+- Make Sequence more like Tuple and Mapping (it uses a substructure
+  rather than a structure parameter to denote its type).
+
+- Add __repr__ and copy methods to structure.
+
+- Add accept_scalar flag to Sequence.
+
+
 0.1 (2010-03-14)
 ----------------
 
