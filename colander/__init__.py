@@ -575,6 +575,15 @@ class SchemaNode(object):
     - ``validator``: Optional validator for this node.  It should be
       an object that implements the
       :class:`colander.interfaces.Validator` interface.
+
+    - ``title``: The title of this node.  Defaults to a captialization
+      of the ``name``.  The title is used by higher-level systems (not
+      by Colander itself).
+
+    - ``description``: The description for this node.  Defaults to
+      ``''`` (the emtpty string).  The description is used by
+      higher-level systems (not by Colander itself).
+
     """
     
     _counter = itertools.count()
