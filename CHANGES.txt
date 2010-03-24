@@ -1,6 +1,11 @@
 Changes
 =======
 
+Next release
+------------
+
+- Add ``colander.Length`` validator class.
+
 0.2 (2010-03-23)
 ----------------
 

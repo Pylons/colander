@@ -131,6 +131,37 @@ class TestRange(unittest.TestCase):
         e = invalid_exc(validator, None, 2)
         self.assertEqual(e.msg, '2 is greater than maximum value 1')
 
+class TestLength(unittest.TestCase):
+    def _makeOne(self, min=None, max=None):
+        from colander import Length
+        return Length(min=min, max=max)
+
+    def test_success_no_bounds(self):
+        validator = self._makeOne()
+        self.assertEqual(validator(None, ''), None)
+
+    def test_success_upper_bound_only(self):
+        validator = self._makeOne(max=1)
+        self.assertEqual(validator(None, 'a'), None)
+
+    def test_success_minimum_bound_only(self):
+        validator = self._makeOne(min=0)
+        self.assertEqual(validator(None, ''), None)
+
+    def test_success_min_and_max(self):
+        validator = self._makeOne(min=1, max=1)
+        self.assertEqual(validator(None, 'a'), None)
+
+    def test_min_failure(self):
+        validator = self._makeOne(min=1)
+        e = invalid_exc(validator, None, '')
+        self.assertEqual(e.msg, 'Shorter than minimum length 1')
+
+    def test_max_failure(self):
+        validator = self._makeOne(max=1)
+        e = invalid_exc(validator, None, 'ab')
+        self.assertEqual(e.msg, 'Longer than maximum length 1')
+
 class TestOneOf(unittest.TestCase):
     def _makeOne(self, values):
         from colander import OneOf

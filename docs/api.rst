@@ -16,6 +16,8 @@ Validators
 
   .. autoclass:: Range
 
+  .. autoclass:: Length
+
   .. autoclass:: OneOf
 
 Types

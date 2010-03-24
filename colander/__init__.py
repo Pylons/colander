@@ -106,6 +106,28 @@ class Range(object):
                     node,
                     '%r is greater than maximum value %r' % (value, self.max))
 
+class Length(object):
+    """ Validator which succeeds if the value passed to it has a
+    length between a minimum and maximum.  The value is most often a
+    string."""
+    def __init__(self, min=None, max=None):
+        self.min = min
+        self.max = max
+
+    def __call__(self, node, value):
+        if self.min is not None:
+            if len(value) < self.min:
+                raise Invalid(
+                    node,
+                    'Shorter than minimum length %s' % self.min)
+
+        if self.max is not None:
+            if len(value) > self.max:
+                raise Invalid(
+                    node,
+                    'Longer than maximum length %s' % self.max)
+
+
 class OneOf(object):
     """ Validator which succeeds if the value passed to it is one of
     a fixed set of values """
