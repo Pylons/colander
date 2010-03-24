@@ -142,8 +142,8 @@ considered required.
 The *name* of a schema node appears in error reports.
 
 The *title* of a schema node is metadata about a schema node that can
-be used by higher-level systems.  By default, it is the same as the
-*name*.
+be used by higher-level systems.  By default, it is a capitalization
+of the *name*.
 
 The *description* of a schema node is metadata about a schema node
 that can be used by higher-level systems.  By default, it is empty.
@@ -165,7 +165,7 @@ its class attribute name.  For example:
 
 The name of the schema node defined via ``location =
 colander.SchemaNode(..)`` within the schema above is ``location``.
-The title of the same schema node is ``location``.
+The title of the same schema node is ``Location``.
 
 Schema Objects
 ~~~~~~~~~~~~~~
