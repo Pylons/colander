@@ -98,13 +98,13 @@ class Range(object):
             if value < self.min:
                 raise Invalid(
                     node,
-                    '%r is less than minimum value %r' % (value, self.min))
+                    '%s is less than minimum value %s' % (value, self.min))
 
         if self.max is not None:
             if value > self.max:
                 raise Invalid(
                     node,
-                    '%r is greater than maximum value %r' % (value, self.max))
+                    '%s is greater than maximum value %s' % (value, self.max))
 
 class Length(object):
     """ Validator which succeeds if the value passed to it has a
@@ -190,7 +190,7 @@ class Mapping(object):
                     if subnode.required:
                         raise Invalid(
                             subnode,
-                            '%r is required but missing' % subnode.name)
+                            '"%s" is required but missing' % subnode.name)
                     result[name] = default_callback(subnode)
                 else:
                     result[name] = callback(subnode, subval)
@@ -400,13 +400,13 @@ class Integer(object):
                 if node.required:
                     raise Invalid(node, 'Required')
                 return node.default
-            raise Invalid(node, '%r is not a number' % value)
+            raise Invalid(node, '"%s" is not a number' % value)
 
     def serialize(self, node, value):
         try:
             return str(int(value))
         except Exception:
-            raise Invalid(node, '%r is not a number' % value)
+            raise Invalid(node, '"%s" is not a number' % value)
 
 Int = Integer
 
@@ -424,13 +424,13 @@ class Float(object):
                 if node.required:
                     raise Invalid(node, 'Required')
                 return node.default
-            raise Invalid(node, '%r is not a number' % value)
+            raise Invalid(node, '"%s" is not a number' % value)
 
     def serialize(self, node, value):
         try:
             return str(float(value))
         except Exception:
-            raise Invalid(node, '%r is not a number' % value)
+            raise Invalid(node, '"%s" is not a number' % value)
 
 Int = Integer
 
@@ -512,7 +512,7 @@ class GlobalObject(object):
             if not self.package:
                 raise Invalid(
                     node,
-                    'relative name %r irresolveable without package' % value)
+                    'relative name "%s" irresolveable without package' % value)
             if value in ['.', ':']:
                 value = self.package.__name__
             else:
@@ -527,7 +527,7 @@ class GlobalObject(object):
             if self.package is None:
                 raise Invalid(
                     node,
-                    "relative name %r irresolveable without package" % value)
+                    'relative name "%s" irresolveable without package' % value)
             name = module.split('.')
         else:
             name = value.split('.')
@@ -535,7 +535,7 @@ class GlobalObject(object):
                 if module is None:
                     raise Invalid(
                         node,
-                        "relative name %r irresolveable without package" %
+                        'relative name "%s" irresolveable without package' %
                         value)
                 module = module.split('.')
                 name.pop(0)
@@ -558,7 +558,7 @@ class GlobalObject(object):
 
     def deserialize(self, node, value):
         if not isinstance(value, basestring):
-            raise Invalid(node, '%r is not a string' % value)
+            raise Invalid(node, '"%s" is not a string' % value)
         try:
             if ':' in value:
                 return self._pkg_resources_style(node, value)
@@ -566,7 +566,7 @@ class GlobalObject(object):
                 return self._zope_dottedname_style(node, value)
         except ImportError:
             raise Invalid(node,
-                          'The dotted name %r cannot be imported' % value)
+                          'The dotted name "%s" cannot be imported' % value)
 
     def serialize(self, node, value):
         try:

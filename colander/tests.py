@@ -255,7 +255,7 @@ class TestMapping(unittest.TestCase):
             ]
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, {'a':1})
-        self.assertEqual(e.children[0].msg, "'b' is required but missing")
+        self.assertEqual(e.children[0].msg, '"b" is required but missing')
 
     def test_serialize_not_a_mapping(self):
         node = DummySchemaNode(None)
@@ -320,7 +320,7 @@ class TestMapping(unittest.TestCase):
             ]
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, {'a':1})
-        self.assertEqual(e.children[0].msg, "'b' is required but missing")
+        self.assertEqual(e.children[0].msg, '"b" is required but missing')
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
@@ -776,13 +776,13 @@ class TestGlobalObject(unittest.TestCase):
         e = invalid_exc(typ._zope_dottedname_style, None, '.')
         self.assertEqual(
             e.msg,
-            "relative name '.' irresolveable without package")
+            'relative name "." irresolveable without package')
 
     def test_zope_dottedname_style_resolve_relative_nocurrentpackage(self):
         typ = self._makeOne()
         e = invalid_exc(typ._zope_dottedname_style, None, '.whatever')
         self.assertEqual(
-            e.msg, "relative name '.whatever' irresolveable without package")
+            e.msg, 'relative name ".whatever" irresolveable without package')
 
     def test_zope_dottedname_style_irrresolveable_relative(self):
         import colander.tests
@@ -852,7 +852,7 @@ class TestGlobalObject(unittest.TestCase):
     def test_deserialize_not_a_string(self):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, None, None)
-        self.assertEqual(e.msg, "None is not a string")
+        self.assertEqual(e.msg, '"None" is not a string')
 
     def test_deserialize_using_pkgresources_style(self):
         typ = self._makeOne()
@@ -868,7 +868,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, None, 'cant.be.found')
         self.assertEqual(e.msg,
-                         "The dotted name 'cant.be.found' cannot be imported")
+                         'The dotted name "cant.be.found" cannot be imported')
 
     def test_serialize_ok(self):
         import colander.tests
@@ -1028,16 +1028,16 @@ class TestFunctional(object):
     def test_invalid_asdict(self):
         expected = {
             'int': '20 is greater than maximum value 10',
-            'ob': "The dotted name 'no.way.this.exists' cannot be imported",
-            'seq.0.0': "'q' is not a number",
-            'seq.1.0': "'w' is not a number",
-            'seq.2.0': "'e' is not a number",
-            'seq.3.0': "'r' is not a number",
-            'seq2.0.key': "'t' is not a number",
-            'seq2.0.key2': "'y' is not a number",
-            'seq2.1.key': "'u' is not a number",
-            'seq2.1.key2': "'i' is not a number",
-            'tup.0': "'s' is not a number"}
+            'ob': 'The dotted name "no.way.this.exists" cannot be imported',
+            'seq.0.0': '"q" is not a number',
+            'seq.1.0': '"w" is not a number',
+            'seq.2.0': '"e" is not a number',
+            'seq.3.0': '"r" is not a number',
+            'seq2.0.key': '"t" is not a number',
+            'seq2.0.key2': '"y" is not a number',
+            'seq2.1.key': '"u" is not a number',
+            'seq2.1.key2': '"i" is not a number',
+            'tup.0': '"s" is not a number'}
         data = {
             'int':'20',
             'ob':'no.way.this.exists',
