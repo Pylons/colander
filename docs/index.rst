@@ -282,23 +282,20 @@ or a validation error?
                       {'location':'work', 'number':'555-8989'},],
             }
      schema = Person()
-     try:
-         schema.deserialize(data)
-     except colander.Invalid, e:
-         print e.asdict()
+     schema.deserialize(data)
 
 The ``deserialize`` method will raise an exception, and the ``except``
-clause above will be invoked, causing ``e.asdict()`` to be printed.
-This wil print:
+clause above will be invoked, causing an error messaage to be printed.
+It will print something like:
 
 .. code-block:: python
    :linenos:
 
-   {'age':'-1 is less than minimum value 0',
-    'friends.1.0':'"t" is not a number',
-    'phones.0.location:'"bar" is not one of ["home", "work"]'}
+   Invalid: {'age':'-1 is less than minimum value 0',
+            'friends.1.0':'"t" is not a number',
+            'phones.0.location:'"bar" is not one of "home", "work"'}
 
-The above error dictionary is telling us that:
+The above error is telling us that:
 
 - The top-level age variable failed validation.
 
@@ -307,6 +304,37 @@ The above error dictionary is telling us that:
 
 - The zeroth phone number has a bad location: it should be one of
   "home" or "work".
+
+We can optionally catch the exception raised and obtain the raw error
+dictionary:
+
+.. code-block:: python
+   :linenos:
+
+     import colander
+
+     data = {
+            'name':'keith',
+            'age':'-1',
+            'friends':[('1', 'jim'),('t', 'bob'), ('3', 'joe'), ('4', 'fred')],
+            'phones':[{'location':'bar', 'number':'555-1212'},
+                      {'location':'work', 'number':'555-8989'},],
+            }
+     schema = Person()
+     try:
+         schema.deserialize(data)
+     except colander.Invalid, e:
+         errors = e.asdict()
+         print errors
+
+This will print something like:
+
+.. code-block:: python
+   :linenos:
+
+   {'age':'-1 is less than minimum value 0',
+    'friends.1.0':'"t" is not a number',
+    'phones.0.location:'"bar" is not one of "home", "work"'}
 
 Defining A Schema Imperatively
 ------------------------------

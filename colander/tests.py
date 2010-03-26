@@ -81,7 +81,25 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(d, {'node1.node2.3': 'exc1; exc2; exc3',
                              'node1.node4': 'exc1; exc4'})
 
-
+    def test___str__(self):
+        from colander import Positional
+        node1 = DummySchemaNode(None, 'node1')
+        node2 = DummySchemaNode(Positional(), 'node2')
+        node3 = DummySchemaNode(Positional(), 'node3')
+        node4 = DummySchemaNode(Positional(), 'node4')
+        exc1 = self._makeOne(node1, 'exc1', pos=1)
+        exc2 = self._makeOne(node2, 'exc2', pos=2) 
+        exc3 = self._makeOne(node3, 'exc3', pos=3)
+        exc4 = self._makeOne(node4, 'exc4', pos=4)
+        exc1.add(exc2)
+        exc2.add(exc3)
+        exc1.add(exc4)
+        result = str(exc1)
+        self.assertEqual(
+            result,
+            "{'node1.node2.3': 'exc1; exc2; exc3', 'node1.node4': 'exc1; exc4'}"
+            )
+        
 class TestAll(unittest.TestCase):
     def _makeOne(self, validators):
         from colander import All

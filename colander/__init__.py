@@ -1,4 +1,5 @@
 import itertools
+import pprint
 
 class _missing(object):
     pass
@@ -65,6 +66,11 @@ class Invalid(Exception):
                 keyname and keyparts.append(keyname)
             errors['.'.join(keyparts)] = '; '.join(msgs)
         return errors
+
+    def __str__(self):
+        """ Return a pretty-formatted string representation of the
+        result of an execution of this exception's ``asdict`` method"""
+        return pprint.pformat(self.asdict())
 
 class All(object):
     """ Composite validator which succeeds if none of its
