@@ -4,6 +4,9 @@ Changes
 Next release
 ------------
 
+- Subnodes of a schema node are now kept in the ``children`` attribute
+  rather than the ``nodes`` attribute.
+
 - Add an ``sdefault`` property to ``colander.SchemaNode`` objects.
 
 - Add a ``clone`` method to ``colander.SchemaNode`` objects.

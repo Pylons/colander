@@ -187,7 +187,7 @@ class Mapping(object):
         error = None
         result = {}
 
-        for num, subnode in enumerate(node.nodes):
+        for num, subnode in enumerate(node.children):
             name = subnode.name
             subval = value.pop(name, _missing)
 
@@ -256,7 +256,7 @@ class Tuple(Positional):
         if not hasattr(value, '__iter__'):
             raise Invalid(node, '%r is not iterable' % value)
 
-        valuelen, nodelen = len(value), len(node.nodes)
+        valuelen, nodelen = len(value), len(node.children)
 
         if valuelen != nodelen:
             raise Invalid(
@@ -271,7 +271,7 @@ class Tuple(Positional):
         error = None
         result = []
 
-        for num, subnode in enumerate(node.nodes):
+        for num, subnode in enumerate(node.children):
             subval = value[num]
             try:
                 result.append(callback(subnode, subval))
@@ -333,7 +333,7 @@ class Sequence(Positional):
         result = []
         for num, subval in enumerate(value):
             try:
-                result.append(callback(node.nodes[0], subval))
+                result.append(callback(node.children[0], subval))
             except Invalid, e:
                 if error is None:
                     error = Invalid(node)
@@ -590,9 +590,9 @@ class SchemaNode(object):
       instance of a class that implements the
       :class:`colander.interfaces.Type` interface.
 
-    - ``nodes``: a sequence of subnodes.  If the subnodes of this node
-      are not known at construction time, they can later be added via
-      the ``add`` method.
+    - ``children``: a sequence of subnodes.  If the subnodes of this
+      node are not known at construction time, they can later be added
+      via the ``add`` method.
 
     - ``name``: The name of this node.
 
@@ -621,14 +621,14 @@ class SchemaNode(object):
         inst._order = cls._counter.next()
         return inst
         
-    def __init__(self, typ, *nodes, **kw):
+    def __init__(self, typ, *children, **kw):
         self.typ = typ
         self.validator = kw.get('validator', None)
         self.default = kw.get('default', _missing)
         self.name = kw.get('name', '')
         self.title = kw.get('title', self.name.capitalize())
         self.description = kw.get('description', '')
-        self.nodes = list(nodes)
+        self.children = list(children)
 
     def __repr__(self):
         return '<%s object at %x named %r>' % (self.__class__.__name__,
@@ -664,10 +664,10 @@ class SchemaNode(object):
 
     def add(self, node):
         """ Add a subnode to this node """
-        self.nodes.append(node)
+        self.children.append(node)
 
     def __getitem__(self, name):
-        for node in self.nodes:
+        for node in self.children:
             if node.name == name:
                 return node
         raise KeyError(name)
@@ -678,7 +678,7 @@ class SchemaNode(object):
         dictionaries are preserved."""
         cloned = self.__class__(self.typ)
         cloned.__dict__.update(self.__dict__)
-        cloned.nodes = [ node.clone() for node in self.nodes ]
+        cloned.children = [ node.clone() for node in self.children ]
         return cloned
 
 class _SchemaMeta(type):

@@ -225,28 +225,28 @@ class TestMapping(unittest.TestCase):
 
     def test_deserialize_ok(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.deserialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
     def test_deserialize_unknown_keys_raise(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('raise')
         e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
 
     def test_deserialize_unknown_keys_preserve(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('preserve')
         result = typ.deserialize(node, {'a':1, 'b':2})
         self.assertEqual(result, {'a':1, 'b':2})
 
     def test_deserialize_subnodes_raise(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a', exc='Wrong 2'),
             DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
@@ -257,7 +257,7 @@ class TestMapping(unittest.TestCase):
 
     def test_deserialize_subnode_missing_default(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b', default='abc'),
             ]
@@ -267,7 +267,7 @@ class TestMapping(unittest.TestCase):
 
     def test_deserialize_subnode_missing_nodefault(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
@@ -290,28 +290,28 @@ class TestMapping(unittest.TestCase):
 
     def test_serialize_ok(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
     def test_serialize_unknown_keys_raise(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('raise')
         e = invalid_exc(typ.serialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
 
     def test_serialize_unknown_keys_preserve(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('preserve')
         result = typ.serialize(node, {'a':1, 'b':2})
         self.assertEqual(result, {'a':1, 'b':2})
 
     def test_serialize_subnodes_raise(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a', exc='Wrong 2'),
             DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
@@ -322,7 +322,7 @@ class TestMapping(unittest.TestCase):
 
     def test_serialize_subnode_missing_default(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b', default='abc'),
             ]
@@ -332,7 +332,7 @@ class TestMapping(unittest.TestCase):
 
     def test_serialize_subnode_missing_nodefault(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
@@ -362,14 +362,14 @@ class TestTuple(unittest.TestCase):
 
     def test_deserialize_ok(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.deserialize(node, ('a',))
         self.assertEqual(result, ('a',))
 
     def test_deserialize_toobig(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, ('a','b'))
         self.assertEqual(e.msg,
@@ -377,7 +377,7 @@ class TestTuple(unittest.TestCase):
 
     def test_deserialize_toosmall(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, ())
         self.assertEqual(e.msg,
@@ -385,7 +385,7 @@ class TestTuple(unittest.TestCase):
 
     def test_deserialize_subnodes_raise(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a', exc='Wrong 2'),
             DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
@@ -411,14 +411,14 @@ class TestTuple(unittest.TestCase):
 
     def test_serialize_ok(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.serialize(node, ('a',))
         self.assertEqual(result, ('a',))
 
     def test_serialize_toobig(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, ('a','b'))
         self.assertEqual(e.msg,
@@ -426,7 +426,7 @@ class TestTuple(unittest.TestCase):
 
     def test_serialize_toosmall(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, ())
         self.assertEqual(e.msg,
@@ -434,7 +434,7 @@ class TestTuple(unittest.TestCase):
 
     def test_serialize_subnodes_raise(self):
         node = DummySchemaNode(None)
-        node.nodes = [
+        node.children = [
             DummySchemaNode(None, name='a', exc='Wrong 2'),
             DummySchemaNode(None, name='b', exc='Wrong 2'),
             ]
@@ -456,7 +456,7 @@ class TestSequence(unittest.TestCase):
     def test_deserialize_not_iterable(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        node.nodes = [node]
+        node.children = [node]
         e = invalid_exc(typ.deserialize, node, None)
         self.assertEqual(
             e.msg,
@@ -466,29 +466,29 @@ class TestSequence(unittest.TestCase):
     def test_deserialize_not_iterable_accept_scalar(self):
         node = DummySchemaNode(None)
         typ = self._makeOne(accept_scalar=True)
-        node.nodes = [node]
+        node.children = [node]
         result = typ.deserialize(node, None)
         self.assertEqual(result, [None])
 
     def test_deserialize_no_subnodes(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
-        node.nodes = [node]
+        node.children = [node]
         result = typ.deserialize(node, ())
         self.assertEqual(result, [])
 
     def test_deserialize_ok(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
-        node.nodes = [node]
+        node.children = [node]
         result = typ.deserialize(node, ('a',))
         self.assertEqual(result, ['a'])
 
     def test_deserialize_subnodes_raise(self):
         node = DummySchemaNode(None, exc='Wrong')
         typ = self._makeOne()
-        node.nodes = [node]
+        node.children = [node]
         e = invalid_exc(typ.deserialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
@@ -496,7 +496,7 @@ class TestSequence(unittest.TestCase):
     def test_serialize_not_iterable(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        node.nodes = [node]
+        node.children = [node]
         e = invalid_exc(typ.serialize, node, None)
         self.assertEqual(
             e.msg,
@@ -506,20 +506,20 @@ class TestSequence(unittest.TestCase):
     def test_serialize_not_iterable_accept_scalar(self):
         node = DummySchemaNode(None)
         typ = self._makeOne(accept_scalar=True)
-        node.nodes = [node]
+        node.children = [node]
         result = typ.serialize(node, None)
         self.assertEqual(result, [None])
 
     def test_serialize_no_subnodes(self):
         node = DummySchemaNode(None)
-        node.nodes = [node]
+        node.children = [node]
         typ = self._makeOne()
         result = typ.serialize(node, ())
         self.assertEqual(result, [])
 
     def test_serialize_ok(self):
         node = DummySchemaNode(None)
-        node.nodes = [DummySchemaNode(None, name='a')]
+        node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.serialize(node, ('a',))
         self.assertEqual(result, ['a'])
@@ -527,7 +527,7 @@ class TestSequence(unittest.TestCase):
     def test_serialize_subnodes_raise(self):
         node = DummySchemaNode(None, exc='Wrong')
         typ = self._makeOne()
-        node.nodes = [node]
+        node.children = [node]
         e = invalid_exc(typ.serialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
@@ -911,7 +911,7 @@ class TestSchemaNode(unittest.TestCase):
     def test_ctor_no_title(self):
         node = self._makeOne(None, 0, validator=1, default=2, name='name')
         self.assertEqual(node.typ, None)
-        self.assertEqual(node.nodes, [0])
+        self.assertEqual(node.children, [0])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
         self.assertEqual(node.name, 'name')
@@ -921,7 +921,7 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, 0, validator=1, default=2, name='name',
                              title='title')
         self.assertEqual(node.typ, None)
-        self.assertEqual(node.nodes, [0])
+        self.assertEqual(node.children, [0])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
         self.assertEqual(node.name, 'name')
@@ -971,7 +971,7 @@ class TestSchemaNode(unittest.TestCase):
     def test_add(self):
         node = self._makeOne(None)
         node.add(1)
-        self.assertEqual(node.nodes, [1])
+        self.assertEqual(node.children, [1])
 
     def test_repr(self):
         node = self._makeOne(None, name='flub')
@@ -996,14 +996,14 @@ class TestSchemaNode(unittest.TestCase):
         inner_node = self._makeOne(inner_typ, name='inner')
         outer_node.foo = 1
         inner_node.foo = 2
-        outer_node.nodes = [inner_node]
+        outer_node.children = [inner_node]
         outer_clone = outer_node.clone()
         self.failIf(outer_clone is outer_node)
         self.assertEqual(outer_clone.typ, outer_typ)
         self.assertEqual(outer_clone.name, 'outer')
         self.assertEqual(outer_node.foo, 1)
-        self.assertEqual(len(outer_clone.nodes), 1)
-        inner_clone = outer_clone.nodes[0]
+        self.assertEqual(len(outer_clone.children), 1)
+        inner_clone = outer_clone.children[0]
         self.failIf(inner_clone is inner_node)
         self.assertEqual(inner_clone.typ, inner_typ)
         self.assertEqual(inner_clone.name, 'inner')
@@ -1025,9 +1025,9 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Mapping)
         self.assertEqual(node.typ.unknown_keys, 'raise')
-        self.assertEqual(node.nodes[0].typ.__class__, colander.String) 
-        self.assertEqual(node.nodes[0].title, 'Thing')
-        self.assertEqual(node.nodes[1].title, 'bar')
+        self.assertEqual(node.children[0].typ.__class__, colander.String) 
+        self.assertEqual(node.children[0].title, 'Thing')
+        self.assertEqual(node.children[1].title, 'bar')
         
 class TestSequenceSchema(unittest.TestCase):
     def test_it(self):
@@ -1039,7 +1039,7 @@ class TestSequenceSchema(unittest.TestCase):
         self.failUnless(hasattr(node, '_order'))
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Sequence)
-        self.assertEqual(node.nodes[0], _inner)
+        self.assertEqual(node.children[0], _inner)
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
@@ -1050,7 +1050,7 @@ class TestTupleSchema(unittest.TestCase):
         self.failUnless(hasattr(node, '_order'))
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Tuple)
-        self.assertEqual(node.nodes[0].typ.__class__, colander.String)
+        self.assertEqual(node.children[0].typ.__class__, colander.String)
 
 class TestFunctional(object):
     def test_deserialize_ok(self):
@@ -1200,7 +1200,7 @@ class DummySchemaNode(object):
         self.exc = exc
         self.required = default is None
         self.default = default
-        self.nodes = []
+        self.children = []
 
     def deserialize(self, val):
         from colander import Invalid
