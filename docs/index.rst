@@ -439,17 +439,17 @@ but allows some wiggle room for ``t``, ``on``, ``yes``, ``y``, and
    :linenos:
 
    class Boolean(object):
-       def deserialize(self, struct, value):
+       def deserialize(self, node, value):
            if not isinstance(value, basestring):
-               raise Invalid(struct, '%r is not a string' % value)
+               raise Invalid(node, '%r is not a string' % value)
            value = value.lower()
            if value in ('true', 'yes', 'y', 'on', 't', '1'):
                return True
            return False
 
-       def serialize(self, struct, value):
+       def serialize(self, node, value):
            if not isinstance(value, bool):
-              raise Invalid(struct, '%r is not a boolean')
+              raise Invalid(node, '%r is not a boolean')
            return value and 'true' or 'false'
 
 Here's how you would use the resulting class as part of a schema:
@@ -470,6 +470,13 @@ Note that the only real constraint of a type class is that its
 ``serialize`` method must be able to make sense of a value generated
 by its ``deserialize`` method and vice versa.
 
+The serialize and deserialize methods of a type accept two values:
+``node``, and ``value``.  ``node`` will be the schema node associated
+with this type.  It is used when the type must raise a
+:exc:`colander.Invalid` error, which expects a schema node as its
+first constructor argument.  ``value`` will be the value that needs to
+be serialized or deserialized.
+
 For a more formal definition of a the interface of a type, see
 :class:`colander.interfaces.Type`.
 
@@ -477,7 +484,7 @@ Defining a New Validator
 ------------------------
 
 A validator is a callable which accepts two positional arguments:
-``struct`` and ``value``.  It returns ``None`` if the value is valid.
+``node`` and ``value``.  It returns ``None`` if the value is valid.
 It raises a :class:`colander.Invalid` exception if the value is not
 valid.  Here's a validator that checks if the value is a valid credit
 card number.
@@ -485,7 +492,7 @@ card number.
 .. code-block:: python
    :linenos:
 
-   def luhnok(struct, value):
+   def luhnok(node, value):
        """ checks to make sure that the value passes a luhn mod-10 checksum """
        sum = 0
        num_digits = len(value)
@@ -502,7 +509,7 @@ card number.
            sum = sum + digit
 
        if not (sum % 10) == 0:
-           raise Invalid(struct, 
+           raise Invalid(node, 
                          '%r is not a valid credit card number' % value)
         
 Here's how the resulting ``luhnok`` validator might be used in a
@@ -520,6 +527,10 @@ Note that the validator doesn't need to check if the ``value`` is a
 string: this has already been done as the result of the type of the
 ``cc_number`` schema node being :class:`colander.String`. Validators
 are always passed the *deserialized* value when they are invoked.
+
+The ``node`` value passed to the validator is a schema node object; it
+must in turn be passed to the :exc:`colander.Invalid` exception
+constructor if one needs to be raised.
 
 For a more formal definition of a the interface of a validator, see
 :class:`colander.interfaces.Validator`.
