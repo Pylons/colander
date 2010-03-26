@@ -664,6 +664,15 @@ class SchemaNode(object):
                 return node
         raise KeyError(name)
 
+    def clone(self):
+        """ Clone the schema node and return the clone.  All subnodes
+        are also cloned recursively.  Attributes present in node
+        dictionaries are preserved."""
+        cloned = self.__class__(self.typ)
+        cloned.__dict__.update(self.__dict__)
+        cloned.nodes = [ node.clone() for node in self.nodes ]
+        return cloned
+
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []

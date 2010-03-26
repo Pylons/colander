@@ -4,6 +4,8 @@ Changes
 Next release
 ------------
 
+- Add a ``clone`` method to ``colander.SchemaNode`` objects.
+
 - Add a ``__str__`` method to the ``colander.Invalid`` exception that
   prints an error summary.
 

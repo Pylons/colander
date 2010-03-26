@@ -980,6 +980,26 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__getitem__, 'another')
 
+    def test_clone(self):
+        inner_typ = DummyType()
+        outer_typ = DummyType()
+        outer_node = self._makeOne(outer_typ, name='outer')
+        inner_node = self._makeOne(inner_typ, name='inner')
+        outer_node.foo = 1
+        inner_node.foo = 2
+        outer_node.nodes = [inner_node]
+        outer_clone = outer_node.clone()
+        self.failIf(outer_clone is outer_node)
+        self.assertEqual(outer_clone.typ, outer_typ)
+        self.assertEqual(outer_clone.name, 'outer')
+        self.assertEqual(outer_node.foo, 1)
+        self.assertEqual(len(outer_clone.nodes), 1)
+        inner_clone = outer_clone.nodes[0]
+        self.failIf(inner_clone is inner_node)
+        self.assertEqual(inner_clone.typ, inner_typ)
+        self.assertEqual(inner_clone.name, 'inner')
+        self.assertEqual(inner_clone.foo, 2)
+
 class TestSchema(unittest.TestCase):
     def test_alias(self):
         from colander import Schema
