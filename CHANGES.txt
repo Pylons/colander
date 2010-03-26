@@ -4,6 +4,8 @@ Changes
 Next release
 ------------
 
+- Add an ``sdefault`` property to ``colander.SchemaNode`` objects.
+
 - Add a ``clone`` method to ``colander.SchemaNode`` objects.
 
 - Add a ``__str__`` method to the ``colander.Invalid`` exception that

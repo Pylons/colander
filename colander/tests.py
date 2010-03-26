@@ -940,6 +940,15 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, default=1)
         self.assertEqual(node.required, False)
 
+    def test_sdefault_missing(self):
+        node = self._makeOne(None)
+        self.assertEqual(node.sdefault, None)
+
+    def test_sdefault_not_missing(self):
+        typ = DummyType()
+        node = self._makeOne(typ, default=1)
+        self.assertEqual(node.sdefault, 1)
+
     def test_deserialize_no_validator(self):
         typ = DummyType()
         node = self._makeOne(typ)

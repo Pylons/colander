@@ -641,6 +641,14 @@ class SchemaNode(object):
         schema """
         return self.default is _missing
 
+    @property
+    def sdefault(self):
+        """ Return the *serialized* default of the node default or
+        ``None`` if there is no default."""
+        if self.default is _missing:
+            return None
+        return self.typ.serialize(self, self.default)
+
     def deserialize(self, value):
         """ Derialize the value based on the schema represented by this
         node """
