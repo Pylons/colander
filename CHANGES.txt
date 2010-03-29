@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.3 (2010-03-29)
+----------------
 
 - Subnodes of a schema node are now kept in the ``children`` attribute
   rather than the ``nodes`` attribute.
