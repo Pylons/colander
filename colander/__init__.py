@@ -670,7 +670,7 @@ class Date(object):
             result = result.date()
         except (iso8601.ParseError, TypeError):
             try:
-                year, month, day = map(int, value.split('-', 3))
+                year, month, day = map(int, value.split('-', 2))
                 result = datetime.date(year, month, day)
             except Exception, e:
                 raise Invalid(node,
