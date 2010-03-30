@@ -952,21 +952,24 @@ class TestDateTime(unittest.TestCase):
         expected = dt.isoformat()
         self.assertEqual(result, expected)
 
-    def test_deserialize_invalid_TypeError(self):
+    def test_deserialize_date(self):
         import datetime
-        # cant parse dates without times
+        import iso8601
         date = datetime.date.today()
         typ = self._makeOne()
         formatted = date.isoformat()
         node = DummySchemaNode(None)
-        e = invalid_exc(typ.deserialize, node, formatted)
-        self.failUnless('cannot be parsed' in e.msg)
+        result = typ.deserialize(node, formatted)
+        expected = datetime.datetime.combine(result, datetime.time())
+        tzinfo = iso8601.iso8601.Utc()
+        expected = expected.replace(tzinfo=tzinfo)
+        self.assertEqual(result.isoformat(), expected.isoformat())
 
     def test_deserialize_invalid_ParseError(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, 'garbage')
-        self.failUnless('Unable to parse' in e.msg)
+        self.failUnless('cannot be parsed' in e.msg)
 
     def test_deserialize_success(self):
         import datetime

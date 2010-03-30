@@ -603,9 +603,10 @@ class DateTime(object):
     the time, and uses the ``default_tzinfo`` to give the
     serialization a timezone.
 
-    This type can only convert ISO8601 values that include a date, a
-    time, and a timezone (or ``Z``) in their representations.  It will
-    fail to parse date-only ISO8601 representations.
+    Likewise, for convenience, during deserialization, this type will
+    convert ``YYYY-MM-DD`` ISO8601 values to a datetime object.  It
+    does so by using midnight of the day as the time, and uses the
+    ``default_tzinfo`` to give the serialization a timezone.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -628,9 +629,14 @@ class DateTime(object):
         try:
             result = iso8601.parse_date(value)
         except (iso8601.ParseError, TypeError), e:
-            raise Invalid(node,
-                          '%s cannot be parsed as an iso8601 datetime: %s' %
-                          (value, e))
+            try:
+                year, month, day = map(int, value.split('-', 2))
+                result = datetime.datetime(year, month, day,
+                                           tzinfo=self.default_tzinfo)
+            except Exception, e:
+                raise Invalid(node,
+                              '%s cannot be parsed as an iso8601 date: %s' %
+                              (value, e))
         return result
 
 class Date(object):
