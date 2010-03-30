@@ -899,6 +899,146 @@ class TestGlobalObject(unittest.TestCase):
         e = invalid_exc(typ.serialize, None, None)
         self.assertEqual(e.msg, 'None has no __name__')
 
+class TestDateTime(unittest.TestCase):
+    def _makeOne(self, *arg, **kw):
+        from colander import DateTime
+        return DateTime(*arg, **kw)
+
+    def test_ctor_default_tzinfo_None(self):
+        import iso8601
+        typ = self._makeOne()
+        self.assertEqual(typ.default_tzinfo.__class__, iso8601.iso8601.Utc)
+
+    def test_ctor_default_tzinfo_non_None(self):
+        import iso8601
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
+        typ = self._makeOne(default_tzinfo=tzinfo)
+        self.assertEqual(typ.default_tzinfo, tzinfo)
+
+    def test_serialize_with_garbage(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.serialize, node, 'garbage')
+        self.assertEqual(e.msg, "'garbage' is not a datetime object")
+
+    def test_serialize_with_date(self):
+        import datetime
+        typ = self._makeOne()
+        date = datetime.date.today()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, date)
+        expected = datetime.datetime.combine(date, datetime.time())
+        expected = expected.replace(tzinfo=typ.default_tzinfo).isoformat()
+        self.assertEqual(result, expected)
+
+    def test_serialize_with_naive_datetime(self):
+        import datetime
+        typ = self._makeOne()
+        dt = datetime.datetime.now()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, dt)
+        expected = dt.replace(tzinfo=typ.default_tzinfo).isoformat()
+        self.assertEqual(result, expected)
+
+    def test_serialize_with_tzware_datetime(self):
+        import datetime
+        import iso8601
+        typ = self._makeOne()
+        dt = datetime.datetime.now()
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
+        dt = dt.replace(tzinfo=tzinfo)
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, dt)
+        expected = dt.isoformat()
+        self.assertEqual(result, expected)
+
+    def test_deserialize_invalid_TypeError(self):
+        import datetime
+        # cant parse dates without times
+        date = datetime.date.today()
+        typ = self._makeOne()
+        formatted = date.isoformat()
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.deserialize, node, formatted)
+        self.failUnless('cannot be parsed' in e.msg)
+
+    def test_deserialize_invalid_ParseError(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, 'garbage')
+        self.failUnless('Unable to parse' in e.msg)
+
+    def test_deserialize_success(self):
+        import datetime
+        import iso8601
+        typ = self._makeOne()
+        dt = datetime.datetime.now()
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
+        dt = dt.replace(tzinfo=tzinfo)
+        iso = dt.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, iso)
+        self.assertEqual(result.isoformat(), iso)
+        
+class TestDate(unittest.TestCase):
+    def _makeOne(self, *arg, **kw):
+        from colander import Date
+        return Date(*arg, **kw)
+
+    def test_serialize_with_garbage(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.serialize, node, 'garbage')
+        self.assertEqual(e.msg, "'garbage' is not a date object")
+
+    def test_serialize_with_date(self):
+        import datetime
+        typ = self._makeOne()
+        date = datetime.date.today()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, date)
+        expected = date.isoformat()
+        self.assertEqual(result, expected)
+
+    def test_serialize_with_datetime(self):
+        import datetime
+        typ = self._makeOne()
+        dt = datetime.datetime.now()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, dt)
+        expected = dt.date().isoformat()
+        self.assertEqual(result, expected)
+
+    def test_deserialize_invalid_ParseError(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, 'garbage')
+        self.failUnless('cannot be parsed' in e.msg)
+
+    def test_deserialize_invalid_weird(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, '10-10-10-10')
+        self.failUnless('cannot be parsed' in e.msg)
+
+    def test_deserialize_success_date(self):
+        import datetime
+        typ = self._makeOne()
+        date = datetime.date.today()
+        iso = date.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, iso)
+        self.assertEqual(result.isoformat(), iso)
+
+    def test_deserialize_success_datetime(self):
+        import datetime
+        dt = datetime.datetime.now()
+        typ = self._makeOne()
+        iso = dt.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, iso)
+        self.assertEqual(result.isoformat(), dt.date().isoformat())
+
 class TestSchemaNode(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import SchemaNode

@@ -1,6 +1,13 @@
 Changes
 =======
 
+Next release
+------------
+
+- Add ``colander.DateTime`` and ``colander.Date`` data types.
+
+- Depend on the ``iso8601`` package for date support.
+
 0.3 (2010-03-29)
 ----------------
 

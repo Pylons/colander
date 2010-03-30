@@ -1,4 +1,6 @@
+import datetime
 import itertools
+import iso8601
 import pprint
 
 class _missing(object):
@@ -579,6 +581,102 @@ class GlobalObject(object):
             return value.__name__
         except AttributeError:
             raise Invalid(node, '%r has no __name__' % value)
+
+class DateTime(object):
+    """ A type representing a Python ``datetime.datetime`` object.
+
+    This type serializes python ``datetime.datetime`` objects to a
+    `ISO8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ string format.
+    The format includes the date, the time, and the timezone of the
+    datetime.
+
+    The constructor accepts a single argument named ``default_tzinfo``
+    which should be a Python ``tzinfo`` object; by default it is None,
+    meaning that the default tzinfo will be equivalent to UTC (Zulu
+    time).  The ``default_tzinfo`` tzinfo object is used to convert
+    'naive' datetimes to a timezone-aware representation during
+    serialization.
+
+    For convenience, this type is also willing to coerce
+    ``datetime.date`` objects to a DateTime ISO string representation
+    during serialization.  It does so by using midnight of the day as
+    the time, and uses the ``default_tzinfo`` to give the
+    serialization a timezone.
+
+    This type can only convert ISO8601 values that include a date, a
+    time, and a timezone (or ``Z``) in their representations.  It will
+    fail to parse date-only ISO8601 representations.
+
+    The subnodes of the :class:`colander.SchemaNode` that wraps
+    this type are ignored.
+    """
+    def __init__(self, default_tzinfo=None):
+        if default_tzinfo is None:
+            default_tzinfo = iso8601.iso8601.Utc()
+        self.default_tzinfo = default_tzinfo
+        
+    def serialize(self, node, value):
+        if type(value) is datetime.date: # cant use isinstance; dt subs date
+            value = datetime.datetime.combine(value, datetime.time())
+        if not isinstance(value, datetime.datetime):
+            raise Invalid(node, '%r is not a datetime object' % value)
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=self.default_tzinfo)
+        return value.isoformat()
+
+    def deserialize(self, node, value):
+        try:
+            result = iso8601.parse_date(value)
+        except (iso8601.ParseError, TypeError), e:
+            raise Invalid(node,
+                          '%s cannot be parsed as an iso8601 datetime: %s' %
+                          (value, e))
+        return result
+
+class Date(object):
+    """ A type representing a Python ``datetime.date`` object.
+
+    This type serializes python ``datetime.date`` objects to a
+    `ISO8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ string format.
+    The format includes the date only.
+
+    The constructor accepts no arguments.
+
+    For convenience, this type is also willing to coerce
+    ``datetime.datetime`` objects to a date-only ISO string
+    representation during serialization.  It does so by stripping off
+    any time information, converting the ``datetime.datetime`` into a
+    date before serializing.
+
+    Likewise, for convenience, this type is also willing to coerce ISO
+    representations that contain time info into a ``datetime.date``
+    object during deserialization.  It does so by throwing away any
+    time information related to the serialized value during
+    deserialization.
+
+    The subnodes of the :class:`colander.SchemaNode` that wraps
+    this type are ignored.
+    """
+    def serialize(self, node, value):
+        if isinstance(value, datetime.datetime):
+            value = value.date()
+        if not isinstance(value, datetime.date):
+            raise Invalid(node, '%r is not a date object' % value)
+        return value.isoformat()
+
+    def deserialize(self, node, value):
+        try:
+            result = iso8601.parse_date(value)
+            result = result.date()
+        except (iso8601.ParseError, TypeError):
+            try:
+                year, month, day = map(int, value.split('-', 3))
+                result = datetime.date(year, month, day)
+            except Exception, e:
+                raise Invalid(node,
+                              '%s cannot be parsed as an iso8601 date: %s' %
+                              (value, e))
+        return result
 
 class SchemaNode(object):
     """

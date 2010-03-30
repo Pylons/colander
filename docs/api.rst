@@ -47,6 +47,10 @@ Types
 
   .. autoclass:: GlobalObject
 
+  .. autoclass:: DateTime
+
+  .. autoclass:: Date
+
 Schema-Related
 ~~~~~~~~~~~~~~
 
