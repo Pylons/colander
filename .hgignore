@@ -1,0 +1,7 @@
+syntax: glob
+
+.coverage
+env
+*.egg
+*.egg-info
+
