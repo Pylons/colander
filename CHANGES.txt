@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.4 (2010-03-30)
+----------------
 
 - Add ``colander.DateTime`` and ``colander.Date`` data types.
 
