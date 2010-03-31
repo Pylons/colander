@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.5 (2010-03-31)
+----------------
+
+- 0.4 was mispackaged (CHANGES.txt missing); no code changes from 0.4
+  however.
+
 0.4 (2010-03-30)
 ----------------
 
