@@ -10,6 +10,10 @@ Next release
 - Allow ``colander.Date`` and ``colander.DateTime`` invalid error
   messages to be customized.
 
+- Add a ``pos`` argument to the ``colander.Invalid.add`` method.
+
+- Add a ``__setitem__`` method to the ``colander.Invalid`` class.
+
 0.5 (2010-03-31)
 ----------------
 

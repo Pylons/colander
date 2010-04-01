@@ -27,11 +27,51 @@ class Invalid(Exception):
         self.msg = msg
         self.children = []
 
-    def add(self, exc):
+    def add(self, exc, pos=None):
         """ Add a child exception; ``exc`` must be an instance of
-        :class:`colander.Invalid`"""
+        :class:`colander.Invalid` or a subclass.
+
+        ``pos`` is a value important for accurate error reporting.  If
+        it is provided, it must be an integer representing the
+        position of ``exc`` relative to all other subexceptions of
+        this exception node.  For example, if the exception being
+        added is about the third child of the exception which is
+        ``self``, ``pos`` might be passed as ``3``.
+
+        If ``pos`` is provided, it will be assigned to the ``pos``
+        attribute of the provided ``exc`` object.
+
+        The ``parent`` attribute of the provided ``exc`` will be set
+        as a reference to ``self``.
+        """
         exc.parent = self
+        if pos is not None:
+            exc.pos = pos
         self.children.append(exc)
+
+    def __setitem__(self, name, msg):
+        """ Add a subexception related to a child node with the
+        message ``msg``. ``name`` must be present in the names of the
+        set of child nodes of this exception's node; if this is not so,
+        a ``KeyError`` is raised.
+
+        For example, if the exception upon which ``__setitem__`` is
+        called has a node attribute with children, and that node
+        attribute has children that have the names ``name`` and
+        ``title``, you may successfully call ``__setitem__('name',
+        'Bad name')`` or ``__setitem__('title', 'Bad title')``.  But
+        calling ``__setitem__('wrong', 'whoops')`` will result in a
+        KeyError.
+
+        This method is typically only useful if the ``node`` it wraps
+        is a schema node representing a mapping.
+        """
+        for num, child in enumerate(self.node.children):
+            if child.name == name:
+                exc = Invalid(child, msg)
+                self.add(exc, num)
+                return
+        raise KeyError(name)
 
     def paths(self):
         """ Return all paths through the exception graph  """
@@ -205,8 +245,7 @@ class Mapping(object):
             except Invalid, e:
                 if error is None:
                     error = Invalid(node)
-                e.pos = num
-                error.add(e)
+                error.add(e, num)
 
         if self.unknown_keys == 'raise':
             if value:
@@ -280,8 +319,7 @@ class Tuple(Positional):
             except Invalid, e:
                 if error is None:
                     error = Invalid(node)
-                e.pos = num
-                error.add(e)
+                error.add(e, num)
                 
         if error is not None:
             raise error
@@ -339,8 +377,7 @@ class Sequence(Positional):
             except Invalid, e:
                 if error is None:
                     error = Invalid(node)
-                e.pos = num
-                error.add(e)
+                error.add(e, num)
                 
         if error is not None:
             raise error

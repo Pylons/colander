@@ -99,7 +99,24 @@ class TestInvalid(unittest.TestCase):
             result,
             "{'node1.node2.3': 'exc1; exc2; exc3', 'node1.node4': 'exc1; exc4'}"
             )
-        
+
+    def test___setitem__fails(self):
+        node = DummySchemaNode(None)
+        exc = self._makeOne(node, 'msg')
+        self.assertRaises(KeyError, exc.__setitem__, 'notfound', 'msg')
+
+    def test___setitem__succeeds(self):
+        node = DummySchemaNode(None)
+        child = DummySchemaNode(None)
+        child.name = 'found'
+        node.children = [child]
+        exc = self._makeOne(node, 'msg')
+        exc['found'] = 'msg2'
+        self.assertEqual(len(exc.children), 1)
+        childexc = exc.children[0]
+        self.assertEqual(childexc.pos, 0)
+        self.assertEqual(childexc.node.name, 'found')
+
 class TestAll(unittest.TestCase):
     def _makeOne(self, validators):
         from colander import All
