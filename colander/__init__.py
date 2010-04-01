@@ -590,12 +590,21 @@ class DateTime(object):
     The format includes the date, the time, and the timezone of the
     datetime.
 
-    The constructor accepts a single argument named ``default_tzinfo``
-    which should be a Python ``tzinfo`` object; by default it is None,
+    The constructor accepts an argument named ``default_tzinfo`` which
+    should be a Python ``tzinfo`` object; by default it is None,
     meaning that the default tzinfo will be equivalent to UTC (Zulu
     time).  The ``default_tzinfo`` tzinfo object is used to convert
     'naive' datetimes to a timezone-aware representation during
     serialization.
+
+    You can adjust the error message reported by this class by
+    changing its ``err_template`` attribute in a subclass on an
+    instance of this class.  By default, the ``err_tempalte``
+    attribute is the string ``%(value)s cannot be parsed as an iso8601
+    date: %(exc)s``.  This string is used as the interpolation subject
+    of a dictionary composed of ``value`` and ``exc``.  ``value`` and
+    ``exc`` are the unvalidatable value and the exception caused
+    trying to convert the value, respectively.
 
     For convenience, this type is also willing to coerce
     ``datetime.date`` objects to a DateTime ISO string representation
@@ -611,6 +620,7 @@ class DateTime(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+    err_template =  '%(value)s cannot be parsed as an iso8601 date: %(exc)s'
     def __init__(self, default_tzinfo=None):
         if default_tzinfo is None:
             default_tzinfo = iso8601.iso8601.Utc()
@@ -634,9 +644,8 @@ class DateTime(object):
                 result = datetime.datetime(year, month, day,
                                            tzinfo=self.default_tzinfo)
             except Exception, e:
-                raise Invalid(node,
-                              '%s cannot be parsed as an iso8601 date: %s' %
-                              (value, e))
+                raise Invalid(node, self.err_template % {'value':value,
+                                                         'exc':e})
         return result
 
 class Date(object):
@@ -647,6 +656,15 @@ class Date(object):
     The format includes the date only.
 
     The constructor accepts no arguments.
+
+    You can adjust the error message reported by this class by
+    changing its ``err_template`` attribute in a subclass on an
+    instance of this class.  By default, the ``err_tempalte``
+    attribute is the string ``%(value)s cannot be parsed as an iso8601
+    date: %(exc)s``.  This string is used as the interpolation subject
+    of a dictionary composed of ``value`` and ``exc``.  ``value`` and
+    ``exc`` are the unvalidatable value and the exception caused
+    trying to convert the value, respectively.
 
     For convenience, this type is also willing to coerce
     ``datetime.datetime`` objects to a date-only ISO string
@@ -663,6 +681,7 @@ class Date(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+    err_template =  '%(value)s cannot be parsed as an iso8601 date: %(exc)s'
     def serialize(self, node, value):
         if isinstance(value, datetime.datetime):
             value = value.date()
@@ -679,9 +698,8 @@ class Date(object):
                 year, month, day = map(int, value.split('-', 2))
                 result = datetime.date(year, month, day)
             except Exception, e:
-                raise Invalid(node,
-                              '%s cannot be parsed as an iso8601 date: %s' %
-                              (value, e))
+                raise Invalid(node, self.err_template % {'value':value,
+                                                         'exc':e})
         return result
 
 class SchemaNode(object):
