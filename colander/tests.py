@@ -1163,11 +1163,11 @@ class TestSchema(unittest.TestCase):
         class MySchema(colander.Schema):
             thing = colander.SchemaNode(colander.String())
             thing2 = colander.SchemaNode(colander.String(), title='bar')
-        node = MySchema(unknown_keys='raise')
+        node = MySchema(default='abc')
         self.failUnless(hasattr(node, '_order'))
+        self.assertEqual(node.default, 'abc')
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Mapping)
-        self.assertEqual(node.typ.unknown_keys, 'raise')
         self.assertEqual(node.children[0].typ.__class__, colander.String) 
         self.assertEqual(node.children[0].title, 'Thing')
         self.assertEqual(node.children[1].title, 'bar')

@@ -813,8 +813,8 @@ class Schema(object):
         node = object.__new__(cls.node_type)
         node.name = None
         node._order = SchemaNode._counter.next()
-        typ = cls.schema_type(*args, **kw)
-        node.__init__(typ)
+        typ = cls.schema_type()
+        node.__init__(typ, *args, **kw)
         for n in cls.nodes:
             node.add(n)
         return node
