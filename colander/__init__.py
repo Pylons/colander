@@ -317,28 +317,25 @@ class Mapping(Type):
                 
         return result
 
-    def deserialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.deserialize(subval)
-        def default_callback(subnode):
-            return subnode.default
-
-        return self._impl(node, value, callback, default_callback)
-
     def serialize(self, node, value):
         def callback(subnode, subval):
             return subnode.serialize(subval)
         def default_callback(subnode):
             return subnode.serialize(subnode.default)
+        return self._impl(node, value, callback, default_callback)
 
+    def deserialize(self, node, value):
+        def callback(subnode, subval):
+            return subnode.deserialize(subval)
+        def default_callback(subnode):
+            return subnode.default
         return self._impl(node, value, callback, default_callback)
 
     def pserialize(self, node, value):
         def callback(subnode, subval):
             return subnode.pserialize(subval)
         def default_callback(subnode):
-            return subnode.default
-
+            return subnode.serialize(subnode.default)
         return self._impl(
             node, value, callback, default_callback, unknown='ignore',
             partial=True)
@@ -348,7 +345,6 @@ class Mapping(Type):
             return subnode.pdeserialize(subval)
         def default_callback(subnode):
             return subnode.default
-
         return self._impl(
             node, value, callback, default_callback, unknown='ignore',
             partial=True)

@@ -14,8 +14,8 @@ Next release
 
 - Add a ``__setitem__`` method to the ``colander.Invalid`` class.
 
-- The ``colander.Mapping`` keyword argument ``unknown_keys`` has been
-  renamed to ``unknown``.
+- The ``colander.Mapping`` constructor keyword argument
+  ``unknown_keys`` has been renamed to ``unknown``.
 
 - Allow ``colander.Mapping`` type to accept a new constructor
   argument: ``partial``.
