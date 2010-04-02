@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.5.1 (2010-04-02)
+------------------
 
 - The constructor arguments to a the ``colander.Schema`` class are now
   sent to the constructed SchemaNode rather than to the type it represents.
