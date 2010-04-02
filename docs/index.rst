@@ -35,6 +35,10 @@ of objects, including:
 
 - An importable Python object (to a dotted Python object path).
 
+- A Python ``datetime.datetime`` object.
+
+- A Python ``datetime.date`` object.
+
 Colander allows additional data structures to be serialized and
 deserialized by allowing a developer to define new "types".
 
@@ -336,6 +340,78 @@ This will print something like:
     'friends.1.0':'"t" is not a number',
     'phones.0.location:'"bar" is not one of "home", "work"'}
 
+Serialization
+-------------
+
+Serializing a data structure is obviously the inverse operation from
+deserializing a data structure.  The ``serialize`` method of a schema
+performs serialization of application data.  If you pass the
+``serialize`` method data that can be understood by the schema types
+in the schema you're calling it against, you will be returned a data
+structure of serialized values.
+
+For example, given the following schema:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+
+   class Person(colander.MappingSchema):
+       name = colander.SchemaNode(colander.String())
+       age = colander.SchemaNode(colander.Int(),
+                                 validator=colander.Range(0, 200))
+
+If we try to serialize partial data using the ``serialize`` method of
+the schema:
+                                
+.. code-block:: python
+   :linenos:
+
+     data = {'age':20, 'name':'Bob'}
+     schema = Person()
+     deserialized = schema.serialize(data)
+
+The value for ``deserialized`` above will be ``{'age':'20',
+'name':'Bob'}`` (note the integer has become a string).
+
+Note that validation of values happens during serialization, just as
+it does during deserialization.
+
+Schema nodes also define a ``pserialize`` method, which can be used to
+"partially" serialize data.  This is most useful when you want to
+serialize a data structure where some of the values are missing.
+
+For example, if we try to serialize partial data using the
+``serialize`` method of the schema we defined above:
+                                
+.. code-block:: python
+   :linenos:
+
+     data = {'age':20}
+     schema = Person()
+     deserialized = schema.serialize(data)
+
+When we attempt to invoke ``serialize``, an :exc:`colander.Invalid`
+error will be raised, because we did not include the ``name``
+attribute in our data.
+
+To serialize with data representing only a part of the schema, use the
+``pserialize`` method:
+
+.. code-block:: python
+   :linenos:
+
+     data = {'age':20}
+     schema = Person()
+     deserialized = schema.pserialize(data)
+
+No error is raised, and the value for ``deserialized`` above will be
+``{'age':'20'}`` (note the integer has become a string).
+
+A ``pdeserialize`` method also exists, which is a mirror image of
+``pserialize`` for deserialization.
+
 Defining A Schema Imperatively
 ------------------------------
 
@@ -452,6 +528,9 @@ but allows some wiggle room for ``t``, ``on``, ``yes``, ``y``, and
               raise Invalid(node, '%r is not a boolean')
            return value and 'true' or 'false'
 
+       pdeserialize = deserialize
+       pserialize = serialize
+
 Here's how you would use the resulting class as part of a schema:
 
 .. code-block:: python
@@ -476,6 +555,13 @@ with this type.  It is used when the type must raise a
 :exc:`colander.Invalid` error, which expects a schema node as its
 first constructor argument.  ``value`` will be the value that needs to
 be serialized or deserialized.
+
+``pdeserialize`` and ``pserialize`` methods are required on all types.
+These are called to "partially" serialize a data structure.  For most
+"leaf-level" types, partial serialization and deserialization does not
+make any sense, so these methods are aliased to ``deserialize`` and
+``serialize`` respectively.  However, for types representing mappings
+or sequences, they may end up being different.
 
 For a more formal definition of a the interface of a type, see
 :class:`colander.interfaces.Type`.

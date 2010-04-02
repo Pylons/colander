@@ -931,8 +931,7 @@ class SchemaNode(object):
 
     def deserialize(self, value):
         """ Deserialize the value based on the schema represented by
-        this node.  The values passed as ``kw`` will be passed along
-        to the ``deserialize`` method of this node's type."""
+        this node. """
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
@@ -940,21 +939,17 @@ class SchemaNode(object):
 
     def serialize(self, value):
         """ Serialize the value based on the schema represented by
-        this node.  The values passed as ``kw`` will be passed along
-        to the ``serialize`` method of this node's type."""
+        this node."""
         return self.typ.serialize(self, value)
 
     def pserialize(self, value):
         """ Partially serialize the value based on the schema
-        represented by this node.  The values passed as ``kw`` will be
-        passed along to the ``pserialize`` method of this node's type."""
+        represented by this node.  """
         return self.typ.pserialize(self, value)
 
     def pdeserialize(self, value):
         """ Partially deserialize the value based on the schema
-        represented by this node.  The values passed as ``kw`` will be
-        passed along to the ``pdeserialize`` method of this node's
-        type."""
+        represented by this node.  """
         return self.typ.pdeserialize(self, value)
 
     def add(self, node):
