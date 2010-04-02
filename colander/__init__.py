@@ -205,6 +205,8 @@ class Mapping(Type):
 
     The constructor of this type accepts two extra optional keyword
     arguments that other types do not: ``unknown`` and ``partial``.
+    Attributes of the same name can be set on a type instance to
+    control the behavior after construction.
 
     unknown
         ``unknown`` controls the behavior of this type when an unknown
@@ -224,6 +226,10 @@ class Mapping(Type):
 
         Default: ``ignore``.
 
+        Note that the ``pserialize`` and ``pdeserialize`` methods of
+        this type will override this behavior, behaving as if
+        ``unknown`` is ``ignore`` for the duration of those method calls.
+
     partial
         ``partial`` controls the behavior of this type when a
         schema-expected key is missing from the value passed to the
@@ -235,19 +241,28 @@ class Mapping(Type):
         ``True``, no exception is raised and a partial mapping will
         be serialized/deserialized.
 
-        Default: ``raise``.
+        Default: ``False``.
+
+        Note that the ``pserialize`` and ``pdeserialize`` methods of
+        this type will override this behavior, behaving as if
+        ``partial`` is ``True`` for the duration of those method calls.
     """
 
     def __init__(self, unknown='ignore', partial=False):
+        self.unknown = unknown
         self.partial = partial
-        self.unknown = self._check_unknown(unknown)
 
-    def _check_unknown(self, unknown):
-        if not unknown in ['ignore', 'raise', 'preserve']:
+    def _set_unknown(self, value):
+        if not value in ['ignore', 'raise', 'preserve']:
             raise ValueError(
-                'unknown argument must be one of "ignore", "raise", '
+                'unknown attribute must be one of "ignore", "raise", '
                 'or "preserve"')
-        return unknown
+        self._unknown = value
+
+    def _get_unknown(self):
+        return self._unknown
+
+    unknown = property(_get_unknown, _set_unknown)
 
     def _validate(self, node, value):
         try:
@@ -255,14 +270,13 @@ class Mapping(Type):
         except Exception, e:
             raise Invalid(node, '%r is not a mapping type: %s' % (value, e))
 
-    def _impl(self, node, value, callback, default_callback, unknown, partial):
+    def _impl(self, node, value, callback, default_callback, unknown=None,
+              partial=None):
         if partial is None:
             partial = self.partial
 
         if unknown is None:
             unknown = self.unknown
-        else:
-            unknown = self._check_unknown(unknown)
 
         value = self._validate(node, value)
 
@@ -303,73 +317,41 @@ class Mapping(Type):
                 
         return result
 
-    def deserialize(self, node, value, unknown=None, partial=None):
-        """
-        Along with the normal ``node`` and ``value`` arguments, this
-        method implementation accepts two additional optional
-        arguments that other type implementations do not: ``unknown``
-        and ``partial``.  These arguments can be used to override the
-        instance defaults of the same name for the duration of a
-        particular serialization or deserialization.
-        
-        unknown
-          If this value is provided, it must be one of ``preserve``,
-          ``raise``, or ``ignore``, overriding the behavior implied by
-          the value set by the ``unknown`` argument to constructor of
-          this instance.  It defaults to ``None``, which signifies
-          that the instance default should be used.
-
-        partial
-          If this value is provided, it must be a boolean, overriding
-          the behavior implied by the value set by the ``partial``
-          argument to constructor of this instance.  It defaults to
-          ``None``, which signifies that the instance default should
-          be used.
-
-        """
+    def deserialize(self, node, value):
         def callback(subnode, subval):
             return subnode.deserialize(subval)
         def default_callback(subnode):
             return subnode.default
-        return self._impl(
-            node, value, callback, default_callback, unknown, partial)
 
-    def serialize(self, node, value, unknown=None, partial=None):
-        """
-        Along with the normal ``node`` and ``value`` arguments, this
-        method implementation accepts two additional optional
-        arguments that other type implementations do not: ``unknown``
-        and ``partial``.  These arguments can be used to override the
-        instance defaults of the same name for the duration of a
-        particular serialization or deserialization.
-        
-        unknown
-          If this value is provided, it must be one of ``preserve``,
-          ``raise``, or ``ignore``, overriding the behavior implied by
-          the value set by the ``unknown`` argument to constructor of
-          this instance.  It defaults to ``None``, which signifies
-          that the instance default should be used.
+        return self._impl(node, value, callback, default_callback)
 
-        partial
-          If this value is provided, it must be a boolean, overriding
-          the behavior implied by the value set by the ``partial``
-          argument to constructor of this instance.  It defaults to
-          ``None``, which signifies that the instance default should
-          be used.
-        """
+    def serialize(self, node, value):
         def callback(subnode, subval):
             return subnode.serialize(subval)
         def default_callback(subnode):
             return subnode.serialize(subnode.default)
 
-        return self._impl(
-            node, value, callback, default_callback, unknown, partial)
+        return self._impl(node, value, callback, default_callback)
 
     def pserialize(self, node, value):
-        return self.serialize(node, value, partial=True)
+        def callback(subnode, subval):
+            return subnode.pserialize(subval)
+        def default_callback(subnode):
+            return subnode.default
+
+        return self._impl(
+            node, value, callback, default_callback, unknown='ignore',
+            partial=True)
 
     def pdeserialize(self, node, value):
-        return self.serialize(node, value, partial=True)
+        def callback(subnode, subval):
+            return subnode.pdeserialize(subval)
+        def default_callback(subnode):
+            return subnode.default
+
+        return self._impl(
+            node, value, callback, default_callback, unknown='ignore',
+            partial=True)
 
 class Positional(object):
     """

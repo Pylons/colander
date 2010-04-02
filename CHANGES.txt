@@ -20,10 +20,6 @@ Next release
 - Allow ``colander.Mapping`` type to accept a new constructor
   argument: ``partial``.
 
-- Allow ``colander.Mapping.serialize`` and
-  ``colander.Mapping.deserialize`` methods to accept ``unknown`` and
-  ``partial`` keyword arguments.
-
 - New interface methods required by types and schema nodes:
   ``pserialize`` and ``pdeserialize``.  These partially serialize or
   partially deserialize a value (the definition of "partial" is up to
