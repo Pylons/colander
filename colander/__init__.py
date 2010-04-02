@@ -12,7 +12,8 @@ class Invalid(Exception):
     the value for a particular node was not valid.
 
     The constructor receives a mandatory ``node`` argument.  This must
-    be an instance of the :class:`colander.SchemaNode` class.
+    be an instance of the :class:`colander.SchemaNode` class, or at
+    least something with the same interface.
 
     The constructor also receives an optional ``msg`` keyword
     argument, defaulting to ``None``.  The ``msg`` argument is a
@@ -52,8 +53,8 @@ class Invalid(Exception):
     def __setitem__(self, name, msg):
         """ Add a subexception related to a child node with the
         message ``msg``. ``name`` must be present in the names of the
-        set of child nodes of this exception's node; if this is not so,
-        a ``KeyError`` is raised.
+        set of child nodes of this exception's node; if this is not
+        so, a :exc:`KeyError` is raised.
 
         For example, if the exception upon which ``__setitem__`` is
         called has a node attribute with children, and that node
@@ -61,10 +62,11 @@ class Invalid(Exception):
         ``title``, you may successfully call ``__setitem__('name',
         'Bad name')`` or ``__setitem__('title', 'Bad title')``.  But
         calling ``__setitem__('wrong', 'whoops')`` will result in a
-        KeyError.
+        :exc:`KeyError`.
 
-        This method is typically only useful if the ``node`` it wraps
-        is a schema node representing a mapping.
+        This method is typically only useful if the ``node`` attribute
+        of the exception upon which it is called is a schema node
+        representing a mapping.
         """
         for num, child in enumerate(self.node.children):
             if child.name == name:
@@ -193,37 +195,75 @@ class Mapping(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the named keys and values in the mapping.
 
-    The constructor of a mapping type accepts a single optional
-    keyword argument named ``unknown_keys``.  By default, this
-    argument is ``ignore``.
+    The constructor of this type accepts two extra optional keyword
+    arguments that other types do not: ``unknown`` and ``missing``.
 
-    The potential values of ``unknown_keys`` are:
+    unknown
+      ``unknown`` controls the behavior of this type when an unknown
+      key is encountered in the value passed to the ``serialize`` or
+      ``deserialize`` methods of this instance.  The potential values
+      of ``unknown`` are:
 
-    - ``ignore`` means that keys that are not present in the schema
-      associated with this type will be ignored during
-      deserialization.
+      - ``ignore`` means that keys that are not present in the schema
+        associated with this type will be ignored during
+        deserialization.
 
-    - ``raise`` will cause a :exc:`colander.Invalid` exception to be
-      raised when unknown keys are present during deserialization.
+      - ``raise`` will cause a :exc:`colander.Invalid` exception to be
+        raised when unknown keys are present during deserialization.
 
-    - ``preserve`` will preserve the 'raw' unknown keys and values in
-      the returned data structure during deserialization.
+      - ``preserve`` will preserve the 'raw' unknown keys and values
+        in the returned data structure.
+
+      Default: ``ignore``.
+
+    missing
+        ``missing`` controls the behavior of this type when a
+        schema-expected key is missing from the value passed to the
+        ``serialize`` and ``deserialize`` methods of this instance.
+        During serialization and deserialization, when ``missing`` is
+        ``raise``, a :exc:`colander.Invalid` exception will be raised
+        if the mapping value does not contain a key specified by the
+        schema node related to this mapping type.  When ``missing`` is
+        ``ignore``, no exception is raised and a partial mapping will
+        be serialized/deserialized.
+
+        Default: ``raise``.
     """
 
-    def __init__(self, unknown_keys='ignore'):
-        if not unknown_keys in ['ignore', 'raise', 'preserve']:
+    def __init__(self, unknown='ignore', missing='raise'):
+        self.missing = self._check_missing(missing)
+        self.unknown = self._check_unknown(unknown)
+
+    def _check_unknown(self, unknown):
+        if not unknown in ['ignore', 'raise', 'preserve']:
             raise ValueError(
-                'unknown_keys argument must be one of "ignore", "raise", '
+                'unknown argument must be one of "ignore", "raise", '
                 'or "preserve"')
-        self.unknown_keys = unknown_keys
-        
+        return unknown
+
+    def _check_missing(self, missing):
+        if not missing in ['ignore', 'raise']:
+            raise ValueError(
+                'missing argument must be one of "ignore" or "raise"')
+        return missing
+
     def _validate(self, node, value):
         try:
             return dict(value)
         except Exception, e:
             raise Invalid(node, '%r is not a mapping type: %s' % (value, e))
 
-    def _impl(self, node, value, callback, default_callback):
+    def _impl(self, node, value, callback, default_callback, unknown, missing):
+        if missing is None:
+            missing = self.missing
+        else:
+            missing = self._check_missing(missing)
+
+        if unknown is None:
+            unknown = self.unknown
+        else:
+            unknown = self._check_unknown(unknown)
+
         value = self._validate(node, value)
 
         error = None
@@ -236,9 +276,12 @@ class Mapping(object):
             try:
                 if subval is _missing:
                     if subnode.required:
-                        raise Invalid(
-                            subnode,
-                            '"%s" is required but missing' % subnode.name)
+                        if missing == 'raise':
+                            raise Invalid(
+                                subnode,
+                                '"%s" is required but missing' % subnode.name)
+                        else:
+                            continue
                     result[name] = default_callback(subnode)
                 else:
                     result[name] = callback(subnode, subval)
@@ -247,12 +290,12 @@ class Mapping(object):
                     error = Invalid(node)
                 error.add(e, num)
 
-        if self.unknown_keys == 'raise':
+        if unknown == 'raise':
             if value:
                 raise Invalid(node,
                               'Unrecognized keys in mapping: %r' % value)
 
-        elif self.unknown_keys == 'preserve':
+        elif unknown == 'preserve':
             result.update(value)
 
         if error is not None:
@@ -260,19 +303,67 @@ class Mapping(object):
                 
         return result
 
-    def deserialize(self, node, value):
+    def deserialize(self, node, value, unknown=None, missing=None):
+        """
+        Along with the normal ``node`` and ``value`` arguments, this
+        method implementation accepts two additional optional
+        arguments that other type implementations do not: ``missing``
+        and ``raise``.  These arguments can be used to override the
+        instance defaults of the same name for the duration of a
+        particular serialization or deserialization.
+        
+        unknown
+          If this value is provided, it must be one of ``preserve``,
+          ``raise``, or ``ignore``, overriding the behavior implied by
+          the value set by the ``unknown`` argument to constructor of
+          this instance.  It defaults to ``None``, which signifies
+          that the instance default should be used.
+
+        missing
+          If this value is provided, it must be one of ``raise`` or
+          ``ignore``, overriding the behavior implied by the value set
+          by the ``missing`` argument to constructor of this instance.
+          It defaults to ``None``, which signifies that the instance
+          default should be used.
+
+        """
         def callback(subnode, subval):
             return subnode.deserialize(subval)
         def default_callback(subnode):
             return subnode.default
-        return self._impl(node, value, callback, default_callback)
+        return self._impl(
+            node, value, callback, default_callback, unknown, missing)
 
-    def serialize(self, node, value):
+    def serialize(self, node, value, unknown=None, missing=None):
+        """
+        Along with the normal ``node`` and ``value`` arguments, this
+        method implementation accepts two additional optional
+        arguments that other type implementations do not: ``missing``
+        and ``raise``.  These arguments can be used to override the
+        instance defaults of the same name for the duration of a
+        particular serialization or deserialization.
+        
+        unknown
+          If this value is provided, it must be one of ``preserve``,
+          ``raise``, or ``ignore``, overriding the behavior implied by
+          the value set by the ``unknown`` argument to constructor of
+          this instance.  It defaults to ``None``, which signifies
+          that the instance default should be used.
+
+        missing
+          If this value is provided, it must be one of ``raise`` or
+          ``ignore``, overriding the behavior implied by the value set
+          by the ``missing`` argument to constructor of this instance.
+          It defaults to ``None``, which signifies that the instance
+          default should be used.
+        """
         def callback(subnode, subval):
             return subnode.serialize(subval)
         def default_callback(subnode):
             return subnode.serialize(subnode.default)
-        return self._impl(node, value, callback, default_callback)
+
+        return self._impl(
+            node, value, callback, default_callback, unknown, missing)
 
 class Positional(object):
     """
@@ -346,28 +437,36 @@ class Sequence(Positional):
     sequence type.
 
     The optional ``accept_scalar`` argument to this type's constructor
-    indicates that if the value found during serialization or
+    indicates what should happen if the value found during serialization or
     deserialization does not have an ``__iter__`` method or is a
-    mapping type, that the value will be converted to a length-one
-    list.  If ``accept_scalar`` is ``False`` (the default), and the
-    value does not have an ``__iter__`` method, an
+    mapping type.
+
+    If ``accept_scalar`` is ``True`` and the value does not have an
+    ``__iter__`` method or is a mapping type, the value will be turned
+    into a single element list.
+
+    If ``accept_scalar`` is ``False`` and the value does not have an
+    ``__iter__`` method or is a mapping type, an
     :exc:`colander.Invalid` error will be raised during serialization
     and deserialization.
 
+    The default value of ``accept_scalar`` is ``False``.
     """
     def __init__(self, accept_scalar=False):
         self.accept_scalar = accept_scalar
 
-    def _validate(self, node, value):
+    def _validate(self, node, value, accept_scalar):
         if hasattr(value, '__iter__') and not hasattr(value, 'get'):
             return list(value)
-        if self.accept_scalar:
+        if accept_scalar:
             return [value]
         else:
             raise Invalid(node, '%r is not iterable' % value)
 
-    def _impl(self, node, value, callback):
-        value = self._validate(node, value)
+    def _impl(self, node, value, callback, accept_scalar):
+        if accept_scalar is None:
+            accept_scalar = self.accept_scalar
+        value = self._validate(node, value, accept_scalar)
 
         error = None
         result = []
@@ -384,15 +483,53 @@ class Sequence(Positional):
 
         return result
 
-    def deserialize(self, node, value):
+    def deserialize(self, node, value, accept_scalar=None):
+        """
+        Along with the normal ``node`` and ``value`` arguments, this
+        method accepts an additional optional keyword argument:
+        ``accept_scalar``.  This keyword argument can be used to
+        override the constructor value of the same name.
+
+        If ``accept_scalar`` is ``True`` and the ``value`` does not
+        have an ``__iter__`` method or is a mapping type, the value
+        will be turned into a single element list.
+
+        If ``accept_scalar`` is ``False`` and the value does not have an
+        ``__iter__`` method or is a mapping type, an
+        :exc:`colander.Invalid` error will be raised during serialization
+        and deserialization.
+
+        The default of ``accept_scalar`` is ``None``, which means
+        respect the default ``accept_scalar`` value attached to this
+        instance via its constructor.
+        """
         def callback(subnode, subval):
             return subnode.deserialize(subval)
-        return self._impl(node, value, callback)
+        return self._impl(node, value, callback, accept_scalar)
 
-    def serialize(self, node, value):
+    def serialize(self, node, value, accept_scalar=None):
+        """
+        Along with the normal ``node`` and ``value`` arguments, this
+        method accepts an additional optional keyword argument:
+        ``accept_scalar``.  This keyword argument can be used to
+        override the constructor value of the same name.
+
+        If ``accept_scalar`` is ``True`` and the ``value`` does not
+        have an ``__iter__`` method or is a mapping type, the value
+        will be turned into a single element list.
+
+        If ``accept_scalar`` is ``False`` and the value does not have an
+        ``__iter__`` method or is a mapping type, an
+        :exc:`colander.Invalid` error will be raised during serialization
+        and deserialization.
+
+        The default of ``accept_scalar`` is ``None``, which means
+        respect the default ``accept_scalar`` value attached to this
+        instance via its constructor.
+        """
         def callback(subnode, subval):
             return subnode.serialize(subval)
-        return self._impl(node, value, callback)
+        return self._impl(node, value, callback, accept_scalar)
 
 Seq = Sequence
 

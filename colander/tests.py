@@ -212,18 +212,28 @@ class TestOneOf(unittest.TestCase):
         self.assertEqual(e.msg, '"None" is not one of 1, 2')
 
 class TestMapping(unittest.TestCase):
-    def _makeOne(self, unknown_keys='ignore'):
+    def _makeOne(self, *arg, **kw):
         from colander import Mapping
-        return Mapping(unknown_keys=unknown_keys)
+        return Mapping(*arg, **kw)
 
-    def test_ctor_bad_unknown_keys(self):
+    def test_ctor_bad_unknown(self):
         self.assertRaises(ValueError, self._makeOne, 'badarg')
 
-    def test_ctor_good_unknown_keys(self):
+    def test_ctor_good_unknown(self):
         try:
             self._makeOne('ignore')
             self._makeOne('raise')
             self._makeOne('preserve')
+        except ValueError, e: # pragma: no cover
+            raise AssertionError(e)
+
+    def test_ctor_bad_missing(self):
+        self.assertRaises(ValueError, self._makeOne, 'ignore', 'badarg')
+
+    def test_ctor_good_missing(self):
+        try:
+            self._makeOne(missing='ignore')
+            self._makeOne(missing='raise')
         except ValueError, e: # pragma: no cover
             raise AssertionError(e)
 
@@ -247,18 +257,32 @@ class TestMapping(unittest.TestCase):
         result = typ.deserialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_deserialize_unknown_keys_raise(self):
+    def test_deserialize_unknown_raise(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
-        typ = self._makeOne('raise')
+        typ = self._makeOne(unknown='raise')
         e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
 
-    def test_deserialize_unknown_keys_preserve(self):
+    def test_deserialize_unknown_preserve(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
-        typ = self._makeOne('preserve')
+        typ = self._makeOne(unknown='preserve')
         result = typ.deserialize(node, {'a':1, 'b':2})
+        self.assertEqual(result, {'a':1, 'b':2})
+
+    def test_deserialize_unknown_raise_override(self):
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2}, 'raise')
+        self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
+
+    def test_deserialize_unknown_preserve_override(self):
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        result = typ.deserialize(node, {'a':1, 'b':2}, 'preserve')
         self.assertEqual(result, {'a':1, 'b':2})
 
     def test_deserialize_subnodes_raise(self):
@@ -292,6 +316,26 @@ class TestMapping(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, {'a':1})
         self.assertEqual(e.children[0].msg, '"b" is required but missing')
 
+    def test_deserialize_subnode_missing_ignore(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+            ]
+        typ = self._makeOne(missing='ignore')
+        result = typ.deserialize(node, {'a':1})
+        self.assertEqual(result, {'a':1})
+
+    def test_deserialize_subnode_missing_ignore_override(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.deserialize(node, {'a':1}, 'ignore', 'ignore')
+        self.assertEqual(result, {'a':1})
+
     def test_serialize_not_a_mapping(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -312,18 +356,32 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_serialize_unknown_keys_raise(self):
+    def test_serialize_unknown_raise(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne('raise')
         e = invalid_exc(typ.serialize, node, {'a':1, 'b':2})
         self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
 
-    def test_serialize_unknown_keys_preserve(self):
+    def test_serialize_unknown_preserve(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
-        typ = self._makeOne('preserve')
+        typ = self._makeOne(unknown='preserve')
         result = typ.serialize(node, {'a':1, 'b':2})
+        self.assertEqual(result, {'a':1, 'b':2})
+
+    def test_serialize_unknown_raise_override(self):
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, node, {'a':1, 'b':2}, 'raise')
+        self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
+
+    def test_serialize_unknown_preserve_override(self):
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        result = typ.serialize(node, {'a':1, 'b':2}, 'preserve')
         self.assertEqual(result, {'a':1, 'b':2})
 
     def test_serialize_subnodes_raise(self):
@@ -356,6 +414,26 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, {'a':1})
         self.assertEqual(e.children[0].msg, '"b" is required but missing')
+
+    def test_serialize_subnode_missing_ignore(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+            ]
+        typ = self._makeOne(missing='ignore')
+        result = typ.serialize(node, {'a':1})
+        self.assertEqual(result, {'a':1})
+
+    def test_serialize_subnode_missing_ignore_override(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.serialize(node, {'a':1}, 'ignore', 'ignore')
+        self.assertEqual(result, {'a':1})
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):

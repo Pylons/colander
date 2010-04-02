@@ -14,6 +14,13 @@ Next release
 
 - Add a ``__setitem__`` method to the ``colander.Invalid`` class.
 
+- Allow ``colander.Mapping`` type to accept a new constructor
+  argument: ``missing``.
+
+- Allow ``colander.Mapping.serialize`` and
+  ``colander.Mapping.deserialize`` methods to accept ``unknown`` and
+  ``serialize`` keyword arguments.
+
 0.5 (2010-03-31)
 ----------------
 
