@@ -34,7 +34,6 @@ class Type(object):
 
     def deserialize(self, struct, value):
         """
-
         Deserialze the serialization represented by ``value`` to a
         data structure.  The deserialization should be composed of one
         or more objects which can be serialized by the
@@ -53,3 +52,28 @@ class Type(object):
         raised.
         """
         
+    def pserialize(self, node, value):
+        """ Partially serialize a value, ignoring any missing
+        components.
+
+        The description of the ``node`` and ``value`` arguments are
+        the same as those provided to ``serialize``.
+
+        The return value and behavior of any partial serialization is
+        completely type-dependent.  If partial serialization is not
+        applicable for a type, this method will usually be an alias
+        for that type's 'serialize' method.
+        """
+
+    def pdeserialize(self, node, value):
+        """ Partially deserialize a value, ignoring any missing
+        components.
+
+        The description of the ``node`` and ``value`` arguments are
+        the same as those provided to ``deserialize``.
+
+        The return value and behavior of any partial deserialization
+        is completely type-dependent.  If partial deserialization is
+        not applicable for a type, this method will usually be an
+        alias for that type's 'deserialize' method.
+        """

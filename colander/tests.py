@@ -211,6 +211,23 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, '"None" is not one of 1, 2')
 
+class TestType(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Type
+        return Type()
+
+    def test_pserialize(self):
+        typ = self._makeOne()
+        typ.serialize = lambda *arg: arg
+        result = typ.pserialize(None, None)
+        self.assertEqual(result, (None, None))
+
+    def test_pdeserialize(self):
+        typ = self._makeOne()
+        typ.deserialize = lambda *arg: arg
+        result = typ.pdeserialize(None, None)
+        self.assertEqual(result, (None, None))
+
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Mapping
@@ -224,16 +241,6 @@ class TestMapping(unittest.TestCase):
             self._makeOne('ignore')
             self._makeOne('raise')
             self._makeOne('preserve')
-        except ValueError, e: # pragma: no cover
-            raise AssertionError(e)
-
-    def test_ctor_bad_missing(self):
-        self.assertRaises(ValueError, self._makeOne, 'ignore', 'badarg')
-
-    def test_ctor_good_missing(self):
-        try:
-            self._makeOne(missing='ignore')
-            self._makeOne(missing='raise')
         except ValueError, e: # pragma: no cover
             raise AssertionError(e)
 
@@ -316,24 +323,24 @@ class TestMapping(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, {'a':1})
         self.assertEqual(e.children[0].msg, '"b" is required but missing')
 
-    def test_deserialize_subnode_missing_ignore(self):
+    def test_deserialize_subnode_partial(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
-        typ = self._makeOne(missing='ignore')
+        typ = self._makeOne(partial=True)
         result = typ.deserialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_deserialize_subnode_missing_ignore_override(self):
+    def test_deserialize_subnode_partial_ignore_override(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
         typ = self._makeOne()
-        result = typ.deserialize(node, {'a':1}, 'ignore', 'ignore')
+        result = typ.deserialize(node, {'a':1}, 'ignore', True)
         self.assertEqual(result, {'a':1})
 
     def test_serialize_not_a_mapping(self):
@@ -415,24 +422,44 @@ class TestMapping(unittest.TestCase):
         e = invalid_exc(typ.serialize, node, {'a':1})
         self.assertEqual(e.children[0].msg, '"b" is required but missing')
 
-    def test_serialize_subnode_missing_ignore(self):
+    def test_serialize_subnode_partial(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
-        typ = self._makeOne(missing='ignore')
+        typ = self._makeOne(partial=True)
         result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_serialize_subnode_missing_ignore_override(self):
+    def test_serialize_subnode_partial_ignore_override(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
         typ = self._makeOne()
-        result = typ.serialize(node, {'a':1}, 'ignore', 'ignore')
+        result = typ.serialize(node, {'a':1}, 'ignore', True)
+        self.assertEqual(result, {'a':1})
+
+    def test_pserialize(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.pserialize(node, {'a':1})
+        self.assertEqual(result, {'a':1})
+
+    def test_pdeserialize(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.pdeserialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
 class TestTuple(unittest.TestCase):
@@ -1200,10 +1227,22 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
+    def test_pdeserialize(self):
+        typ = DummyType()
+        node = self._makeOne(typ)
+        result = node.pdeserialize(1)
+        self.assertEqual(result, 1)
+
     def test_serialize(self):
         typ = DummyType()
         node = self._makeOne(typ)
         result = node.serialize(1)
+        self.assertEqual(result, 1)
+
+    def test_pserialize(self):
+        typ = DummyType()
+        node = self._makeOne(typ)
+        result = node.pserialize(1)
         self.assertEqual(result, 1)
 
     def test_add(self):
@@ -1473,4 +1512,10 @@ class DummyType(object):
 
     def deserialize(self, node, value):
         return value
+
+    def pserialize(self, node, value):
+        return value
     
+    def pdeserialize(self, node, value):
+        return value
+

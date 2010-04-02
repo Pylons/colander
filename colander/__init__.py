@@ -189,49 +189,57 @@ class OneOf(object):
             raise Invalid(node, '"%s" is not one of %s' % (
                 value, ', '.join(['%s' % x for x in self.values])))
 
-class Mapping(object):
+class Type(object):
+    """ Abstract base class for types (only for convenience) """
+    def pserialize(self, node, value):
+        return self.serialize(node, value)
+
+    def pdeserialize(self, node, value):
+        return self.deserialize(node, value)
+
+class Mapping(Type):
     """ A type which represents a mapping of names to nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the named keys and values in the mapping.
 
     The constructor of this type accepts two extra optional keyword
-    arguments that other types do not: ``unknown`` and ``missing``.
+    arguments that other types do not: ``unknown`` and ``partial``.
 
     unknown
-      ``unknown`` controls the behavior of this type when an unknown
-      key is encountered in the value passed to the ``serialize`` or
-      ``deserialize`` methods of this instance.  The potential values
-      of ``unknown`` are:
+        ``unknown`` controls the behavior of this type when an unknown
+        key is encountered in the value passed to the ``serialize`` or
+        ``deserialize`` methods of this instance.  The potential
+        values of ``unknown`` are:
 
-      - ``ignore`` means that keys that are not present in the schema
-        associated with this type will be ignored during
-        deserialization.
+        - ``ignore`` means that keys that are not present in the schema
+          associated with this type will be ignored during
+          deserialization.
 
-      - ``raise`` will cause a :exc:`colander.Invalid` exception to be
-        raised when unknown keys are present during deserialization.
+        - ``raise`` will cause a :exc:`colander.Invalid` exception to be
+          raised when unknown keys are present during deserialization.
 
-      - ``preserve`` will preserve the 'raw' unknown keys and values
-        in the returned data structure.
+        - ``preserve`` will preserve the 'raw' unknown keys and values
+          in the returned data structure.
 
-      Default: ``ignore``.
+        Default: ``ignore``.
 
-    missing
-        ``missing`` controls the behavior of this type when a
+    partial
+        ``partial`` controls the behavior of this type when a
         schema-expected key is missing from the value passed to the
         ``serialize`` and ``deserialize`` methods of this instance.
-        During serialization and deserialization, when ``missing`` is
-        ``raise``, a :exc:`colander.Invalid` exception will be raised
+        During serialization and deserialization, when ``partial`` is
+        ``False``, a :exc:`colander.Invalid` exception will be raised
         if the mapping value does not contain a key specified by the
-        schema node related to this mapping type.  When ``missing`` is
-        ``ignore``, no exception is raised and a partial mapping will
+        schema node related to this mapping type.  When ``partial`` is
+        ``True``, no exception is raised and a partial mapping will
         be serialized/deserialized.
 
         Default: ``raise``.
     """
 
-    def __init__(self, unknown='ignore', missing='raise'):
-        self.missing = self._check_missing(missing)
+    def __init__(self, unknown='ignore', partial=False):
+        self.partial = partial
         self.unknown = self._check_unknown(unknown)
 
     def _check_unknown(self, unknown):
@@ -241,23 +249,15 @@ class Mapping(object):
                 'or "preserve"')
         return unknown
 
-    def _check_missing(self, missing):
-        if not missing in ['ignore', 'raise']:
-            raise ValueError(
-                'missing argument must be one of "ignore" or "raise"')
-        return missing
-
     def _validate(self, node, value):
         try:
             return dict(value)
         except Exception, e:
             raise Invalid(node, '%r is not a mapping type: %s' % (value, e))
 
-    def _impl(self, node, value, callback, default_callback, unknown, missing):
-        if missing is None:
-            missing = self.missing
-        else:
-            missing = self._check_missing(missing)
+    def _impl(self, node, value, callback, default_callback, unknown, partial):
+        if partial is None:
+            partial = self.partial
 
         if unknown is None:
             unknown = self.unknown
@@ -276,7 +276,7 @@ class Mapping(object):
             try:
                 if subval is _missing:
                     if subnode.required:
-                        if missing == 'raise':
+                        if not partial:
                             raise Invalid(
                                 subnode,
                                 '"%s" is required but missing' % subnode.name)
@@ -303,12 +303,12 @@ class Mapping(object):
                 
         return result
 
-    def deserialize(self, node, value, unknown=None, missing=None):
+    def deserialize(self, node, value, unknown=None, partial=None):
         """
         Along with the normal ``node`` and ``value`` arguments, this
         method implementation accepts two additional optional
-        arguments that other type implementations do not: ``missing``
-        and ``raise``.  These arguments can be used to override the
+        arguments that other type implementations do not: ``unknown``
+        and ``partial``.  These arguments can be used to override the
         instance defaults of the same name for the duration of a
         particular serialization or deserialization.
         
@@ -319,12 +319,12 @@ class Mapping(object):
           this instance.  It defaults to ``None``, which signifies
           that the instance default should be used.
 
-        missing
-          If this value is provided, it must be one of ``raise`` or
-          ``ignore``, overriding the behavior implied by the value set
-          by the ``missing`` argument to constructor of this instance.
-          It defaults to ``None``, which signifies that the instance
-          default should be used.
+        partial
+          If this value is provided, it must be a boolean, overriding
+          the behavior implied by the value set by the ``partial``
+          argument to constructor of this instance.  It defaults to
+          ``None``, which signifies that the instance default should
+          be used.
 
         """
         def callback(subnode, subval):
@@ -332,14 +332,14 @@ class Mapping(object):
         def default_callback(subnode):
             return subnode.default
         return self._impl(
-            node, value, callback, default_callback, unknown, missing)
+            node, value, callback, default_callback, unknown, partial)
 
-    def serialize(self, node, value, unknown=None, missing=None):
+    def serialize(self, node, value, unknown=None, partial=None):
         """
         Along with the normal ``node`` and ``value`` arguments, this
         method implementation accepts two additional optional
-        arguments that other type implementations do not: ``missing``
-        and ``raise``.  These arguments can be used to override the
+        arguments that other type implementations do not: ``unknown``
+        and ``partial``.  These arguments can be used to override the
         instance defaults of the same name for the duration of a
         particular serialization or deserialization.
         
@@ -350,12 +350,12 @@ class Mapping(object):
           this instance.  It defaults to ``None``, which signifies
           that the instance default should be used.
 
-        missing
-          If this value is provided, it must be one of ``raise`` or
-          ``ignore``, overriding the behavior implied by the value set
-          by the ``missing`` argument to constructor of this instance.
-          It defaults to ``None``, which signifies that the instance
-          default should be used.
+        partial
+          If this value is provided, it must be a boolean, overriding
+          the behavior implied by the value set by the ``partial``
+          argument to constructor of this instance.  It defaults to
+          ``None``, which signifies that the instance default should
+          be used.
         """
         def callback(subnode, subval):
             return subnode.serialize(subval)
@@ -363,7 +363,13 @@ class Mapping(object):
             return subnode.serialize(subnode.default)
 
         return self._impl(
-            node, value, callback, default_callback, unknown, missing)
+            node, value, callback, default_callback, unknown, partial)
+
+    def pserialize(self, node, value):
+        return self.serialize(node, value, partial=True)
+
+    def pdeserialize(self, node, value):
+        return self.serialize(node, value, partial=True)
 
 class Positional(object):
     """
@@ -373,7 +379,7 @@ class Positional(object):
     creating a dictionary representation of an error tree.
     """
 
-class Tuple(Positional):
+class Tuple(Type, Positional):
     """ A type which represents a fixed-length sequence of nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -427,7 +433,7 @@ class Tuple(Positional):
             return subnode.serialize(subval)
         return self._impl(node, value, callback)
 
-class Sequence(Positional):
+class Sequence(Type, Positional):
     """
     A type which represents a variable-length sequence of nodes,
     all of which must be of the same type.
@@ -535,7 +541,7 @@ Seq = Sequence
 
 default_encoding = 'utf-8'
 
-class String(object):
+class String(Type):
     """ A type representing a Unicode string.  This type constructor
     accepts a single argument ``encoding``, representing the encoding
     which should be applied to object serialization.  It defaults to
@@ -568,7 +574,7 @@ class String(object):
 
 Str = String
 
-class Integer(object):
+class Integer(Type):
     """ A type representing an integer.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -592,7 +598,7 @@ class Integer(object):
 
 Int = Integer
 
-class Float(object):
+class Float(Type):
     """ A type representing a float.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -616,7 +622,7 @@ class Float(object):
 
 Int = Integer
 
-class Boolean(object):
+class Boolean(Type):
     """ A type representing a boolean object.
 
     During deserialization, a value in the set (``false``, ``0``) will
@@ -649,7 +655,7 @@ class Boolean(object):
 
 Bool = Boolean
 
-class GlobalObject(object):
+class GlobalObject(Type):
     """ A type representing an importable Python object.  This type
     serializes 'global' Python objects (objects which can be imported)
     to dotted Python names.
@@ -756,7 +762,7 @@ class GlobalObject(object):
         except AttributeError:
             raise Invalid(node, '%r has no __name__' % value)
 
-class DateTime(object):
+class DateTime(Type):
     """ A type representing a Python ``datetime.datetime`` object.
 
     This type serializes python ``datetime.datetime`` objects to a
@@ -822,7 +828,7 @@ class DateTime(object):
                                                          'exc':e})
         return result
 
-class Date(object):
+class Date(Type):
     """ A type representing a Python ``datetime.date`` object.
 
     This type serializes python ``datetime.date`` objects to a
@@ -833,7 +839,7 @@ class Date(object):
 
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
-    instance of this class.  By default, the ``err_tempalte``
+    instance of this class.  By default, the ``err_template``
     attribute is the string ``%(value)s cannot be parsed as an iso8601
     date: %(exc)s``.  This string is used as the interpolation subject
     of a dictionary composed of ``value`` and ``exc``.  ``value`` and
@@ -946,20 +952,35 @@ class SchemaNode(object):
         return self.typ.serialize(self, self.default)
 
     def deserialize(self, value):
-        """ Derialize the value based on the schema represented by this
-        node """
+        """ Deserialize the value based on the schema represented by
+        this node.  The values passed as ``kw`` will be passed along
+        to the ``deserialize`` method of this node's type."""
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
         return value
 
     def serialize(self, value):
-        """ Serialize the value based on the schema represented by this
-        node """
+        """ Serialize the value based on the schema represented by
+        this node.  The values passed as ``kw`` will be passed along
+        to the ``serialize`` method of this node's type."""
         return self.typ.serialize(self, value)
 
+    def pserialize(self, value):
+        """ Partially serialize the value based on the schema
+        represented by this node.  The values passed as ``kw`` will be
+        passed along to the ``pserialize`` method of this node's type."""
+        return self.typ.pserialize(self, value)
+
+    def pdeserialize(self, value):
+        """ Partially deserialize the value based on the schema
+        represented by this node.  The values passed as ``kw`` will be
+        passed along to the ``pdeserialize`` method of this node's
+        type."""
+        return self.typ.pdeserialize(self, value)
+
     def add(self, node):
-        """ Add a subnode to this node """
+        """ Add a subnode to this node. """
         self.children.append(node)
 
     def __getitem__(self, name):

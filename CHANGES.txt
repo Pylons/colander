@@ -14,12 +14,20 @@ Next release
 
 - Add a ``__setitem__`` method to the ``colander.Invalid`` class.
 
+- The ``colander.Mapping`` keyword argument ``unknown_keys`` has been
+  renamed to ``unknown``.
+
 - Allow ``colander.Mapping`` type to accept a new constructor
-  argument: ``missing``.
+  argument: ``partial``.
 
 - Allow ``colander.Mapping.serialize`` and
   ``colander.Mapping.deserialize`` methods to accept ``unknown`` and
-  ``serialize`` keyword arguments.
+  ``partial`` keyword arguments.
+
+- New interface methods required by types and schema nodes:
+  ``pserialize`` and ``pdeserialize``.  These partially serialize or
+  partially deserialize a value (the definition of "partial" is up to
+  the type).
 
 0.5 (2010-03-31)
 ----------------
