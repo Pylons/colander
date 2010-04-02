@@ -703,6 +703,14 @@ class TestString(unittest.TestCase):
         result = typ.serialize(node, uni)
         self.assertEqual(result, utf16)
 
+    def test_serialize_string_with_high_unresolveable_high_order_chars(self):
+        not_utf8 = '\xff\xfe\xf8\x00'
+        node = DummySchemaNode(None)
+        typ = self._makeOne('utf-8')
+        e = invalid_exc(typ.serialize, node, not_utf8)
+        self.failUnless('cannot be serialized to str' in e.msg)
+        
+
 class TestInteger(unittest.TestCase):
     def _makeOne(self):
         from colander import Integer

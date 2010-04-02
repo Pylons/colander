@@ -525,6 +525,11 @@ class String(Type):
     which should be applied to object serialization.  It defaults to
     ``utf-8`` if not provided.
 
+    If a string (as opposed to a unicode object) is provided as a
+    value to either the serialize or deserialize method of this type,
+    it must be encoded with the type's encoding; an
+    :exc:`colander.Invalid` error will result if not.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -545,10 +550,16 @@ class String(Type):
 
     def serialize(self, node, value):
         try:
-            return unicode(value).encode(self.encoding or default_encoding)
+            encoding = self.encoding or default_encoding
+            if isinstance(value, unicode):
+                result = value.encode(encoding)
+            else:
+                # do validation here
+                result = unicode(value, encoding).encode(encoding)
+            return result
         except Exception, e:
             raise Invalid(node,
-                          '%r is cannot be serialized to str: %s' % (value, e))
+                          '%r cannot be serialized to str: %s' % (value, e))
 
 Str = String
 

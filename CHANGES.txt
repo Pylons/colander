@@ -1,6 +1,11 @@
 Changes
 =======
 
+Next release
+------------
+
+- Fix bug in serialization of non-Unicode values in the ``String`` class.
+
 0.5.1 (2010-04-02)
 ------------------
 
