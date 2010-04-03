@@ -345,10 +345,10 @@ Serialization
 
 Serializing a data structure is obviously the inverse operation from
 deserializing a data structure.  The ``serialize`` method of a schema
-performs serialization of application data.  If you pass the
-``serialize`` method data that can be understood by the schema types
-in the schema you're calling it against, you will be returned a data
-structure of serialized values.
+performs serialization of application data (aka an ``appstruct``).  If
+you pass the ``serialize`` method data that can be understood by the
+schema types in the schema you're calling it against, you will be
+returned a data structure of serialized values.
 
 For example, given the following schema:
 
@@ -362,9 +362,8 @@ For example, given the following schema:
        age = colander.SchemaNode(colander.Int(),
                                  validator=colander.Range(0, 200))
 
-If we try to serialize partial data using the ``serialize`` method of
-the schema:
-                                
+We can serialize a matching data structure:
+
 .. code-block:: python
    :linenos:
 
@@ -375,15 +374,18 @@ the schema:
 The value for ``deserialized`` above will be ``{'age':'20',
 'name':'Bob'}`` (note the integer has become a string).
 
-Note that validation of values happens during serialization, just as
-it does during deserialization.
+Serialization and deserialization are not completely symmetric,
+however.  Although schema-driven data conversion happens during
+serialization, and defaults are injected as necessary, the default
+:mod:`colander` types are defined in such a way that the validation of
+values and structural validation does *not* happen as it does during
+deserialization.  For example, the ``required`` argument of a schema
+is typically ignored, none of the validators associated with the
+schema or any of is nodes is invoked.
 
-Schema nodes also define a ``pserialize`` method, which can be used to
-"partially" serialize data.  This is most useful when you want to
-serialize a data structure where some of the values are missing.
-
-For example, if we try to serialize partial data using the
-``serialize`` method of the schema we defined above:
+This usually means you may "partially" serialize a data structure
+where some of the values are missing.  If we try to serialize partial
+data using the ``serialize`` method of the schema:
                                 
 .. code-block:: python
    :linenos:
@@ -392,25 +394,14 @@ For example, if we try to serialize partial data using the
      schema = Person()
      deserialized = schema.serialize(data)
 
-When we attempt to invoke ``serialize``, an :exc:`colander.Invalid`
-error will be raised, because we did not include the ``name``
-attribute in our data.
+The value for ``deserialized`` above will be ``{'age':'20'}`` (note
+the integer has become a string).  Above, even though we did not
+include the ``name`` attribute in the data we fed to ``serialize``, an
+error is *not* raised.
 
-To serialize with data representing only a part of the schema, use the
-``pserialize`` method:
-
-.. code-block:: python
-   :linenos:
-
-     data = {'age':20}
-     schema = Person()
-     deserialized = schema.pserialize(data)
-
-No error is raised, and the value for ``deserialized`` above will be
-``{'age':'20'}`` (note the integer has become a string).
-
-A ``pdeserialize`` method also exists, which is a mirror image of
-``pserialize`` for deserialization.
+The corollary: it is the responsibility of the developer to ensure he
+serializes "the right" data; :mod:`colander` will not raise an error
+when asked to serialize something that is partially nonsense.
 
 Defining A Schema Imperatively
 ------------------------------

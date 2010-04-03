@@ -189,15 +189,7 @@ class OneOf(object):
             raise Invalid(node, '"%s" is not one of %s' % (
                 value, ', '.join(['%s' % x for x in self.values])))
 
-class Type(object):
-    """ Abstract base class for types (only for convenience) """
-    def pserialize(self, node, value):
-        return self.serialize(node, value)
-
-    def pdeserialize(self, node, value):
-        return self.deserialize(node, value)
-
-class Mapping(Type):
+class Mapping(object):
     """ A type which represents a mapping of names to nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -209,9 +201,9 @@ class Mapping(Type):
     control the behavior after construction.
 
     unknown
-        ``unknown`` controls the behavior of this type when an unknown
-        key is encountered in the value passed to the ``serialize`` or
-        ``deserialize`` methods of this instance.  The potential
+        ``unknown`` controls the behavior of this type when an
+        unknown key is encountered in the value passed to the
+        ``deserialize`` method of this instance.  The potential
         values of ``unknown`` are:
 
         - ``ignore`` means that keys that are not present in the schema
@@ -222,30 +214,23 @@ class Mapping(Type):
           raised when unknown keys are present during deserialization.
 
         - ``preserve`` will preserve the 'raw' unknown keys and values
-          in the returned data structure.
+          in the returned data structure during deserialization.
 
         Default: ``ignore``.
-
-        Note that the ``pserialize`` and ``pdeserialize`` methods of
-        this type will override this behavior, behaving as if
-        ``unknown`` is ``ignore`` for the duration of those method calls.
 
     partial
         ``partial`` controls the behavior of this type when a
         schema-expected key is missing from the value passed to the
-        ``serialize`` and ``deserialize`` methods of this instance.
-        During serialization and deserialization, when ``partial`` is
-        ``False``, a :exc:`colander.Invalid` exception will be raised
-        if the mapping value does not contain a key specified by the
-        schema node related to this mapping type.  When ``partial`` is
-        ``True``, no exception is raised and a partial mapping will
-        be serialized/deserialized.
+        ``deserialize`` method of this instance.
+
+        During deserialization, when ``partial`` is ``False``, a
+        :exc:`colander.Invalid` exception will be raised if the
+        mapping value does not contain a key specified by the schema
+        node related to this mapping type.  When ``partial`` is
+        ``True``, no exception is raised and a partial mapping will be
+        deserialized.
 
         Default: ``False``.
-
-        Note that the ``pserialize`` and ``pdeserialize`` methods of
-        this type will override this behavior, behaving as if
-        ``partial`` is ``True`` for the duration of those method calls.
     """
 
     def __init__(self, unknown='ignore', partial=False):
@@ -322,7 +307,8 @@ class Mapping(Type):
             return subnode.serialize(subval)
         def default_callback(subnode):
             return subnode.serialize(subnode.default)
-        return self._impl(node, value, callback, default_callback)
+        return self._impl(node, value, callback, default_callback,
+                          unknown='ignore', partial=True)
 
     def deserialize(self, node, value):
         def callback(subnode, subval):
@@ -330,24 +316,6 @@ class Mapping(Type):
         def default_callback(subnode):
             return subnode.default
         return self._impl(node, value, callback, default_callback)
-
-    def pserialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.pserialize(subval)
-        def default_callback(subnode):
-            return subnode.serialize(subnode.default)
-        return self._impl(
-            node, value, callback, default_callback, unknown='ignore',
-            partial=True)
-
-    def pdeserialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.pdeserialize(subval)
-        def default_callback(subnode):
-            return subnode.default
-        return self._impl(
-            node, value, callback, default_callback, unknown='ignore',
-            partial=True)
 
 class Positional(object):
     """
@@ -357,7 +325,7 @@ class Positional(object):
     creating a dictionary representation of an error tree.
     """
 
-class Tuple(Type, Positional):
+class Tuple(Positional):
     """ A type which represents a fixed-length sequence of nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -411,7 +379,7 @@ class Tuple(Type, Positional):
             return subnode.serialize(subval)
         return self._impl(node, value, callback)
 
-class Sequence(Type, Positional):
+class Sequence(Positional):
     """
     A type which represents a variable-length sequence of nodes,
     all of which must be of the same type.
@@ -519,7 +487,7 @@ Seq = Sequence
 
 default_encoding = 'utf-8'
 
-class String(Type):
+class String(object):
     """ A type representing a Unicode string.
 
     This type constructor accepts a single argument ``encoding``,
@@ -568,7 +536,7 @@ class String(Type):
 
 Str = String
 
-class Integer(Type):
+class Integer(object):
     """ A type representing an integer.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -592,7 +560,7 @@ class Integer(Type):
 
 Int = Integer
 
-class Float(Type):
+class Float(object):
     """ A type representing a float.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -616,7 +584,7 @@ class Float(Type):
 
 Int = Integer
 
-class Boolean(Type):
+class Boolean(object):
     """ A type representing a boolean object.
 
     During deserialization, a value in the set (``false``, ``0``) will
@@ -649,7 +617,7 @@ class Boolean(Type):
 
 Bool = Boolean
 
-class GlobalObject(Type):
+class GlobalObject(object):
     """ A type representing an importable Python object.  This type
     serializes 'global' Python objects (objects which can be imported)
     to dotted Python names.
@@ -756,7 +724,7 @@ class GlobalObject(Type):
         except AttributeError:
             raise Invalid(node, '%r has no __name__' % value)
 
-class DateTime(Type):
+class DateTime(object):
     """ A type representing a Python ``datetime.datetime`` object.
 
     This type serializes python ``datetime.datetime`` objects to a
@@ -822,7 +790,7 @@ class DateTime(Type):
                                                          'exc':e})
         return result
 
-class Date(Type):
+class Date(object):
     """ A type representing a Python ``datetime.date`` object.
 
     This type serializes python ``datetime.date`` objects to a
@@ -957,16 +925,6 @@ class SchemaNode(object):
         """ Serialize the value based on the schema represented by
         this node."""
         return self.typ.serialize(self, value)
-
-    def pserialize(self, value):
-        """ Partially serialize the value based on the schema
-        represented by this node.  """
-        return self.typ.pserialize(self, value)
-
-    def pdeserialize(self, value):
-        """ Partially deserialize the value based on the schema
-        represented by this node.  """
-        return self.typ.pdeserialize(self, value)
 
     def add(self, node):
         """ Add a subnode to this node. """

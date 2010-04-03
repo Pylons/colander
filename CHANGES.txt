@@ -6,6 +6,12 @@ Next release
 
 - Fix bug in serialization of non-Unicode values in the ``String`` class.
 
+- Get rid of ``pserialize`` in favor of making ``serialize`` always
+  partially serialize.
+
+- Get rid of ``pdeserialize``: it existed only for symmetry.  We'll
+  add something like it back later if we need it.
+
 0.5.1 (2010-04-02)
 ------------------
 

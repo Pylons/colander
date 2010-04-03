@@ -211,23 +211,6 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, '"None" is not one of 1, 2')
 
-class TestType(unittest.TestCase):
-    def _makeOne(self):
-        from colander import Type
-        return Type()
-
-    def test_pserialize(self):
-        typ = self._makeOne()
-        typ.serialize = lambda *arg: arg
-        result = typ.pserialize(None, None)
-        self.assertEqual(result, (None, None))
-
-    def test_pdeserialize(self):
-        typ = self._makeOne()
-        typ.deserialize = lambda *arg: arg
-        result = typ.pdeserialize(None, None)
-        self.assertEqual(result, (None, None))
-
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Mapping
@@ -339,100 +322,34 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_serialize_unknown_raise(self):
-        node = DummySchemaNode(None)
-        node.children = [DummySchemaNode(None, name='a')]
-        typ = self._makeOne('raise')
-        e = invalid_exc(typ.serialize, node, {'a':1, 'b':2})
-        self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
-
-    def test_serialize_unknown_preserve(self):
-        node = DummySchemaNode(None)
-        node.children = [DummySchemaNode(None, name='a')]
-        typ = self._makeOne(unknown='preserve')
-        result = typ.serialize(node, {'a':1, 'b':2})
-        self.assertEqual(result, {'a':1, 'b':2})
-
-    def test_serialize_subnodes_raise(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a', exc='Wrong 2'),
-            DummySchemaNode(None, name='b', exc='Wrong 2'),
-            ]
-        typ = self._makeOne()
-        e = invalid_exc(typ.serialize, node, {'a':1, 'b':2})
-        self.assertEqual(e.msg, None)
-        self.assertEqual(len(e.children), 2)
-
-    def test_serialize_subnode_missing_default(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b', default='abc'),
-            ]
-        typ = self._makeOne()
-        result = typ.serialize(node, {'a':1})
-        self.assertEqual(result, {'a':1, 'b':'abc'})
-
-    def test_serialize_subnode_missing_nodefault(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b'),
-            ]
-        typ = self._makeOne()
-        e = invalid_exc(typ.serialize, node, {'a':1})
-        self.assertEqual(e.children[0].msg, '"b" is required but missing')
-
     def test_serialize_subnode_partial(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b'),
             ]
-        typ = self._makeOne(partial=True)
+        typ = self._makeOne()
         result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_pserialize(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b'),
-            ]
-        typ = self._makeOne()
-        result = typ.pserialize(node, {'a':1})
-        self.assertEqual(result, {'a':1})
-
-    def test_pserialize_using_default(self):
+    def test_serialize_partial_with_default(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
             DummySchemaNode(None, name='b', default='abc'),
             ]
         typ = self._makeOne()
-        result = typ.pserialize(node, {'a':1})
+        result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1, 'b':'abc'})
 
-    def test_pdeserialize(self):
+    def test_serialize_with_unknown(self):
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b'),
             ]
         typ = self._makeOne()
-        result = typ.pdeserialize(node, {'a':1})
+        result = typ.serialize(node, {'a':1, 'b':2})
         self.assertEqual(result, {'a':1})
-
-    def test_pdeserialize_using_default(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b', default='abc'),
-            ]
-        typ = self._makeOne()
-        result = typ.pdeserialize(node, {'a':1})
-        self.assertEqual(result, {'a':1, 'b':'abc'})
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
@@ -1207,22 +1124,10 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
-    def test_pdeserialize(self):
-        typ = DummyType()
-        node = self._makeOne(typ)
-        result = node.pdeserialize(1)
-        self.assertEqual(result, 1)
-
     def test_serialize(self):
         typ = DummyType()
         node = self._makeOne(typ)
         result = node.serialize(1)
-        self.assertEqual(result, 1)
-
-    def test_pserialize(self):
-        typ = DummyType()
-        node = self._makeOne(typ)
-        result = node.pserialize(1)
         self.assertEqual(result, 1)
 
     def test_add(self):
@@ -1471,9 +1376,6 @@ class DummySchemaNode(object):
             raise Invalid(self, self.exc)
         return val
 
-    pserialize = serialize
-    pdeserialize = deserialize
-
 class DummyValidator(object):
     def __init__(self, msg=None):
         self.msg = msg
@@ -1494,11 +1396,5 @@ class DummyType(object):
         return value
 
     def deserialize(self, node, value):
-        return value
-
-    def pserialize(self, node, value):
-        return value
-    
-    def pdeserialize(self, node, value):
         return value
 
