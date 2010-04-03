@@ -520,10 +520,14 @@ Seq = Sequence
 default_encoding = 'utf-8'
 
 class String(Type):
-    """ A type representing a Unicode string.  This type constructor
-    accepts a single argument ``encoding``, representing the encoding
-    which should be applied to object serialization.  It defaults to
-    ``utf-8`` if not provided.
+    """ A type representing a Unicode string.
+
+    This type constructor accepts a single argument ``encoding``,
+    representing the encoding which should be applied to object
+    serialization.  It defaults to ``utf-8`` if not provided.
+
+    Input to ``serialize`` is serialized to a Python ``str`` object,
+    which is encoded in the encoding provided.
 
     If a string (as opposed to a unicode object) is provided as a
     value to either the serialize or deserialize method of this type,
@@ -534,12 +538,14 @@ class String(Type):
     this type are ignored.
     """
     def __init__(self, encoding=None):
+        if encoding is None:
+            encoding = default_encoding
         self.encoding = encoding
     
     def deserialize(self, node, value):
         try:
             if not isinstance(value, unicode):
-                value = unicode(str(value), self.encoding or default_encoding)
+                value = unicode(str(value), self.encoding)
         except Exception, e:
             raise Invalid(node, '%r is not a string: %s' % (value, e))
         if not value:
@@ -550,12 +556,11 @@ class String(Type):
 
     def serialize(self, node, value):
         try:
-            encoding = self.encoding or default_encoding
             if isinstance(value, unicode):
-                result = value.encode(encoding)
+                result = value.encode(self.encoding)
             else:
                 # do validation here
-                result = unicode(value, encoding).encode(encoding)
+                result = unicode(value, self.encoding).encode(self.encoding)
             return result
         except Exception, e:
             raise Invalid(node,
