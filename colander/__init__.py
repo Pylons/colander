@@ -134,19 +134,39 @@ class All(object):
             raise Invalid(node, msgs)
 
 class Function(object):
-    """ Validator which accepts a function and an error message; the
-    function is called with the ``value``, and if the function does
-    not return something that is evaluated as a boolean ``True``, an
-    :exc:`colander.Invalid` exception is created with the provided
-    error message and it is raised.  Exceptions raised by the function
-    will not be caught; they'll be propagated.  """
-    def __init__(self, function, error_msg):
+    """ Validator which accepts a function and an optional message;
+    the function is called with the ``value`` during validation.
+
+    If the function returns anything falsy (``None``, ``False``, the
+    empty string, ``0``, etc) when called during validation, an
+    :exc:`colander.Invalid` exception is raised (validation fails);
+    its msg will be the value of the ``message`` argument passed to
+    this class' constructor.
+
+    If the function returns a stringlike object (a ``str`` or
+    ``unicode`` object) that is *not* the empty string , a
+    :exc:`colander.Invalid` exception is raised using the stringlike
+    value returned from the function as the exeption message
+    (validation fails).
+
+    If the function returns anything *except* a stringlike object
+    object which is truthy (e.g. ``True``, 1), an
+    :exc:`colander.Invalid` exception is *not* raised (validation
+    succeeds).
+
+    The default value for the ``message`` when not provided via the
+    constructor is ``Invalid value``.
+    """
+    def __init__(self, function, message='Invalid value'):
         self.function = function
-        self.error_msg = error_msg
+        self.message = message
 
     def __call__(self, node, value):
-        if not self.function(value):
-            raise Invalid(node, self.error_msg)
+        result = self.function(value)
+        if not result:
+            raise Invalid(node, self.message)
+        if isinstance(result, basestring):
+            raise Invalid(node, result)
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater

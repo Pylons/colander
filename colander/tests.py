@@ -140,14 +140,24 @@ class TestFunction(unittest.TestCase):
         from colander import Function
         return Function(*arg, **kw)
 
-    def test_success(self):
-        validator = self._makeOne(lambda x: True, 'msg')
+    def test_success_function_returns_True(self):
+        validator = self._makeOne(lambda x: True)
         self.assertEqual(validator(None, None), None)
 
-    def test_failure(self):
-        validator = self._makeOne(lambda x: False, 'msg')
+    def test_fail_function_returns_empty_string(self):
+        validator = self._makeOne(lambda x: '')
         e = invalid_exc(validator, None, None)
-        self.assertEqual(e.msg, 'msg')
+        self.assertEqual(e.msg, 'Invalid value')
+
+    def test_fail_function_returns_False(self):
+        validator = self._makeOne(lambda x: False)
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg, 'Invalid value')
+
+    def test_fail_function_returns_string(self):
+        validator = self._makeOne(lambda x: 'fail')
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg, 'fail')
 
     def test_propagation(self):
         validator = self._makeOne(lambda x: 'a' in x, 'msg')
