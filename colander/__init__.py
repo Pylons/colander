@@ -138,7 +138,8 @@ class Function(object):
     the function is called with the ``value`` during validation.
 
     If the function returns anything falsy (``None``, ``False``, the
-    empty string, ``0``, etc) when called during validation, an
+    empty string, ``0``, an object with a ``__nonzero__`` that returns
+    ``False``, etc) when called during validation, an
     :exc:`colander.Invalid` exception is raised (validation fails);
     its msg will be the value of the ``message`` argument passed to
     this class' constructor.
@@ -150,7 +151,8 @@ class Function(object):
     (validation fails).
 
     If the function returns anything *except* a stringlike object
-    object which is truthy (e.g. ``True``, 1), an
+    object which is truthy (e.g. ``True``, the integer ``1``, an
+    object with a ```__nonzero__`` that returns ``True``, etc), an
     :exc:`colander.Invalid` exception is *not* raised (validation
     succeeds).
 
