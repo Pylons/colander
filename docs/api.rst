@@ -20,6 +20,8 @@ Validators
 
   .. autoclass:: OneOf
 
+  .. autoclass:: Function
+
 Types
 ~~~~~
 

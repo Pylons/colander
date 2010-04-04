@@ -135,6 +135,24 @@ class TestAll(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, ['msg1', 'msg2'])
 
+class TestFunction(unittest.TestCase):
+    def _makeOne(self, *arg, **kw):
+        from colander import Function
+        return Function(*arg, **kw)
+
+    def test_success(self):
+        validator = self._makeOne(lambda x: True, 'msg')
+        self.assertEqual(validator(None, None), None)
+
+    def test_failure(self):
+        validator = self._makeOne(lambda x: False, 'msg')
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg, 'msg')
+
+    def test_propagation(self):
+        validator = self._makeOne(lambda x: 'a' in x, 'msg')
+        self.assertRaises(TypeError, validator, None, None)
+
 class TestRange(unittest.TestCase):
     def _makeOne(self, min=None, max=None):
         from colander import Range

@@ -4,6 +4,8 @@ Changes
 Next release
 ------------
 
+- Add ``Function`` validator.
+
 - Fix bug in serialization of non-Unicode values in the ``String`` class.
 
 - Get rid of ``pserialize`` in favor of making ``serialize`` always

@@ -133,6 +133,21 @@ class All(object):
         if msgs:
             raise Invalid(node, msgs)
 
+class Function(object):
+    """ Validator which accepts a function and an error message; the
+    function is called with the ``value``, and if the function does
+    not return something that is evaluated as a boolean ``True``, an
+    :exc:`colander.Invalid` exception is created with the provided
+    error message and it is raised.  Exceptions raised by the function
+    will not be caught; they'll be propagated.  """
+    def __init__(self, function, error_msg):
+        self.function = function
+        self.error_msg = error_msg
+
+    def __call__(self, node, value):
+        if not self.function(value):
+            raise Invalid(node, self.error_msg)
+
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
     or equal to ``min`` and less than or equal to ``max``.  If ``min``
