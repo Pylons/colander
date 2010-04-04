@@ -275,7 +275,7 @@ class Mapping(object):
         self.partial = partial
 
     def _set_unknown(self, value):
-        if not value in ['ignore', 'raise', 'preserve']:
+        if not value in ('ignore', 'raise', 'preserve'):
             raise ValueError(
                 'unknown attribute must be one of "ignore", "raise", '
                 'or "preserve"')
