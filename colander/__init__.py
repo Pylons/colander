@@ -57,11 +57,11 @@ class Invalid(Exception):
         so, a :exc:`KeyError` is raised.
 
         For example, if the exception upon which ``__setitem__`` is
-        called has a node attribute with children, and that node
-        attribute has children that have the names ``name`` and
-        ``title``, you may successfully call ``__setitem__('name',
-        'Bad name')`` or ``__setitem__('title', 'Bad title')``.  But
-        calling ``__setitem__('wrong', 'whoops')`` will result in a
+        called has a node attribute, and that node attribute has
+        children that have the names ``name`` and ``title``, you may
+        successfully call ``__setitem__('name', 'Bad name')`` or
+        ``__setitem__('title', 'Bad title')``.  But calling
+        ``__setitem__('wrong', 'whoops')`` will result in a
         :exc:`KeyError`.
 
         This method is typically only useful if the ``node`` attribute
