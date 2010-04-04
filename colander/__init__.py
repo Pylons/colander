@@ -1018,8 +1018,23 @@ class Schema(object):
 
 MappingSchema = Schema
 
-class SequenceSchema(Schema):
+class SequenceSchema(object):
     schema_type = Sequence
+    node_type = SchemaNode
+    __metaclass__ = _SchemaMeta
+
+    def __new__(cls, *args, **kw):
+        node = object.__new__(cls.node_type)
+        node.name = None
+        node._order = SchemaNode._counter.next()
+        typ = cls.schema_type()
+        node.__init__(typ, *args, **kw)
+        if not len(cls.nodes) == 1:
+            raise Invalid(node,
+                          'Sequence schemas must have exactly one child node')
+        for n in cls.nodes:
+            node.add(n)
+        return node
 
 class TupleSchema(Schema):
     schema_type = Tuple

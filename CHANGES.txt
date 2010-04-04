@@ -4,6 +4,9 @@ Changes
 Next release
 ------------
 
+- Raise a ``colander.Invalid`` error if a ``colander.SequenceSchema``
+  is created with more than one member.
+
 - Add ``Function`` validator.
 
 - Fix bug in serialization of non-Unicode values in the ``String`` class.

@@ -1218,9 +1218,9 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.children[0].typ.__class__, colander.String) 
         self.assertEqual(node.children[0].title, 'Thing')
         self.assertEqual(node.children[1].title, 'bar')
-        
+
 class TestSequenceSchema(unittest.TestCase):
-    def test_it(self):
+    def test_succeed(self):
         import colander
         _inner = colander.SchemaNode(colander.String())
         class MySchema(colander.SequenceSchema):
@@ -1230,6 +1230,27 @@ class TestSequenceSchema(unittest.TestCase):
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Sequence)
         self.assertEqual(node.children[0], _inner)
+
+    def test_fail_toomany(self):
+        import colander
+        thingnode = colander.SchemaNode(colander.String())
+        thingnode2 = colander.SchemaNode(colander.String())
+        class MySchema(colander.SequenceSchema):
+            thing = thingnode
+            thing2 = thingnode2
+        e = invalid_exc(MySchema)
+        self.assertEqual(
+            e.msg,
+            'Sequence schemas must have exactly one child node')
+
+    def test_fail_toofew(self):
+        import colander
+        class MySchema(colander.SequenceSchema):
+            pass
+        e = invalid_exc(MySchema)
+        self.assertEqual(
+            e.msg,
+            'Sequence schemas must have exactly one child node')
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
