@@ -2,6 +2,7 @@ import datetime
 import itertools
 import iso8601
 import pprint
+import re
 
 class _missing(object):
     pass
@@ -170,6 +171,39 @@ class Function(object):
         if isinstance(result, basestring):
             raise Invalid(node, result)
 
+class Regex(object):
+    """ Regular expression validator. Initialize it with the string 
+        regular expression ``regex`` that will be compiled and matched 
+        against ``value`` when validator is called. If ``msg`` is 
+        supplied, it will be the error message to be used; otherwise, 
+        defaults to 'String does not match expected pattern'.  
+        
+        When calling, if ``value`` matches the regular expression, 
+        validation succeeds; otherwise, :exc:`colander.Invalid` is 
+        raised with the ``msg`` error message. 
+    """    
+    def __init__(self, regex, msg=None):
+        self.match_object = re.compile(regex)
+        if msg is None:
+            self.msg = "String does not match expected pattern"  
+        else:
+            self.msg = msg
+
+    def __call__(self, node, value):
+        if self.match_object.match(value) is None:
+            raise Invalid(self.msg)
+
+class Email(Regex):
+    """ Email address validator. If ``msg`` is supplied, it will be 
+        the error message to be used when raising :exc:`colander.Invalid`; 
+        otherwise, defaults to "Invalid email address".  
+    """    
+    def __init__(self, msg=None):
+        if msg is None:
+            msg = "Invalid email address"  
+        super(Email, self).__init__(
+            u'(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$', msg=msg)
+
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
     or equal to ``min`` and less than or equal to ``max``.  If ``min``
@@ -213,7 +247,6 @@ class Length(object):
                 raise Invalid(
                     node,
                     'Longer than maximum length %s' % self.max)
-
 
 class OneOf(object):
     """ Validator which succeeds if the value passed to it is one of

@@ -22,6 +22,10 @@ Validators
 
   .. autoclass:: Function
 
+  .. autoclass:: Regex
+
+  .. autoclass:: Email
+
 Types
 ~~~~~
 

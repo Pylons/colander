@@ -4,6 +4,8 @@ Changes
 Next release
 ------------
 
+- Add Email and Regex validators.
+
 - Raise a ``colander.Invalid`` error if a ``colander.SequenceSchema``
   is created with more than one member.
 

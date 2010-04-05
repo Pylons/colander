@@ -194,6 +194,48 @@ class TestRange(unittest.TestCase):
         e = invalid_exc(validator, None, 2)
         self.assertEqual(e.msg, '2 is greater than maximum value 1')
 
+class TestRegex(unittest.TestCase):
+    def _makeOne(self, pattern):
+        from colander import Regex
+        return Regex(pattern)
+        
+    def test_valid_regex(self):
+        self.assertEqual(self._makeOne('a')(None, 'a'), None)
+        self.assertEqual(self._makeOne('[0-9]+')(None, '1111'), None)
+        self.assertEqual(self._makeOne('')(None, ''), None)
+        self.assertEqual(self._makeOne('.*')(None, ''), None)
+
+    def test_invalid_regexs(self):
+        from colander import Invalid
+        self.assertRaises(Invalid, self._makeOne('[0-9]+'), None, 'a')
+        self.assertRaises(Invalid, self._makeOne('a{2,4}'), None, 'ba')
+
+class TestEmail(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Email
+        return Email()
+
+    def test_valid_emails(self):
+        validator = self._makeOne()
+        self.assertEqual(validator(None, 'me@here.com'), None)
+        self.assertEqual(validator(None, 'me1@here1.com'), None)
+        self.assertEqual(validator(None, 'name@here1.us'), None)
+        self.assertEqual(validator(None, 'name@here1.info'), None)
+        self.assertEqual(validator(None, 'foo@bar.baz.biz'), None)
+
+    def test_empty_email(self):
+        validator = self._makeOne()
+        from colander import Invalid
+        self.assertRaises(Invalid, validator, None, '')
+      
+    def test_invalid_emails(self):
+        validator = self._makeOne()
+        from colander import Invalid
+        self.assertRaises(Invalid, validator, None, 'me@here.')
+        self.assertRaises(Invalid, validator, None, 'name@here.comcom')
+        self.assertRaises(Invalid, validator, None, '@here.us')
+        self.assertRaises(Invalid, validator, None, '(name)@here.info')
+
 class TestLength(unittest.TestCase):
     def _makeOne(self, min=None, max=None):
         from colander import Length
