@@ -811,7 +811,7 @@ class DateTime(object):
 
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
-    instance of this class.  By default, the ``err_tempalte``
+    instance of this class.  By default, the ``err_template``
     attribute is the string ``%(value)s cannot be parsed as an iso8601
     date: %(exc)s``.  This string is used as the interpolation subject
     of a dictionary composed of ``value`` and ``exc``.  ``value`` and
