@@ -1,9 +1,9 @@
 TODOs
 =====
 
-- [_] Add regex pattern-matching widgets.
+- [X] Add regex pattern-matching widgets.
 
-- [_] Add an e-mail widget.
+- [X] Add an e-mail widget.
 
 - [_] Add Date, Time, and DateTime widget, with pickers.
 
