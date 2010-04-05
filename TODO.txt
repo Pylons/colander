@@ -1,0 +1,31 @@
+TODOs
+=====
+
+- [_] Add regex pattern-matching widgets.
+
+- [_] Add an e-mail widget.
+
+- [_] Add Date, Time, and DateTime widget, with pickers.
+
+- [_] Add a single-select widget.
+
+- [_] Add a multi-select widget.
+
+- [_] Add a "combo-box" widget.
+
+      o Mixes free-form input with a drop-down.
+
+- [_] Add "fixed-lentgh" string widgets
+
+      o E.g., in parts of an SSN, filling in all digits in the first
+        part's field jumps automatically to the second.
+
+- [_] Add a country / postal code widget
+
+      o Does a lookup and shows city and state / province.
+
+- [_] Add an ISBN widget.
+
+      o Does a lookup and shows author, title, etc..
+
+- [_] Make forms automagically put the cursor into the first field of a form.
