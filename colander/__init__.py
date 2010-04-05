@@ -153,7 +153,7 @@ class Function(object):
 
     If the function returns anything *except* a stringlike object
     object which is truthy (e.g. ``True``, the integer ``1``, an
-    object with a ```__nonzero__`` that returns ``True``, etc), an
+    object with a ``__nonzero__`` that returns ``True``, etc), an
     :exc:`colander.Invalid` exception is *not* raised (validation
     succeeds).
 
