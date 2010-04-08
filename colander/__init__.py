@@ -191,7 +191,7 @@ class Regex(object):
 
     def __call__(self, node, value):
         if self.match_object.match(value) is None:
-            raise Invalid(self.msg)
+            raise Invalid(node, self.msg)
 
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be 

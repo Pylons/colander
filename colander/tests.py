@@ -225,8 +225,8 @@ class TestEmail(unittest.TestCase):
 
     def test_empty_email(self):
         validator = self._makeOne()
-        from colander import Invalid
-        self.assertRaises(Invalid, validator, None, '')
+        e = invalid_exc(validator, None, '')
+        self.assertEqual(e.msg, 'Invalid email address')
       
     def test_invalid_emails(self):
         validator = self._makeOne()
