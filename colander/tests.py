@@ -10,16 +10,16 @@ def invalid_exc(func, *arg, **kw):
         raise AssertionError('Invalid not raised') # pragma: no cover
 
 class TestInvalid(unittest.TestCase):
-    def _makeOne(self, node, msg=None, pos=None):
+    def _makeOne(self, node, msg=None, val=None):
         from colander import Invalid
-        exc = Invalid(node, msg)
-        exc.pos = pos
+        exc = Invalid(node, msg, val)
         return exc
 
     def test_ctor(self):
-        exc = self._makeOne(None, 'msg')
+        exc = self._makeOne(None, 'msg', 'val')
         self.assertEqual(exc.node, None)
         self.assertEqual(exc.msg, 'msg')
+        self.assertEqual(exc.value, 'val')
         self.assertEqual(exc.children, [])
 
     def test_add(self):
@@ -70,13 +70,14 @@ class TestInvalid(unittest.TestCase):
         node2 = DummySchemaNode(Positional(), 'node2')
         node3 = DummySchemaNode(Positional(), 'node3')
         node4 = DummySchemaNode(Positional(), 'node4')
-        exc1 = self._makeOne(node1, 'exc1', pos=1)
-        exc2 = self._makeOne(node2, 'exc2', pos=2) 
-        exc3 = self._makeOne(node3, 'exc3', pos=3)
-        exc4 = self._makeOne(node4, 'exc4', pos=4)
-        exc1.add(exc2)
-        exc2.add(exc3)
-        exc1.add(exc4)
+        exc1 = self._makeOne(node1, 'exc1')
+        exc1.pos = 1
+        exc2 = self._makeOne(node2, 'exc2')
+        exc3 = self._makeOne(node3, 'exc3')
+        exc4 = self._makeOne(node4, 'exc4')
+        exc1.add(exc2, 2)
+        exc2.add(exc3, 3)
+        exc1.add(exc4, 4)
         d = exc1.asdict()
         self.assertEqual(d, {'node1.node2.3': 'exc1; exc2; exc3',
                              'node1.node4': 'exc1; exc4'})
@@ -87,13 +88,14 @@ class TestInvalid(unittest.TestCase):
         node2 = DummySchemaNode(Positional(), 'node2')
         node3 = DummySchemaNode(Positional(), 'node3')
         node4 = DummySchemaNode(Positional(), 'node4')
-        exc1 = self._makeOne(node1, 'exc1', pos=1)
-        exc2 = self._makeOne(node2, 'exc2', pos=2) 
-        exc3 = self._makeOne(node3, 'exc3', pos=3)
-        exc4 = self._makeOne(node4, 'exc4', pos=4)
-        exc1.add(exc2)
-        exc2.add(exc3)
-        exc1.add(exc4)
+        exc1 = self._makeOne(node1, 'exc1')
+        exc1.pos = 1
+        exc2 = self._makeOne(node2, 'exc2') 
+        exc3 = self._makeOne(node3, 'exc3')
+        exc4 = self._makeOne(node4, 'exc4')
+        exc1.add(exc2, 2)
+        exc2.add(exc3, 3)
+        exc1.add(exc4, 4)
         result = str(exc1)
         self.assertEqual(
             result,

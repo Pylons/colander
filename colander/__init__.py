@@ -19,14 +19,18 @@ class Invalid(Exception):
     The constructor also receives an optional ``msg`` keyword
     argument, defaulting to ``None``.  The ``msg`` argument is a
     freeform field indicating the error circumstance.
+
+    The construct additionally may receive a ``value`` keyword,
+    indicating the value related to the error.
     """
     pos = None
     parent = None
 
-    def __init__(self, node, msg=None):
+    def __init__(self, node, msg=None, value=None):
         Exception.__init__(self, node, msg)
         self.node = node
         self.msg = msg
+        self.value = value
         self.children = []
 
     def add(self, exc, pos=None):
