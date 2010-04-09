@@ -1125,6 +1125,21 @@ class TestDate(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, '10-10-10-10')
         self.failUnless('cannot be parsed' in e.msg)
 
+    def test_deserialize_empty_required(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, '')
+        self.failUnless('Required' in e.msg)
+
+    def test_deserialize_empty_notrequired(self):
+        import datetime
+        node = DummySchemaNode(None)
+        node.default = 'abc'
+        node.required = False
+        typ = self._makeOne()
+        result = typ.deserialize(node, None)
+        self.assertEqual(result, 'abc')
+
     def test_deserialize_success_date(self):
         import datetime
         typ = self._makeOne()

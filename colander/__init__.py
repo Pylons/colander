@@ -929,6 +929,10 @@ class Date(object):
         return value.isoformat()
 
     def deserialize(self, node, value):
+        if not value:
+            if node.required:
+                raise Invalid(node, 'Required')
+            return node.default
         try:
             result = iso8601.parse_date(value)
             result = result.date()
