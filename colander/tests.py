@@ -1132,7 +1132,6 @@ class TestDate(unittest.TestCase):
         self.failUnless('Required' in e.msg)
 
     def test_deserialize_empty_notrequired(self):
-        import datetime
         node = DummySchemaNode(None)
         node.default = 'abc'
         node.required = False
