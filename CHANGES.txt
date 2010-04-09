@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.5.2 (2010-04-09)
+------------------
 
 - Add Email and Regex validators (courtesy Steve Howe).
 
