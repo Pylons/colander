@@ -166,9 +166,9 @@ class TestFunction(unittest.TestCase):
         self.assertRaises(TypeError, validator, None, None)
 
 class TestRange(unittest.TestCase):
-    def _makeOne(self, min=None, max=None):
+    def _makeOne(self, **kw):
         from colander import Range
-        return Range(min=min, max=max)
+        return Range(**kw)
 
     def test_success_no_bounds(self):
         validator = self._makeOne()
@@ -191,10 +191,20 @@ class TestRange(unittest.TestCase):
         e = invalid_exc(validator, None, 0)
         self.assertEqual(e.msg, '0 is less than minimum value 1')
 
+    def test_min_failure_msg_override(self):
+        validator = self._makeOne(min=1, min_err='wrong')
+        e = invalid_exc(validator, None, 0)
+        self.assertEqual(e.msg, 'wrong')
+
     def test_max_failure(self):
         validator = self._makeOne(max=1)
         e = invalid_exc(validator, None, 2)
         self.assertEqual(e.msg, '2 is greater than maximum value 1')
+
+    def test_max_failure_msg_override(self):
+        validator = self._makeOne(max=1, max_err='wrong')
+        e = invalid_exc(validator, None, 2)
+        self.assertEqual(e.msg, 'wrong')
 
 class TestRegex(unittest.TestCase):
     def _makeOne(self, pattern):

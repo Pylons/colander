@@ -200,7 +200,7 @@ class Regex(object):
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be 
         the error message to be used when raising :exc:`colander.Invalid`; 
-        otherwise, defaults to "Invalid email address".  
+        otherwise, defaults to 'Invalid email address'.  
     """    
     def __init__(self, msg=None):
         if msg is None:
@@ -213,23 +213,46 @@ class Range(object):
     or equal to ``min`` and less than or equal to ``max``.  If ``min``
     is not specified, or is specified as ``None``, no lower bound
     exists.  If ``max`` is not specified, or is specified as ``None``,
-    no upper bound exists."""
-    def __init__(self, min=None, max=None):
+    no upper bound exists.
+
+    ``min_err`` is used to form the ``msg`` of the
+    :exc:`colander.Invalid` error when reporting a validation failure
+    caused by a value not meeting the minimum.  If ``min_err`` is
+    specified, it must be a string.  The string may contain the
+    replacement targets ``%(min)s`` and ``%(val)s``, representing the
+    minimum value and the provided value respectively.  If it is not
+    provided, it defaults to ``'%(val)s is less than minimum value
+    %(min)s'``.
+
+    ``max_err`` is used to form the ``msg`` of the
+    :exc:`colander.Invalid` error when reporting a validation failure
+    caused by a value exceeding the maximum.  If ``max_err`` is
+    specified, it must be a string.  The string may contain the
+    replacement targets ``%(max)s`` and ``%(val)s``, representing the
+    maximum value and the provided value respectively.  If it is not
+    provided, it defaults to ``'%(val)s is greater than maximum value
+    %(max)s'``.
+    """
+
+    min_err = '%(val)s is less than minimum value %(min)s'
+    max_err = '%(val)s is greater than maximum value %(max)s'
+
+    def __init__(self, min=None, max=None, min_err=None, max_err=None):
         self.min = min
         self.max = max
+        if min_err is not None:
+            self.min_err = min_err
+        if max_err is not None:
+            self.max_err = max_err
 
     def __call__(self, node, value):
         if self.min is not None:
             if value < self.min:
-                raise Invalid(
-                    node,
-                    '%s is less than minimum value %s' % (value, self.min))
+                raise Invalid(node,self.min_err % {'val':value, 'min':self.min})
 
         if self.max is not None:
             if value > self.max:
-                raise Invalid(
-                    node,
-                    '%s is greater than maximum value %s' % (value, self.max))
+                raise Invalid(node,self.max_err % {'val':value, 'max':self.max})
 
 class Length(object):
     """ Validator which succeeds if the value passed to it has a
