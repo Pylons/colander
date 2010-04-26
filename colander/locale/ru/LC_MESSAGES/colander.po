@@ -79,7 +79,7 @@ msgstr ""
 #: colander/__init__.py:648 colander/__init__.py:680 colander/__init__.py:710
 #: colander/__init__.py:751 colander/__init__.py:996
 msgid "Required"
-msgstr ""
+msgstr "требуется"
 
 #: colander/__init__.py:662
 msgid "\"${val} cannot be serialized to str: ${err}"
