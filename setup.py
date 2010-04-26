@@ -21,7 +21,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = ['iso8601']
+requires = ['iso8601', 'translationstring']
 
 setup(name='colander',
       version='0.5.2',
@@ -43,5 +43,9 @@ setup(name='colander',
       tests_require = requires,
       install_requires = requires,
       test_suite="colander",
+      message_extractors = { ".": [
+            ("**.py",   "chameleon_python", None ),
+            ("**.pt",   "chameleon_xml", None ),
+            ]},
       )
 

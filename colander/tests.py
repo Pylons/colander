@@ -189,7 +189,7 @@ class TestRange(unittest.TestCase):
     def test_min_failure(self):
         validator = self._makeOne(min=1)
         e = invalid_exc(validator, None, 0)
-        self.assertEqual(e.msg, '0 is less than minimum value 1')
+        self.assertEqual(e.msg.interpolate(), '0 is less than minimum value 1')
 
     def test_min_failure_msg_override(self):
         validator = self._makeOne(min=1, min_err='wrong')
@@ -199,7 +199,8 @@ class TestRange(unittest.TestCase):
     def test_max_failure(self):
         validator = self._makeOne(max=1)
         e = invalid_exc(validator, None, 2)
-        self.assertEqual(e.msg, '2 is greater than maximum value 1')
+        self.assertEqual(e.msg.interpolate(),
+                         '2 is greater than maximum value 1')
 
     def test_max_failure_msg_override(self):
         validator = self._makeOne(max=1, max_err='wrong')
@@ -272,12 +273,12 @@ class TestLength(unittest.TestCase):
     def test_min_failure(self):
         validator = self._makeOne(min=1)
         e = invalid_exc(validator, None, '')
-        self.assertEqual(e.msg, 'Shorter than minimum length 1')
+        self.assertEqual(e.msg.interpolate(), 'Shorter than minimum length 1')
 
     def test_max_failure(self):
         validator = self._makeOne(max=1)
         e = invalid_exc(validator, None, 'ab')
-        self.assertEqual(e.msg, 'Longer than maximum length 1')
+        self.assertEqual(e.msg.interpolate(), 'Longer than maximum length 1')
 
 class TestOneOf(unittest.TestCase):
     def _makeOne(self, values):
@@ -291,7 +292,8 @@ class TestOneOf(unittest.TestCase):
     def test_failure(self):
         validator = self._makeOne([1, 2])
         e = invalid_exc(validator, None, None)
-        self.assertEqual(e.msg, '"None" is not one of 1, 2')
+        self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
+
 
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
@@ -314,7 +316,7 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, None)
         self.failUnless(
-            e.msg.startswith('None is not a mapping type'))
+            e.msg.interpolate().startswith('"None" is not a mapping type'))
 
     def test_deserialize_no_subnodes(self):
         node = DummySchemaNode(None)
@@ -334,7 +336,9 @@ class TestMapping(unittest.TestCase):
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne(unknown='raise')
         e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
-        self.assertEqual(e.msg, "Unrecognized keys in mapping: {'b': 2}")
+        self.assertEqual(e.msg.interpolate(),
+                         "Unrecognized keys in mapping: \"{'b': 2}\"")
+
 
     def test_deserialize_unknown_preserve(self):
         node = DummySchemaNode(None)
@@ -372,7 +376,8 @@ class TestMapping(unittest.TestCase):
             ]
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, {'a':1})
-        self.assertEqual(e.children[0].msg, '"b" is required but missing')
+        self.assertEqual(e.children[0].msg.interpolate(),
+                         '"b" is required but missing')
 
     def test_deserialize_subnode_partial(self):
         node = DummySchemaNode(None)
@@ -389,7 +394,7 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, None)
         self.failUnless(
-            e.msg.startswith('None is not a mapping type'))
+            e.msg.interpolate().startswith('"None" is not a mapping type'))
 
     def test_serialize_no_subnodes(self):
         node = DummySchemaNode(None)
@@ -443,8 +448,8 @@ class TestTuple(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, None)
         self.assertEqual(
-            e.msg,
-            'None is not iterable')
+            e.msg.interpolate(),
+            '"None" is not iterable')
         self.assertEqual(e.node, node)
 
     def test_deserialize_no_subnodes(self):
@@ -465,16 +470,16 @@ class TestTuple(unittest.TestCase):
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, ('a','b'))
-        self.assertEqual(e.msg,
-           "('a', 'b') has an incorrect number of elements (expected 1, was 2)")
+        self.assertEqual(e.msg.interpolate(),
+      "\"('a', 'b')\" has an incorrect number of elements (expected 1, was 2)")
 
     def test_deserialize_toosmall(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, ())
-        self.assertEqual(e.msg,
-           "() has an incorrect number of elements (expected 1, was 0)")
+        self.assertEqual(e.msg.interpolate(),
+           '"()" has an incorrect number of elements (expected 1, was 0)')
 
     def test_deserialize_subnodes_raise(self):
         node = DummySchemaNode(None)
@@ -492,8 +497,8 @@ class TestTuple(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, None)
         self.assertEqual(
-            e.msg,
-            'None is not iterable')
+            e.msg.interpolate(),
+            '"None" is not iterable')
         self.assertEqual(e.node, node)
 
     def test_serialize_no_subnodes(self):
@@ -514,16 +519,17 @@ class TestTuple(unittest.TestCase):
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, ('a','b'))
-        self.assertEqual(e.msg,
-           "('a', 'b') has an incorrect number of elements (expected 1, was 2)")
+        self.assertEqual(e.msg.interpolate(),
+     "\"('a', 'b')\" has an incorrect number of elements (expected 1, was 2)")
 
     def test_serialize_toosmall(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, node, ())
-        self.assertEqual(e.msg,
-           "() has an incorrect number of elements (expected 1, was 0)")
+        self.assertEqual(e.msg.interpolate(),
+           '"()" has an incorrect number of elements (expected 1, was 0)'
+           )
 
     def test_serialize_subnodes_raise(self):
         node = DummySchemaNode(None)
@@ -552,8 +558,8 @@ class TestSequence(unittest.TestCase):
         node.children = [node]
         e = invalid_exc(typ.deserialize, node, None)
         self.assertEqual(
-            e.msg,
-            'None is not iterable')
+            e.msg.interpolate(),
+            '"None" is not iterable')
         self.assertEqual(e.node, node)
 
     def test_deserialize_not_iterable_accept_scalar(self):
@@ -592,8 +598,8 @@ class TestSequence(unittest.TestCase):
         node.children = [node]
         e = invalid_exc(typ.serialize, node, None)
         self.assertEqual(
-            e.msg,
-            'None is not iterable')
+            e.msg.interpolate(),
+            '"None" is not iterable')
         self.assertEqual(e.node, node)
 
     def test_serialize_not_iterable_accept_scalar(self):
@@ -894,14 +900,15 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ._zope_dottedname_style, None, '.')
         self.assertEqual(
-            e.msg,
+            e.msg.interpolate(),
             'relative name "." irresolveable without package')
 
     def test_zope_dottedname_style_resolve_relative_nocurrentpackage(self):
         typ = self._makeOne()
         e = invalid_exc(typ._zope_dottedname_style, None, '.whatever')
         self.assertEqual(
-            e.msg, 'relative name ".whatever" irresolveable without package')
+            e.msg.interpolate(),
+            'relative name ".whatever" irresolveable without package')
 
     def test_zope_dottedname_style_irrresolveable_relative(self):
         import colander.tests
@@ -971,7 +978,7 @@ class TestGlobalObject(unittest.TestCase):
     def test_deserialize_not_a_string(self):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, None, None)
-        self.assertEqual(e.msg, '"None" is not a string')
+        self.assertEqual(e.msg.interpolate(), '"None" is not a string')
 
     def test_deserialize_using_pkgresources_style(self):
         typ = self._makeOne()
@@ -986,7 +993,7 @@ class TestGlobalObject(unittest.TestCase):
     def test_deserialize_style_raises(self):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, None, 'cant.be.found')
-        self.assertEqual(e.msg,
+        self.assertEqual(e.msg.interpolate(),
                          'The dotted name "cant.be.found" cannot be imported')
 
     def test_serialize_ok(self):
@@ -998,7 +1005,7 @@ class TestGlobalObject(unittest.TestCase):
     def test_serialize_fail(self):
         typ = self._makeOne()
         e = invalid_exc(typ.serialize, None, None)
-        self.assertEqual(e.msg, 'None has no __name__')
+        self.assertEqual(e.msg.interpolate(), '"None" has no __name__')
 
 class TestDateTime(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
@@ -1020,7 +1027,8 @@ class TestDateTime(unittest.TestCase):
         typ = self._makeOne()
         node = DummySchemaNode(None)
         e = invalid_exc(typ.serialize, node, 'garbage')
-        self.assertEqual(e.msg, "'garbage' is not a datetime object")
+        self.assertEqual(e.msg.interpolate(),
+                         '"garbage" is not a datetime object')
 
     def test_serialize_with_date(self):
         import datetime
@@ -1093,7 +1101,7 @@ class TestDate(unittest.TestCase):
         typ = self._makeOne()
         node = DummySchemaNode(None)
         e = invalid_exc(typ.serialize, node, 'garbage')
-        self.assertEqual(e.msg, "'garbage' is not a date object")
+        self.assertEqual(e.msg.interpolate(), '"garbage" is not a date object')
 
     def test_serialize_with_date(self):
         import datetime

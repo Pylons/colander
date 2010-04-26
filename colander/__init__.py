@@ -3,9 +3,19 @@ import itertools
 import iso8601
 import pprint
 import re
+import translationstring
+
+_ = translationstring.TranslationStringFactory('colander')
 
 class _missing(object):
     pass
+
+def interpolate(msgs):
+    for s in msgs:
+        if hasattr(s, 'interpolate'):
+            yield s.interpolate()
+        else:
+            yield s
 
 class Invalid(Exception):
     """
@@ -113,7 +123,7 @@ class Invalid(Exception):
                 exc.msg and msgs.append(exc.msg)
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
-            errors['.'.join(keyparts)] = '; '.join(msgs)
+            errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
         return errors
 
     def __str__(self):
@@ -164,7 +174,7 @@ class Function(object):
     The default value for the ``message`` when not provided via the
     constructor is ``Invalid value``.
     """
-    def __init__(self, function, message='Invalid value'):
+    def __init__(self, function, message=_('Invalid value')):
         self.function = function
         self.message = message
 
@@ -189,7 +199,7 @@ class Regex(object):
     def __init__(self, regex, msg=None):
         self.match_object = re.compile(regex)
         if msg is None:
-            self.msg = "String does not match expected pattern"  
+            self.msg = _("String does not match expected pattern")
         else:
             self.msg = msg
 
@@ -204,7 +214,7 @@ class Email(Regex):
     """    
     def __init__(self, msg=None):
         if msg is None:
-            msg = "Invalid email address"  
+            msg = _("Invalid email address")
         super(Email, self).__init__(
             u'(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$', msg=msg)
 
@@ -219,23 +229,22 @@ class Range(object):
     :exc:`colander.Invalid` error when reporting a validation failure
     caused by a value not meeting the minimum.  If ``min_err`` is
     specified, it must be a string.  The string may contain the
-    replacement targets ``%(min)s`` and ``%(val)s``, representing the
+    replacement targets ``${min}`` and ``${val}``, representing the
     minimum value and the provided value respectively.  If it is not
-    provided, it defaults to ``'%(val)s is less than minimum value
-    %(min)s'``.
+    provided, it defaults to ``'${val} is less than minimum value
+    ${min}'``.
 
     ``max_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
     caused by a value exceeding the maximum.  If ``max_err`` is
     specified, it must be a string.  The string may contain the
-    replacement targets ``%(max)s`` and ``%(val)s``, representing the
+    replacement targets ``${max}`` and ``${val}``, representing the
     maximum value and the provided value respectively.  If it is not
-    provided, it defaults to ``'%(val)s is greater than maximum value
-    %(max)s'``.
+    provided, it defaults to ``'${val} is greater than maximum value
+    ${max}'``.
     """
-
-    min_err = '%(val)s is less than minimum value %(min)s'
-    max_err = '%(val)s is greater than maximum value %(max)s'
+    min_err = _('${val} is less than minimum value ${min}')
+    max_err = _('${val} is greater than maximum value ${max}')
 
     def __init__(self, min=None, max=None, min_err=None, max_err=None):
         self.min = min
@@ -248,11 +257,13 @@ class Range(object):
     def __call__(self, node, value):
         if self.min is not None:
             if value < self.min:
-                raise Invalid(node,self.min_err % {'val':value, 'min':self.min})
+                min_err = _(self.min_err, mapping={'val':value, 'min':self.min})
+                raise Invalid(node, min_err)
 
         if self.max is not None:
             if value > self.max:
-                raise Invalid(node,self.max_err % {'val':value, 'max':self.max})
+                max_err = _(self.max_err, mapping={'val':value, 'max':self.max})
+                raise Invalid(node, max_err)
 
 class Length(object):
     """ Validator which succeeds if the value passed to it has a
@@ -265,26 +276,28 @@ class Length(object):
     def __call__(self, node, value):
         if self.min is not None:
             if len(value) < self.min:
-                raise Invalid(
-                    node,
-                    'Shorter than minimum length %s' % self.min)
+                min_err = _('Shorter than minimum length ${min}',
+                            mapping={'min':self.min})
+                raise Invalid(node, min_err)
 
         if self.max is not None:
             if len(value) > self.max:
-                raise Invalid(
-                    node,
-                    'Longer than maximum length %s' % self.max)
+                max_err = _('Longer than maximum length ${max}',
+                            mapping={'max':self.max})
+                raise Invalid(node, max_err)
 
 class OneOf(object):
     """ Validator which succeeds if the value passed to it is one of
     a fixed set of values """
-    def __init__(self, values):
-        self.values = values
+    def __init__(self, choices):
+        self.choices = choices
 
     def __call__(self, node, value):
-        if not value in self.values:
-            raise Invalid(node, '"%s" is not one of %s' % (
-                value, ', '.join(['%s' % x for x in self.values])))
+        if not value in self.choices:
+            choices = ', '.join(['%s' % x for x in self.choices])
+            err = _('"${val}" is not one of ${choices}',
+                    mapping={'val':value, 'choices':choices})
+            raise Invalid(node, err)
 
 class Mapping(object):
     """ A type which represents a mapping of names to nodes.
@@ -350,7 +363,10 @@ class Mapping(object):
         try:
             return dict(value)
         except Exception, e:
-            raise Invalid(node, '%r is not a mapping type: %s' % (value, e))
+            raise Invalid(node,
+                          _('"${val}" is not a mapping type: ${err}',
+                          mapping = {'val':value, 'err':e})
+                          )
 
     def _impl(self, node, value, callback, default_callback, unknown=None,
               partial=None):
@@ -375,7 +391,9 @@ class Mapping(object):
                         if not partial:
                             raise Invalid(
                                 subnode,
-                                '"%s" is required but missing' % subnode.name)
+                                _('"${val}" is required but missing',
+                                  mapping={'val':subnode.name})
+                                )
                         else:
                             continue
                     result[name] = default_callback(subnode)
@@ -388,8 +406,11 @@ class Mapping(object):
 
         if unknown == 'raise':
             if value:
-                raise Invalid(node,
-                              'Unrecognized keys in mapping: %r' % value)
+                raise Invalid(
+                    node,
+                    _('Unrecognized keys in mapping: "${val}"',
+                      mapping={'val':value})
+                    )
 
         elif unknown == 'preserve':
             result.update(value)
@@ -435,15 +456,20 @@ class Tuple(Positional):
     """
     def _validate(self, node, value):
         if not hasattr(value, '__iter__'):
-            raise Invalid(node, '%r is not iterable' % value)
+            raise Invalid(
+                node,
+                _('"${val}" is not iterable', mapping={'val':value})
+                )
 
         valuelen, nodelen = len(value), len(node.children)
 
         if valuelen != nodelen:
             raise Invalid(
                 node,
-                ('%s has an incorrect number of elements '
-                 '(expected %s, was %s)' % (value, nodelen, valuelen)))
+                _('"${val}" has an incorrect number of elements '
+                  '(expected ${exp}, was ${was})',
+                  mapping={'val':value, 'exp':nodelen, 'was':valuelen})
+                )
 
         return list(value)
 
@@ -510,7 +536,9 @@ class Sequence(Positional):
         if accept_scalar:
             return [value]
         else:
-            raise Invalid(node, '%r is not iterable' % value)
+            raise Invalid(node, _('"${val}" is not iterable',
+                                  mapping={'val':value})
+                          )
 
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
@@ -612,10 +640,12 @@ class String(object):
             if not isinstance(value, unicode):
                 value = unicode(str(value), self.encoding)
         except Exception, e:
-            raise Invalid(node, '%r is not a string: %s' % (value, e))
+            raise Invalid(node,
+                          _('${val} is not a string: %{err}',
+                            mapping={'val':value, 'err':e}))
         if not value:
             if node.required:
-                raise Invalid(node, 'Required')
+                raise Invalid(node, _('Required'))
             value = node.default
         return value
 
@@ -629,7 +659,9 @@ class String(object):
             return result
         except Exception, e:
             raise Invalid(node,
-                          '%r cannot be serialized to str: %s' % (value, e))
+                          _('"${val} cannot be serialized to str: ${err}',
+                            mapping={'val':value, 'err':e})
+                          )
 
 Str = String
 
@@ -645,15 +677,21 @@ class Integer(object):
         except Exception:
             if value == '':
                 if node.required:
-                    raise Invalid(node, 'Required')
+                    raise Invalid(node, _('Required'))
                 return node.default
-            raise Invalid(node, '"%s" is not a number' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value})
+                          )
 
     def serialize(self, node, value):
         try:
             return str(int(value))
         except Exception:
-            raise Invalid(node, '"%s" is not a number' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value}),
+                          )
 
 Int = Integer
 
@@ -669,15 +707,21 @@ class Float(object):
         except Exception:
             if value == '':
                 if node.required:
-                    raise Invalid(node, 'Required')
+                    raise Invalid(node, _('Required'))
                 return node.default
-            raise Invalid(node, '"%s" is not a number' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value})
+                          )
 
     def serialize(self, node, value):
         try:
             return str(float(value))
         except Exception:
-            raise Invalid(node, '"%s" is not a number' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value}),
+                          )
 
 Int = Integer
 
@@ -699,10 +743,12 @@ class Boolean(object):
         try:
             value = str(value)
         except:
-            raise Invalid(node, '%r is not a string' % value)
+            raise Invalid(node,
+                          _('${val} is not a string', mapping={'val':value})
+                          )
         if not value:
             if node.required:
-                raise Invalid(node, 'Required')
+                raise Invalid(node, _('Required'))
             value = node.default
         value = value.lower()
         if value in ('false', '0'):
@@ -759,7 +805,9 @@ class GlobalObject(object):
             if not self.package:
                 raise Invalid(
                     node,
-                    'relative name "%s" irresolveable without package' % value)
+                    _('relative name "${val}" irresolveable without package',
+                      mapping={'val':value})
+                    )
             if value in ['.', ':']:
                 value = self.package.__name__
             else:
@@ -774,7 +822,9 @@ class GlobalObject(object):
             if self.package is None:
                 raise Invalid(
                     node,
-                    'relative name "%s" irresolveable without package' % value)
+                    _('relative name "${val}" irresolveable without package',
+                      mapping={'val':value})
+                    )
             name = module.split('.')
         else:
             name = value.split('.')
@@ -782,8 +832,9 @@ class GlobalObject(object):
                 if module is None:
                     raise Invalid(
                         node,
-                        'relative name "%s" irresolveable without package' %
-                        value)
+                        _('relative name "${val}" irresolveable without '
+                          'package', mapping={'val':value})
+                        )
                 module = module.split('.')
                 name.pop(0)
                 while not name[0]:
@@ -805,7 +856,8 @@ class GlobalObject(object):
 
     def deserialize(self, node, value):
         if not isinstance(value, basestring):
-            raise Invalid(node, '"%s" is not a string' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a string', mapping={'val':value}))
         try:
             if ':' in value:
                 return self._pkg_resources_style(node, value)
@@ -813,13 +865,17 @@ class GlobalObject(object):
                 return self._zope_dottedname_style(node, value)
         except ImportError:
             raise Invalid(node,
-                          'The dotted name "%s" cannot be imported' % value)
+                          _('The dotted name "${name}" cannot be imported',
+                            mapping={'name':value}))
 
     def serialize(self, node, value):
         try:
             return value.__name__
         except AttributeError:
-            raise Invalid(node, '%r has no __name__' % value)
+            raise Invalid(node,
+                          _('"${val}" has no __name__',
+                            mapping={'val':value})
+                          )
 
 class DateTime(object):
     """ A type representing a Python ``datetime.datetime`` object.
@@ -839,10 +895,10 @@ class DateTime(object):
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
     instance of this class.  By default, the ``err_template``
-    attribute is the string ``%(value)s cannot be parsed as an iso8601
-    date: %(exc)s``.  This string is used as the interpolation subject
-    of a dictionary composed of ``value`` and ``exc``.  ``value`` and
-    ``exc`` are the unvalidatable value and the exception caused
+    attribute is the string ``${value} cannot be parsed as an iso8601
+    date: ${exc}``.  This string is used as the interpolation subject
+    of a dictionary composed of ``val`` and ``err``.  ``val`` and
+    ``err`` are the unvalidatable value and the exception caused
     trying to convert the value, respectively.
 
     For convenience, this type is also willing to coerce
@@ -859,7 +915,7 @@ class DateTime(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    err_template =  '%(value)s cannot be parsed as an iso8601 date: %(exc)s'
+    err_template =  _('${val} cannot be parsed as an iso8601 date: ${err}')
     def __init__(self, default_tzinfo=None):
         if default_tzinfo is None:
             default_tzinfo = iso8601.iso8601.Utc()
@@ -869,7 +925,10 @@ class DateTime(object):
         if type(value) is datetime.date: # cant use isinstance; dt subs date
             value = datetime.datetime.combine(value, datetime.time())
         if not isinstance(value, datetime.datetime):
-            raise Invalid(node, '%r is not a datetime object' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a datetime object',
+                            mapping={'val':value})
+                          )
         if value.tzinfo is None:
             value = value.replace(tzinfo=self.default_tzinfo)
         return value.isoformat()
@@ -883,8 +942,8 @@ class DateTime(object):
                 result = datetime.datetime(year, month, day,
                                            tzinfo=self.default_tzinfo)
             except Exception, e:
-                raise Invalid(node, self.err_template % {'value':value,
-                                                         'exc':e})
+                raise Invalid(node, _(self.err_template,
+                                      mapping={'val':value, 'err':e}))
         return result
 
 class Date(object):
@@ -899,9 +958,9 @@ class Date(object):
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
     instance of this class.  By default, the ``err_template``
-    attribute is the string ``%(value)s cannot be parsed as an iso8601
-    date: %(exc)s``.  This string is used as the interpolation subject
-    of a dictionary composed of ``value`` and ``exc``.  ``value`` and
+    attribute is the string ``${val} cannot be parsed as an iso8601
+    date: ${err}``.  This string is used as the interpolation subject
+    of a dictionary composed of ``val`` and ``err``.  ``val`` and
     ``exc`` are the unvalidatable value and the exception caused
     trying to convert the value, respectively.
 
@@ -920,18 +979,21 @@ class Date(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    err_template =  '%(value)s cannot be parsed as an iso8601 date: %(exc)s'
+    err_template =  _('${val} cannot be parsed as an iso8601 date: ${err}')
     def serialize(self, node, value):
         if isinstance(value, datetime.datetime):
             value = value.date()
         if not isinstance(value, datetime.date):
-            raise Invalid(node, '%r is not a date object' % value)
+            raise Invalid(node,
+                          _('"${val}" is not a date object',
+                            mapping={'val':value})
+                          )
         return value.isoformat()
 
     def deserialize(self, node, value):
         if not value:
             if node.required:
-                raise Invalid(node, 'Required')
+                raise Invalid(node, _('Required'))
             return node.default
         try:
             result = iso8601.parse_date(value)
@@ -941,8 +1003,10 @@ class Date(object):
                 year, month, day = map(int, value.split('-', 2))
                 result = datetime.date(year, month, day)
             except Exception, e:
-                raise Invalid(node, self.err_template % {'value':value,
-                                                         'exc':e})
+                raise Invalid(node,
+                              _(self.err_template,
+                                mapping={'val':value, 'err':e})
+                              )
         return result
 
 class SchemaNode(object):
