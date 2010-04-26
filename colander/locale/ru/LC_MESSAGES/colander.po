@@ -36,7 +36,7 @@ msgstr "${val} меньше чем ${min}"
 
 #: colander/__init__.py:247
 msgid "${val} is greater than maximum value ${max}"
-msgstr "${num} больше чем ${max}"
+msgstr "${val} больше чем ${max}"
 
 #: colander/__init__.py:279
 msgid "Shorter than minimum length ${min}"
