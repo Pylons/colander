@@ -4,6 +4,9 @@ Changes
 Next release
 ------------
 
+- (Hopefully) fix intermittent datetime-granularity-related test
+  failures.
+
 - Internationalized error messages.  This required some changes to
   error message formatting, which may impact you if you were feeding
   colander an error message template.

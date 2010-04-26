@@ -1012,6 +1012,14 @@ class TestDateTime(unittest.TestCase):
         from colander import DateTime
         return DateTime(*arg, **kw)
 
+    def _dt(self):
+        import datetime
+        return datetime.datetime(2010, 4, 26, 10, 48)
+
+    def _today(self):
+        import datetime
+        return datetime.date.today()
+
     def test_ctor_default_tzinfo_None(self):
         import iso8601
         typ = self._makeOne()
@@ -1033,7 +1041,7 @@ class TestDateTime(unittest.TestCase):
     def test_serialize_with_date(self):
         import datetime
         typ = self._makeOne()
-        date = datetime.date.today()
+        date = self._today()
         node = DummySchemaNode(None)
         result = typ.serialize(node, date)
         expected = datetime.datetime.combine(date, datetime.time())
@@ -1041,19 +1049,17 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_serialize_with_naive_datetime(self):
-        import datetime
         typ = self._makeOne()
-        dt = datetime.datetime.now()
         node = DummySchemaNode(None)
+        dt = self._dt()
         result = typ.serialize(node, dt)
         expected = dt.replace(tzinfo=typ.default_tzinfo).isoformat()
         self.assertEqual(result, expected)
 
     def test_serialize_with_tzware_datetime(self):
-        import datetime
         import iso8601
         typ = self._makeOne()
-        dt = datetime.datetime.now()
+        dt = self._dt()
         tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         dt = dt.replace(tzinfo=tzinfo)
         node = DummySchemaNode(None)
@@ -1064,7 +1070,7 @@ class TestDateTime(unittest.TestCase):
     def test_deserialize_date(self):
         import datetime
         import iso8601
-        date = datetime.date.today()
+        date = self._today()
         typ = self._makeOne()
         formatted = date.isoformat()
         node = DummySchemaNode(None)
@@ -1081,10 +1087,9 @@ class TestDateTime(unittest.TestCase):
         self.failUnless('cannot be parsed' in e.msg)
 
     def test_deserialize_success(self):
-        import datetime
         import iso8601
         typ = self._makeOne()
-        dt = datetime.datetime.now()
+        dt = self._dt()
         tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         dt = dt.replace(tzinfo=tzinfo)
         iso = dt.isoformat()
@@ -1097,6 +1102,14 @@ class TestDate(unittest.TestCase):
         from colander import Date
         return Date(*arg, **kw)
 
+    def _dt(self):
+        import datetime
+        return datetime.datetime(2010, 4, 26, 10, 48)
+
+    def _today(self):
+        import datetime
+        return datetime.date.today()
+
     def test_serialize_with_garbage(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1104,18 +1117,16 @@ class TestDate(unittest.TestCase):
         self.assertEqual(e.msg.interpolate(), '"garbage" is not a date object')
 
     def test_serialize_with_date(self):
-        import datetime
         typ = self._makeOne()
-        date = datetime.date.today()
+        date = self._today()
         node = DummySchemaNode(None)
         result = typ.serialize(node, date)
         expected = date.isoformat()
         self.assertEqual(result, expected)
 
     def test_serialize_with_datetime(self):
-        import datetime
         typ = self._makeOne()
-        dt = datetime.datetime.now()
+        dt = self._dt()
         node = DummySchemaNode(None)
         result = typ.serialize(node, dt)
         expected = dt.date().isoformat()
@@ -1148,17 +1159,15 @@ class TestDate(unittest.TestCase):
         self.assertEqual(result, 'abc')
 
     def test_deserialize_success_date(self):
-        import datetime
         typ = self._makeOne()
-        date = datetime.date.today()
+        date = self._today()
         iso = date.isoformat()
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), iso)
 
     def test_deserialize_success_datetime(self):
-        import datetime
-        dt = datetime.datetime.now()
+        dt = self._dt()
         typ = self._makeOne()
         iso = dt.isoformat()
         node = DummySchemaNode(None)
