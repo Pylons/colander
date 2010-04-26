@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colander 0.5.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-04-25 21:06-0400\n"
+"POT-Creation-Date: 2010-04-25 21:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,8 +37,40 @@ msgstr ""
 msgid "${val} is greater than maximum value ${max}"
 msgstr ""
 
-#: colander/__init__.py:461
+#: colander/__init__.py:279
+msgid "Shorter than minimum length ${min}"
+msgstr ""
+
+#: colander/__init__.py:285
+msgid "Longer than maximum length ${max}"
+msgstr ""
+
+#: colander/__init__.py:298
+msgid "\"${val}\" is not one of ${choices}"
+msgstr ""
+
+#: colander/__init__.py:367
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr ""
+
+#: colander/__init__.py:394
+msgid "\"${val}\" is required but missing"
+msgstr ""
+
+#: colander/__init__.py:411
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr ""
+
+#: colander/__init__.py:461 colander/__init__.py:539
 msgid "\"${val}\" is not iterable"
+msgstr ""
+
+#: colander/__init__.py:469
+msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr ""
+
+#: colander/__init__.py:644
+msgid "${val} is not a string: %{err}"
 msgstr ""
 
 #: colander/__init__.py:648 colander/__init__.py:680 colander/__init__.py:710
@@ -46,15 +78,44 @@ msgstr ""
 msgid "Required"
 msgstr ""
 
+#: colander/__init__.py:662
+msgid "\"${val} cannot be serialized to str: ${err}"
+msgstr ""
+
+#: colander/__init__.py:683 colander/__init__.py:692 colander/__init__.py:713
+#: colander/__init__.py:722
+msgid "\"${val}\" is not a number"
+msgstr ""
+
 #: colander/__init__.py:747
 msgid "${val} is not a string"
+msgstr ""
+
+#: colander/__init__.py:808 colander/__init__.py:825 colander/__init__.py:835
+msgid "relative name \"${val}\" irresolveable without package"
 msgstr ""
 
 #: colander/__init__.py:860
 msgid "\"${val}\" is not a string"
 msgstr ""
 
+#: colander/__init__.py:868
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr ""
+
+#: colander/__init__.py:876
+msgid "\"${val}\" has no __name__"
+msgstr ""
+
 #: colander/__init__.py:918 colander/__init__.py:982
 msgid "${val} cannot be parsed as an iso8601 date: ${err}"
+msgstr ""
+
+#: colander/__init__.py:929
+msgid "\"${val}\" is not a datetime object"
+msgstr ""
+
+#: colander/__init__.py:988
+msgid "\"${val}\" is not a date object"
 msgstr ""
 

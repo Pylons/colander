@@ -43,9 +43,5 @@ setup(name='colander',
       tests_require = requires,
       install_requires = requires,
       test_suite="colander",
-      message_extractors = { ".": [
-            ("**.py",   "chameleon_python", None ),
-            ("**.pt",   "chameleon_xml", None ),
-            ]},
       )
 
