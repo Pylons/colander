@@ -623,7 +623,8 @@ class String(object):
 
     ``allow_empty``
        Boolean representing whether an empty string input to
-       deserialize will be accepted.  Default: ``False``.
+       deserialize will be accepted even if the enclosing schema node
+       is required (has no default).  Default: ``False``.
 
     Input to ``serialize`` is serialized to a Python ``str`` object,
     which is encoded in the encoding provided.
