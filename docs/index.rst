@@ -40,7 +40,8 @@ of objects, including:
 - A Python ``datetime.date`` object.
 
 Colander allows additional data structures to be serialized and
-deserialized by allowing a developer to define new "types".
+deserialized by allowing a developer to define new "types".  Its
+internal error messages are internationalizable.
 
 Defining A Colander Schema
 --------------------------
@@ -339,6 +340,62 @@ This will print something like:
    {'age':'-1 is less than minimum value 0',
     'friends.1.0':'"t" is not a number',
     'phones.0.location:'"bar" is not one of "home", "work"'}
+
+:exc:`colander.Invalid` Exceptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The exceptions raised by Colander during deserialization are instances
+of the :exc:`colander.Invalid` exception class.  We saw previously
+that instances of this exception class have a
+:meth:`colander.Invalid.asdict` method which returns a dictionary of
+error messages.  This dictionary is composed by Colander by walking
+the *exception tree*.  The exception tree is composed entirely of
+:exc:`colander.Invalid` exceptions.
+
+While the :meth:`colander.Invalid.asdict` method is useful for simple
+error reporting, a more complex application, such as a form library
+that uses Colander as an underlying schema system, may need to do
+error reporting in a different way.  In particular, such a system may
+need to present the errors next to a field in a form. It may need to
+translate error messages to another language.  To do these things
+effectively, it will almost certainly need to walk and introspect the
+exception graph manually. 
+
+The :exc:`colander.Invalid` exceptions raised by Colander validation
+are very rich.  They contain detailed information about the
+circumstances of an error.  If you write a system based on Colander
+that needs to display and format Colander exceptions specially, you
+will need to get comfy with the Invalid exception API.  
+
+When a validation-related error occurs during deserialization, each
+node in the schema that had an error (and any of its parents) will be
+represented by a corresponding :class:`colander.Invalid` exception.
+To support this behavior, each :exc:`colander.Invalid` exception has a
+``children`` attribute which is a list.  Each element in this list (if
+any) will also be an :exc:`colander.Invalid` exception, recursively,
+representing the error circumstances for a particular schema
+deserialization.
+
+Each exception in the graph has a ``msg`` attribute, which will either
+be the value ``None``, a ``str`` or ``unicode`` object, or a
+*translation string* instance representing a freeform error value set
+by a particular type during an unsuccessful deserialization.
+Exceptions that exist purely for structure will have a ``msg``
+attribute with the value ``None``.  Each exception instance will also
+have an attribute named ``node``, representing the schema node to
+which the exception is related.
+
+.. note:: Translation strings are objects which behave like Unicode
+  objects but have extra metadata associated with them for use in
+  translation systems.  See `http://docs.repoze.org/translationstring/
+  <http://docs.repoze.org/translationstring/>`_ for documentation
+  about translation strings.  All error messages used by Colander
+  internally are translation strings, which means they can be
+  translated to other languages.  In particular, they are suitable for
+  use as gettext *message ids*.
+
+See the :class:`colander.Invalid` API documentation for more
+information.
 
 Serialization
 -------------

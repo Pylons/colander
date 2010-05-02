@@ -30,8 +30,8 @@ class Invalid(Exception):
     argument, defaulting to ``None``.  The ``msg`` argument is a
     freeform field indicating the error circumstance.
 
-    The construct additionally may receive a ``value`` keyword,
-    indicating the value related to the error.
+    The constructor additionally may receive a an optional ``value``
+    keyword, indicating the value related to the error.
     """
     pos = None
     parent = None
@@ -91,7 +91,11 @@ class Invalid(Exception):
         raise KeyError(name)
 
     def paths(self):
-        """ Return all paths through the exception graph  """
+        """ A generator which returns each path through the exception
+        graph.  Each path is represented as a tuple of exception
+        nodes.  Within each tuple, the leftmost item will represent
+        the root schema node, the rightmost item will represent the
+        leaf schema node."""
         def traverse(node, stack):
             stack.append(node)
 
@@ -112,8 +116,8 @@ class Invalid(Exception):
         return str(self.node.name)
 
     def asdict(self):
-        """ Return a dictionary containing an error report for this
-        exception"""
+        """ Return a dictionary containing a basic
+        (non-language-translated) error report for this exception"""
         paths = self.paths()
         errors = {}
         for path in paths:

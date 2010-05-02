@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.6.0 (2010-05-02)
+------------------
 
 - (Hopefully) fix intermittent datetime-granularity-related test
   failures.
@@ -11,9 +11,17 @@ Next release
   error message formatting, which may impact you if you were feeding
   colander an error message template.
 
+- Depend on ``translationstring`` package for internationalization.
+
 - New argument to ``colander.String`` constructor: ``allow_empty``.
   This is a boolean representing whether an empty string is a valid
   value during deserialization, defaulting to ``False``.
+
+- Add minimal documentation about the composition of a
+  colander.Invalid exception to the narrative docs.
+
+- Add (existing, but previously non-API) colander.Invalid attributes
+  to its interface within the API documentation.
 
 0.5.2 (2010-04-09)
 ------------------
