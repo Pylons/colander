@@ -313,8 +313,8 @@ class Mapping(object):
     unknown
         ``unknown`` controls the behavior of this type when an
         unknown key is encountered in the value passed to the
-        ``deserialize`` method of this instance.  The potential
-        values of ``unknown`` are:
+        ``deserialize`` method of this instance.  All the potential
+        values of ``unknown`` are strings.  They are:
 
         - ``ignore`` means that keys that are not present in the schema
           associated with this type will be ignored during
@@ -615,9 +615,15 @@ default_encoding = 'utf-8'
 class String(object):
     """ A type representing a Unicode string.
 
-    This type constructor accepts a single argument ``encoding``,
-    representing the encoding which should be applied to object
-    serialization.  It defaults to ``utf-8`` if not provided.
+    This type constructor accepts a number of arguments:
+
+    ``encoding``
+       Represents the encoding which should be applied to object
+       serialization.  It defaults to ``utf-8`` if not provided.
+
+    ``allow_empty``
+       Boolean representing whether an empty string input to
+       deserialize will be accepted.  Default: ``False``.
 
     Input to ``serialize`` is serialized to a Python ``str`` object,
     which is encoded in the encoding provided.
@@ -630,10 +636,11 @@ class String(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def __init__(self, encoding=None):
+    def __init__(self, encoding=None, allow_empty=False):
         if encoding is None:
             encoding = default_encoding
         self.encoding = encoding
+        self.allow_empty = allow_empty
     
     def deserialize(self, node, value):
         try:
@@ -643,7 +650,7 @@ class String(object):
             raise Invalid(node,
                           _('${val} is not a string: %{err}',
                             mapping={'val':value, 'err':e}))
-        if not value:
+        if not value and not self.allow_empty:
             if node.required:
                 raise Invalid(node, _('Required'))
             value = node.default

@@ -632,9 +632,9 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(len(e.children), 2)
 
 class TestString(unittest.TestCase):
-    def _makeOne(self, encoding='utf-8'):
+    def _makeOne(self, encoding='utf-8', allow_empty=False):
         from colander import String
-        return String(encoding)
+        return String(encoding, allow_empty)
 
     def test_alias(self):
         from colander import Str
@@ -654,6 +654,12 @@ class TestString(unittest.TestCase):
         typ = self._makeOne()
         result = typ.deserialize(node, val)
         self.assertEqual(result, 'default')
+
+    def test_deserialize_emptystring_allow_empty(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne(None, True)
+        result = typ.deserialize(node, '')
+        self.assertEqual(result, '')
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
