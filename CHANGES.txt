@@ -11,7 +11,8 @@ Changes
   error message formatting, which may impact you if you were feeding
   colander an error message template.
 
-- Depend on ``translationstring`` package for internationalization.
+- New project dependency: ``translationstring`` package for
+  internationalization.
 
 - New argument to ``colander.String`` constructor: ``allow_empty``.
   This is a boolean representing whether an empty string is a valid
