@@ -86,6 +86,8 @@ Types
 
   .. autoclass:: Float
 
+  .. autoclass:: Decimal
+
   .. autoclass:: Boolean
 
   .. autoclass:: Bool

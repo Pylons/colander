@@ -1,6 +1,11 @@
 Changes
 =======
 
+Next release
+------------
+
+- Add a Decimal type (decimal floating point).
+
 0.6.0 (2010-05-02)
 ------------------
 

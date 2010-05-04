@@ -31,6 +31,8 @@ of objects, including:
 
 - A float.
 
+- A decimal float.
+
 - A boolean.
 
 - An importable Python object (to a dotted Python object path).

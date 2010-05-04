@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import itertools
 import iso8601
 import pprint
@@ -677,65 +678,58 @@ class String(object):
 
 Str = String
 
-class Integer(object):
+class Number(object):
+    """ Abstract base class for float, int, decimal """
+    num = None
+    def deserialize(self, node, value):
+        try:
+            return self.num(value)
+        except Exception:
+            if value == '':
+                if node.required:
+                    raise Invalid(node, _('Required'))
+                return node.default
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value})
+                          )
+
+    def serialize(self, node, value):
+        try:
+            return str(self.num(value))
+        except Exception:
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value}),
+                          )
+
+class Integer(Number):
     """ A type representing an integer.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def deserialize(self, node, value):
-        try:
-            return int(value)
-        except Exception:
-            if value == '':
-                if node.required:
-                    raise Invalid(node, _('Required'))
-                return node.default
-            raise Invalid(node,
-                          _('"${val}" is not a number',
-                            mapping={'val':value})
-                          )
-
-    def serialize(self, node, value):
-        try:
-            return str(int(value))
-        except Exception:
-            raise Invalid(node,
-                          _('"${val}" is not a number',
-                            mapping={'val':value}),
-                          )
-
+    num = int
+    
 Int = Integer
 
-class Float(object):
+class Float(Number):
     """ A type representing a float.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def deserialize(self, node, value):
-        try:
-            return float(value)
-        except Exception:
-            if value == '':
-                if node.required:
-                    raise Invalid(node, _('Required'))
-                return node.default
-            raise Invalid(node,
-                          _('"${val}" is not a number',
-                            mapping={'val':value})
-                          )
+    num = float
 
-    def serialize(self, node, value):
-        try:
-            return str(float(value))
-        except Exception:
-            raise Invalid(node,
-                          _('"${val}" is not a number',
-                            mapping={'val':value}),
-                          )
+class Decimal(Number):
+    """ A type representing a decimal floating point.  Deserialization
+    returns an instance of the Python ``decimal.Decimal`` type.
 
-Int = Integer
+    The subnodes of the :class:`colander.SchemaNode` that wraps
+    this type are ignored.
+    """
+    def num(self, val):
+        return decimal.Decimal(str(val))
 
 class Boolean(object):
     """ A type representing a boolean object.

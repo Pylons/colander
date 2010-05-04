@@ -821,6 +821,54 @@ class TestFloat(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, '1.0')
 
+class TestDecimal(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Decimal
+        return Decimal()
+
+    def test_serialize_emptystring_required(self):
+        val = ''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, val)
+        self.assertEqual(e.msg, 'Required')
+
+    def test_serialize_emptystring_notrequired(self):
+        val = ''
+        node = DummySchemaNode(None, default='default')
+        typ = self._makeOne()
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, 'default')
+
+    def test_deserialize_fails(self):
+        val = 'P'
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, val)
+        self.failUnless(e.msg)
+
+    def test_deserialize_ok(self):
+        import decimal
+        val = '1.0'
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, decimal.Decimal('1.0'))
+
+    def test_serialize_fails(self):
+        val = 'P'
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.serialize, node, val)
+        self.failUnless(e.msg)
+
+    def test_serialize_ok(self):
+        val = 1.0
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, '1.0')
+
 class TestBoolean(unittest.TestCase):
     def _makeOne(self):
         from colander import Boolean
