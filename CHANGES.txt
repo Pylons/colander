@@ -1,10 +1,11 @@
 Changes
 =======
 
-Next release
-------------
+0.6.1 (2010-05-04)
+------------------
 
-- Add a Decimal type (decimal floating point).
+- Add a Decimal type (number type which uses ``decimal.Decimal`` as a
+  deserialization target).
 
 0.6.0 (2010-05-02)
 ------------------
