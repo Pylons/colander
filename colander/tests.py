@@ -911,7 +911,7 @@ class TestBoolean(unittest.TestCase):
         node = DummySchemaNode(None, default='default')
         typ = self._makeOne()
         result = typ.deserialize(node, val)
-        self.assertEqual(result, True)
+        self.assertEqual(result, 'default')
 
     def test_deserialize(self):
         typ = self._makeOne()
@@ -1158,7 +1158,7 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, 'garbage')
-        self.failUnless('cannot be parsed' in e.msg)
+        self.failUnless('Invalid' in e.msg)
 
     def test_deserialize_success(self):
         import iso8601
@@ -1210,13 +1210,13 @@ class TestDate(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, 'garbage')
-        self.failUnless('cannot be parsed' in e.msg)
+        self.failUnless('Invalid' in e.msg)
 
     def test_deserialize_invalid_weird(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, '10-10-10-10')
-        self.failUnless('cannot be parsed' in e.msg)
+        self.failUnless('Invalid' in e.msg)
 
     def test_deserialize_empty_required(self):
         node = DummySchemaNode(None)

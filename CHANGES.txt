@@ -17,6 +17,9 @@ Next release
   ``Invalid date`` instead of ``_('${val} cannot be parsed as an
   iso8601 date: ${err}')``.  This is in support of Deform.
 
+- Fix bug in ``colander.Boolean`` that attempted to call ``.lower`` on
+  a bool value when a default value was found for the schema node.
+
 0.6.1 (2010-05-04)
 ------------------
 
