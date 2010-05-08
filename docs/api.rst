@@ -46,7 +46,11 @@ Exceptions
 
        An attribute not used internally by Colander, but which can be
        used by higher-level systems to attach arbitrary values to
-       Colander exception nodes.
+       Colander exception nodes.  For example, In the system named
+       Deform, which uses Colander schemas to define HTML form
+       renderings, the ``value`` is used when raising an exception
+       from a widget as the value which should be redisplayed when an
+       error is shown.
 
 Validators
 ~~~~~~~~~~

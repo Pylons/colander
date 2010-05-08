@@ -798,7 +798,7 @@ class Boolean(object):
         if not value:
             if node.required:
                 raise Invalid(node, _('Required'))
-            value = node.default
+            return node.default
         value = value.lower()
         if value in ('false', '0'):
             return False
@@ -944,11 +944,13 @@ class DateTime(object):
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
     instance of this class.  By default, the ``err_template``
-    attribute is the string ``${value} cannot be parsed as an iso8601
-    date: ${exc}``.  This string is used as the interpolation subject
-    of a dictionary composed of ``val`` and ``err``.  ``val`` and
-    ``err`` are the unvalidatable value and the exception caused
-    trying to convert the value, respectively.
+    attribute is the string ``Invalid date``.  This string is used as
+    the interpolation subject of a dictionary composed of ``val`` and
+    ``err``.  ``val`` and ``err`` are the unvalidatable value and the
+    exception caused trying to convert the value, respectively. These
+    may be used in an overridden err_template as ``${val}`` and
+    ``${err}`` respectively as necessary, e.g. ``_('${val} cannot be
+    parsed as an iso8601 date: ${err}')``.
 
     For convenience, this type is also willing to coerce
     ``datetime.date`` objects to a DateTime ISO string representation
@@ -964,7 +966,8 @@ class DateTime(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    err_template =  _('${val} cannot be parsed as an iso8601 date: ${err}')
+    err_template =  _('Invalid date')
+
     def __init__(self, default_tzinfo=None):
         if default_tzinfo is None:
             default_tzinfo = iso8601.iso8601.Utc()
@@ -1007,11 +1010,13 @@ class Date(object):
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
     instance of this class.  By default, the ``err_template``
-    attribute is the string ``${val} cannot be parsed as an iso8601
-    date: ${err}``.  This string is used as the interpolation subject
-    of a dictionary composed of ``val`` and ``err``.  ``val`` and
-    ``exc`` are the unvalidatable value and the exception caused
-    trying to convert the value, respectively.
+    attribute is the string ``Invalid date``.  This string is used as
+    the interpolation subject of a dictionary composed of ``val`` and
+    ``err``.  ``val`` and ``err`` are the unvalidatable value and the
+    exception caused trying to convert the value, respectively. These
+    may be used in an overridden err_template as ``${val}`` and
+    ``${err}`` respectively as necessary, e.g. ``_('${val} cannot be
+    parsed as an iso8601 date: ${err}')``.
 
     For convenience, this type is also willing to coerce
     ``datetime.datetime`` objects to a date-only ISO string
@@ -1028,7 +1033,7 @@ class Date(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    err_template =  _('${val} cannot be parsed as an iso8601 date: ${err}')
+    err_template =  _('Invalid date')
     def serialize(self, node, value):
         if isinstance(value, datetime.datetime):
             value = value.date()
