@@ -615,43 +615,81 @@ class Sequence(Positional):
 
 Seq = Sequence
 
-default_encoding = 'utf-8'
-
 class String(object):
     """ A type representing a Unicode string.
 
     This type constructor accepts a number of arguments:
 
     ``encoding``
-       Represents the encoding which should be applied to object
-       serialization.  It defaults to ``utf-8`` if not provided.
+       Represents the encoding which should be applied to value
+       serialization and deserialization, for example ``utf-8``.  If
+       ``encoding`` is passed as ``None``, the ``serialize`` method of
+       this type will not do any special encoding of the value it is
+       provided, nor will the ``deserialize`` method of this type do
+       any special decoding of the value it is provided; inputs and
+       outputs will be assumed to be Unicode.  ``encoding`` defaults
+       to ``None``.
+
+       If ``encoding`` is ``None``:
+
+       - A Unicode input value to ``serialize`` is returned untouched.
+
+       - A non-Unicode input value to ``serialize`` is run through the
+         ``unicode()`` function without an ``encoding`` parameter
+         (``unicode(value)``) and the result is returned.
+
+       - A Unicode input value to ``deserialize`` is returned untouched.
+
+       - A non-Unicode input value to ``deserialize`` is run through the
+         ``unicode()`` function without an ``encoding`` parameter
+         (``unicode(value)``) and the result is returned.
+
+       If ``encoding`` is not ``None``:
+
+       - A Unicode input value to ``serialize`` is run through the
+         ``unicode`` function with the encoding parameter
+         (``unicode(value, encoding)``) and the result (a ``str``
+         object) is returned.
+
+       - A non-Unicode input value to ``serialize`` is converted to a
+         Unicode using the encoding (``unicode(value, encoding)``);
+         subsequently the Unicode object is reeencoded to a ``str``
+         object using the encoding and returned.
+
+       - A Unicode input value to ``deserialize`` is returned
+         untouched. 
+
+       - A non-Unicode input value to ``deserialize`` is converted to
+         a ``str`` object using ``str(value``).  The resulting str
+         value is converted to Unicode using the encoding
+         (``unicode(value, encoding)``) and the result is returned.
+
+       A corollary: If a string (as opposed to a unicode object) is
+       provided as a value to either the serialize or deserialize
+       method of this type, and the type also has an non-None
+       ``encoding``, the string must be encoded with the type's
+       encoding.  If this is not true, an :exc:`colander.Invalid`
+       error will result.
 
     ``allow_empty``
        Boolean representing whether an empty string input to
        deserialize will be accepted even if the enclosing schema node
        is required (has no default).  Default: ``False``.
 
-    Input to ``serialize`` is serialized to a Python ``str`` object,
-    which is encoded in the encoding provided.
-
-    If a string (as opposed to a unicode object) is provided as a
-    value to either the serialize or deserialize method of this type,
-    it must be encoded with the type's encoding; an
-    :exc:`colander.Invalid` error will result if not.
-
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
     def __init__(self, encoding=None, allow_empty=False):
-        if encoding is None:
-            encoding = default_encoding
         self.encoding = encoding
         self.allow_empty = allow_empty
     
     def deserialize(self, node, value):
         try:
             if not isinstance(value, unicode):
-                value = unicode(str(value), self.encoding)
+                if self.encoding:
+                    value = unicode(str(value), self.encoding)
+                else:
+                    value = unicode(value)
         except Exception, e:
             raise Invalid(node,
                           _('${val} is not a string: %{err}',
@@ -665,14 +703,19 @@ class String(object):
     def serialize(self, node, value):
         try:
             if isinstance(value, unicode):
-                result = value.encode(self.encoding)
+                if self.encoding:
+                    result = value.encode(self.encoding)
+                else:
+                    result = value
             else:
-                # do validation here
-                result = unicode(value, self.encoding).encode(self.encoding)
+                if self.encoding:
+                    result = unicode(value, self.encoding).encode(self.encoding)
+                else:
+                    result = unicode(value)
             return result
         except Exception, e:
             raise Invalid(node,
-                          _('"${val} cannot be serialized to str: ${err}',
+                          _('"${val} cannot be serialized: ${err}',
                             mapping={'val':value, 'err':e})
                           )
 

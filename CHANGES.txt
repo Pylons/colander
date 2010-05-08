@@ -1,6 +1,17 @@
 Changes
 =======
 
+Next release
+------------
+
+- The default ``encoding`` parameter value to the ``colander.String``
+  type is still ``None``, however its meaning has changed.  An
+  encoding of ``None`` now means that no special encoding and decoding
+  of Unicode values is done by the String type.  This differs from the
+  previous behavior, where ``None`` implied that the encoding was
+  ``utf-8``.  Pass the encoding as ``utf-8`` specifically to get the
+  older behavior back.
+
 0.6.1 (2010-05-04)
 ------------------
 
