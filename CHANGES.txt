@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.6.2 (2010-05-08)
+------------------
 
 - The default ``encoding`` parameter value to the ``colander.String``
   type is still ``None``, however its meaning has changed.  An
