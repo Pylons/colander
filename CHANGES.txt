@@ -1,6 +1,12 @@
 Changes
 =======
 
+Next release
+------------
+
+- Allow ``colander.Regex`` validator to accept a pattern object
+  instead of just a string.
+
 0.6.2 (2010-05-08)
 ------------------
 

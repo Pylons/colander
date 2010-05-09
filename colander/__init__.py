@@ -191,18 +191,26 @@ class Function(object):
             raise Invalid(node, result)
 
 class Regex(object):
-    """ Regular expression validator. Initialize it with the string 
-        regular expression ``regex`` that will be compiled and matched 
-        against ``value`` when validator is called. If ``msg`` is 
-        supplied, it will be the error message to be used; otherwise, 
-        defaults to 'String does not match expected pattern'.  
+    """ Regular expression validator.
+
+        Initialize it with the string regular expression ``regex``
+        that will be compiled and matched against ``value`` when
+        validator is called. If ``msg`` is supplied, it will be the
+        error message to be used; otherwise, defaults to 'String does
+        not match expected pattern'.
+
+        The ``regex`` argument may also be a pattern object (the
+        result of ``re.compile``) instead of a string.
         
         When calling, if ``value`` matches the regular expression, 
         validation succeeds; otherwise, :exc:`colander.Invalid` is 
         raised with the ``msg`` error message. 
     """    
     def __init__(self, regex, msg=None):
-        self.match_object = re.compile(regex)
+        if isinstance(regex, basestring):
+            self.match_object = re.compile(regex)
+        else:
+            self.match_object = regex
         if msg is None:
             self.msg = _("String does not match expected pattern")
         else:

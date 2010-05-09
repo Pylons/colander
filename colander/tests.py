@@ -223,6 +223,14 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(Invalid, self._makeOne('[0-9]+'), None, 'a')
         self.assertRaises(Invalid, self._makeOne('a{2,4}'), None, 'ba')
 
+    def test_regex_not_string(self):
+        from colander import Invalid
+        import re
+        regex = re.compile('[0-9]+')
+        self.assertEqual(self._makeOne(regex)(None, '01'), None)
+        self.assertRaises(Invalid, self._makeOne(regex), None, 't')
+        
+
 class TestEmail(unittest.TestCase):
     def _makeOne(self):
         from colander import Email
