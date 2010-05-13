@@ -9,10 +9,6 @@ Exceptions
   .. autoclass:: Invalid
      :members:
 
-     .. attribute:: parent
-
-        A reference to the parent exception.
-
      .. attribute:: pos
 
         An integer representing the position of this exception's

@@ -26,7 +26,17 @@ class TestInvalid(unittest.TestCase):
         exc = self._makeOne(None, 'msg')
         other = Dummy()
         exc.add(other)
-        self.assertEqual(other.parent, exc)
+        self.failIf(hasattr(other, 'positional'))
+        self.assertEqual(exc.children, [other])
+
+    def test_add_positional(self):
+        from colander import Positional
+        p = Positional()
+        node = DummySchemaNode(p)
+        exc = self._makeOne(node, 'msg')
+        other = Dummy()
+        exc.add(other)
+        self.assertEqual(other.positional, True)
         self.assertEqual(exc.children, [other])
 
     def test__keyname_no_parent(self):
@@ -35,12 +45,9 @@ class TestInvalid(unittest.TestCase):
         exc.node = node
         self.assertEqual(exc._keyname(), 'name')
 
-    def test__keyname_positional_parent(self):
-        from colander import Positional
-        parent = Dummy()
-        parent.node = DummySchemaNode(Positional())
+    def test__keyname_positional(self):
         exc = self._makeOne(None, '')
-        exc.parent = parent
+        exc.positional = True
         exc.pos = 2
         self.assertEqual(exc._keyname(), '2')
 

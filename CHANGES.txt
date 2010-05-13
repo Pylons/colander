@@ -7,6 +7,13 @@ Next release
 - Allow ``colander.Regex`` validator to accept a pattern object
   instead of just a string.
 
+- Get rid of circular reference in Invalid exceptions: Invalid
+  exceptions now no longer have a ``parent`` attribute.  Instead, they
+  have a ``positional`` attribute, which signifies that the parent
+  node type of the schema node to which they relate inherits from
+  Positional.  This attribute isn't an API; it's used only internally
+  for reporting.
+
 0.6.2 (2010-05-08)
 ------------------
 

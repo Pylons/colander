@@ -35,7 +35,7 @@ class Invalid(Exception):
     keyword, indicating the value related to the error.
     """
     pos = None
-    parent = None
+    positional = False
 
     def __init__(self, node, msg=None, value=None):
         Exception.__init__(self, node, msg)
@@ -57,11 +57,9 @@ class Invalid(Exception):
 
         If ``pos`` is provided, it will be assigned to the ``pos``
         attribute of the provided ``exc`` object.
-
-        The ``parent`` attribute of the provided ``exc`` will be set
-        as a reference to ``self``.
         """
-        exc.parent = self
+        if self.node and isinstance(self.node.typ, Positional):
+            exc.positional = True
         if pos is not None:
             exc.pos = pos
         self.children.append(exc)
@@ -112,7 +110,7 @@ class Invalid(Exception):
         return traverse(self, [])
 
     def _keyname(self):
-        if self.parent and isinstance(self.parent.node.typ, Positional):
+        if self.positional:
             return str(self.pos)
         return str(self.node.name)
 
