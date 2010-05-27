@@ -1112,11 +1112,13 @@ class SchemaNode(object):
         
     def __init__(self, typ, *children, **kw):
         self.typ = typ
-        self.validator = kw.get('validator', None)
-        self.default = kw.get('default', _missing)
-        self.name = kw.get('name', '')
-        self.title = kw.get('title', self.name.capitalize())
-        self.description = kw.get('description', '')
+        self.validator = kw.pop('validator', None)
+        self.default = kw.pop('default', _missing)
+        self.name = kw.pop('name', '')
+        self.title = kw.pop('title', self.name.capitalize())
+        self.description = kw.pop('description', '')
+        if kw:
+            raise TypeError('Unknown keyword arguments: %s' % repr(kw))
         self.children = list(children)
 
     def __repr__(self):

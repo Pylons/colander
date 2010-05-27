@@ -14,6 +14,9 @@ Next release
   Positional.  This attribute isn't an API; it's used only internally
   for reporting.
 
+- Raise a ``TypeError`` when bogus keyword arguments are passed to
+  ``colander.SchemaNode``.
+
 0.6.2 (2010-05-08)
 ------------------
 
