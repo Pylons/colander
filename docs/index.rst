@@ -706,6 +706,8 @@ the Python process lifetime.
 To get around this, use the :meth:`colander.SchemaNode.clone` method
 to create a deep copy of the entire schema before mutating it:
 
+.. code-block:: python
+
    def afunction():
        s = MySchema2().clone()
        s['a'].add(SchemaNode(Int(), name='c'))
