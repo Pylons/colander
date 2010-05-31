@@ -704,7 +704,8 @@ multiple ``c`` nodes are added as children of ``a`` over the course of
 the Python process lifetime.
 
 To get around this, use the :meth:`colander.SchemaNode.clone` method
-to create a deep copy of the entire schema before mutating it:
+to create a deep copy of an instance of a schema otherwise defined at
+module scope before mutating any of its subnodes:
 
 .. code-block:: python
 
