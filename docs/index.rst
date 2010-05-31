@@ -696,16 +696,13 @@ For example, in a Python module, you might have code that looks like this:
 
 Because you're mutating ``a`` (by appending a child node to it via the
 :meth:`colander.SchemaNode.add` method) you are probably expecting
-that you are working with a *copy* of ``a`` and ``b`` are created as a
-result of creating an instance of ``MySchema2`` within the
-``afunction`` function.  This is incorrect: the ``s`` schema is still
-operating with the ``a`` and ``b`` instances defined at module scope.
-You're using the module-scope copies of ``a`` and ``b``, and you're
-mutating the ``a`` instance defined within the ``MySchema1`` class at
-module scope.  This is almost certainly not what you mean to do.
+that you are working with a *copy* of ``a``.  This is incorrect:
+you're mutating the module-scope copy of the ``a`` instance defined
+within the ``MySchema1`` class.  This is almost certainly not what you
+mean to do.
 
-To get around this, use the :meth:`colander.SchemaNode.clone`
-method to create a deep copy of the entire schema:
+To get around this, use the :meth:`colander.SchemaNode.clone` method
+to create a deep copy of the entire schema before mutating it:
 
    def afunction():
        s = MySchema2().clone()
