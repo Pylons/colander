@@ -699,7 +699,9 @@ Because you're mutating ``a`` (by appending a child node to it via the
 that you are working with a *copy* of ``a``.  This is incorrect:
 you're mutating the module-scope copy of the ``a`` instance defined
 within the ``MySchema1`` class.  This is almost certainly not what you
-mean to do.
+mean to do.  The symptom of making such a mistake might be that
+multiple ``c`` nodes are added as children of ``a`` over the course of
+the Python process lifetime.
 
 To get around this, use the :meth:`colander.SchemaNode.clone` method
 to create a deep copy of the entire schema before mutating it:
