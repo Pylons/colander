@@ -671,6 +671,50 @@ constructor if one needs to be raised.
 For a more formal definition of a the interface of a validator, see
 :class:`colander.interfaces.Validator`.
 
+Gotchas
+-------
+
+You may be using a module scope schema definition with the expectation
+that calling a :class:`colander.SchemaNode` constructor will clone all
+of its subnodes.  This is not the case.
+
+For example, in a Python module, you might have code that looks like this:
+
+.. code-block:: python
+
+   from colander import MappingSchema
+   from colander import Int
+
+   class MySchema1(MappingSchema):
+       a = SchemaNode(Int())
+   class MySchema2(MappingSchema):
+       b = MySchema1()
+
+   def afunction():
+       s = MySchema2()
+       s['a'].add(SchemaNode(Int(), name='c'))
+
+Because you're mutating ``a`` (by appending a child node to it via the
+:meth:`colander.SchemaNode.add` method) you are probably expecting
+that you are working with a *copy* of ``a`` and ``b`` are created as a
+result of creating an instance of ``MySchema2`` within the
+``afunction`` function.  This is incorrect: the ``s`` schema is still
+operating with the ``a`` and ``b`` instances defined at module scope.
+You're using the module-scope copies of ``a`` and ``b``, and you're
+mutating the ``a`` instance defined within the ``MySchema1`` class at
+module scope.  This is almost certainly not what you mean to do.
+
+To get around this, use the :meth:`colander.SchemaNode.clone`
+method to create a deep copy of the entire schema:
+
+   def afunction():
+       s = MySchema2().clone()
+       s['a'].add(SchemaNode(Int(), name='c'))
+
+:meth:`colander.SchemaNode.clone` clones all the nodes in the schema,
+so you can work with a "deep copy" of the schema without disturbing the
+"template" schema nodes defined at a higher scope.
+
 Interface and API Documentation
 -------------------------------
 
