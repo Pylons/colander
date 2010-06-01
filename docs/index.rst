@@ -445,7 +445,7 @@ schema or any of is nodes is invoked.
 This usually means you may "partially" serialize a data structure
 where some of the values are missing.  If we try to serialize partial
 data using the ``serialize`` method of the schema:
-                                
+
 .. code-block:: python
    :linenos:
 
