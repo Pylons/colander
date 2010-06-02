@@ -8,7 +8,13 @@ import translationstring
 
 _ = translationstring.TranslationStringFactory('colander')
 
-class _missing(object):
+class _marker(object):
+    pass
+
+class default(object):
+    pass
+
+class null(object):
     pass
 
 def interpolate(msgs):
@@ -316,10 +322,10 @@ class Mapping(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the named keys and values in the mapping.
 
-    The constructor of this type accepts two extra optional keyword
-    arguments that other types do not: ``unknown`` and ``partial``.
-    Attributes of the same name can be set on a type instance to
-    control the behavior after construction.
+    The constructor of this type accepts one extra optional keyword
+    argument that other types do not: ``unknown``.  An attribute of
+    the same name can be set on a type instance to control the
+    behavior after construction.
 
     unknown
         ``unknown`` controls the behavior of this type when an
@@ -338,25 +344,10 @@ class Mapping(object):
           in the returned data structure during deserialization.
 
         Default: ``ignore``.
-
-    partial
-        ``partial`` controls the behavior of this type when a
-        schema-expected key is missing from the value passed to the
-        ``deserialize`` method of this instance.
-
-        During deserialization, when ``partial`` is ``False``, a
-        :exc:`colander.Invalid` exception will be raised if the
-        mapping value does not contain a key specified by the schema
-        node related to this mapping type.  When ``partial`` is
-        ``True``, no exception is raised and a partial mapping will be
-        deserialized.
-
-        Default: ``False``.
     """
 
-    def __init__(self, unknown='ignore', partial=False):
+    def __init__(self, unknown='ignore'):
         self.unknown = unknown
-        self.partial = partial
 
     def _set_unknown(self, value):
         if not value in ('ignore', 'raise', 'preserve'):
@@ -379,14 +370,7 @@ class Mapping(object):
                           mapping = {'val':value, 'err':e})
                           )
 
-    def _impl(self, node, value, callback, default_callback, unknown=None,
-              partial=None):
-        if partial is None:
-            partial = self.partial
-
-        if unknown is None:
-            unknown = self.unknown
-
+    def _impl(self, node, value, callback):
         value = self._validate(node, value)
 
         error = None
@@ -394,28 +378,15 @@ class Mapping(object):
 
         for num, subnode in enumerate(node.children):
             name = subnode.name
-            subval = value.pop(name, _missing)
-
+            subval = value.pop(name, default)
             try:
-                if subval is _missing:
-                    if subnode.required:
-                        if not partial:
-                            raise Invalid(
-                                subnode,
-                                _('"${val}" is required but missing',
-                                  mapping={'val':subnode.name})
-                                )
-                        else:
-                            continue
-                    result[name] = default_callback(subnode)
-                else:
-                    result[name] = callback(subnode, subval)
+                result[name] = callback(subnode, subval)
             except Invalid, e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
 
-        if unknown == 'raise':
+        if self.unknown == 'raise':
             if value:
                 raise Invalid(
                     node,
@@ -423,28 +394,35 @@ class Mapping(object):
                       mapping={'val':value})
                     )
 
-        elif unknown == 'preserve':
+        elif self.unknown == 'preserve':
             result.update(value)
 
         if error is not None:
             raise error
                 
         return result
-
+        
     def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            value = {}
+
         def callback(subnode, subval):
             return subnode.serialize(subval)
-        def default_callback(subnode):
-            return subnode.serialize(subnode.default)
-        return self._impl(node, value, callback, default_callback,
-                          unknown='ignore', partial=True)
+
+        return self._impl(node, value, callback)
 
     def deserialize(self, node, value):
+        value = node.check_missing(value)
+
+        if value is null:
+            value = {}
+
         def callback(subnode, subval):
             return subnode.deserialize(subval)
-        def default_callback(subnode):
-            return subnode.default
-        return self._impl(node, value, callback, default_callback)
+
+        return self._impl(node, value, callback)
 
 class Positional(object):
     """
@@ -503,14 +481,26 @@ class Tuple(Positional):
 
         return tuple(result)
 
-    def deserialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.deserialize(subval)
-        return self._impl(node, value, callback)
-
     def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            return null
+
         def callback(subnode, subval):
             return subnode.serialize(subval)
+
+        return self._impl(node, value, callback)
+
+    def deserialize(self, node, value):
+        value = node.check_missing(value)
+        
+        if value is null:
+            return null
+
+        def callback(subnode, subval):
+            return subnode.deserialize(subval)
+
         return self._impl(node, value, callback)
 
 class Sequence(Positional):
@@ -554,10 +544,12 @@ class Sequence(Positional):
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
             accept_scalar = self.accept_scalar
+
         value = self._validate(node, value, accept_scalar)
 
         error = None
         result = []
+
         for num, subval in enumerate(value):
             try:
                 result.append(callback(node.children[0], subval))
@@ -570,30 +562,6 @@ class Sequence(Positional):
             raise error
 
         return result
-
-    def deserialize(self, node, value, accept_scalar=None):
-        """
-        Along with the normal ``node`` and ``value`` arguments, this
-        method accepts an additional optional keyword argument:
-        ``accept_scalar``.  This keyword argument can be used to
-        override the constructor value of the same name.
-
-        If ``accept_scalar`` is ``True`` and the ``value`` does not
-        have an ``__iter__`` method or is a mapping type, the value
-        will be turned into a single element list.
-
-        If ``accept_scalar`` is ``False`` and the value does not have an
-        ``__iter__`` method or is a mapping type, an
-        :exc:`colander.Invalid` error will be raised during serialization
-        and deserialization.
-
-        The default of ``accept_scalar`` is ``None``, which means
-        respect the default ``accept_scalar`` value attached to this
-        instance via its constructor.
-        """
-        def callback(subnode, subval):
-            return subnode.deserialize(subval)
-        return self._impl(node, value, callback, accept_scalar)
 
     def serialize(self, node, value, accept_scalar=None):
         """
@@ -617,6 +585,42 @@ class Sequence(Positional):
         """
         def callback(subnode, subval):
             return subnode.serialize(subval)
+
+        value = node.check_default(value)
+
+        if value is null:
+            value = []
+
+        return self._impl(node, value, callback, accept_scalar)
+
+    def deserialize(self, node, value, accept_scalar=None):
+        """
+        Along with the normal ``node`` and ``value`` arguments, this
+        method accepts an additional optional keyword argument:
+        ``accept_scalar``.  This keyword argument can be used to
+        override the constructor value of the same name.
+
+        If ``accept_scalar`` is ``True`` and the ``value`` does not
+        have an ``__iter__`` method or is a mapping type, the value
+        will be turned into a single element list.
+
+        If ``accept_scalar`` is ``False`` and the value does not have an
+        ``__iter__`` method or is a mapping type, an
+        :exc:`colander.Invalid` error will be raised during serialization
+        and deserialization.
+
+        The default of ``accept_scalar`` is ``None``, which means
+        respect the default ``accept_scalar`` value attached to this
+        instance via its constructor.
+        """
+        def callback(subnode, subval):
+            return subnode.deserialize(subval)
+
+        value = node.check_default(value)
+
+        if value is null:
+            value = []
+
         return self._impl(node, value, callback, accept_scalar)
 
 Seq = Sequence
@@ -689,24 +693,12 @@ class String(object):
         self.encoding = encoding
         self.allow_empty = allow_empty
     
-    def deserialize(self, node, value):
-        try:
-            if not isinstance(value, unicode):
-                if self.encoding:
-                    value = unicode(str(value), self.encoding)
-                else:
-                    value = unicode(value)
-        except Exception, e:
-            raise Invalid(node,
-                          _('${val} is not a string: %{err}',
-                            mapping={'val':value, 'err':e}))
-        if not value and not self.allow_empty:
-            if node.required:
-                raise Invalid(node, _('Required'))
-            value = node.default
-        return value
-
     def serialize(self, node, value):
+        value = node.check_default(value)
+        
+        if value is null:
+            value = ''
+            
         try:
             if isinstance(value, unicode):
                 if self.encoding:
@@ -724,26 +716,42 @@ class String(object):
                           _('"${val} cannot be serialized: ${err}',
                             mapping={'val':value, 'err':e})
                           )
+    def deserialize(self, node, value):
+        value = node.check_missing(value)
+
+        if value is null:
+            value = ''
+
+        try:
+            if not isinstance(value, unicode):
+                if self.encoding:
+                    value = unicode(str(value), self.encoding)
+                else:
+                    value = unicode(value)
+        except Exception, e:
+            raise Invalid(node,
+                          _('${val} is not a string: %{err}',
+                            mapping={'val':value, 'err':e}))
+
+        if not value and not self.allow_empty:
+            raise Invalid(node, _('Required'))
+
+        return value
+
 
 Str = String
 
 class Number(object):
     """ Abstract base class for float, int, decimal """
+
     num = None
-    def deserialize(self, node, value):
-        try:
-            return self.num(value)
-        except Exception:
-            if value == '':
-                if node.required:
-                    raise Invalid(node, _('Required'))
-                return node.default
-            raise Invalid(node,
-                          _('"${val}" is not a number',
-                            mapping={'val':value})
-                          )
 
     def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            return null
+
         try:
             return str(self.num(value))
         except Exception:
@@ -751,6 +759,23 @@ class Number(object):
                           _('"${val}" is not a number',
                             mapping={'val':value}),
                           )
+    def deserialize(self, node, value):
+        value = node.check_missing(value)
+
+        if value is null:
+            return null
+
+        if value == '':
+            raise Invalid(node, _('Required'))
+
+        try:
+            return self.num(value)
+        except Exception:
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':value})
+                          )
+
 
 class Integer(Number):
     """ A type representing an integer.
@@ -794,24 +819,32 @@ class Boolean(object):
     this type are ignored.
     """
     
+    def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            return null
+
+        return value and 'true' or 'false'
+
     def deserialize(self, node, value):
+        value = node.check_missing(value)
+
+        if value is null:
+            return null
+
         try:
             value = str(value)
         except:
             raise Invalid(node,
                           _('${val} is not a string', mapping={'val':value})
                           )
-        if not value:
-            if node.required:
-                raise Invalid(node, _('Required'))
-            return node.default
         value = value.lower()
+
         if value in ('false', '0'):
             return False
-        return True
 
-    def serialize(self, node, value):
-        return value and 'true' or 'false'
+        return True
 
 Bool = Boolean
 
@@ -909,7 +942,25 @@ class GlobalObject(object):
 
         return found
 
+    def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            return null
+
+        try:
+            return value.__name__
+        except AttributeError:
+            raise Invalid(node,
+                          _('"${val}" has no __name__',
+                            mapping={'val':value})
+                          )
     def deserialize(self, node, value):
+        value = node.check_missing(value)
+
+        if value is null:
+            return null
+        
         if not isinstance(value, basestring):
             raise Invalid(node,
                           _('"${val}" is not a string', mapping={'val':value}))
@@ -923,14 +974,6 @@ class GlobalObject(object):
                           _('The dotted name "${name}" cannot be imported',
                             mapping={'name':value}))
 
-    def serialize(self, node, value):
-        try:
-            return value.__name__
-        except AttributeError:
-            raise Invalid(node,
-                          _('"${val}" has no __name__',
-                            mapping={'val':value})
-                          )
 
 class DateTime(object):
     """ A type representing a Python ``datetime.datetime`` object.
@@ -980,18 +1023,30 @@ class DateTime(object):
         self.default_tzinfo = default_tzinfo
         
     def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            return null
+
         if type(value) is datetime.date: # cant use isinstance; dt subs date
             value = datetime.datetime.combine(value, datetime.time())
+
         if not isinstance(value, datetime.datetime):
             raise Invalid(node,
                           _('"${val}" is not a datetime object',
                             mapping={'val':value})
                           )
+
         if value.tzinfo is None:
             value = value.replace(tzinfo=self.default_tzinfo)
         return value.isoformat()
 
     def deserialize(self, node, value):
+        value = node.check_missing(value)
+
+        if value is null:
+            return null
+
         try:
             result = iso8601.parse_date(value)
         except (iso8601.ParseError, TypeError), e:
@@ -1039,22 +1094,35 @@ class Date(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     err_template =  _('Invalid date')
+
     def serialize(self, node, value):
+        value = node.check_default(value)
+
+        if value is null:
+            return null
+
         if isinstance(value, datetime.datetime):
             value = value.date()
+
         if not isinstance(value, datetime.date):
             raise Invalid(node,
                           _('"${val}" is not a date object',
                             mapping={'val':value})
                           )
+
         return value.isoformat()
 
     def deserialize(self, node, value):
-        if not value:
-            if node.required:
-                raise Invalid(node, _('Required'))
-            return node.default
+        value = node.check_missing(value)
+
+        if value is null:
+            return null
+
+        if value == '':
+            raise Invalid(node, _('Required'))
+        
         try:
             result = iso8601.parse_date(value)
             result = result.date()
@@ -1085,9 +1153,15 @@ class SchemaNode(object):
 
     - ``name``: The name of this node.
 
-    - ``default``: The default value for this node; if it is not
-      provided, this node has no default value and it will be
-      considered 'required' (the ``required`` attribute will be True).
+    - ``default``: The default serialization value for this node.
+      Default: N/A (optional).  If it is not provided, this node has
+      no default value and it will be considered 'serialization
+      required' (the ``srequired`` attribute will be ``True``).
+
+    - ``missing``: The default deserialization value for this node.
+      If it is not provided, this node has no missing value and it
+      will be considered 'required' (the ``required`` attribute will
+      be ``True``).
 
     - ``validator``: Optional validator for this node.  It should be
       an object that implements the
@@ -1113,7 +1187,8 @@ class SchemaNode(object):
     def __init__(self, typ, *children, **kw):
         self.typ = typ
         self.validator = kw.pop('validator', None)
-        self.default = kw.pop('default', _missing)
+        self.default = kw.pop('default', _marker)
+        self.missing = kw.pop('missing', _marker)
         self.name = kw.pop('name', '')
         self.title = kw.pop('title', self.name.capitalize())
         self.description = kw.pop('description', '')
@@ -1126,19 +1201,61 @@ class SchemaNode(object):
                                                id(self),
                                                self.name)
 
-    @property
-    def required(self):
-        """ Property which returns true if this node is required in the
-        schema """
-        return self.default is _missing
+    def check_default(self, val):
+        """If ``val`` is :attr:`colander.default`:
+
+        - If the ``default`` attribute of this node has been set, return
+          the value of the ``default`` attribute.
+
+        - If the ``default`` attribute of this node has not been set,
+          raise a :exc:`colander.Invalid` exception error.
+
+        If ``val`` is *not* :attr:`colander.default`, return the
+        value of ``val`` unconditionally.
+        """
+        if val is default:
+            if self.default is _marker:
+                raise Invalid(self, _('Required'))
+            return self.default
+        return val
+
+    def check_missing(self, val):
+        """If ``val`` is :attr:`colander.default`:
+
+        - If the ``missing`` attribute of this node has been set, return
+          a serialization of the value of the ``missing`` attribute.
+
+        - If the ``missing`` attribute of this node has not been set,
+          raise a :exc:`colander.Invalid` exception error.
+
+        If ``val`` is *not* :attr:`colander.missing`, return the
+        value of ``val`` unconditionally.
+        """
+        if val is default:
+            if self.missing is _marker:
+                raise Invalid(self, _('Required'))
+            return self.serialize(self.missing)
+        return val
 
     @property
-    def sdefault(self):
-        """ Return the *serialized* default of the node default or
-        ``None`` if there is no default."""
-        if self.default is _missing:
-            return None
-        return self.typ.serialize(self, self.default)
+    def srequired(self):
+        """ A property which returns ``True`` if a usable value
+        corresponding to this node is required to be present in a data
+        structure we're asked to serialize.  A return value of
+        ``True`` implies that a usable ``default`` value wasn't
+        specified for this node.  A return value of ``False`` implies
+        that a usable ``default`` value *was* specified for this node."""
+        return self.default is _marker
+
+    @property
+    def required(self):
+        """ A property which returns ``True`` if a usable value
+        corresponding to this node is required to be present in a data
+        structure we're asked to deserialize.  A return value of
+        ``True`` implies that a usable ``missing`` value wasn't
+        specified for this node.  A return value of ``False`` implies
+        that a usable ``missing`` value *was* specified for this node."""
+        return self.missing is _marker
 
     def deserialize(self, value):
         """ Deserialize the value based on the schema represented by
