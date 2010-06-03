@@ -1165,42 +1165,6 @@ class SchemaNode(object):
                                                id(self),
                                                self.name)
 
-    def check_default(self, val):
-        """If ``val`` is :attr:`colander.default`:
-
-        - If the ``default`` attribute of this node has been set, return
-          the value of the ``default`` attribute.
-
-        - If the ``default`` attribute of this node has not been set,
-          return :attr:`colander.null`.
-
-        If ``val`` is *not* :attr:`colander.default`, return the
-        value of ``val`` unconditionally.
-        """
-        if val is default:
-            if self.default is _marker:
-                return null
-            return self.default
-        return val
-
-    def check_missing(self, val):
-        """If ``val`` is :attr:`colander.default`:
-
-        - If the ``missing`` attribute of this node has been set, return
-          a serialization of the value of the ``missing`` attribute.
-
-        - If the ``missing`` attribute of this node has not been set,
-          raise a :exc:`colander.Invalid` exception error.
-
-        If ``val`` is *not* :attr:`colander.missing`, return the
-        value of ``val`` unconditionally.
-        """
-        if val is default:
-            if self.missing is _marker:
-                raise Invalid(self, _('Required'))
-            return self.serialize(self.missing)
-        return val
-
     @property
     def srequired(self):
         """ A property which returns ``True`` if a usable value
@@ -1223,8 +1187,20 @@ class SchemaNode(object):
 
     def deserialize(self, value):
         """ Deserialize the value based on the schema represented by
-        this node. """
-        value = self.check_missing(value)
+        this node.
+
+        If ``value`` is :attr:`colander.default`, do something special:
+
+        - If the ``missing`` attribute of this node has been set,
+          return a serialization of its value.
+
+        - If the ``missing`` attribute of this node has not been set,
+          raise a :exc:`colander.Invalid` exception error.
+        """
+        if value is default:
+            if self.missing is _marker:
+                raise Invalid(self, _('Required'))
+            value = self.typ.serialize(self.missing)
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
@@ -1232,8 +1208,21 @@ class SchemaNode(object):
 
     def serialize(self, value):
         """ Serialize the value based on the schema represented by
-        this node."""
-        value = self.check_default(value)
+        this node.
+
+        If ``value`` is :attr:`colander.default`, do something special:
+
+        - If the ``default`` attribute of this node has been set, return
+          the serialized value of the ``default`` attribute.
+
+        - If the ``default`` attribute of this node has not been set,
+          return :attr:`colander.null`.
+        """
+
+        if value is default:
+            if self.default is _marker:
+                return null
+            value = self.default
         return self.typ.serialize(self, value)
 
     def add(self, node):
