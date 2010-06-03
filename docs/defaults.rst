@@ -82,10 +82,10 @@ above schema is used to serialize a mapping that does not have a
 .. code-block:: python
 
    schema = Person()
-   deserialized = schema.serialize({'name':'Fred', 'age':20})
+   serialized = schema.serialize({'name':'Fred', 'age':20})
 
 Even though we did not include the ``hair_color`` attribute in the
-data we fed to ``serialize``, the value of ``deserialized`` above will
+data we fed to ``serialize``, the value of ``serialized`` above will
 be ``{'name':'Fred, 'age':'20', 'hair_color':'brown'}``.  This is due
 to the ``default`` value provided during schema node construction for
 ``hair_color``.
@@ -98,17 +98,17 @@ the ``hair_color`` value:
 
    from colander import default
    schema = Person()
-   deserialized = schema.serialize({'name':'Fred', 'age':20, 
-                                    'hair_color':default})
+   serialized = schema.serialize({'name':'Fred', 'age':20, 
+                                  'hair_color':default})
 
-In the above, the value of ``deserialized`` above will be
+In the above, the value of ``serialized`` above will be
 ``{'name':'Fred, 'age':'20', 'hair_color':'brown'}`` just as it was in
 the example where ``hair_color`` was not present in the mapping.
 
 On the other hand, if the ``hair_color`` value is missing or
 :attr:`colander.default`, and the schema does *not* name a ``default``
-value for ``hair_color``, it will not be present in the resulting
-serialization:
+value for ``hair_color``, it will be present in the resulting
+serialization as :attr:`colander.null`:
 
 .. code-block:: python
 
@@ -122,14 +122,31 @@ serialization:
 
 
    schema = Person()
-   deserialized = schema.serialize({'name':'Fred', 'age':20})
+   serialized = schema.serialize({'name':'Fred', 'age':20})
 
-The value for ``deserialized`` above will be ``{'name':'Fred,
-'age':'20'}``. ``hair_color`` is missing entirely.  We did not include
-the ``hair_color`` attribute in the data we fed to ``serialize``, and
+The value for ``serialized`` above will be ``{'name':'Fred,
+'age':'20', 'hair_color':colander.null}``. We did not include the
+``hair_color`` attribute in the data we fed to ``serialize``, and
 there was no ``default`` value associated with ``hair_color`` to fall
-back to, so the value is simply omitted from the resulting
+back to, so the :attr:`colander.null` value is used in the resulting
 serialization.
+
+Serializations can be done of partial data structures; the
+:attr:`colander.null` value is inserted into the serialization
+whenever a corresponding value in the data structure being serialized
+is missing.
+
+.. note:: The injection of the :attr:`colander.null` value into a
+   serialization when a default doesn't exist for the corresponding
+   node is not a behavior shared by both serialization and
+   deserialization.  While a *serialization* can be performed against
+   a partial data structure without corresponding node defaults, a
+   *deserialization* cannot be done to partial data without
+   corresponding node ``missing`` values.  When a value is missing
+   from a data structure being deserialized, and no ``missing`` value
+   exists for the node corresponding to the missing item in the data
+   structure, a :class:`colander.Invalid` exception will be the
+   result.
 
 .. _serializing_null:
 
@@ -190,9 +207,9 @@ serialized into the output:
 .. code-block:: python
 
    schema = Person()
-   deserialized = schema.serialize({'name':'Fred'})
+   serialized = schema.serialize({'name':'Fred'})
 
-The value for ``deserialized`` above will be ``{'name':'Fred,
+The value for ``serialized`` above will be ``{'name':'Fred,
 'age':<unprintable colander null object>}``. We did not include the
 ``age`` attribute in the data we fed to ``serialize``, but there was a
 ``default`` value associated with ``age`` to fall back to:
