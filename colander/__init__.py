@@ -403,8 +403,6 @@ class Mapping(object):
         return result
         
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             value = {}
 
@@ -414,8 +412,6 @@ class Mapping(object):
         return self._impl(node, value, callback)
 
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             value = {}
 
@@ -482,8 +478,6 @@ class Tuple(Positional):
         return tuple(result)
 
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             return null
 
@@ -493,8 +487,6 @@ class Tuple(Positional):
         return self._impl(node, value, callback)
 
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-        
         if value is null:
             return null
 
@@ -586,8 +578,6 @@ class Sequence(Positional):
         def callback(subnode, subval):
             return subnode.serialize(subval)
 
-        value = node.check_default(value)
-
         if value is null:
             value = []
 
@@ -615,8 +605,6 @@ class Sequence(Positional):
         """
         def callback(subnode, subval):
             return subnode.deserialize(subval)
-
-        value = node.check_default(value)
 
         if value is null:
             value = []
@@ -694,8 +682,6 @@ class String(object):
         self.allow_empty = allow_empty
     
     def serialize(self, node, value):
-        value = node.check_default(value)
-        
         if value is null:
             value = ''
             
@@ -717,8 +703,6 @@ class String(object):
                             mapping={'val':value, 'err':e})
                           )
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             value = ''
 
@@ -747,8 +731,6 @@ class Number(object):
     num = None
 
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             return null
 
@@ -760,8 +742,6 @@ class Number(object):
                             mapping={'val':value}),
                           )
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             return null
 
@@ -820,16 +800,12 @@ class Boolean(object):
     """
     
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             return null
 
         return value and 'true' or 'false'
 
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             return null
 
@@ -943,8 +919,6 @@ class GlobalObject(object):
         return found
 
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             return null
 
@@ -956,8 +930,6 @@ class GlobalObject(object):
                             mapping={'val':value})
                           )
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             return null
         
@@ -1023,8 +995,6 @@ class DateTime(object):
         self.default_tzinfo = default_tzinfo
         
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             return null
 
@@ -1042,8 +1012,6 @@ class DateTime(object):
         return value.isoformat()
 
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             return null
 
@@ -1098,8 +1066,6 @@ class Date(object):
     err_template =  _('Invalid date')
 
     def serialize(self, node, value):
-        value = node.check_default(value)
-
         if value is null:
             return null
 
@@ -1115,8 +1081,6 @@ class Date(object):
         return value.isoformat()
 
     def deserialize(self, node, value):
-        value = node.check_missing(value)
-
         if value is null:
             return null
 
@@ -1260,6 +1224,7 @@ class SchemaNode(object):
     def deserialize(self, value):
         """ Deserialize the value based on the schema represented by
         this node. """
+        value = self.check_missing(value)
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
@@ -1268,6 +1233,7 @@ class SchemaNode(object):
     def serialize(self, value):
         """ Serialize the value based on the schema represented by
         this node."""
+        value = self.check_default(value)
         return self.typ.serialize(self, value)
 
     def add(self, node):

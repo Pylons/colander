@@ -1693,12 +1693,6 @@ class DummySchemaNode(object):
             raise Invalid(self, self.exc)
         return val
 
-    def check_missing(self, val):
-        return val
-
-    def check_default(self, val):
-        return val
-
 class DummyValidator(object):
     def __init__(self, msg=None):
         self.msg = msg
