@@ -1172,14 +1172,14 @@ class SchemaNode(object):
           the value of the ``default`` attribute.
 
         - If the ``default`` attribute of this node has not been set,
-          raise a :exc:`colander.Invalid` exception error.
+          return :attr:`colander.null`.
 
         If ``val`` is *not* :attr:`colander.default`, return the
         value of ``val`` unconditionally.
         """
         if val is default:
             if self.default is _marker:
-                raise Invalid(self, _('Required'))
+                return null
             return self.default
         return val
 
