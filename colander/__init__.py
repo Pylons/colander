@@ -15,7 +15,10 @@ class default(object):
     pass
 
 class null(object):
-    pass
+    def __nonzero__(self):
+        return False
+
+null = null()
 
 def interpolate(msgs):
     for s in msgs:
@@ -671,8 +674,7 @@ class String(object):
 
     ``allow_empty``
        Boolean representing whether an empty string input to
-       deserialize will be accepted even if the enclosing schema node
-       is required (has no default).  Default: ``False``.
+       deserialize will be considered valid.  Default: ``False``.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -1185,7 +1187,7 @@ class SchemaNode(object):
         that a usable ``missing`` value *was* specified for this node."""
         return self.missing is _marker
 
-    def deserialize(self, value):
+    def deserialize(self, value=default):
         """ Deserialize the value based on the schema represented by
         this node.
 
@@ -1196,17 +1198,20 @@ class SchemaNode(object):
 
         - If the ``missing`` attribute of this node has not been set,
           raise a :exc:`colander.Invalid` exception error.
+
+        If a ``value`` argument is not provided, it defaults to
+        :attr:`colander.default`.
         """
         if value is default:
             if self.missing is _marker:
                 raise Invalid(self, _('Required'))
-            value = self.typ.serialize(self.missing)
+            value = self.typ.serialize(self, self.missing)
         value = self.typ.deserialize(self, value)
         if self.validator is not None:
             self.validator(self, value)
         return value
 
-    def serialize(self, value):
+    def serialize(self, value=default):
         """ Serialize the value based on the schema represented by
         this node.
 
@@ -1217,6 +1222,9 @@ class SchemaNode(object):
 
         - If the ``default`` attribute of this node has not been set,
           return :attr:`colander.null`.
+
+        If a ``value`` argument is not provided, it defaults to
+        :attr:`colander.default`.
         """
 
         if value is default:
