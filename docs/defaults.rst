@@ -57,14 +57,14 @@ for :attr:`colander.null` to be the *default value* (``default``) or
 .. _serializing_default_and_null:
 
 Serializing Default and Null Values
-===================================
+-----------------------------------
 
 It is possible to serialize both the default and null values.
 
 .. _serializing_default:
 
 Serializing The :attr:`colander.default` Value
-----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A node will attempt to serialize its ``default`` attribute during
 :meth:`colander.SchemaNode.serialize` if a value it is provided is
@@ -168,7 +168,7 @@ is missing.
 .. _serializing_null:
 
 Serializing The :attr:`colander.null` Value
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The value :attr:`colander.null` has special meaning to types during
 serialization.  If :attr:`colander.null` is used as the serialization
@@ -238,7 +238,7 @@ injected into the resulting serialization.  The caller of the
 this value appropriately.
 
 Serialization Combinations
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To reduce the potential for confusion about the difference between
 :attr:`colander.default` and :attr:`colander.null` during
@@ -279,14 +279,14 @@ colander.null         colander.null         null serialized
 .. _deserializing_default_and_null:
 
 Deserializing Default and Null Values
-=====================================
+-------------------------------------
 
 It is possible to deserialize both the default and null values.
 
 .. _deserializing_default:
 
 Deserializing The :attr:`colander.default` Value
-------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The data structure passed to :meth:`colander.SchemaNode.deserialize`
 may contain one or more :attr:`colander.default` sentinel markers.
@@ -323,7 +323,7 @@ a schema, the node will take the following steps:
 .. _deserializing_null:
 
 Deserializing The :attr:`colander.null` Value
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The value :attr:`colander.null` has special meaning to types during
 deserialization.  If :attr:`colander.null` is used as a
@@ -362,7 +362,7 @@ and deal with the special :attr:`colander.null` value in the output
 however it sees fit.
 
 Deserialization Combinations
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To reduce the potential for confusion about the difference between
 :attr:`colander.default` and :attr:`colander.null` during
