@@ -1,0 +1,130 @@
+Extending Colander
+==================
+
+You can extend Colander by defining a new type or defining a new
+validator.
+
+Defining a New Type
+-------------------
+
+A new type is a class with two methods:: ``serialize`` and
+``deserialize``.  ``serialize`` converts a Python data structure to a
+serialization.  ``deserialize`` converts a value to a Python data
+structure.
+
+Here's a type which implements boolean serialization and
+deserialization.  It serializes a boolean to the string ``true`` or
+``false``; it deserializes a string (presumably ``true`` or ``false``,
+but allows some wiggle room for ``t``, ``on``, ``yes``, ``y``, and
+``1``) to a boolean value.
+
+.. code-block::  python
+   :linenos:
+
+   class Boolean(object):
+       def deserialize(self, node, value):
+           if not isinstance(value, basestring):
+               raise Invalid(node, '%r is not a string' % value)
+           value = value.lower()
+           if value in ('true', 'yes', 'y', 'on', 't', '1'):
+               return True
+           return False
+
+       def serialize(self, node, value):
+           if not isinstance(value, bool):
+              raise Invalid(node, '%r is not a boolean')
+           return value and 'true' or 'false'
+
+       pdeserialize = deserialize
+       pserialize = serialize
+
+Here's how you would use the resulting class as part of a schema:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+
+   class Schema(colander.MappingSchema):
+       interested = colander.SchemaNode(Boolean())
+
+The above schema has a member named ``interested`` which will now be
+serialized and deserialized as a boolean, according to the logic
+defined in the ``Boolean`` type class.
+
+Note that the only real constraint of a type class is that its
+``serialize`` method must be able to make sense of a value generated
+by its ``deserialize`` method and vice versa.
+
+The serialize and deserialize methods of a type accept two values:
+``node``, and ``value``.  ``node`` will be the schema node associated
+with this type.  It is used when the type must raise a
+:exc:`colander.Invalid` error, which expects a schema node as its
+first constructor argument.  ``value`` will be the value that needs to
+be serialized or deserialized.
+
+``pdeserialize`` and ``pserialize`` methods are required on all types.
+These are called to "partially" serialize a data structure.  For most
+"leaf-level" types, partial serialization and deserialization does not
+make any sense, so these methods are aliased to ``deserialize`` and
+``serialize`` respectively.  However, for types representing mappings
+or sequences, they may end up being different.
+
+For a more formal definition of a the interface of a type, see
+:class:`colander.interfaces.Type`.
+
+Defining a New Validator
+------------------------
+
+A validator is a callable which accepts two positional arguments:
+``node`` and ``value``.  It returns ``None`` if the value is valid.
+It raises a :class:`colander.Invalid` exception if the value is not
+valid.  Here's a validator that checks if the value is a valid credit
+card number.
+
+.. code-block:: python
+   :linenos:
+
+   def luhnok(node, value):
+       """ checks to make sure that the value passes a luhn mod-10 checksum """
+       sum = 0
+       num_digits = len(value)
+       oddeven = num_digits & 1
+
+       for count in range(0, num_digits):
+           digit = int(value[count])
+
+           if not (( count & 1 ) ^ oddeven ):
+               digit = digit * 2
+           if digit > 9:
+               digit = digit - 9
+
+           sum = sum + digit
+
+       if not (sum % 10) == 0:
+           raise Invalid(node, 
+                         '%r is not a valid credit card number' % value)
+        
+Here's how the resulting ``luhnok`` validator might be used in a
+schema:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+
+   class Schema(colander.MappingSchema):
+       cc_number = colander.SchemaNode(colander.String(), validator=lunhnok)
+
+Note that the validator doesn't need to check if the ``value`` is a
+string: this has already been done as the result of the type of the
+``cc_number`` schema node being :class:`colander.String`. Validators
+are always passed the *deserialized* value when they are invoked.
+
+The ``node`` value passed to the validator is a schema node object; it
+must in turn be passed to the :exc:`colander.Invalid` exception
+constructor if one needs to be raised.
+
+For a more formal definition of a the interface of a validator, see
+:class:`colander.interfaces.Validator`.
+
