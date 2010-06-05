@@ -8,11 +8,12 @@ import translationstring
 
 _ = translationstring.TranslationStringFactory('colander')
 
-class _marker(object):
-    pass
+_marker = object()
 
 class default(object):
     pass
+
+default = default()
 
 class null(object):
     def __nonzero__(self):
@@ -347,6 +348,20 @@ class Mapping(object):
           in the returned data structure during deserialization.
 
         Default: ``ignore``.
+
+    Special behavior is exhibited when a subvalue of a mapping is
+    present in the schema but is missing from the mapping passed to
+    either the ``serialize`` or ``deserialize`` method of this class.
+    In this case, the :attr:`colander.default` value will be passed to
+    the schema node representing the subvalue of the mapping.  During
+    serialization, this will result in the behavior described in
+    :ref:`serializing_default` for the subnode.  During
+    deserialization, this will result in the behavior described in
+    :ref:`deserializing_default` for the subnode.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the empty dictionary will be
+    returned.
     """
 
     def __init__(self, unknown='ignore'):
@@ -441,6 +456,10 @@ class Tuple(Positional):
     This type is willing to serialize and deserialized iterables that,
     when converted to a tuple, have the same number of elements as the
     number of the associated node's subnodes.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
     """
     def _validate(self, node, value):
         if not hasattr(value, '__iter__'):
@@ -522,6 +541,9 @@ class Sequence(Positional):
     and deserialization.
 
     The default value of ``accept_scalar`` is ``False``.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, an empty list will be returned.
     """
     def __init__(self, accept_scalar=False):
         self.accept_scalar = accept_scalar
@@ -582,7 +604,7 @@ class Sequence(Positional):
             return subnode.serialize(subval)
 
         if value is null:
-            value = []
+            return []
 
         return self._impl(node, value, callback, accept_scalar)
 
@@ -610,7 +632,7 @@ class Sequence(Positional):
             return subnode.deserialize(subval)
 
         if value is null:
-            value = []
+            return []
 
         return self._impl(node, value, callback, accept_scalar)
 
@@ -678,6 +700,9 @@ class String(object):
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, an empty string will be used.
     """
     def __init__(self, encoding=None, allow_empty=False):
         self.encoding = encoding
@@ -685,7 +710,7 @@ class String(object):
     
     def serialize(self, node, value):
         if value is null:
-            value = ''
+            value = u''
             
         try:
             if isinstance(value, unicode):
@@ -706,7 +731,7 @@ class String(object):
                           )
     def deserialize(self, node, value):
         if value is null:
-            value = ''
+            value = u''
 
         try:
             if not isinstance(value, unicode):
@@ -762,6 +787,10 @@ class Number(object):
 class Integer(Number):
     """ A type representing an integer.
 
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -772,6 +801,10 @@ Int = Integer
 class Float(Number):
     """ A type representing a float.
 
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -780,6 +813,10 @@ class Float(Number):
 class Decimal(Number):
     """ A type representing a decimal floating point.  Deserialization
     returns an instance of the Python ``decimal.Decimal`` type.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -796,6 +833,10 @@ class Boolean(object):
 
     Serialization will produce ``true`` or ``false`` based on the
     value.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -857,6 +898,10 @@ class GlobalObject(object):
     package name is supplied to ``deserialize``, and no ``package``
     was supplied to the constructor, an :exc:`colander.Invalid` error
     will be raised.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -986,6 +1031,10 @@ class DateTime(object):
     does so by using midnight of the day as the time, and uses the
     ``default_tzinfo`` to give the serialization a timezone.
 
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -1060,6 +1109,10 @@ class Date(object):
     object during deserialization.  It does so by throwing away any
     time information related to the serialized value during
     deserialization.
+
+    If the :attr:`colander.null` value is passed to the serialize or
+    deserialize methods of this class, the :attr:`colander.null` value
+    will be returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -1187,33 +1240,9 @@ class SchemaNode(object):
         that a usable ``missing`` value *was* specified for this node."""
         return self.missing is _marker
 
-    def deserialize(self, value=default):
-        """ Deserialize the value based on the schema represented by
-        this node.
-
-        If ``value`` is :attr:`colander.default`, do something special:
-
-        - If the ``missing`` attribute of this node has been set,
-          return a serialization of its value.
-
-        - If the ``missing`` attribute of this node has not been set,
-          raise a :exc:`colander.Invalid` exception error.
-
-        If a ``value`` argument is not provided, it defaults to
-        :attr:`colander.default`.
-        """
-        if value is default:
-            if self.missing is _marker:
-                raise Invalid(self, _('Required'))
-            value = self.typ.serialize(self, self.missing)
-        value = self.typ.deserialize(self, value)
-        if self.validator is not None:
-            self.validator(self, value)
-        return value
-
     def serialize(self, value=default):
         """ Serialize the value based on the schema represented by
-        this node.
+        this node and return the serialized value.
 
         If ``value`` is :attr:`colander.default`, do something special:
 
@@ -1223,8 +1252,8 @@ class SchemaNode(object):
         - If the ``default`` attribute of this node has not been set,
           return :attr:`colander.null`.
 
-        If a ``value`` argument is not provided, it defaults to
-        :attr:`colander.default`.
+        If a ``value`` argument is not explicitly provided, it
+        defaults to :attr:`colander.default`.
         """
 
         if value is default:
@@ -1232,6 +1261,32 @@ class SchemaNode(object):
                 return null
             value = self.default
         return self.typ.serialize(self, value)
+
+    def deserialize(self, value=default):
+        """ Deserialize and validate the ``value`` based on the
+        schema, and return the deserialized, validated value.  If the
+        value cannot be validated, a :exc:`colander.Invalid` exception
+        will be raised.
+
+        If ``value`` is :attr:`colander.default`, do something special:
+
+        - If the ``missing`` attribute of this node has been set,
+          return it.
+
+        - If the ``missing`` attribute of this node has not been set,
+          raise a :exc:`colander.Invalid` exception error.
+
+        If a ``value`` argument is not explicitly provided, it
+        defaults to :attr:`colander.default`.
+        """
+        if value is default:
+            if self.missing is _marker:
+                raise Invalid(self, _('Required'))
+            return self.missing
+        value = self.typ.deserialize(self, value)
+        if self.validator is not None:
+            self.validator(self, value)
+        return value
 
     def add(self, node):
         """ Add a subnode to this node. """
