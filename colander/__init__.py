@@ -1257,12 +1257,11 @@ class SchemaNode(object):
         """
 
         if value is default:
-            if self.default is _marker:
+            value = self.default
+            if value is _marker:
                 # we cannot just return null here; we need to allow the
                 # node to serialize null to what it believes null should be
                 value = null
-            else:
-                value = self.default
         return self.typ.serialize(self, value)
 
     def deserialize(self, value=default):
