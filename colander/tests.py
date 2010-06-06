@@ -1448,6 +1448,22 @@ class TestSchemaNode(unittest.TestCase):
         from colander import default
         self.assertEqual(node.deserialize(default), 'abc')
 
+    def test_deserialize_value_is_default_with_missing_null(self):
+        from colander import null
+        from colander import default
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = null
+        self.assertEqual(node.deserialize(default), null)
+
+    def test_deserialize_value_is_null_validator_not_used(self):
+        from colander import null
+        typ = DummyType()
+        validator = DummyValidator(msg='Wrong')
+        node = self._makeOne(typ, validator=validator)
+        value = node.deserialize(null)
+        self.assertEqual(value, null)
+
     def test_deserialize_noargs_uses_default(self):
         typ = DummyType()
         node = self._makeOne(typ)

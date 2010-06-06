@@ -1260,7 +1260,7 @@ class SchemaNode(object):
             value = self.default
             if value is _marker:
                 # we cannot just return null here; we need to allow the
-                # node to serialize null to what it believes null should be
+                # node to serialize null to what it believes null should mean
                 value = null
         return self.typ.serialize(self, value)
 
@@ -1280,14 +1280,28 @@ class SchemaNode(object):
 
         If a ``value`` argument is not explicitly provided, it
         defaults to :attr:`colander.default`.
+
+        When used as a value, :attr:`colander.null` is never passed to
+        a validator: it is considered intrinsically valid.
         """
         if value is default:
-            if self.missing is _marker:
+            value = self.missing
+
+            if value is _marker:
                 raise Invalid(self, _('Required'))
-            return self.missing
+
+            if value is null:
+                # Null always needs deserialization.
+                value = self.typ.deserialize(self, null)
+
+            # We never need to validate the missing value.
+            return value
+
         value = self.typ.deserialize(self, value)
-        if self.validator is not None:
-            self.validator(self, value)
+        if value is not null:
+            # We never validate the null value.
+            if self.validator is not None:
+                self.validator(self, value)
         return value
 
     def add(self, node):
