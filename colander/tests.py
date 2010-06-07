@@ -1506,8 +1506,8 @@ class TestSchemaNode(unittest.TestCase):
     def test_repr(self):
         node = self._makeOne(None, name='flub')
         result = repr(node)
-        self.failUnless(result.startswith('<SchemaNode object at '))
-        self.failUnless(result.endswith("named 'flub'>"))
+        self.failUnless(result.startswith('<colander.SchemaNode object at '))
+        self.failUnless(result.endswith("(named flub)>"))
 
     def test___getitem__success(self):
         node = self._makeOne(None)

@@ -1216,9 +1216,13 @@ class SchemaNode(object):
         self.children = list(children)
 
     def __repr__(self):
-        return '<%s object at %x named %r>' % (self.__class__.__name__,
-                                               id(self),
-                                               self.name)
+        return '<%s.%s object at %d (named %s)>' % (
+            self.__module__,
+            self.__class__.__name__,
+            id(self),
+            self.name,
+            )
+
 
     @property
     def srequired(self):
