@@ -327,12 +327,11 @@ class TestMapping(unittest.TestCase):
             raise AssertionError(e)
 
     def test_deserialize_null(self):
-        import colander
-        val = colander.null
+        from colander import null
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, {})
+        result = typ.deserialize(node, null)
+        self.assertEqual(result, null)
 
     def test_deserialize_not_a_mapping(self):
         node = DummySchemaNode(None)
@@ -357,11 +356,10 @@ class TestMapping(unittest.TestCase):
     def test_deserialize_value_is_null(self):
         node = DummySchemaNode(None)
         from colander import null
-        from colander import default
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.deserialize(node, null)
-        self.assertEqual(result, {'a':default})
+        self.assertEqual(result, null)
 
     def test_deserialize_unknown_raise(self):
         node = DummySchemaNode(None)
