@@ -101,7 +101,7 @@ Types
 Schema-Related
 ~~~~~~~~~~~~~~
 
-  .. autoclass:: SchemaNode(typ,*nodes,name='',default=MISSING,validator=None,title='',description='')
+  .. autoclass:: SchemaNode
      :members:
 
   .. autoclass:: Schema

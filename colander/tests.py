@@ -1751,6 +1751,11 @@ class Test_null(unittest.TestCase):
         from colander import null
         self.assertEqual(repr(null), '<colander.null>')
 
+class Test__marker(unittest.TestCase):
+    def test___repr__(self):
+        from colander import _marker
+        self.assertEqual(repr(_marker), '<MISSING>')
+
 class Dummy(object):
     pass
 

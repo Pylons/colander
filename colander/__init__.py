@@ -8,7 +8,11 @@ import translationstring
 
 _ = translationstring.TranslationStringFactory('colander')
 
-_marker = object()
+class _marker(object):
+    def __repr__(self):
+        return '<MISSING>'
+
+_marker = _marker()
 
 class default(object):
     def __repr__(self):
@@ -1166,7 +1170,7 @@ class SchemaNode(object):
     """
     Fundamental building block of schemas.
 
-    The constructor accepts these arguments:
+    The constructor accepts these positional arguments:
 
     - ``typ`` (required): The 'type' for this node.  It should be an
       instance of a class that implements the
@@ -1175,6 +1179,8 @@ class SchemaNode(object):
     - ``children``: a sequence of subnodes.  If the subnodes of this
       node are not known at construction time, they can later be added
       via the ``add`` method.
+
+    The constructor accepts these keyword arguments (via **kw):
 
     - ``name``: The name of this node.
 
