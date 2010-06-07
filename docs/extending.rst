@@ -40,7 +40,7 @@ anticipate this.
                return null
            if not isinstance(cstruct, basestring):
                raise Invalid(node, '%r is not a string' % cstruct)
-           value = value.lower()
+           value = cstruct.lower()
            if value in ('true', 'yes', 'y', 'on', 't', '1'):
                return True
            return False
