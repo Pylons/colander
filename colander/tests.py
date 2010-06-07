@@ -1349,12 +1349,6 @@ class TestDate(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, '10-10-10-10')
         self.failUnless('Invalid' in e.msg)
 
-    def test_deserialize_empty(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, '')
-        self.failUnless('Required' in e.msg)
-
     def test_deserialize_success_date(self):
         typ = self._makeOne()
         date = self._today()

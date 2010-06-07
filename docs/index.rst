@@ -58,6 +58,7 @@ internationalizable.
    extending.rst
    interfaces.rst
    api.rst
+   glossary.rst
 
 Indices and tables
 ------------------

@@ -8,9 +8,10 @@ Defining a New Type
 -------------------
 
 A new type is a class with two methods:: ``serialize`` and
-``deserialize``.  ``serialize`` converts a Python data structure to a
-serialization.  ``deserialize`` converts a value to a Python data
-structure.
+``deserialize``.  ``serialize`` converts a Python data structure (an
+:term:`appstruct`) into a serialization (a :term:`cstruct`).
+``deserialize`` converts a serialized value (a :term:`cstruct`) into a
+Python data structure (a :term:`appstruct`).
 
 Here's a type which implements boolean serialization and
 deserialization.  It serializes a boolean to the string ``true`` or
@@ -27,22 +28,22 @@ anticipate this.
    from colander import null
 
    class Boolean(object):
-       def deserialize(self, node, value):
-           if value is null:
+       def serialize(self, node, appstruct):
+           if appstruct is null:
                return null
-           if not isinstance(value, basestring):
-               raise Invalid(node, '%r is not a string' % value)
+           if not isinstance(appstruct, bool):
+              raise Invalid(node, '%r is not a boolean')
+           return appstruct and 'true' or 'false'
+
+       def deserialize(self, node, cstruct):
+           if cstruct is null:
+               return null
+           if not isinstance(cstruct, basestring):
+               raise Invalid(node, '%r is not a string' % cstruct)
            value = value.lower()
            if value in ('true', 'yes', 'y', 'on', 't', '1'):
                return True
            return False
-
-       def serialize(self, node, value):
-           if value is null:
-               return null
-           if not isinstance(value, bool):
-              raise Invalid(node, '%r is not a boolean')
-           return value and 'true' or 'false'
 
 Here's how you would use the resulting class as part of a schema:
 
@@ -67,12 +68,19 @@ Note that the only two real constraints of a type class are:
   both ``serialize`` and ``deserialize``, either returning it or
   translating it to a type-specific null value.
 
-The serialize and deserialize methods of a type accept two values:
-``node``, and ``value``.  ``node`` will be the schema node associated
-with this type.  It is used when the type must raise a
-:exc:`colander.Invalid` error, which expects a schema node as its
-first constructor argument.  ``value`` will be the value that needs to
-be serialized or deserialized.
+The serialize and method of a type accept two values: ``node``, and
+``appstruct``.  ``node`` will be the schema node associated with this
+type.  It is used when the type must raise a :exc:`colander.Invalid`
+error, which expects a schema node as its first constructor argument.
+``appstruct`` will be the :term:`appstruct` value that needs to be
+serialized.
+
+The deserialize and method of a type accept two values: ``node``, and
+``cstruct``.  ``node`` will be the schema node associated with this
+type.  It is used when the type must raise a :exc:`colander.Invalid`
+error, which expects a schema node as its first constructor argument.
+``cstruct`` will be the :term:`cstruct` value that needs to be
+deserialized.
 
 For a more formal definition of a the interface of a type, see
 :class:`colander.interfaces.Type`.
