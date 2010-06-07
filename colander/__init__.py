@@ -600,11 +600,11 @@ class Sequence(Positional):
         respect the default ``accept_scalar`` value attached to this
         instance via its constructor.
         """
+        if value is null:
+            return null
+
         def callback(subnode, subval):
             return subnode.serialize(subval)
-
-        if value is null:
-            return []
 
         return self._impl(node, value, callback, accept_scalar)
 
@@ -628,11 +628,11 @@ class Sequence(Positional):
         respect the default ``accept_scalar`` value attached to this
         instance via its constructor.
         """
+        if value is null:
+            return null
+
         def callback(subnode, subval):
             return subnode.deserialize(subval)
-
-        if value is null:
-            return []
 
         return self._impl(node, value, callback, accept_scalar)
 

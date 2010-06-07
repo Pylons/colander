@@ -580,7 +580,7 @@ class TestSequence(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.deserialize(node, colander.null)
-        self.assertEqual(result, [])
+        self.assertEqual(result, colander.null)
 
     def test_deserialize_not_iterable(self):
         node = DummySchemaNode(None)
@@ -627,7 +627,7 @@ class TestSequence(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, colander.null)
-        self.assertEqual(result, [])
+        self.assertEqual(result, colander.null)
 
     def test_serialize_not_iterable(self):
         node = DummySchemaNode(None)
