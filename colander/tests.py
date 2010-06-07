@@ -1736,10 +1736,20 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
         schema = MainSchema()
         return schema
 
+class Test_default(unittest.TestCase):
+    def test___repr__(self):
+        from colander import default
+        self.assertEqual(repr(default), '<colander.default>')
+    
+
 class Test_null(unittest.TestCase):
     def test___nonzero__(self):
         from colander import null
         self.failIf(null)
+
+    def test___repr__(self):
+        from colander import null
+        self.assertEqual(repr(null), '<colander.null>')
 
 class Dummy(object):
     pass

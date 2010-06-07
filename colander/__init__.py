@@ -11,13 +11,17 @@ _ = translationstring.TranslationStringFactory('colander')
 _marker = object()
 
 class default(object):
-    pass
+    def __repr__(self):
+        return '<colander.default>'
 
 default = default()
 
 class null(object):
     def __nonzero__(self):
         return False
+
+    def __repr__(self):
+        return '<colander.null>'
 
 null = null()
 
