@@ -29,7 +29,10 @@ Next release
   ``value`` during deserialization and serialization instead of None,
   ``colander.SchemaNode.serialize`` and
   ``colander.SchemaNode.deserialize`` now require no explicit value
-  argument (value defaults to ``colander.default``).
+  argument (value defaults to ``colander.default``), ``allow_empty``
+  argument of ``colander.String`` type removed (use ``missing=''``
+  instead in the surrounding schemanode), deserialization of ``null``
+  in ``colander.String`` returns null now.
 
 0.6.2 (2010-05-08)
 ------------------

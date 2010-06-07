@@ -439,7 +439,7 @@ class Mapping(object):
 
     def deserialize(self, node, cstruct):
         if cstruct is null:
-            cstruct = {}
+            return null
 
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
@@ -518,7 +518,7 @@ class Tuple(Positional):
 
     def deserialize(self, node, cstruct):
         if cstruct is null:
-            return cstruct
+            return null
 
         def callback(subnode, subval):
             return subnode.deserialize(subval)
@@ -651,7 +651,7 @@ Seq = Sequence
 class String(object):
     """ A type representing a Unicode string.
 
-    This type constructor accepts a number of arguments:
+    This type constructor accepts one argument:
 
     ``encoding``
        Represents the encoding which should be applied to value
@@ -704,19 +704,11 @@ class String(object):
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
 
-    ``allow_empty``
-       Boolean representing whether an empty string input to
-       deserialize will be considered valid.  Default: ``False``.
-
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
-
-    If the :attr:`colander.null` value is passed to the serialize or
-    deserialize methods of this class, an empty string will be used.
     """
-    def __init__(self, encoding=None, allow_empty=False):
+    def __init__(self, encoding=None):
         self.encoding = encoding
-        self.allow_empty = allow_empty
     
     def serialize(self, node, appstruct):
         if appstruct is null:
@@ -742,7 +734,7 @@ class String(object):
                           )
     def deserialize(self, node, cstruct):
         if cstruct is null:
-            cstruct = u''
+            return null
 
         try:
             result = cstruct
@@ -755,9 +747,6 @@ class String(object):
             raise Invalid(node,
                           _('${val} is not a string: %{err}',
                             mapping={'val':cstruct, 'err':e}))
-
-        if not result and not self.allow_empty:
-            raise Invalid(node, _('Required'))
 
         return result
 
@@ -1268,7 +1257,7 @@ class SchemaNode(object):
           the serialized value of the ``default`` attribute.
 
         - If the ``default`` attribute of this node has not been set,
-          return :attr:`colander.null`.
+          return the serialization of :attr:`colander.null`.
 
         If an ``appstruct`` argument is not explicitly provided, it
         defaults to :attr:`colander.default`.
@@ -1277,8 +1266,9 @@ class SchemaNode(object):
         if appstruct is default:
             appstruct = self.default
             if appstruct is _marker:
-                # we cannot just return null here; we need to allow the
-                # node to serialize null to what it believes null should mean
+                # We cannot just return null here; we need to allow
+                # the node to serialize null to what it believes null
+                # should mean
                 appstruct = null
         cstruct = self.typ.serialize(self, appstruct)
         return cstruct
@@ -1305,15 +1295,9 @@ class SchemaNode(object):
         """
         if cstruct is default:
             appstruct = self.missing
-
             if appstruct is _marker:
                 raise Invalid(self, _('Required'))
-
-            if appstruct is null:
-                # Null always needs deserialization.
-                appstruct = self.typ.deserialize(self, null)
-
-            # We never need to validate the missing value.
+            # We never validate the missing value
             return appstruct
 
         appstruct = self.typ.deserialize(self, cstruct)

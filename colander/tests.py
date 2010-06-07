@@ -669,28 +669,27 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(len(e.children), 2)
 
 class TestString(unittest.TestCase):
-    def _makeOne(self, encoding=None, allow_empty=False):
+    def _makeOne(self, encoding=None):
         from colander import String
-        return String(encoding, allow_empty)
+        return String(encoding)
 
     def test_alias(self):
         from colander import Str
         from colander import String
         self.assertEqual(Str, String)
 
-    def test_deserialize_null_allow_empty(self):
-        import colander
-        val = colander.null
+    def test_deserialize_emptystring(self):
         node = DummySchemaNode(None)
-        typ = self._makeOne(None, True)
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, '')
-
-    def test_deserialize_emptystring_allow_empty(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne(None, True)
+        typ = self._makeOne(None)
         result = typ.deserialize(node, '')
         self.assertEqual(result, '')
+
+    def test_deserialize_null(self):
+        from colander import null
+        node = DummySchemaNode(None)
+        typ = self._makeOne(None)
+        result = typ.deserialize(node, null)
+        self.assertEqual(result, null)
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
@@ -736,13 +735,6 @@ class TestString(unittest.TestCase):
         typ = self._makeOne()
         result = typ.serialize(node, val)
         self.assertEqual(result, '')
-
-    def test_serialize_emptystring_required(self):
-        val = ''
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, val)
-        self.assertEqual(e.msg, 'Required')
 
     def test_serialize_uncooperative(self):
         val = Uncooperative()
