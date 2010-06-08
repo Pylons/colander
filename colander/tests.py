@@ -727,12 +727,11 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, uni)
 
     def test_serialize_null(self):
-        import colander
-        val = colander.null
+        from colander import null
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.serialize(node, val)
-        self.assertEqual(result, '')
+        result = typ.serialize(node, null)
+        self.assertEqual(result, null)
 
     def test_serialize_uncooperative(self):
         val = Uncooperative()

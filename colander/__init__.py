@@ -712,7 +712,7 @@ class String(object):
     
     def serialize(self, node, appstruct):
         if appstruct is null:
-            appstruct = u''
+            return null
             
         try:
             if isinstance(appstruct, unicode):
