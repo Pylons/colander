@@ -26,7 +26,7 @@ the corresponding node should be used instead.
    :meth:`colander.SchemaNode.deserialize` but it should never be
    present in a schema definition and it should never be present in
    the output of a serialization or deserialization.  For example, it
-   is not nreasonable to use the :attr:`colander.default` value itself
+   is not reasonable to use the :attr:`colander.default` value itself
    as the ``default`` or ``missing`` argument to a
    :class:`colander.SchemaNode` constructor.  Passing
    :attr:`colander.default` as the ``default`` or ``missing``
@@ -66,7 +66,7 @@ It is possible to serialize both the default and null values.
 Serializing The :attr:`colander.default` Value
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A node will attempt to serialize its ``default`` attribute during
+A node will attempt to serialize its *default value* during
 :meth:`colander.SchemaNode.serialize` if a value it is provided is
 *unspecified*.  *Unspecified* means:
 
@@ -78,9 +78,9 @@ A node will attempt to serialize its ``default`` attribute during
    key is missing from the mapping in the data structure passed to
    :meth:`colander.SchemaNode.serialize`:
 
-The *default value* of a node is specified during schema creation.
-For example, the ``hair_color`` node below has a default value of
-``brown``:
+The *default value* of a node is specified during schema creation as
+its ``default`` attribute / argument.  For example, the ``hair_color``
+node below has a default value of ``brown``:
 
 .. code-block:: python
 
@@ -200,7 +200,7 @@ itself as a serialization.  For example, when the
 the :attr:`colander.null` value (because null is conceptually neither
 true nor false).  Therefore, when :attr:`colander.null` is used as
 input to serialization, or as the default value of a schema node, it
-is possible that the :attr:`colander.null` value is placed into the
+is possible that the :attr:`colander.null` value will placed into the
 serialized data structure.  The consumer of the serialization must
 anticipate this and deal with the special :attr:`colander.null` value
 in the output however it sees fit.
@@ -303,7 +303,8 @@ a schema, the node will take the following steps:
 
 - If the schema node does *not* have a valid ``missing`` attribute
   (the node's constructor was not supplied with a ``missing`` value),
-  a :exc:`colander.Invalid` exception will be raised.
+  a :exc:`colander.Invalid` exception will be raised with a message
+  indicating that the field is required.
 
 .. note:: There are differences between serialization and
    deserialization involving the :attr:`colander.default` value.
@@ -360,6 +361,8 @@ conceptually neither true nor false).  Therefore, when
 structure.  The consumer of the deserialization must anticipate this
 and deal with the special :attr:`colander.null` value in the output
 however it sees fit.
+
+Note that deserialization of the null value never invokes a validator.
 
 Deserialization Combinations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
