@@ -17,16 +17,18 @@ Next release
 - Raise a ``TypeError`` when bogus keyword arguments are passed to
   ``colander.SchemaNode``.
 
-- Upgrade explanations required: serialization of partial data
-  structures is no longer possible (use ``default=null`` for nullable
-  nodes), ``partial`` argument and attribute of colander.MappingSchema
-  has been removed, ``null`` added to serialization data structure for
-  partials instead of skipping them like before, ``missing``
-  constructor arg to SchemaNode, nulls may be present in serialized
-  and deserialized data structures, ``sdefault`` attribute of
-  SchemaNode has been removed, ``srequired`` attribute of SchemaNode
-  has been added, types must now expect ``colander.default`` as
-  ``value`` during deserialization and serialization instead of None,
+- Upgrade explanations required: ``partial`` argument and attribute of
+  colander.MappingSchema has been removed, ``null`` added to
+  serialization data structure for partials instead of omitting them
+  from output like before, ``missing`` constructor arg to SchemaNode,
+  nulls may be present in serialized and deserialized data structures,
+  ``sdefault`` attribute of SchemaNode has been removed, ``srequired``
+  attribute of SchemaNode has been added, the ``value`` argument to
+  ``deserialize`` is now named ``cstruct``, the ``value`` argument``
+  to ``serialize`` is now named ``appstruct``, types must now expect
+  ``colander.default`` instead of ``None`` during ``serialize`` as
+  ``appstruct``, types must now expect ``colander.default`` instead of
+  ``None`` during ``deserialize`` as ``cstruct``,
   ``colander.SchemaNode.serialize`` and
   ``colander.SchemaNode.deserialize`` now require no explicit value
   argument (value defaults to ``colander.default``), ``allow_empty``
