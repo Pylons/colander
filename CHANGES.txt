@@ -1,8 +1,14 @@
 Changes
 =======
 
-Next release
-------------
+0.7.0
+-----
+
+A release centered around normalizing the treatment of default and
+missing values.
+
+Bug Fixes
+~~~~~~~~~
 
 - Allow ``colander.Regex`` validator to accept a pattern object
   instead of just a string.
@@ -17,6 +23,9 @@ Next release
 - Raise a ``TypeError`` when bogus keyword arguments are passed to
   ``colander.SchemaNode``.
 
+Backwards Incompatiblities / New Features
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 - ``missing`` constructor arg to SchemaNode: signifies
   *deserialization* default, disambiguated from ``default`` which acted
   as both serialization and deserialization default previously.
@@ -29,7 +38,7 @@ Next release
     instead).
 
 - New concept: ``colander.null`` input to serialization and
-  deserialization.  Use of ``colander.null` normalizes serialization
+  deserialization.  Use of ``colander.null`` normalizes serialization
   and deserialization default handling.
 
   Changes necessitated / made possible by ``colander.null`` addition:
@@ -92,7 +101,7 @@ Next release
   older behavior back.  This is in support of Deform.
 
 - The default ``err_template`` value attached to the ``colander.Date``
-  and ``colander.Datetime` types was changed.  It is now simply
+  and ``colander.Datetime`` types was changed.  It is now simply
   ``Invalid date`` instead of ``_('${val} cannot be parsed as an
   iso8601 date: ${err}')``.  This is in support of Deform.
 

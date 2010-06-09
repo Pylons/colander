@@ -59,6 +59,7 @@ internationalizable.
    interfaces.rst
    api.rst
    glossary.rst
+   changes.rst
 
 Indices and tables
 ------------------
