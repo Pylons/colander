@@ -8,8 +8,14 @@ import translationstring
 
 _ = translationstring.TranslationStringFactory('colander')
 
-class _missing(object):
-    pass
+class null(object):
+    def __nonzero__(self):
+        return False
+
+    def __repr__(self):
+        return '<colander.null>'
+
+null = null()
 
 def interpolate(msgs):
     for s in msgs:
@@ -316,14 +322,14 @@ class Mapping(object):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the named keys and values in the mapping.
 
-    The constructor of this type accepts two extra optional keyword
-    arguments that other types do not: ``unknown`` and ``partial``.
-    Attributes of the same name can be set on a type instance to
-    control the behavior after construction.
+    The constructor of this type accepts one extra optional keyword
+    argument that other types do not: ``unknown``.  An attribute of
+    the same name can be set on a type instance to control the
+    behavior after construction.
 
     unknown
-        ``unknown`` controls the behavior of this type when an
-        unknown key is encountered in the value passed to the
+        ``unknown`` controls the behavior of this type when an unknown
+        key is encountered in the cstruct passed to the
         ``deserialize`` method of this instance.  All the potential
         values of ``unknown`` are strings.  They are:
 
@@ -331,32 +337,33 @@ class Mapping(object):
           associated with this type will be ignored during
           deserialization.
 
-        - ``raise`` will cause a :exc:`colander.Invalid` exception to be
-          raised when unknown keys are present during deserialization.
+        - ``raise`` will cause a :exc:`colander.Invalid` exception to
+          be raised when unknown keys are present in the cstruct
+          during deserialization.
 
         - ``preserve`` will preserve the 'raw' unknown keys and values
-          in the returned data structure during deserialization.
+          in the appstruct returned by deserialization.
 
         Default: ``ignore``.
 
-    partial
-        ``partial`` controls the behavior of this type when a
-        schema-expected key is missing from the value passed to the
-        ``deserialize`` method of this instance.
+    Special behavior is exhibited when a subvalue of a mapping is
+    present in the schema but is missing from the mapping passed to
+    either the ``serialize`` or ``deserialize`` method of this class.
+    In this case, the :attr:`colander.null` value will be passed to
+    the ``serialize`` or ``deserialize`` method of the schema node
+    representing the subvalue of the mapping respectively.  During
+    serialization, this will result in the behavior described in
+    :ref:`serializing_null` for the subnode.  During deserialization,
+    this will result in the behavior described in
+    :ref:`deserializing_null` for the subnode.
 
-        During deserialization, when ``partial`` is ``False``, a
-        :exc:`colander.Invalid` exception will be raised if the
-        mapping value does not contain a key specified by the schema
-        node related to this mapping type.  When ``partial`` is
-        ``True``, no exception is raised and a partial mapping will be
-        deserialized.
-
-        Default: ``False``.
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, a dictionary will be returned, where each of
+    the values in the returned dictionary is the serialized
+    representation of the null value for its type.
     """
-
-    def __init__(self, unknown='ignore', partial=False):
+    def __init__(self, unknown='ignore'):
         self.unknown = unknown
-        self.partial = partial
 
     def _set_unknown(self, value):
         if not value in ('ignore', 'raise', 'preserve'):
@@ -379,14 +386,7 @@ class Mapping(object):
                           mapping = {'val':value, 'err':e})
                           )
 
-    def _impl(self, node, value, callback, default_callback, unknown=None,
-              partial=None):
-        if partial is None:
-            partial = self.partial
-
-        if unknown is None:
-            unknown = self.unknown
-
+    def _impl(self, node, value, callback):
         value = self._validate(node, value)
 
         error = None
@@ -394,28 +394,15 @@ class Mapping(object):
 
         for num, subnode in enumerate(node.children):
             name = subnode.name
-            subval = value.pop(name, _missing)
-
+            subval = value.pop(name, null)
             try:
-                if subval is _missing:
-                    if subnode.required:
-                        if not partial:
-                            raise Invalid(
-                                subnode,
-                                _('"${val}" is required but missing',
-                                  mapping={'val':subnode.name})
-                                )
-                        else:
-                            continue
-                    result[name] = default_callback(subnode)
-                else:
-                    result[name] = callback(subnode, subval)
+                result[name] = callback(subnode, subval)
             except Invalid, e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
 
-        if unknown == 'raise':
+        if self.unknown == 'raise':
             if value:
                 raise Invalid(
                     node,
@@ -423,28 +410,29 @@ class Mapping(object):
                       mapping={'val':value})
                     )
 
-        elif unknown == 'preserve':
+        elif self.unknown == 'preserve':
             result.update(value)
 
         if error is not None:
             raise error
                 
         return result
+        
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            appstruct = {}
 
-    def serialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.serialize(subval)
-        def default_callback(subnode):
-            return subnode.serialize(subnode.default)
-        return self._impl(node, value, callback, default_callback,
-                          unknown='ignore', partial=True)
+        def callback(subnode, subappstruct):
+            return subnode.serialize(subappstruct)
 
-    def deserialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.deserialize(subval)
-        def default_callback(subnode):
-            return subnode.default
-        return self._impl(node, value, callback, default_callback)
+        return self._impl(node, appstruct, callback)
+
+    def deserialize(self, node, cstruct):
+
+        def callback(subnode, subcstruct):
+            return subnode.deserialize(subcstruct)
+
+        return self._impl(node, cstruct, callback)
 
 class Positional(object):
     """
@@ -464,6 +452,10 @@ class Tuple(Positional):
     This type is willing to serialize and deserialized iterables that,
     when converted to a tuple, have the same number of elements as the
     number of the associated node's subnodes.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
     """
     def _validate(self, node, value):
         if not hasattr(value, '__iter__'):
@@ -503,15 +495,20 @@ class Tuple(Positional):
 
         return tuple(result)
 
-    def deserialize(self, node, value):
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        def callback(subnode, subappstruct):
+            return subnode.serialize(subappstruct)
+
+        return self._impl(node, appstruct, callback)
+
+    def deserialize(self, node, cstruct):
         def callback(subnode, subval):
             return subnode.deserialize(subval)
-        return self._impl(node, value, callback)
 
-    def serialize(self, node, value):
-        def callback(subnode, subval):
-            return subnode.serialize(subval)
-        return self._impl(node, value, callback)
+        return self._impl(node, cstruct, callback)
 
 class Sequence(Positional):
     """
@@ -537,6 +534,9 @@ class Sequence(Positional):
     and deserialization.
 
     The default value of ``accept_scalar`` is ``False``.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value is returned.
     """
     def __init__(self, accept_scalar=False):
         self.accept_scalar = accept_scalar
@@ -554,10 +554,12 @@ class Sequence(Positional):
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
             accept_scalar = self.accept_scalar
+
         value = self._validate(node, value, accept_scalar)
 
         error = None
         result = []
+
         for num, subval in enumerate(value):
             try:
                 result.append(callback(node.children[0], subval))
@@ -571,18 +573,46 @@ class Sequence(Positional):
 
         return result
 
-    def deserialize(self, node, value, accept_scalar=None):
+    def serialize(self, node, appstruct, accept_scalar=None):
         """
-        Along with the normal ``node`` and ``value`` arguments, this
+        Along with the normal ``node`` and ``appstruct`` arguments,
+        this method accepts an additional optional keyword argument:
+        ``accept_scalar``.  This keyword argument can be used to
+        override the constructor value of the same name.
+
+        If ``accept_scalar`` is ``True`` and the ``appstruct`` does
+        not have an ``__iter__`` method or is a mapping type, the
+        value will be turned into a single element list.
+
+        If ``accept_scalar`` is ``False`` and the ``appstruct`` does
+        not have an ``__iter__`` method or is a mapping type, an
+        :exc:`colander.Invalid` error will be raised during
+        serialization and deserialization.
+
+        The default of ``accept_scalar`` is ``None``, which means
+        respect the default ``accept_scalar`` value attached to this
+        instance via its constructor.
+        """
+        if appstruct is null:
+            return null
+
+        def callback(subnode, subappstruct):
+            return subnode.serialize(subappstruct)
+
+        return self._impl(node, appstruct, callback, accept_scalar)
+
+    def deserialize(self, node, cstruct, accept_scalar=None):
+        """
+        Along with the normal ``node`` and ``cstruct`` arguments, this
         method accepts an additional optional keyword argument:
         ``accept_scalar``.  This keyword argument can be used to
         override the constructor value of the same name.
 
-        If ``accept_scalar`` is ``True`` and the ``value`` does not
+        If ``accept_scalar`` is ``True`` and the ``cstruct`` does not
         have an ``__iter__`` method or is a mapping type, the value
         will be turned into a single element list.
 
-        If ``accept_scalar`` is ``False`` and the value does not have an
+        If ``accept_scalar`` is ``False`` and the ``cstruct`` does not have an
         ``__iter__`` method or is a mapping type, an
         :exc:`colander.Invalid` error will be raised during serialization
         and deserialization.
@@ -591,48 +621,25 @@ class Sequence(Positional):
         respect the default ``accept_scalar`` value attached to this
         instance via its constructor.
         """
-        def callback(subnode, subval):
-            return subnode.deserialize(subval)
-        return self._impl(node, value, callback, accept_scalar)
+        def callback(subnode, subcstruct):
+            return subnode.deserialize(subcstruct)
 
-    def serialize(self, node, value, accept_scalar=None):
-        """
-        Along with the normal ``node`` and ``value`` arguments, this
-        method accepts an additional optional keyword argument:
-        ``accept_scalar``.  This keyword argument can be used to
-        override the constructor value of the same name.
-
-        If ``accept_scalar`` is ``True`` and the ``value`` does not
-        have an ``__iter__`` method or is a mapping type, the value
-        will be turned into a single element list.
-
-        If ``accept_scalar`` is ``False`` and the value does not have an
-        ``__iter__`` method or is a mapping type, an
-        :exc:`colander.Invalid` error will be raised during serialization
-        and deserialization.
-
-        The default of ``accept_scalar`` is ``None``, which means
-        respect the default ``accept_scalar`` value attached to this
-        instance via its constructor.
-        """
-        def callback(subnode, subval):
-            return subnode.serialize(subval)
-        return self._impl(node, value, callback, accept_scalar)
+        return self._impl(node, cstruct, callback, accept_scalar)
 
 Seq = Sequence
 
 class String(object):
     """ A type representing a Unicode string.
 
-    This type constructor accepts a number of arguments:
+    This type constructor accepts one argument:
 
     ``encoding``
        Represents the encoding which should be applied to value
        serialization and deserialization, for example ``utf-8``.  If
        ``encoding`` is passed as ``None``, the ``serialize`` method of
-       this type will not do any special encoding of the value it is
+       this type will not do any special encoding of the appstruct it is
        provided, nor will the ``deserialize`` method of this type do
-       any special decoding of the value it is provided; inputs and
+       any special decoding of the cstruct it is provided; inputs and
        outputs will be assumed to be Unicode.  ``encoding`` defaults
        to ``None``.
 
@@ -677,83 +684,87 @@ class String(object):
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
 
-    ``allow_empty``
-       Boolean representing whether an empty string input to
-       deserialize will be accepted even if the enclosing schema node
-       is required (has no default).  Default: ``False``.
-
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def __init__(self, encoding=None, allow_empty=False):
+    def __init__(self, encoding=None):
         self.encoding = encoding
-        self.allow_empty = allow_empty
     
-    def deserialize(self, node, value):
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+            
         try:
-            if not isinstance(value, unicode):
+            if isinstance(appstruct, unicode):
                 if self.encoding:
-                    value = unicode(str(value), self.encoding)
+                    result = appstruct.encode(self.encoding)
                 else:
-                    value = unicode(value)
-        except Exception, e:
-            raise Invalid(node,
-                          _('${val} is not a string: %{err}',
-                            mapping={'val':value, 'err':e}))
-        if not value and not self.allow_empty:
-            if node.required:
-                raise Invalid(node, _('Required'))
-            value = node.default
-        return value
-
-    def serialize(self, node, value):
-        try:
-            if isinstance(value, unicode):
-                if self.encoding:
-                    result = value.encode(self.encoding)
-                else:
-                    result = value
+                    result = appstruct
             else:
-                if self.encoding:
-                    result = unicode(value, self.encoding).encode(self.encoding)
+                encoding = self.encoding
+                if encoding:
+                    result = unicode(appstruct, encoding).encode(encoding)
                 else:
-                    result = unicode(value)
+                    result = unicode(appstruct)
             return result
         except Exception, e:
             raise Invalid(node,
                           _('"${val} cannot be serialized: ${err}',
-                            mapping={'val':value, 'err':e})
+                            mapping={'val':appstruct, 'err':e})
                           )
+    def deserialize(self, node, cstruct):
+        try:
+            result = cstruct
+            if not isinstance(result, unicode):
+                if self.encoding:
+                    result = unicode(str(cstruct), self.encoding)
+                else:
+                    result = unicode(cstruct)
+        except Exception, e:
+            raise Invalid(node,
+                          _('${val} is not a string: %{err}',
+                            mapping={'val':cstruct, 'err':e}))
+
+        return result
+
 
 Str = String
 
 class Number(object):
     """ Abstract base class for float, int, decimal """
+
     num = None
-    def deserialize(self, node, value):
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
         try:
-            return self.num(value)
+            return str(self.num(appstruct))
         except Exception:
-            if value == '':
-                if node.required:
-                    raise Invalid(node, _('Required'))
-                return node.default
             raise Invalid(node,
                           _('"${val}" is not a number',
-                            mapping={'val':value})
+                            mapping={'val':appstruct}),
+                          )
+    def deserialize(self, node, cstruct):
+        if not cstruct:
+            raise Invalid(node, _('Required'))
+
+        try:
+            return self.num(cstruct)
+        except Exception:
+            raise Invalid(node,
+                          _('"${val}" is not a number',
+                            mapping={'val':cstruct})
                           )
 
-    def serialize(self, node, value):
-        try:
-            return str(self.num(value))
-        except Exception:
-            raise Invalid(node,
-                          _('"${val}" is not a number',
-                            mapping={'val':value}),
-                          )
 
 class Integer(Number):
     """ A type representing an integer.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -765,6 +776,10 @@ Int = Integer
 class Float(Number):
     """ A type representing a float.
 
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -773,6 +788,10 @@ class Float(Number):
 class Decimal(Number):
     """ A type representing a decimal floating point.  Deserialization
     returns an instance of the Python ``decimal.Decimal`` type.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -790,28 +809,33 @@ class Boolean(object):
     Serialization will produce ``true`` or ``false`` based on the
     value.
 
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
     
-    def deserialize(self, node, value):
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        return appstruct and 'true' or 'false'
+
+    def deserialize(self, node, cstruct):
         try:
-            value = str(value)
+            result = str(cstruct)
         except:
             raise Invalid(node,
-                          _('${val} is not a string', mapping={'val':value})
+                          _('${val} is not a string', mapping={'val':cstruct})
                           )
-        if not value:
-            if node.required:
-                raise Invalid(node, _('Required'))
-            return node.default
-        value = value.lower()
-        if value in ('false', '0'):
-            return False
-        return True
+        result = result.lower()
 
-    def serialize(self, node, value):
-        return value and 'true' or 'false'
+        if result in ('false', '0'):
+            return False
+
+        return True
 
 Bool = Boolean
 
@@ -846,6 +870,10 @@ class GlobalObject(object):
     package name is supplied to ``deserialize``, and no ``package``
     was supplied to the constructor, an :exc:`colander.Invalid` error
     will be raised.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
@@ -909,28 +937,32 @@ class GlobalObject(object):
 
         return found
 
-    def deserialize(self, node, value):
-        if not isinstance(value, basestring):
-            raise Invalid(node,
-                          _('"${val}" is not a string', mapping={'val':value}))
-        try:
-            if ':' in value:
-                return self._pkg_resources_style(node, value)
-            else:
-                return self._zope_dottedname_style(node, value)
-        except ImportError:
-            raise Invalid(node,
-                          _('The dotted name "${name}" cannot be imported',
-                            mapping={'name':value}))
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
 
-    def serialize(self, node, value):
         try:
-            return value.__name__
+            return appstruct.__name__
         except AttributeError:
             raise Invalid(node,
                           _('"${val}" has no __name__',
-                            mapping={'val':value})
+                            mapping={'val':appstruct})
                           )
+    def deserialize(self, node, cstruct):
+        if not isinstance(cstruct, basestring):
+            raise Invalid(node,
+                          _('"${val}" is not a string',
+                            mapping={'val':cstruct}))
+        try:
+            if ':' in cstruct:
+                return self._pkg_resources_style(node, cstruct)
+            else:
+                return self._zope_dottedname_style(node, cstruct)
+        except ImportError:
+            raise Invalid(node,
+                          _('The dotted name "${name}" cannot be imported',
+                            mapping={'name':cstruct}))
+
 
 class DateTime(object):
     """ A type representing a Python ``datetime.datetime`` object.
@@ -969,6 +1001,10 @@ class DateTime(object):
     does so by using midnight of the day as the time, and uses the
     ``default_tzinfo`` to give the serialization a timezone.
 
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -979,29 +1015,34 @@ class DateTime(object):
             default_tzinfo = iso8601.iso8601.Utc()
         self.default_tzinfo = default_tzinfo
         
-    def serialize(self, node, value):
-        if type(value) is datetime.date: # cant use isinstance; dt subs date
-            value = datetime.datetime.combine(value, datetime.time())
-        if not isinstance(value, datetime.datetime):
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        if type(appstruct) is datetime.date: # cant use isinstance; dt subs date
+            appstruct = datetime.datetime.combine(appstruct, datetime.time())
+
+        if not isinstance(appstruct, datetime.datetime):
             raise Invalid(node,
                           _('"${val}" is not a datetime object',
-                            mapping={'val':value})
+                            mapping={'val':appstruct})
                           )
-        if value.tzinfo is None:
-            value = value.replace(tzinfo=self.default_tzinfo)
-        return value.isoformat()
 
-    def deserialize(self, node, value):
+        if appstruct.tzinfo is None:
+            appstruct = appstruct.replace(tzinfo=self.default_tzinfo)
+        return appstruct.isoformat()
+
+    def deserialize(self, node, cstruct):
         try:
-            result = iso8601.parse_date(value)
+            result = iso8601.parse_date(cstruct)
         except (iso8601.ParseError, TypeError), e:
             try:
-                year, month, day = map(int, value.split('-', 2))
+                year, month, day = map(int, cstruct.split('-', 2))
                 result = datetime.datetime(year, month, day,
                                            tzinfo=self.default_tzinfo)
             except Exception, e:
                 raise Invalid(node, _(self.err_template,
-                                      mapping={'val':value, 'err':e}))
+                                      mapping={'val':cstruct, 'err':e}))
         return result
 
 class Date(object):
@@ -1036,36 +1077,43 @@ class Date(object):
     time information related to the serialized value during
     deserialization.
 
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     err_template =  _('Invalid date')
-    def serialize(self, node, value):
-        if isinstance(value, datetime.datetime):
-            value = value.date()
-        if not isinstance(value, datetime.date):
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        if isinstance(appstruct, datetime.datetime):
+            appstruct = appstruct.date()
+
+        if not isinstance(appstruct, datetime.date):
             raise Invalid(node,
                           _('"${val}" is not a date object',
-                            mapping={'val':value})
+                            mapping={'val':appstruct})
                           )
-        return value.isoformat()
 
-    def deserialize(self, node, value):
-        if not value:
-            if node.required:
-                raise Invalid(node, _('Required'))
-            return node.default
+        return appstruct.isoformat()
+
+    def deserialize(self, node, cstruct):
         try:
-            result = iso8601.parse_date(value)
+            result = iso8601.parse_date(cstruct)
             result = result.date()
         except (iso8601.ParseError, TypeError):
             try:
-                year, month, day = map(int, value.split('-', 2))
+                year, month, day = map(int, cstruct.split('-', 2))
                 result = datetime.date(year, month, day)
             except Exception, e:
                 raise Invalid(node,
                               _(self.err_template,
-                                mapping={'val':value, 'err':e})
+                                mapping={'val':cstruct, 'err':e})
                               )
         return result
 
@@ -1073,7 +1121,7 @@ class SchemaNode(object):
     """
     Fundamental building block of schemas.
 
-    The constructor accepts these arguments:
+    The constructor accepts these positional arguments:
 
     - ``typ`` (required): The 'type' for this node.  It should be an
       instance of a class that implements the
@@ -1083,11 +1131,18 @@ class SchemaNode(object):
       node are not known at construction time, they can later be added
       via the ``add`` method.
 
+    The constructor accepts these keyword arguments:
+
     - ``name``: The name of this node.
 
-    - ``default``: The default value for this node; if it is not
-      provided, this node has no default value and it will be
-      considered 'required' (the ``required`` attribute will be True).
+    - ``default``: The default serialization value for this node.
+      Default: :attr:`colander.null`.
+
+    - ``missing``: The default deserialization value for this node.
+      If it is not provided, the missing value of this node will be
+      :attr:`colander.null`, indicating that it is considered
+      'required' (the ``required`` computed attribute will be
+      ``True``).
 
     - ``validator``: Optional validator for this node.  It should be
       an object that implements the
@@ -1098,7 +1153,7 @@ class SchemaNode(object):
       by Colander itself).
 
     - ``description``: The description for this node.  Defaults to
-      ``''`` (the emtpty string).  The description is used by
+      ``''`` (the empty string).  The description is used by
       higher-level systems (not by Colander itself).
 
     """
@@ -1113,7 +1168,8 @@ class SchemaNode(object):
     def __init__(self, typ, *children, **kw):
         self.typ = typ
         self.validator = kw.pop('validator', None)
-        self.default = kw.pop('default', _missing)
+        self.default = kw.pop('default', null)
+        self.missing = kw.pop('missing', null)
         self.name = kw.pop('name', '')
         self.title = kw.pop('title', self.name.capitalize())
         self.description = kw.pop('description', '')
@@ -1122,36 +1178,72 @@ class SchemaNode(object):
         self.children = list(children)
 
     def __repr__(self):
-        return '<%s object at %x named %r>' % (self.__class__.__name__,
-                                               id(self),
-                                               self.name)
+        return '<%s.%s object at %d (named %s)>' % (
+            self.__module__,
+            self.__class__.__name__,
+            id(self),
+            self.name,
+            )
 
     @property
     def required(self):
-        """ Property which returns true if this node is required in the
-        schema """
-        return self.default is _missing
+        """ A property which returns ``True`` if the ``missing`` value
+        related to this node is the :attr:`colander.null` sentinel
+        value.
 
-    @property
-    def sdefault(self):
-        """ Return the *serialized* default of the node default or
-        ``None`` if there is no default."""
-        if self.default is _missing:
-            return None
-        return self.typ.serialize(self, self.default)
+        A return value of ``True`` implies that a ``missing`` value
+        wasn't specified for this node.  A return value of ``False``
+        implies that a ``missing`` value was specified for this node."""
+        return self.missing is null
 
-    def deserialize(self, value):
-        """ Deserialize the value based on the schema represented by
-        this node. """
-        value = self.typ.deserialize(self, value)
+    def serialize(self, appstruct=null):
+        """ Serialize the :term:`appstruct` to a :term:`cstruct` based
+        on the schema represented by this node and return the
+        cstruct.
+
+        If ``appstruct`` is :attr:`colander.null`, return the
+        serialized value of this node's ``default`` attribute (by
+        default, the serialization of :attr:`colander.null`).
+
+        If an ``appstruct`` argument is not explicitly provided, it
+        defaults to :attr:`colander.null`.
+        """
+
+        if appstruct is null:
+            appstruct = self.default
+        cstruct = self.typ.serialize(self, appstruct)
+        return cstruct
+
+    def deserialize(self, cstruct=null):
+        """ Deserialize and validate the :term:`cstruct` into an
+        :term:`appstruct` based on the schema, and return the
+        deserialized, validated appstruct.  If the cstruct cannot be
+        validated, a :exc:`colander.Invalid` exception will be raised.
+
+        If ``cstruct`` is :attr:`colander.null`, do something special:
+
+        - If the ``missing`` attribute of this node has been set
+          explicitly, return its value.  No deserialization or
+          validation of this value is performed; it is simply
+          returned.
+
+        - If the ``missing`` attribute of this node has not been set
+          explicitly, raise a :exc:`colander.Invalid` exception error.
+
+        If a ``cstruct`` argument is not explicitly provided, it
+        defaults to :attr:`colander.null`.
+        """
+        if cstruct is null:
+            appstruct = self.missing
+            if appstruct is null:
+                raise Invalid(self, _('Required'))
+            # We never deserialize or validate the missing value
+            return appstruct
+
+        appstruct = self.typ.deserialize(self, cstruct)
         if self.validator is not None:
-            self.validator(self, value)
-        return value
-
-    def serialize(self, value):
-        """ Serialize the value based on the schema represented by
-        this node."""
-        return self.typ.serialize(self, value)
+            self.validator(self, appstruct)
+        return appstruct
 
     def add(self, node):
         """ Add a subnode to this node. """

@@ -17,6 +17,69 @@ Next release
 - Raise a ``TypeError`` when bogus keyword arguments are passed to
   ``colander.SchemaNode``.
 
+- ``missing`` constructor arg to SchemaNode: signifies
+  *deserialization* default, disambiguated from ``default`` which acted
+  as both serialization and deserialization default previously.
+
+  Changes necessitated / made possible by SchemaNode ``missing``
+  addition:
+
+  - The ``allow_empty`` argument of the ``colander.String`` type was
+    removed (use ``missing=''`` as a wrapper SchemaNode argument
+    instead).
+
+- New concept: ``colander.null`` input to serialization and
+  deserialization.  Use of ``colander.null` normalizes serialization
+  and deserialization default handling.
+
+  Changes necessitated / made possible by ``colander.null`` addition:
+
+  - ``partial`` argument and attribute of colander.MappingSchema has
+     been removed; all serializations are partial, and partial
+     deserializations are not necessary.
+
+  - ``colander.null`` values are added to the cstruct for partial
+     serializations instead of omitting missing node values from
+     the cstruct.
+
+  - ``colander.null`` may now be present in serialized and
+     deserialized data structures.
+
+  - ``sdefault`` attribute of SchemaNode has been removed; we never need
+    to serialize a default anymore.
+
+  - The value ``colander.null`` will be passed as ``appstruct`` to
+    each type's ``serialize`` method when a mapping appstruct doesn't
+    have a corresponding key instead of ``None``, as was the practice
+    previously.
+
+  - The value ``colander.null`` will be passed as ``cstruct`` to
+    each type's ``deserialize`` method when a mapping cstruct
+    doesn't have a corresponding key instead of ``None``, as was the
+    practice previously.
+
+  - Types now must handle ``colander.null`` explicitly during
+    serialization.
+
+- Updated and expanded documentation, particularly with respect to new
+  ``colander.null`` handling.
+
+- The ``value`` argument`` to the ``serialize`` method of a SchemaNode
+  is now named ``appstruct``.  It is no longer a required argument; it
+  defaults to ``colander.null`` now.
+
+  The ``value`` argument to the ``deserialize`` method of a SchemaNode
+  is now named ``cstruct``.  It is no longer a required argument; it
+  defaults to ``colander.null`` now.
+
+- The ``value`` argument to the ``serialize`` method of each built-in
+  type is now named ``appstruct``, and is now required: it is no
+  longer a keyword argument that has a default.
+
+  The ``value`` argument to the ``deserialize`` method of each
+  built-in type is now named ``cstruct``, and is now required: it is
+  no longer a keyword argument that has a default.
+
 0.6.2 (2010-05-08)
 ------------------
 

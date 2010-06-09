@@ -374,6 +374,7 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(len(e.children), 2)
 
     def test_deserialize_subnode_missing_default(self):
+        import colander
         node = DummySchemaNode(None)
         node.children = [
             DummySchemaNode(None, name='a'),
@@ -381,28 +382,15 @@ class TestMapping(unittest.TestCase):
             ]
         typ = self._makeOne()
         result = typ.deserialize(node, {'a':1})
-        self.assertEqual(result, {'a':1, 'b':'abc'})
+        self.assertEqual(result, {'a':1, 'b':colander.null})
 
-    def test_deserialize_subnode_missing_nodefault(self):
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
         node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b'),
-            ]
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, {'a':1})
-        self.assertEqual(e.children[0].msg.interpolate(),
-                         '"b" is required but missing')
-
-    def test_deserialize_subnode_partial(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b'),
-            ]
-        typ = self._makeOne(partial=True)
-        result = typ.deserialize(node, {'a':1})
-        self.assertEqual(result, {'a':1})
+        result = typ.serialize(node, val)
+        self.assertEqual(result, {})
 
     def test_serialize_not_a_mapping(self):
         node = DummySchemaNode(None)
@@ -424,26 +412,6 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
 
-    def test_serialize_subnode_partial(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b'),
-            ]
-        typ = self._makeOne()
-        result = typ.serialize(node, {'a':1})
-        self.assertEqual(result, {'a':1})
-
-    def test_serialize_partial_with_default(self):
-        node = DummySchemaNode(None)
-        node.children = [
-            DummySchemaNode(None, name='a'),
-            DummySchemaNode(None, name='b', default='abc'),
-            ]
-        typ = self._makeOne()
-        result = typ.serialize(node, {'a':1})
-        self.assertEqual(result, {'a':1, 'b':'abc'})
-
     def test_serialize_with_unknown(self):
         node = DummySchemaNode(None)
         node.children = [
@@ -452,6 +420,14 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         result = typ.serialize(node, {'a':1, 'b':2})
         self.assertEqual(result, {'a':1})
+
+    def test_serialize_value_is_null(self):
+        node = DummySchemaNode(None)
+        from colander import null
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        result = typ.serialize(node, null)
+        self.assertEqual(result, {'a':null})
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
@@ -506,6 +482,13 @@ class TestTuple(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
+
+    def test_serialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, colander.null)
+        self.assertEqual(result, colander.null)
 
     def test_serialize_not_iterable(self):
         node = DummySchemaNode(None)
@@ -607,6 +590,13 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
+    def test_serialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, colander.null)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_not_iterable(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -647,18 +637,18 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(len(e.children), 2)
 
 class TestString(unittest.TestCase):
-    def _makeOne(self, encoding=None, allow_empty=False):
+    def _makeOne(self, encoding=None):
         from colander import String
-        return String(encoding, allow_empty)
+        return String(encoding)
 
     def test_alias(self):
         from colander import Str
         from colander import String
         self.assertEqual(Str, String)
 
-    def test_deserialize_emptystring_allow_empty(self):
+    def test_deserialize_emptystring(self):
         node = DummySchemaNode(None)
-        typ = self._makeOne(None, True)
+        typ = self._makeOne(None)
         result = typ.deserialize(node, '')
         self.assertEqual(result, '')
 
@@ -699,19 +689,12 @@ class TestString(unittest.TestCase):
         result = typ.deserialize(node, utf16)
         self.assertEqual(result, uni)
 
-    def test_serialize_emptystring_required(self):
-        val = ''
+    def test_serialize_null(self):
+        from colander import null
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, val)
-        self.assertEqual(e.msg, 'Required')
-
-    def test_serialize_emptystring_notrequired(self):
-        val = ''
-        node = DummySchemaNode(None, default='default')
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, 'default')
+        result = typ.serialize(node, null)
+        self.assertEqual(result, null)
 
     def test_serialize_uncooperative(self):
         val = Uncooperative()
@@ -767,19 +750,20 @@ class TestInteger(unittest.TestCase):
         from colander import Integer
         self.assertEqual(Int, Integer)
 
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_emptystring_required(self):
         val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, val)
         self.assertEqual(e.msg, 'Required')
-
-    def test_serialize_emptystring_notrequired(self):
-        val = ''
-        node = DummySchemaNode(None, default='default')
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, 'default')
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -814,19 +798,20 @@ class TestFloat(unittest.TestCase):
         from colander import Float
         return Float()
 
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_emptystring_required(self):
         val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, val)
         self.assertEqual(e.msg, 'Required')
-
-    def test_serialize_emptystring_notrequired(self):
-        val = ''
-        node = DummySchemaNode(None, default='default')
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, 'default')
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -861,19 +846,20 @@ class TestDecimal(unittest.TestCase):
         from colander import Decimal
         return Decimal()
 
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_emptystring_required(self):
         val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, val)
         self.assertEqual(e.msg, 'Required')
-
-    def test_serialize_emptystring_notrequired(self):
-        val = ''
-        node = DummySchemaNode(None, default='default')
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, 'default')
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -914,19 +900,13 @@ class TestBoolean(unittest.TestCase):
         from colander import Boolean
         self.assertEqual(Bool, Boolean)
 
-    def test_serialize_emptystring_required(self):
-        val = ''
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, val)
-        self.assertEqual(e.msg, 'Required')
-
-    def test_serialize_emptystring_notrequired(self):
-        val = ''
-        node = DummySchemaNode(None, default='default')
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, 'default')
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
 
     def test_deserialize(self):
         typ = self._makeOne()
@@ -970,13 +950,15 @@ class TestGlobalObject(unittest.TestCase):
     def test__zope_dottedname_style_resolve_relative(self):
         import colander
         typ = self._makeOne(package=colander)
-        result = typ._zope_dottedname_style(None, '.tests.TestGlobalObject')
+        node = DummySchemaNode(None)
+        result = typ._zope_dottedname_style(node, '.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__zope_dottedname_style_resolve_relative_leading_dots(self):
         import colander
         typ = self._makeOne(package=colander.tests)
-        result = typ._zope_dottedname_style(None, '..tests.TestGlobalObject')
+        node = DummySchemaNode(None)
+        result = typ._zope_dottedname_style(node, '..tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__zope_dottedname_style_resolve_relative_is_dot(self):
@@ -1066,34 +1048,48 @@ class TestGlobalObject(unittest.TestCase):
 
     def test_deserialize_not_a_string(self):
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, None, None)
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.deserialize, node, None)
         self.assertEqual(e.msg.interpolate(), '"None" is not a string')
 
     def test_deserialize_using_pkgresources_style(self):
         typ = self._makeOne()
-        result = typ.deserialize(None, 'colander.tests:TestGlobalObject')
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, 'colander.tests:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_deserialize_using_zope_dottedname_style(self):
         typ = self._makeOne()
-        result = typ.deserialize(None, 'colander.tests.TestGlobalObject')
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, 'colander.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_deserialize_style_raises(self):
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, None, 'cant.be.found')
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.deserialize, node, 'cant.be.found')
         self.assertEqual(e.msg.interpolate(),
                          'The dotted name "cant.be.found" cannot be imported')
+
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
 
     def test_serialize_ok(self):
         import colander.tests
         typ = self._makeOne()
-        result = typ.serialize(None, colander.tests)
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
         
     def test_serialize_fail(self):
         typ = self._makeOne()
-        e = invalid_exc(typ.serialize, None, None)
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.serialize, node, None)
         self.assertEqual(e.msg.interpolate(), '"None" has no __name__')
 
 class TestDateTime(unittest.TestCase):
@@ -1119,6 +1115,14 @@ class TestDateTime(unittest.TestCase):
         tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         typ = self._makeOne(default_tzinfo=tzinfo)
         self.assertEqual(typ.default_tzinfo, tzinfo)
+
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
 
     def test_serialize_with_garbage(self):
         typ = self._makeOne()
@@ -1199,6 +1203,14 @@ class TestDate(unittest.TestCase):
         import datetime
         return datetime.date.today()
 
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_with_garbage(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1233,20 +1245,6 @@ class TestDate(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, '10-10-10-10')
         self.failUnless('Invalid' in e.msg)
 
-    def test_deserialize_empty_required(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, '')
-        self.failUnless('Required' in e.msg)
-
-    def test_deserialize_empty_notrequired(self):
-        node = DummySchemaNode(None)
-        node.default = 'abc'
-        node.required = False
-        typ = self._makeOne()
-        result = typ.deserialize(node, None)
-        self.assertEqual(result, 'abc')
-
     def test_deserialize_success_date(self):
         typ = self._makeOne()
         date = self._today()
@@ -1273,16 +1271,15 @@ class TestSchemaNode(unittest.TestCase):
         self.failUnless(hasattr(node, '_order'))
 
     def test_ctor_no_title(self):
-        node = self._makeOne(None, 0, validator=1, default=2, name='name')
+        node = self._makeOne(None, 0, validator=1, default=2, name='name',
+                             missing='missing')
         self.assertEqual(node.typ, None)
         self.assertEqual(node.children, [0])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
+        self.assertEqual(node.missing, 'missing')
         self.assertEqual(node.name, 'name')
         self.assertEqual(node.title, 'Name')
-
-    def test_ctor_with_bad_kwarg(self):
-        self.assertRaises(TypeError, self._makeOne, None, 0, foo=1)
 
     def test_ctor_with_title(self):
         node = self._makeOne(None, 0, validator=1, default=2, name='name',
@@ -1299,22 +1296,16 @@ class TestSchemaNode(unittest.TestCase):
                              title='title', description='desc')
         self.assertEqual(node.description, 'desc')
 
+    def test_ctor_with_bad_kwarg(self):
+        self.assertRaises(TypeError, self._makeOne, None, 0, foo=1)
+
     def test_required_true(self):
         node = self._makeOne(None)
         self.assertEqual(node.required, True)
 
     def test_required_false(self):
-        node = self._makeOne(None, default=1)
+        node = self._makeOne(None, missing=1)
         self.assertEqual(node.required, False)
-
-    def test_sdefault_missing(self):
-        node = self._makeOne(None)
-        self.assertEqual(node.sdefault, None)
-
-    def test_sdefault_not_missing(self):
-        typ = DummyType()
-        node = self._makeOne(typ, default=1)
-        self.assertEqual(node.sdefault, 1)
 
     def test_deserialize_no_validator(self):
         typ = DummyType()
@@ -1329,11 +1320,52 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
+    def test_deserialize_value_is_null_no_missing(self):
+        from colander import null
+        from colander import Invalid
+        typ = DummyType()
+        node = self._makeOne(typ)
+        self.assertRaises(Invalid, node.deserialize, null)
+
+    def test_deserialize_value_is_null_with_missing(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = 'abc'
+        self.assertEqual(node.deserialize(null), 'abc')
+
+    def test_deserialize_noargs_uses_default(self):
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = 'abc'
+        self.assertEqual(node.deserialize(), 'abc')
+
     def test_serialize(self):
         typ = DummyType()
         node = self._makeOne(typ)
         result = node.serialize(1)
         self.assertEqual(result, 1)
+
+    def test_serialize_value_is_null_no_default(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ)
+        result = node.serialize(null)
+        self.assertEqual(result, null)
+
+    def test_serialize_value_is_null_with_default(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.default = 1
+        result = node.serialize(null)
+        self.assertEqual(result, 1)
+
+    def test_serialize_noargs_uses_default(self):
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.default = 'abc'
+        self.assertEqual(node.serialize(), 'abc')
 
     def test_add(self):
         node = self._makeOne(None)
@@ -1343,8 +1375,8 @@ class TestSchemaNode(unittest.TestCase):
     def test_repr(self):
         node = self._makeOne(None, name='flub')
         result = repr(node)
-        self.failUnless(result.startswith('<SchemaNode object at '))
-        self.failUnless(result.endswith("named 'flub'>"))
+        self.failUnless(result.startswith('<colander.SchemaNode object at '))
+        self.failUnless(result.endswith("(named flub)>"))
 
     def test___getitem__success(self):
         node = self._makeOne(None)
@@ -1547,6 +1579,7 @@ class TestImperative(unittest.TestCase, TestFunctional):
 
         return schema
 
+
 class TestDeclarative(unittest.TestCase, TestFunctional):
     
     def _makeSchema(self):
@@ -1577,6 +1610,15 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
 
         schema = MainSchema()
         return schema
+
+class Test_null(unittest.TestCase):
+    def test___nonzero__(self):
+        from colander import null
+        self.failIf(null)
+
+    def test___repr__(self):
+        from colander import null
+        self.assertEqual(repr(null), '<colander.null>')
 
 class Dummy(object):
     pass
