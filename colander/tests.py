@@ -326,13 +326,6 @@ class TestMapping(unittest.TestCase):
         except ValueError, e: # pragma: no cover
             raise AssertionError(e)
 
-    def test_deserialize_null(self):
-        from colander import null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, null)
-        self.assertEqual(result, null)
-
     def test_deserialize_not_a_mapping(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -352,14 +345,6 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         result = typ.deserialize(node, {'a':1})
         self.assertEqual(result, {'a':1})
-
-    def test_deserialize_value_is_null(self):
-        node = DummySchemaNode(None)
-        from colander import null
-        node.children = [DummySchemaNode(None, name='a')]
-        typ = self._makeOne()
-        result = typ.deserialize(node, null)
-        self.assertEqual(result, null)
 
     def test_deserialize_unknown_raise(self):
         node = DummySchemaNode(None)
@@ -397,7 +382,7 @@ class TestMapping(unittest.TestCase):
             ]
         typ = self._makeOne()
         result = typ.deserialize(node, {'a':1})
-        self.assertEqual(result, {'a':1, 'b':colander.default})
+        self.assertEqual(result, {'a':1, 'b':colander.null})
 
     def test_serialize_null(self):
         import colander
@@ -439,23 +424,15 @@ class TestMapping(unittest.TestCase):
     def test_serialize_value_is_null(self):
         node = DummySchemaNode(None)
         from colander import null
-        from colander import default
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne()
         result = typ.serialize(node, null)
-        self.assertEqual(result, {'a':default})
+        self.assertEqual(result, {'a':null})
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
         from colander import Tuple
         return Tuple()
-
-    def test_deserialize_null(self):
-        import colander
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, colander.null)
-        self.assertEqual(result, colander.null)
 
     def test_deserialize_not_iterable(self):
         node = DummySchemaNode(None)
@@ -573,13 +550,6 @@ class TestSequence(unittest.TestCase):
         from colander import Sequence
         self.assertEqual(Seq, Sequence)
 
-    def test_deserialize_null(self):
-        import colander
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, colander.null)
-        self.assertEqual(result, colander.null)
-
     def test_deserialize_not_iterable(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -681,13 +651,6 @@ class TestString(unittest.TestCase):
         typ = self._makeOne(None)
         result = typ.deserialize(node, '')
         self.assertEqual(result, '')
-
-    def test_deserialize_null(self):
-        from colander import null
-        node = DummySchemaNode(None)
-        typ = self._makeOne(None)
-        result = typ.deserialize(node, null)
-        self.assertEqual(result, null)
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
@@ -816,14 +779,6 @@ class TestInteger(unittest.TestCase):
         result = typ.deserialize(node, val)
         self.assertEqual(result, 1)
 
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
-
     def test_serialize_fails(self):
         val = 'P'
         node = DummySchemaNode(None)
@@ -871,14 +826,6 @@ class TestFloat(unittest.TestCase):
         typ = self._makeOne()
         result = typ.deserialize(node, val)
         self.assertEqual(result, 1.0)
-
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
 
     def test_serialize_fails(self):
         val = 'P'
@@ -929,14 +876,6 @@ class TestDecimal(unittest.TestCase):
         result = typ.deserialize(node, val)
         self.assertEqual(result, decimal.Decimal('1.0'))
 
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
-
     def test_serialize_fails(self):
         val = 'P'
         node = DummySchemaNode(None)
@@ -983,14 +922,6 @@ class TestBoolean(unittest.TestCase):
         node = DummySchemaNode(None)
         e = invalid_exc(typ.deserialize, node, Uncooperative())
         self.failUnless(e.msg.endswith('not a string'))
-
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
 
     def test_serialize(self):
         typ = self._makeOne()
@@ -1115,14 +1046,6 @@ class TestGlobalObject(unittest.TestCase):
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
                           ':notexisting')
 
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
-
     def test_deserialize_not_a_string(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1237,14 +1160,6 @@ class TestDateTime(unittest.TestCase):
         expected = dt.isoformat()
         self.assertEqual(result, expected)
 
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
-
     def test_deserialize_date(self):
         import datetime
         import iso8601
@@ -1317,14 +1232,6 @@ class TestDate(unittest.TestCase):
         result = typ.serialize(node, dt)
         expected = dt.date().isoformat()
         self.assertEqual(result, expected)
-
-    def test_deserialize_null(self):
-        import colander
-        val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.deserialize(node, val)
-        self.assertEqual(result, colander.null)
 
     def test_deserialize_invalid_ParseError(self):
         node = DummySchemaNode(None)
@@ -1400,10 +1307,6 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, missing=1)
         self.assertEqual(node.required, False)
 
-    def test_srequired_false(self):
-        node = self._makeOne(None, default=1)
-        self.assertEqual(node.srequired, False)
-
     def test_deserialize_no_validator(self):
         typ = DummyType()
         node = self._makeOne(typ)
@@ -1417,35 +1320,19 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
-    def test_deserialize_value_is_default_no_missing(self):
+    def test_deserialize_value_is_null_no_missing(self):
+        from colander import null
+        from colander import Invalid
         typ = DummyType()
         node = self._makeOne(typ)
-        from colander import default
-        from colander import Invalid
-        self.assertRaises(Invalid, node.deserialize, default)
+        self.assertRaises(Invalid, node.deserialize, null)
 
-    def test_deserialize_value_is_default_with_missing(self):
+    def test_deserialize_value_is_null_with_missing(self):
+        from colander import null
         typ = DummyType()
         node = self._makeOne(typ)
         node.missing = 'abc'
-        from colander import default
-        self.assertEqual(node.deserialize(default), 'abc')
-
-    def test_deserialize_value_is_default_with_missing_null(self):
-        from colander import null
-        from colander import default
-        typ = DummyType()
-        node = self._makeOne(typ)
-        node.missing = null
-        self.assertEqual(node.deserialize(default), null)
-
-    def test_deserialize_value_is_null_validator_not_used(self):
-        from colander import null
-        typ = DummyType()
-        validator = DummyValidator(msg='Wrong')
-        node = self._makeOne(typ, validator=validator)
-        value = node.deserialize(null)
-        self.assertEqual(value, null)
+        self.assertEqual(node.deserialize(null), 'abc')
 
     def test_deserialize_noargs_uses_default(self):
         typ = DummyType()
@@ -1459,20 +1346,19 @@ class TestSchemaNode(unittest.TestCase):
         result = node.serialize(1)
         self.assertEqual(result, 1)
 
-    def test_serialize_value_is_default_no_default(self):
+    def test_serialize_value_is_null_no_default(self):
+        from colander import null
         typ = DummyType()
         node = self._makeOne(typ)
-        from colander import default
-        from colander import null
-        result = node.serialize(default)
+        result = node.serialize(null)
         self.assertEqual(result, null)
 
-    def test_serialize_value_is_default_with_default(self):
+    def test_serialize_value_is_null_with_default(self):
+        from colander import null
         typ = DummyType()
         node = self._makeOne(typ)
         node.default = 1
-        from colander import default
-        result = node.serialize(default)
+        result = node.serialize(null)
         self.assertEqual(result, 1)
 
     def test_serialize_noargs_uses_default(self):
@@ -1725,12 +1611,6 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
         schema = MainSchema()
         return schema
 
-class Test_default(unittest.TestCase):
-    def test___repr__(self):
-        from colander import default
-        self.assertEqual(repr(default), '<colander.default>')
-    
-
 class Test_null(unittest.TestCase):
     def test___nonzero__(self):
         from colander import null
@@ -1739,11 +1619,6 @@ class Test_null(unittest.TestCase):
     def test___repr__(self):
         from colander import null
         self.assertEqual(repr(null), '<colander.null>')
-
-class Test__marker(unittest.TestCase):
-    def test___repr__(self):
-        from colander import _marker
-        self.assertEqual(repr(_marker), '<MISSING>')
 
 class Dummy(object):
     pass

@@ -112,4 +112,5 @@ Schema-Related
 
   .. autoclass:: SequenceSchema
 
+  .. attribute:: null
 

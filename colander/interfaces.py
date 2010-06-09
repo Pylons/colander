@@ -1,54 +1,47 @@
-def Validator(struct, value):
+def Validator(node, value):
     """
     A validator is called after deserialization of a value.
     
     If ``value`` is not valid, raise a :class:`colander.Invalid`
     instance as an exception after.
 
-    ``struct`` is a :class:`colander.Structure` instance which
-    contains, among other things, the default value, the name of the
-    value, and a ``required`` flag indicating whether this value is
-    required.  It is often ignored in simple validators.
+    ``node`` is a :class:`colander.SchemaNode` instance, for use when
+    raising a :class:`colander.Invalid` exception.
     """
 
 class Type(object):
-    def serialize(self, struct, value):
+    def serialize(self, node, appstruct):
         """
-        Serialize the object represented by ``value`` to a
-        data structure.  The serialization should be composed of one or
-        more objects which can be deserialized by the
+        Serialize the :term:`appstruct` represented by ``appstruct``
+        to a :term:`cstruct`.  The serialization should be composed of
+        one or more objects which can be deserialized by the
         :meth:`colander.interfaces.Type.deserialize` method of this
         type.
 
-        This method should also do type validation of ``value``.
+        ``node`` is a :class:`colander.SchemaNode` instance.
 
-        ``struct`` is a :class:`colander.Structure` instance which
-        contains, among other things, the default value, the name of
-        the value, and a ``required`` flag indicating whether this
-        value is required.
+        ``appstruct`` is an :term:`appstruct`.
 
-        If the object cannot be serialized, or type validation for
-        ``value`` fails, a :exc:`colander.Invalid` exception should be
-        raised.
+        If ``appstruct`` is the special value :attr:`colander.null`,
+        the type should serialize a null value.
+
+        If the object cannot be serialized for any reason, a
+        :exc:`colander.Invalid` exception should be raised.
         """
 
-    def deserialize(self, struct, value):
+    def deserialize(self, node, cstruct):
         """
-        Deserialze the serialization represented by ``value`` to a
-        data structure.  The deserialization should be composed of one
-        or more objects which can be serialized by the
+        Deserialze the :term:`cstruct` represented by ``cstruct`` to
+        an :term:`appstruct`.  The deserialization should be composed
+        of one or more objects which can be serialized by the
         :meth:`colander.interfaces.Type.serialize` method of this
         type.
 
-        This method should also do type validation of ``value``.
+        ``node`` is a :class:`colander.SchemaNode` instance.
 
-        ``struct`` is a :class:`colander.Structure` instance which
-        contains, among other things, the default value, the name of
-        the value, and a ``required`` flag indicating whether this
-        value is required.
+        ``cstruct`` is a :term:`cstruct`.
 
-        If the object cannot be deserialized, or type validation for
-        ``value`` fails, a :exc:`colander.Invalid` exception should be
-        raised.
+        If the object cannot be deserialized for any reason, a
+        :exc:`colander.Invalid` exception should be raised.
         """
         

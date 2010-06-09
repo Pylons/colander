@@ -109,11 +109,11 @@ serialization.  It should be the deserialized representation.  If a
 schema node does not have a default, it is considered "serialization
 required".
 
-The *missing* of a schema node indicates the value to be deserialized
-if a value for the schema node is not found in the input data during
-deserialization.  It should be the deserialized representation.  If a
-schema node does not have a default, it is considered "deserialization
-required".
+The *missing* of a schema node indicates the value if a value for the
+schema node is not found in the input data during deserialization.  It
+should be the deserialized representation.  If a schema node does not
+have a default, it is considered "deserialization required".  This
+value is never validated; it is considered pre-validated.
 
 The *name* of a schema node appears in error reports.
 
@@ -413,13 +413,13 @@ The value for ``serialized`` above will be ``{'age':'20',
 
 Serialization and deserialization are not completely symmetric,
 however.  Although schema-driven data conversion happens during
-serialization, and defaults are injected as necessary, :mod:`colander`
-types are defined in such a way that structural validation and
-validation of values does *not* happen as it does during
-deserialization.  For example, the :attr:`colander.null` value is
-substituted for every missing subvalue in an appstruct, and none of
-the validators associated with the schema or any of is nodes is
-invoked.
+serialization, and default values are injected as necessary,
+:mod:`colander` types are defined in such a way that structural
+validation and validation of values does *not* happen as it does
+during deserialization.  For example, the :attr:`colander.null` value
+is substituted into the cstruct for every missing subvalue in an
+appstruct, and none of the validators associated with the schema or
+any of is nodes is invoked.
 
 This usually means you may "partially" serialize an appstruct where
 some of the values are missing.  If we try to serialize partial data
@@ -438,7 +438,7 @@ string, and the missing ``name`` attribute has been replaced with
 :attr:`colander.null`.  Above, even though we did not include the
 ``name`` attribute in the appstruct we fed to ``serialize``, an error
 is *not* raised.  For more information about :attr:`colander.null`
-substitution during serialization, see :ref:`serializing_default`.
+substitution during serialization, see :ref:`serializing_null`.
 
 The corollary: it is the responsibility of the developer to ensure he
 serializes "the right" data; :mod:`colander` will not raise an error
