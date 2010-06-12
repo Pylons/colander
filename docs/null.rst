@@ -255,7 +255,8 @@ an ``age`` key of :attr:`colander.null`, the ``missing`` value of
 
 .. note:: Note that ``None`` can be used for the ``missing`` schema
    node value as required, as in the above example.  It's no different
-   than any other value used as ``missing``.
+   than any other value used as ``missing``.  or ``colander.nuil`` can
+   also be used as the ``missing`` value if that is helpful.
 
 The :attr:`colander.null` value is also the default, so it needn't be
 specified in the cstruct.  Therefore, the ``deserialized`` value of
@@ -287,12 +288,12 @@ Value                 Missing               Result
 ===================== ===================== ===========================
 colander.null         <missing>             Invalid exception raised
 <missing>             <missing>             Invalid exception raised
-colander.null         colander.null         Invalid exception raised
-colander.null         value                 value deserialized
-<missing>             value                 value deserialized
-value                 <missing>             value deserialized
-value                 colander.null         value deserialized
-value_a               value_b               value_a deserialized
+colander.null         value                 value used
+<missing>             value                 value used
+<missing>             colander.null         colander.null used
+value                 <missing>             value used
+value                 colander.null         value used
+value_a               value_b               value_a used
 ===================== ===================== ===========================
 
 .. note:: ``<missing>`` in the above table represents the circumstance

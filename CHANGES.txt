@@ -1,6 +1,17 @@
 Changes
 =======
 
+Next Release
+------------
+
+Bug Fixes
+~~~~~~~~~
+
+- Make it possible to use ``colander.null`` as a ``missing`` argument
+  to ``colander.SchemaNode`` for roundtripping purposes.
+
+- Make it possible to pickle ``colander.null``.
+
 0.7.0
 -----
 

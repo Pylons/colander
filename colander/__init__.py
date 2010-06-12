@@ -8,14 +8,16 @@ import translationstring
 
 _ = translationstring.TranslationStringFactory('colander')
 
-class null(object):
+_marker = object()
+
+class _null(object):
     def __nonzero__(self):
         return False
 
     def __repr__(self):
         return '<colander.null>'
 
-null = null()
+null = _null()
 
 def interpolate(msgs):
     for s in msgs:
@@ -1169,7 +1171,7 @@ class SchemaNode(object):
         self.typ = typ
         self.validator = kw.pop('validator', None)
         self.default = kw.pop('default', null)
-        self.missing = kw.pop('missing', null)
+        self.missing = kw.pop('missing', _marker)
         self.name = kw.pop('name', '')
         self.title = kw.pop('title', self.name.capitalize())
         self.description = kw.pop('description', '')
@@ -1194,7 +1196,7 @@ class SchemaNode(object):
         A return value of ``True`` implies that a ``missing`` value
         wasn't specified for this node.  A return value of ``False``
         implies that a ``missing`` value was specified for this node."""
-        return self.missing is null
+        return self.missing is _marker
 
     def serialize(self, appstruct=null):
         """ Serialize the :term:`appstruct` to a :term:`cstruct` based
@@ -1208,7 +1210,6 @@ class SchemaNode(object):
         If an ``appstruct`` argument is not explicitly provided, it
         defaults to :attr:`colander.null`.
         """
-
         if appstruct is null:
             appstruct = self.default
         cstruct = self.typ.serialize(self, appstruct)
@@ -1235,7 +1236,7 @@ class SchemaNode(object):
         """
         if cstruct is null:
             appstruct = self.missing
-            if appstruct is null:
+            if appstruct is _marker:
                 raise Invalid(self, _('Required'))
             # We never deserialize or validate the missing value
             return appstruct

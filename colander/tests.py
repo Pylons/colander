@@ -1340,6 +1340,13 @@ class TestSchemaNode(unittest.TestCase):
         node.missing = 'abc'
         self.assertEqual(node.deserialize(), 'abc')
 
+    def test_deserialize_null_can_be_used_as_missing(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = null
+        self.assertEqual(node.deserialize(null), null)
+
     def test_serialize(self):
         typ = DummyType()
         node = self._makeOne(typ)
