@@ -1190,8 +1190,7 @@ class SchemaNode(object):
     @property
     def required(self):
         """ A property which returns ``True`` if the ``missing`` value
-        related to this node is the :attr:`colander.null` sentinel
-        value.
+        related to this node was not specified.
 
         A return value of ``True`` implies that a ``missing`` value
         wasn't specified for this node.  A return value of ``False``
