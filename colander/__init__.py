@@ -1179,6 +1179,10 @@ class SchemaNode(object):
             raise TypeError('Unknown keyword arguments: %s' % repr(kw))
         self.children = list(children)
 
+    def __iter__(self):
+        """ Iterate over the children nodes of this schema node """
+        return iter(self.children)
+
     def __repr__(self):
         return '<%s.%s object at %d (named %s)>' % (
             self.__module__,

@@ -1395,6 +1395,12 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__getitem__, 'another')
 
+    def test___iter__(self):
+        node = self._makeOne(None)
+        node.children = ['a', 'b', 'c']
+        it = node.__iter__()
+        self.assertEqual(list(it), ['a', 'b', 'c'])
+
     def test_clone(self):
         inner_typ = DummyType()
         outer_typ = DummyType()
