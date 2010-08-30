@@ -1296,7 +1296,11 @@ class TestSchemaNode(unittest.TestCase):
                              title='title', description='desc')
         self.assertEqual(node.description, 'desc')
 
-    def test_ctor_with_bad_kwarg(self):
+    def test_ctor_with_widget(self):
+        node = self._makeOne(None, 0, widget='abc')
+        self.assertEqual(node.widget, 'abc')
+
+    def test_ctor_with_bad_kwargs(self):
         self.assertRaises(TypeError, self._makeOne, None, 0, foo=1)
 
     def test_required_true(self):

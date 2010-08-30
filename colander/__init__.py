@@ -1158,6 +1158,9 @@ class SchemaNode(object):
       ``''`` (the empty string).  The description is used by
       higher-level systems (not by Colander itself).
 
+    - ``widget``: The 'widget' for this node.  Defaults to ``None``.
+      The widget attribute is not interpreted by Colander itself, it
+      is only meaningful to higher-level systems such as Deform.
     """
     
     _counter = itertools.count()
@@ -1175,6 +1178,7 @@ class SchemaNode(object):
         self.name = kw.pop('name', '')
         self.title = kw.pop('title', self.name.capitalize())
         self.description = kw.pop('description', '')
+        self.widget = kw.pop('widget', None)
         if kw:
             raise TypeError('Unknown keyword arguments: %s' % repr(kw))
         self.children = list(children)
