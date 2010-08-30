@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.7.2 (2010/08/30)
+------------------
 
 - Add an ``colander.SchemaNode.__iter__`` method, which iterates over
   the children nodes of a schema node.
