@@ -91,8 +91,8 @@ A schema is composed of one or more *schema node* objects, each
 typically of the class :class:`colander.SchemaNode`, usually in a
 nested arrangement.  Each schema node object has a required *type*, an
 optional deserialization *validator*, an optional *default*, an
-optional *missing*, an optional *title*, an optional *description*,
-and a slightly less optional *name*.
+optional *missing*, an optional *title*, an optional *description*, an
+optional *widget*, and a slightly less optional *name*.
 
 The *type* of a schema node indicates its data type (such as
 :class:`colander.Int` or :class:`colander.String`).
@@ -123,6 +123,12 @@ of the *name*.
 
 The *description* of a schema node is metadata about a schema node
 that can be used by higher-level systems.  By default, it is empty.
+
+The *widget* of a schema node is a concept used only by higher level
+systems (such as form systems).  By default it is ``None``.  It won't
+be discussed any further in the Colander documentation; it will
+instead be explained in the context of the documentation of systems
+which make use of it.
 
 The name of a schema node that is introduced as a class-level
 attribute of a :class:`colander.MappingSchema`,
