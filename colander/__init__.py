@@ -1150,9 +1150,10 @@ class SchemaNode(object):
       an object that implements the
       :class:`colander.interfaces.Validator` interface.
 
-    - ``title``: The title of this node.  Defaults to a captialization
-      of the ``name``.  The title is used by higher-level systems (not
-      by Colander itself).
+    - ``title``: The title of this node.  Defaults to a titleization
+      of the ``name`` (underscores replaced with empty strings and the
+      first letter of every resulting word capitalized).  The title is
+      used by higher-level systems (not by Colander itself).
 
     - ``description``: The description for this node.  Defaults to
       ``''`` (the empty string).  The description is used by
@@ -1176,7 +1177,7 @@ class SchemaNode(object):
         self.default = kw.pop('default', null)
         self.missing = kw.pop('missing', _marker)
         self.name = kw.pop('name', '')
-        self.title = kw.pop('title', self.name.capitalize())
+        self.title = kw.pop('title', self.name.replace('_', ' ').title())
         self.description = kw.pop('description', '')
         self.widget = kw.pop('widget', None)
         if kw:
@@ -1279,7 +1280,7 @@ class _SchemaMeta(type):
             if isinstance(value, SchemaNode):
                 value.name = name
                 if not value.title:
-                    value.title = name.capitalize()
+                    value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))
         cls.__schema_nodes__ = nodes
         # Combine all attrs from this class and its subclasses.

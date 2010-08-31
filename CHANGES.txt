@@ -1,6 +1,15 @@
 Changes
 =======
 
+Next release
+------------
+
+- The title of a schema node now defaults to a titleization of the
+  ``name``.  Underscores in the ``name`` are replaced with empty
+  strings and the first letter of every resulting word is capitalized.
+  Previously the ``name`` was not split on underscores, and the
+  entirety of the ``name`` was capitalized.
+
 0.7.2 (2010/08/30)
 ------------------
 

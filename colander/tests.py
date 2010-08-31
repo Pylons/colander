@@ -1271,15 +1271,15 @@ class TestSchemaNode(unittest.TestCase):
         self.failUnless(hasattr(node, '_order'))
 
     def test_ctor_no_title(self):
-        node = self._makeOne(None, 0, validator=1, default=2, name='name',
+        node = self._makeOne(None, 0, validator=1, default=2, name='name_a',
                              missing='missing')
         self.assertEqual(node.typ, None)
         self.assertEqual(node.children, [0])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
         self.assertEqual(node.missing, 'missing')
-        self.assertEqual(node.name, 'name')
-        self.assertEqual(node.title, 'Name')
+        self.assertEqual(node.name, 'name_a')
+        self.assertEqual(node.title, 'Name A')
 
     def test_ctor_with_title(self):
         node = self._makeOne(None, 0, validator=1, default=2, name='name',
@@ -1434,7 +1434,7 @@ class TestSchema(unittest.TestCase):
     def test_it(self):
         import colander
         class MySchema(colander.Schema):
-            thing = colander.SchemaNode(colander.String())
+            thing_a = colander.SchemaNode(colander.String())
             thing2 = colander.SchemaNode(colander.String(), title='bar')
         node = MySchema(default='abc')
         self.failUnless(hasattr(node, '_order'))
@@ -1442,7 +1442,7 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Mapping)
         self.assertEqual(node.children[0].typ.__class__, colander.String) 
-        self.assertEqual(node.children[0].title, 'Thing')
+        self.assertEqual(node.children[0].title, 'Thing A')
         self.assertEqual(node.children[1].title, 'bar')
 
 class TestSequenceSchema(unittest.TestCase):
