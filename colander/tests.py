@@ -126,6 +126,16 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(childexc.pos, 0)
         self.assertEqual(childexc.node.name, 'found')
 
+    def test_messages_msg_iterable(self):
+        node = DummySchemaNode(None)
+        exc = self._makeOne(node, [123, 456])
+        self.assertEqual(exc.messages(), [123, 456])
+
+    def test_messages_msg_not_iterable(self):
+        node = DummySchemaNode(None)
+        exc = self._makeOne(node, 'msg')
+        self.assertEqual(exc.messages(), ['msg'])
+
 class TestAll(unittest.TestCase):
     def _makeOne(self, validators):
         from colander import All

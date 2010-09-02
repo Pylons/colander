@@ -52,6 +52,16 @@ class Invalid(Exception):
         self.value = value
         self.children = []
 
+    def messages(self):
+        """ Return an iterable of error messages for this exception
+        using the ``msg`` attribute of this error node.  If the
+        ``msg`` attribute is iterable, it is returned.  If it is not
+        iterable, a single-element list containing the ``msg`` value
+        is returned."""
+        if hasattr(self.msg, '__iter__'):
+            return self.msg
+        return [self.msg]
+
     def add(self, exc, pos=None):
         """ Add a child exception; ``exc`` must be an instance of
         :class:`colander.Invalid` or a subclass.

@@ -10,6 +10,12 @@ Next release
   Previously the ``name`` was not split on underscores, and the
   entirety of the ``name`` was capitalized.
 
+- A method of the ``colander.Invalid`` exception named ``messages``
+  was added.  It returns an iterable of error messages using the
+  ``msg`` attribute of its related exception node.  If the ``msg``
+  attribute is iterable, it is returned.  If it is not iterable, a
+  single-element list containing the ``msg`` value is returned.
+
 0.7.2 (2010/08/30)
 ------------------
 
