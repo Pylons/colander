@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.7.3 (2010/09/02)
+------------------
 
 - The title of a schema node now defaults to a titleization of the
   ``name``.  Underscores in the ``name`` are replaced with empty
