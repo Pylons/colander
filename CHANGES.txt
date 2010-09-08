@@ -1,6 +1,12 @@
 Changes
 =======
 
+Next release
+------------
+
+- Docstring fixes to ``colander.SchemaNode`` (``missing`` is not the
+  ``null`` value when required, it's a special marker value).
+
 0.7.3 (2010/09/02)
 ------------------
 

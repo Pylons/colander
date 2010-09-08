@@ -1151,8 +1151,8 @@ class SchemaNode(object):
       Default: :attr:`colander.null`.
 
     - ``missing``: The default deserialization value for this node.
-      If it is not provided, the missing value of this node will be
-      :attr:`colander.null`, indicating that it is considered
+      If it is not provided, the missing value of this node will be a
+      special marker value, indicating that it is considered
       'required' (the ``required`` computed attribute will be
       ``True``).
 
