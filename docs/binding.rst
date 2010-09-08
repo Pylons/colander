@@ -154,6 +154,12 @@ Let's take a look at an example:
           default_date = datetime.date.today(),
           categories = [('one', 'One'), ('two', 'Two')]
           )
+
+We use ``colander.deferred`` in its preferred manner here: as a
+decorator to a function that takes two arguments.  For a schema node
+value to be considered deferred, it must be an instance of
+``colander.deferred`` and using that class as a decorator is the
+easiest way to ensure that this happens.
         
 To perform binding, the ``bind`` method of a schema node must be
 called.  ``bind`` returns a *clone* of the schema node (and its

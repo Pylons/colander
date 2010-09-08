@@ -118,6 +118,8 @@ Schema-Related
 
   .. autoclass:: SequenceSchema
 
+  .. autoclass:: deferred
+
   .. attribute:: null
 
      Represents a null value in colander-related operations.
