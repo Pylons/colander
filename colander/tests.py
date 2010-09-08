@@ -1409,6 +1409,17 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__getitem__, 'another')
 
+    def test___delitem__success(self):
+        node = self._makeOne(None)
+        another = self._makeOne(None, name='another')
+        node.add(another)
+        del node['another']
+        self.assertEqual(node.children, [])
+        
+    def test___delitem__failure(self):
+        node = self._makeOne(None)
+        self.assertRaises(KeyError, node.__delitem__, 'another')
+
     def test___iter__(self):
         node = self._makeOne(None)
         node.children = ['a', 'b', 'c']
@@ -1434,6 +1445,71 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(inner_clone.typ, inner_typ)
         self.assertEqual(inner_clone.name, 'inner')
         self.assertEqual(inner_clone.foo, 2)
+
+    def test_bind(self):
+        from colander import deferred
+        inner_typ = DummyType()
+        outer_typ = DummyType()
+        def dv(node, kw):
+            self.failUnless(node.name in ['outer', 'inner'])
+            self.failUnless('a' in kw)
+            return '123'
+        dv = deferred(dv)
+        outer_node = self._makeOne(outer_typ, name='outer', missing=dv)
+        inner_node = self._makeOne(inner_typ, name='inner', validator=dv,
+                                   missing=dv)
+        outer_node.children = [inner_node]
+        outer_clone = outer_node.bind(a=1)
+        self.failIf(outer_clone is outer_node)
+        self.assertEqual(outer_clone.missing, '123')
+        inner_clone = outer_clone.children[0]
+        self.failIf(inner_clone is inner_node)
+        self.assertEqual(inner_clone.missing, '123')
+        self.assertEqual(inner_clone.validator, '123')
+
+    def test_bind_with_after_bind(self):
+        from colander import deferred
+        inner_typ = DummyType()
+        outer_typ = DummyType()
+        def dv(node, kw):
+            self.failUnless(node.name in ['outer', 'inner'])
+            self.failUnless('a' in kw)
+            return '123'
+        dv = deferred(dv)
+        def remove_inner(node, kw):
+            self.assertEqual(kw, {'a':1})
+            del node['inner']
+        outer_node = self._makeOne(outer_typ, name='outer', missing=dv,
+                                   after_bind=remove_inner)
+        inner_node = self._makeOne(inner_typ, name='inner', validator=dv,
+                                   missing=dv)
+        outer_node.children = [inner_node]
+        outer_clone = outer_node.bind(a=1)
+        self.failIf(outer_clone is outer_node)
+        self.assertEqual(outer_clone.missing, '123')
+        self.assertEqual(len(outer_clone.children), 0)
+        self.assertEqual(len(outer_node.children), 1)
+
+class TestDeferred(unittest.TestCase):
+    def _makeOne(self, wrapped):
+        from colander import deferred
+        return deferred(wrapped)
+
+    def test_ctor(self):
+        wrapped = '123'
+        inst = self._makeOne(wrapped)
+        self.assertEqual(inst.wrapped, wrapped)
+
+    def test___call__(self):
+        n = object()
+        k = object()
+        def wrapped(node, kw):
+            self.assertEqual(node, n)
+            self.assertEqual(kw, k)
+            return 'abc'
+        inst = self._makeOne(wrapped)
+        result= inst(n, k)
+        self.assertEqual(result, 'abc')
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):

@@ -7,6 +7,16 @@ Next release
 - Docstring fixes to ``colander.SchemaNode`` (``missing`` is not the
   ``null`` value when required, it's a special marker value).
 
+- The concept of "schema binding" was added, which allows for a more
+  declarative-looking spelling of schemas and schema nodes which have
+  dependencies on values available after the schema has already been
+  fully constructed.  See the new narrative chapter in the
+  documentation entitled "Schema Binding".
+
+- The interface of ``colander.SchemaNode`` has grown a ``__delitem__``
+  method.  The ``__iter__``, and ``__getitem__`` methods have now also
+  been properly documented.
+
 0.7.3 (2010/09/02)
 ------------------
 

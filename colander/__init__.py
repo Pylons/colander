@@ -11,6 +11,7 @@ _ = translationstring.TranslationStringFactory('colander')
 _marker = object()
 
 class _null(object):
+    """ Represents a null value in colander-related operations. """
     def __nonzero__(self):
         return False
 
@@ -943,7 +944,7 @@ class GlobalObject(object):
             used += '.' + n
             try:
                 found = getattr(found, n)
-            except AttributeError:
+            except AttributeError: # pragma: no cover
                 __import__(used)
                 found = getattr(found, n)
 
@@ -1160,6 +1161,20 @@ class SchemaNode(object):
       an object that implements the
       :class:`colander.interfaces.Validator` interface.
 
+    - ``after_bind``: A callback which is called after a clone of this
+      node has 'bound' all of its values successfully. This callback
+      is useful for performing arbitrary actions to the cloned node,
+      or direct children of the cloned node (such as removing or
+      adding children) at bind time.  A 'binding' is the result of an
+      execution of the ``bind`` method of the clone's prototype node,
+      or one of the parents of the clone's prototype nodes.  The
+      deepest nodes in the node tree are bound first, so the
+      ``after_bind`` methods of the deepest nodes are called before
+      the shallowest.  The ``after_bind`` callback should should
+      accept two values: ``node`` and ``kw``.  ``node`` will be a
+      clone of the bound node object, ``kw`` will be the set of
+      keywords passed to the ``bind`` method.
+
     - ``title``: The title of this node.  Defaults to a titleization
       of the ``name`` (underscores replaced with empty strings and the
       first letter of every resulting word capitalized).  The title is
@@ -1172,6 +1187,7 @@ class SchemaNode(object):
     - ``widget``: The 'widget' for this node.  Defaults to ``None``.
       The widget attribute is not interpreted by Colander itself, it
       is only meaningful to higher-level systems such as Deform.
+
     """
     
     _counter = itertools.count()
@@ -1190,21 +1206,10 @@ class SchemaNode(object):
         self.title = kw.pop('title', self.name.replace('_', ' ').title())
         self.description = kw.pop('description', '')
         self.widget = kw.pop('widget', None)
+        self.after_bind = kw.pop('after_bind', None)
         if kw:
             raise TypeError('Unknown keyword arguments: %s' % repr(kw))
         self.children = list(children)
-
-    def __iter__(self):
-        """ Iterate over the children nodes of this schema node """
-        return iter(self.children)
-
-    def __repr__(self):
-        return '<%s.%s object at %d (named %s)>' % (
-            self.__module__,
-            self.__class__.__name__,
-            id(self),
-            self.name,
-            )
 
     @property
     def required(self):
@@ -1268,12 +1273,6 @@ class SchemaNode(object):
         """ Add a subnode to this node. """
         self.children.append(node)
 
-    def __getitem__(self, name):
-        for node in self.children:
-            if node.name == name:
-                return node
-        raise KeyError(name)
-
     def clone(self):
         """ Clone the schema node and return the clone.  All subnodes
         are also cloned recursively.  Attributes present in node
@@ -1282,6 +1281,54 @@ class SchemaNode(object):
         cloned.__dict__.update(self.__dict__)
         cloned.children = [ node.clone() for node in self.children ]
         return cloned
+
+    def bind(self, **kw):
+        """ Resolve any deferred values attached to this schema node
+        and its children (recursively), using the keywords passed as
+        ``kw`` as input to each deferred value.  This function
+        *clones* the schema it is called upon and returns the cloned
+        value.  The original schema node (the source of the clone)
+        is not modified."""
+        cloned = self.clone()
+        cloned._bind(kw)
+        return cloned
+
+    def _bind(self, kw):
+        for child in self.children:
+            child._bind(kw)
+        for k, v in self.__dict__.items():
+            if isinstance(v, deferred):
+                v = v(self, kw)
+                setattr(self, k, v)
+        if getattr(self, 'after_bind', None):
+            self.after_bind(self, kw)
+
+    def __delitem__(self, name):
+        """ Remove a subnode by name """
+        for idx, node in enumerate(self.children[:]):
+            if node.name == name:
+                return self.children.pop(idx)
+        raise KeyError(name)
+
+    def __getitem__(self, name):
+        """ Get a subnode by name. """
+        for node in self.children:
+            if node.name == name:
+                return node
+        raise KeyError(name)
+
+    def __iter__(self):
+        """ Iterate over the children nodes of this schema node """
+        return iter(self.children)
+
+    def __repr__(self):
+        return '<%s.%s object at %d (named %s)>' % (
+            self.__module__,
+            self.__class__.__name__,
+            id(self),
+            self.name,
+            )
+
 
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
@@ -1339,3 +1386,13 @@ class SequenceSchema(object):
 
 class TupleSchema(Schema):
     schema_type = Tuple
+
+class deferred(object):
+    """ A decorator which can be used to define deferred schema values
+    (missing values, widgets, validators, etc.)"""
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+
+    def __call__(self, node, kw):
+        return self.wrapped(node, kw)
+

@@ -104,6 +104,12 @@ Schema-Related
   .. autoclass:: SchemaNode
      :members:
 
+     .. automethod:: __delitem__
+
+     .. automethod:: __getitem__
+
+     .. automethod:: __iter__
+
   .. autoclass:: Schema
 
   .. autoclass:: MappingSchema
@@ -113,4 +119,7 @@ Schema-Related
   .. autoclass:: SequenceSchema
 
   .. attribute:: null
+
+     Represents a null value in colander-related operations.
+
 
