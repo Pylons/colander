@@ -1,6 +1,11 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Added Spanish locale:  thanks to David Cerna for the translations!
+
 0.8  (2010/09/08)
 -----------------
 
