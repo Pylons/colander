@@ -1,0 +1,129 @@
+# Translations template for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.5.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-04-25 21:09-0400\n"
+"PO-Revision-Date: 2010-09-09 18:02-0500\n"
+"Last-Translator: Tres Seaver <tseaver@palladion.com>\n"
+"Language-Team: repoze developers <repoze-dev@lists.repoze.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: colander/__init__.py:177
+msgid "Invalid value"
+msgstr "That value ain't worth a damn!"
+
+#: colander/__init__.py:202
+msgid "String does not match expected pattern"
+msgstr "Type something that fits the damned pattern!"
+
+#: colander/__init__.py:217
+msgid "Invalid email address"
+msgstr "Type an e-mail address, you idiot!"
+
+#: colander/__init__.py:246
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} is smaller than the damned minimum, ${min}"
+
+#: colander/__init__.py:247
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} is bigger than the damned maximum, ${max}"
+
+#: colander/__init__.py:279
+msgid "Shorter than minimum length ${min}"
+msgstr "Too damned short!  Make it at least ${min} characters."
+
+#: colander/__init__.py:285
+msgid "Longer than maximum length ${max}"
+msgstr "Too damned long!  No more than ${max} characters."
+
+#: colander/__init__.py:298
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "Pick from one of the damned choices! ${choices}"
+
+#: colander/__init__.py:367
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" is not a damned mapping: ${err}"
+
+#: colander/__init__.py:394
+msgid "\"${val}\" is required but missing"
+msgstr "Fill in a damned value."
+
+#: colander/__init__.py:411
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Unknown keys in the damned mapping: ${val}"
+
+#: colander/__init__.py:461
+#: colander/__init__.py:539
+msgid "\"${val}\" is not iterable"
+msgstr "Can't iterate of the damned value: ${val}"
+
+#: colander/__init__.py:469
+msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr "Incorrect number of damned elements (expected ${exp}, got ${was})"
+
+#: colander/__init__.py:644
+msgid "${val} is not a string: %{err}"
+msgstr "${val} is not a damned string: %{err}"
+
+#: colander/__init__.py:648
+#: colander/__init__.py:680
+#: colander/__init__.py:710
+#: colander/__init__.py:751
+#: colander/__init__.py:996
+msgid "Required"
+msgstr "Fill in a damned value!"
+
+#: colander/__init__.py:662
+msgid "\"${val} cannot be serialized to str: ${err}"
+msgstr "Can't make ${val} a damned string: ${err}"
+
+#: colander/__init__.py:683
+#: colander/__init__.py:692
+#: colander/__init__.py:713
+#: colander/__init__.py:722
+msgid "\"${val}\" is not a number"
+msgstr "Not a damned number: ${val}"
+
+#: colander/__init__.py:747
+msgid "${val} is not a string"
+msgstr "Not a damned string: ${val}"
+
+#: colander/__init__.py:808
+#: colander/__init__.py:825
+#: colander/__init__.py:835
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "Can't resolve the damned relative name without a package: ${val}"
+
+#: colander/__init__.py:860
+msgid "\"${val}\" is not a string"
+msgstr "${val} is not a string"
+
+#: colander/__init__.py:868
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "Can't import the damned dotted name: ${name}"
+
+#: colander/__init__.py:876
+msgid "\"${val}\" has no __name__"
+msgstr "${val} ain't got a damned name!"
+
+#: colander/__init__.py:918
+#: colander/__init__.py:982
+msgid "${val} cannot be parsed as an iso8601 date: ${err}"
+msgstr "Can't parse ${val} as a damned ISO8601 date: ${err}"
+
+#: colander/__init__.py:929
+msgid "\"${val}\" is not a datetime object"
+msgstr "Not a damned datetime: ${val}"
+
+#: colander/__init__.py:988
+msgid "\"${val}\" is not a date object"
+msgstr "Not a damned date: ${val}"
+
