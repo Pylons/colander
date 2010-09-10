@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: colander 0.5.2\n"
+"Project-Id-Version: colander 0.8\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-04-25 21:09-0400\n"
+"POT-Creation-Date: 2010-09-10 08:00-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,105 +17,99 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.5\n"
 
-#: colander/__init__.py:177
+#: colander/__init__.py:199
 msgid "Invalid value"
 msgstr ""
 
-#: colander/__init__.py:202
+#: colander/__init__.py:232
 msgid "String does not match expected pattern"
 msgstr ""
 
-#: colander/__init__.py:217
+#: colander/__init__.py:247
 msgid "Invalid email address"
 msgstr ""
 
-#: colander/__init__.py:246
+#: colander/__init__.py:276
 msgid "${val} is less than minimum value ${min}"
 msgstr ""
 
-#: colander/__init__.py:247
+#: colander/__init__.py:277
 msgid "${val} is greater than maximum value ${max}"
 msgstr ""
 
-#: colander/__init__.py:279
+#: colander/__init__.py:309
 msgid "Shorter than minimum length ${min}"
 msgstr ""
 
-#: colander/__init__.py:285
+#: colander/__init__.py:315
 msgid "Longer than maximum length ${max}"
 msgstr ""
 
-#: colander/__init__.py:298
+#: colander/__init__.py:328
 msgid "\"${val}\" is not one of ${choices}"
 msgstr ""
 
-#: colander/__init__.py:367
+#: colander/__init__.py:398
 msgid "\"${val}\" is not a mapping type: ${err}"
 msgstr ""
 
-#: colander/__init__.py:394
-msgid "\"${val}\" is required but missing"
-msgstr ""
-
-#: colander/__init__.py:411
+#: colander/__init__.py:422
 msgid "Unrecognized keys in mapping: \"${val}\""
 msgstr ""
 
-#: colander/__init__.py:461 colander/__init__.py:539
+#: colander/__init__.py:477 colander/__init__.py:563
 msgid "\"${val}\" is not iterable"
 msgstr ""
 
-#: colander/__init__.py:469
+#: colander/__init__.py:485
 msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
 msgstr ""
 
-#: colander/__init__.py:644
+#: colander/__init__.py:725
+msgid "\"${val} cannot be serialized: ${err}"
+msgstr ""
+
+#: colander/__init__.py:738
 msgid "${val} is not a string: %{err}"
 msgstr ""
 
-#: colander/__init__.py:648 colander/__init__.py:680 colander/__init__.py:710
-#: colander/__init__.py:751 colander/__init__.py:996
-msgid "Required"
-msgstr ""
-
-#: colander/__init__.py:662
-msgid "\"${val} cannot be serialized to str: ${err}"
-msgstr ""
-
-#: colander/__init__.py:683 colander/__init__.py:692 colander/__init__.py:713
-#: colander/__init__.py:722
+#: colander/__init__.py:759 colander/__init__.py:770
 msgid "\"${val}\" is not a number"
 msgstr ""
 
-#: colander/__init__.py:747
+#: colander/__init__.py:764 colander/__init__.py:1263
+msgid "Required"
+msgstr ""
+
+#: colander/__init__.py:844
 msgid "${val} is not a string"
 msgstr ""
 
-#: colander/__init__.py:808 colander/__init__.py:825 colander/__init__.py:835
+#: colander/__init__.py:904 colander/__init__.py:921 colander/__init__.py:931
 msgid "relative name \"${val}\" irresolveable without package"
 msgstr ""
 
-#: colander/__init__.py:860
-msgid "\"${val}\" is not a string"
-msgstr ""
-
-#: colander/__init__.py:868
-msgid "The dotted name \"${name}\" cannot be imported"
-msgstr ""
-
-#: colander/__init__.py:876
+#: colander/__init__.py:961
 msgid "\"${val}\" has no __name__"
 msgstr ""
 
-#: colander/__init__.py:918 colander/__init__.py:982
-msgid "${val} cannot be parsed as an iso8601 date: ${err}"
+#: colander/__init__.py:967
+msgid "\"${val}\" is not a string"
 msgstr ""
 
-#: colander/__init__.py:929
+#: colander/__init__.py:976
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr ""
+
+#: colander/__init__.py:1024 colander/__init__.py:1101
+msgid "Invalid date"
+msgstr ""
+
+#: colander/__init__.py:1040
 msgid "\"${val}\" is not a datetime object"
 msgstr ""
 
-#: colander/__init__.py:988
+#: colander/__init__.py:1112
 msgid "\"${val}\" is not a date object"
 msgstr ""
 
