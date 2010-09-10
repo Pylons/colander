@@ -1,0 +1,129 @@
+# Translations template for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.5.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-04-25 21:09-0400\n"
+"PO-Revision-Date: 2010-09-10 06:50+0300\n"
+"Last-Translator: Fernando Correa Neto <fcdoth@gmail.com>\n"
+"Language-Team: repoze developers <repoze-dev@lists.repoze.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: colander/__init__.py:177
+msgid "Invalid value"
+msgstr "Valor inválido"
+
+#: colander/__init__.py:202
+msgid "String does not match expected pattern"
+msgstr "A string não é igual ao padrão esperado"
+
+#: colander/__init__.py:217
+msgid "Invalid email address"
+msgstr "Endereço de email inválido"
+
+#: colander/__init__.py:246
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} é menor do que o valor mínimo ${min}"
+
+#: colander/__init__.py:247
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} é maior do que o valor máximo ${max}"
+
+#: colander/__init__.py:279
+msgid "Shorter than minimum length ${min}"
+msgstr "Mais curto do que o comprimento mínimo ${min}"
+
+#: colander/__init__.py:285
+msgid "Longer than maximum length ${max}"
+msgstr "Mais longo do que o comprimento máximo ${max}"
+
+#: colander/__init__.py:298
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" não está entre ${choices}"
+
+#: colander/__init__.py:367
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" não é um mapeamento do tipo: ${err}"
+
+#: colander/__init__.py:394
+msgid "\"${val}\" is required but missing"
+msgstr "\"${val}\" é requerido porém está vazio"
+
+#: colander/__init__.py:411
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Chaves desconhecidas ao mapeamento: \"${val}\""
+
+#: colander/__init__.py:461
+#: colander/__init__.py:539
+msgid "\"${val}\" is not iterable"
+msgstr "Iterações não podem ser feitas em \"${val}\""
+
+#: colander/__init__.py:469
+msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr "\"${val}\" tem um número incorreto de elementos (esperados ${exp}, obtidos ${was})"
+
+#: colander/__init__.py:644
+msgid "${val} is not a string: %{err}"
+msgstr "${val} não é uma string: %{err}"
+
+#: colander/__init__.py:648
+#: colander/__init__.py:680
+#: colander/__init__.py:710
+#: colander/__init__.py:751
+#: colander/__init__.py:996
+msgid "Required"
+msgstr "Requerido"
+
+#: colander/__init__.py:662
+msgid "\"${val} cannot be serialized to str: ${err}"
+msgstr "\"${val} não pode ser serializado para str: ${err}"
+
+#: colander/__init__.py:683
+#: colander/__init__.py:692
+#: colander/__init__.py:713
+#: colander/__init__.py:722
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" não é um número número"
+
+#: colander/__init__.py:747
+msgid "${val} is not a string"
+msgstr "${val} não é uma string"
+
+#: colander/__init__.py:808
+#: colander/__init__.py:825
+#: colander/__init__.py:835
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "nome relativo \"${val}\" não pode ser resolvido sem o pacote"
+
+#: colander/__init__.py:860
+msgid "\"${val}\" is not a string"
+msgstr "\"${val}\" não é uma string"
+
+#: colander/__init__.py:868
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "O pacote \"${name}\" não pode ser importado"
+
+#: colander/__init__.py:876
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" não tem __name__"
+
+#: colander/__init__.py:918
+#: colander/__init__.py:982
+msgid "${val} cannot be parsed as an iso8601 date: ${err}"
+msgstr "${val} não pode ser entendido como uma data iso8601: ${err}"
+
+#: colander/__init__.py:929
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" não é um objeto datetime"
+
+#: colander/__init__.py:988
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" não é um objeto date"
+
