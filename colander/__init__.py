@@ -1188,6 +1188,8 @@ class SchemaNode(object):
       The widget attribute is not interpreted by Colander itself, it
       is only meaningful to higher-level systems such as Deform.
 
+    Arbitrary keyword arguments remaining will be attached to the node
+    object unmolested.
     """
     
     _counter = itertools.count()
