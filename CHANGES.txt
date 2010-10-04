@@ -1,8 +1,12 @@
 Changes
 =======
 
-Unreleased
-----------
+0.9  (unreleased)
+-----------------
+
+- SchemaNode constructor now accepts arbitrary keyword arguments.  It
+  sets any unknown values within the ``**kw`` sequence as attributes
+  of the node object.
 
 - Added Spanish locale:  thanks to Douglas Cerna for the translations!
 

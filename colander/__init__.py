@@ -1207,8 +1207,7 @@ class SchemaNode(object):
         self.description = kw.pop('description', '')
         self.widget = kw.pop('widget', None)
         self.after_bind = kw.pop('after_bind', None)
-        if kw:
-            raise TypeError('Unknown keyword arguments: %s' % repr(kw))
+        self.__dict__.update(kw)
         self.children = list(children)
 
     @property

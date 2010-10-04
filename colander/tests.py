@@ -1310,8 +1310,9 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, 0, widget='abc')
         self.assertEqual(node.widget, 'abc')
 
-    def test_ctor_with_bad_kwargs(self):
-        self.assertRaises(TypeError, self._makeOne, None, 0, foo=1)
+    def test_ctor_with_unknown_kwarg(self):
+        node = self._makeOne(None, 0, foo=1)
+        self.assertEqual(node.foo, 1)
 
     def test_required_true(self):
         node = self._makeOne(None)

@@ -92,7 +92,9 @@ typically of the class :class:`colander.SchemaNode`, usually in a
 nested arrangement.  Each schema node object has a required *type*, an
 optional deserialization *validator*, an optional *default*, an
 optional *missing*, an optional *title*, an optional *description*, an
-optional *widget*, and a slightly less optional *name*.
+optional *widget*, and a slightly less optional *name*.  It also
+accepts *arbitrary* keyword arguments, which are attached directly as
+attributes to the node instance.
 
 The *type* of a schema node indicates its data type (such as
 :class:`colander.Int` or :class:`colander.String`).
@@ -129,6 +131,14 @@ systems (such as form systems).  By default it is ``None``.  It won't
 be discussed any further in the Colander documentation; it will
 instead be explained in the context of the documentation of systems
 which make use of it.
+
+Any other keyword arguments to a schema node constructor will be
+attached to the node unmolested (e.g. when ``foo=1`` is passed, the
+resulting schema node will have an attribute named ``foo`` with the
+value ``1``).
+
+.. note:: Abitrary keyword arguments are allowed to a schema node
+          constructor in Colander 0.9+.  Prior version disallow them.
 
 The name of a schema node that is introduced as a class-level
 attribute of a :class:`colander.MappingSchema`,
