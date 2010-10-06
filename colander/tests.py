@@ -1322,6 +1322,11 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, missing=1)
         self.assertEqual(node.required, False)
 
+    def test_required_deferred(self):
+        from colander import deferred
+        node = self._makeOne(None, missing=deferred('123'))
+        self.assertEqual(node.required, True)
+
     def test_deserialize_no_validator(self):
         typ = DummyType()
         node = self._makeOne(typ)
@@ -1362,6 +1367,15 @@ class TestSchemaNode(unittest.TestCase):
         node.missing = null
         self.assertEqual(node.deserialize(null), null)
 
+    def test_deserialize_appstruct_deferred(self):
+        from colander import null
+        from colander import deferred
+        from colander import Invalid
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = deferred('123')
+        self.assertRaises(Invalid, node.deserialize, null)
+
     def test_serialize(self):
         typ = DummyType()
         node = self._makeOne(typ)
@@ -1388,6 +1402,14 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(typ)
         node.default = 'abc'
         self.assertEqual(node.serialize(), 'abc')
+
+    def test_serialize_default_deferred(self):
+        from colander import deferred
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.default = deferred('abc')
+        self.assertEqual(node.serialize(), null)
 
     def test_add(self):
         node = self._makeOne(None)

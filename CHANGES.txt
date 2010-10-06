@@ -10,6 +10,18 @@ Changes
 
 - Added Spanish locale:  thanks to Douglas Cerna for the translations!
 
+- If you use a schema with deferred ``validator``, ``missing`` or
+  ``default`` attributes, but you use it to perform serialization and
+  deserialization without calling its ``bind`` method:
+
+  - If ``validator`` is deferred, no validation will be performed.
+
+  - If ``missing`` is deferred, the field will be considered *required*.
+
+  - If ``default`` is deferred, the serialization default will be
+    assumed to be ``colander.null``.
+
+
 0.8  (2010/09/08)
 -----------------
 

@@ -1220,6 +1220,8 @@ class SchemaNode(object):
         A return value of ``True`` implies that a ``missing`` value
         wasn't specified for this node.  A return value of ``False``
         implies that a ``missing`` value was specified for this node."""
+        if isinstance(self.missing, deferred):  # unbound schema with deferreds
+            return True
         return self.missing is _marker
 
     def serialize(self, appstruct=null):
@@ -1236,6 +1238,8 @@ class SchemaNode(object):
         """
         if appstruct is null:
             appstruct = self.default
+        if isinstance(appstruct, deferred): # unbound schema with deferreds
+            appstruct = null
         cstruct = self.typ.serialize(self, appstruct)
         return cstruct
 
@@ -1262,12 +1266,15 @@ class SchemaNode(object):
             appstruct = self.missing
             if appstruct is _marker:
                 raise Invalid(self, _('Required'))
+            if isinstance(appstruct, deferred): # unbound schema with deferreds
+                raise Invalid(self, _('Required'))
             # We never deserialize or validate the missing value
             return appstruct
 
         appstruct = self.typ.deserialize(self, cstruct)
         if self.validator is not None:
-            self.validator(self, appstruct)
+            if not isinstance(self.validator, deferred): # unbound
+                self.validator(self, appstruct)
         return appstruct
 
     def add(self, node):

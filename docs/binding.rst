@@ -237,6 +237,20 @@ will be the set of keywords passed to the ``bind`` method.  It usually
 operates on the ``node`` it is passed using the API methods described
 in :class:`SchemaNode`.
 
+Unbound Schemas With Deferreds
+------------------------------
+
+If you use a schema with deferred ``validator``, ``missing`` or
+``default`` attributes, but you use it to perform serialization and
+deserialization without calling its ``bind`` method:
+
+- If ``validator`` is deferred, no validation will be performed.
+
+- If ``missing`` is deferred, the field will be considered *required*.
+
+- If ``default`` is deferred, the serialization default will be
+  assumed to be ``colander.null``.
+
 See Also
 --------
 
