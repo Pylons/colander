@@ -329,7 +329,15 @@ class OneOf(object):
                     mapping={'val':value, 'choices':choices})
             raise Invalid(node, err)
 
-class Mapping(object):
+class SchemaType(object):
+    """ Base class for all schema types """
+    def flatten(self, node, appstruct, prefix=''):
+        result = {}
+        selfname = '%s%s' % (prefix, node.name)
+        result[selfname] = appstruct
+        return result
+
+class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -447,6 +455,19 @@ class Mapping(object):
 
         return self._impl(node, cstruct, callback)
 
+    def flatten(self, node, appstruct, prefix=''):
+        result = {}
+        selfname = '%s%s' % (prefix, node.name)
+        selfprefix = selfname + '.'
+        result[selfname] = appstruct
+
+        for num, subnode in enumerate(node.children):
+            name = subnode.name
+            substruct = appstruct.get(name, null)
+            result.update(subnode.typ.flatten(subnode, substruct,
+                                              prefix=selfprefix))
+        return result
+        
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
@@ -455,7 +476,7 @@ class Positional(object):
     creating a dictionary representation of an error tree.
     """
 
-class Tuple(Positional):
+class Tuple(Positional, SchemaType):
     """ A type which represents a fixed-length sequence of nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
@@ -523,7 +544,19 @@ class Tuple(Positional):
 
         return self._impl(node, cstruct, callback)
 
-class Sequence(Positional):
+    def flatten(self, node, appstruct, prefix=''):
+        result = {}
+        selfname = '%s%s' % (prefix, node.name)
+        selfprefix = selfname + '.'
+        result[selfname] = appstruct
+
+        for num, subnode in enumerate(node.children):
+            substruct = appstruct[num]
+            result.update(subnode.typ.flatten(subnode, substruct,
+                                              prefix=selfprefix))
+        return result
+
+class Sequence(Positional, SchemaType):
     """
     A type which represents a variable-length sequence of nodes,
     all of which must be of the same type.
@@ -639,9 +672,26 @@ class Sequence(Positional):
 
         return self._impl(node, cstruct, callback, accept_scalar)
 
+    def flatten(self, node, appstruct, prefix=''):
+        result = {}
+        selfname = '%s%s' % (prefix, node.name)
+        selfprefix = selfname + '.'
+        result[selfname] = appstruct
+
+        childnode = node.children[0]
+
+        for num, subval in enumerate(appstruct):
+            subname = '%s%s' % (selfprefix, num)
+            result[subname] = subval
+            subprefix = subname + '.'
+            result.update(childnode.typ.flatten(childnode, subval,
+                                                prefix=subprefix))
+
+        return result
+
 Seq = Sequence
 
-class String(object):
+class String(SchemaType):
     """ A type representing a Unicode string.
 
     This type constructor accepts one argument:
@@ -740,10 +790,9 @@ class String(object):
 
         return result
 
-
 Str = String
 
-class Number(object):
+class Number(SchemaType):
     """ Abstract base class for float, int, decimal """
 
     num = None
@@ -770,7 +819,6 @@ class Number(object):
                           _('"${val}" is not a number',
                             mapping={'val':cstruct})
                           )
-
 
 class Integer(Number):
     """ A type representing an integer.
@@ -812,7 +860,7 @@ class Decimal(Number):
     def num(self, val):
         return decimal.Decimal(str(val))
 
-class Boolean(object):
+class Boolean(SchemaType):
     """ A type representing a boolean object.
 
     During deserialization, a value in the set (``false``, ``0``) will
@@ -852,7 +900,7 @@ class Boolean(object):
 
 Bool = Boolean
 
-class GlobalObject(object):
+class GlobalObject(SchemaType):
     """ A type representing an importable Python object.  This type
     serializes 'global' Python objects (objects which can be imported)
     to dotted Python names.
@@ -976,8 +1024,7 @@ class GlobalObject(object):
                           _('The dotted name "${name}" cannot be imported',
                             mapping={'name':cstruct}))
 
-
-class DateTime(object):
+class DateTime(SchemaType):
     """ A type representing a Python ``datetime.datetime`` object.
 
     This type serializes python ``datetime.datetime`` objects to a
@@ -1058,7 +1105,7 @@ class DateTime(object):
                                       mapping={'val':cstruct, 'err':e}))
         return result
 
-class Date(object):
+class Date(SchemaType):
     """ A type representing a Python ``datetime.date`` object.
 
     This type serializes python ``datetime.date`` objects to a
@@ -1242,6 +1289,20 @@ class SchemaNode(object):
             appstruct = null
         cstruct = self.typ.serialize(self, appstruct)
         return cstruct
+
+    def flatten(self, appstruct):
+        """ Create an fstruct from the appstruct based on the schema
+        represented by this node and return the fstruct.  An fstruct
+        is a flattened representation of an appstruct.  An fstruct is
+        a dictionary; its keys are dotted names.  Each dotted name
+        represents a location in the schema.  The values of an fstruct
+        dictionary are appstruct subvalues."""
+        flat = self.typ.flatten(self, appstruct)
+        return flat
+
+    def unflatten(self, fstruct):
+        """ Create an appstruct based on the schema represented by
+        this node using the fstruct passed. """
 
     def deserialize(self, cstruct=null):
         """ Deserialize and validate the :term:`cstruct` into an

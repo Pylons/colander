@@ -21,6 +21,9 @@ Changes
   - If ``default`` is deferred, the serialization default will be
     assumed to be ``colander.null``.
 
+- Undocumented internal API for all type objects: ``flatten``.
+  External type objects should now inherit from
+  ``colander.SchemaType`` to get a default implementation.
 
 0.8  (2010/09/08)
 -----------------

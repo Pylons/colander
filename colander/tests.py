@@ -319,6 +319,17 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
 
+class TestSchemaType(unittest.TestCase):
+    def _makeOne(self, *arg, **kw):
+        from colander import SchemaType
+        return SchemaType(*arg, **kw)
+
+    def test_flatten(self):
+        node = DummySchemaNode(None, name='node')
+        typ = self._makeOne()
+        result = typ.flatten(node, 'appstruct')
+        self.assertEqual(result, {'node':'appstruct'})
+
 
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
@@ -439,6 +450,19 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, null)
         self.assertEqual(result, {'a':null})
 
+    def test_flatten(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.flatten(node, {'a':1, 'b':2})
+        self.assertEqual(result,
+                         {'node': {'a': 1, 'b': 2}, 'node.appstruct': 2})
+
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
         from colander import Tuple
@@ -550,6 +574,18 @@ class TestTuple(unittest.TestCase):
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
 
+    def test_flatten(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.flatten(node, (1, 2))
+        self.assertEqual(result, {'node': (1, 2), 'node.appstruct': 2})
+
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
         from colander import Sequence
@@ -645,6 +681,24 @@ class TestSequence(unittest.TestCase):
         e = invalid_exc(typ.serialize, node, ('1', '2'))
         self.assertEqual(e.msg, None)
         self.assertEqual(len(e.children), 2)
+
+    def test_flatten(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.flatten(node, [1, 2])
+        self.assertEqual(
+            result,
+            {'node': [1, 2],
+             'node.0': 1,
+             'node.0.appstruct': 1,
+             'node.1.appstruct': 2,
+             'node.1': 2})
 
 class TestString(unittest.TestCase):
     def _makeOne(self, encoding=None):
@@ -1617,20 +1671,73 @@ class TestFunctional(object):
         self.assertEqual(result['seq2'],
                          [{'key':1, 'key2':2}, {'key':3, 'key2':4}])
         self.assertEqual(result['tup'], (1, 's'))
+
+    def test_flatten_ok(self):
+        import colander
+        appstruct = {
+            'int':10,
+            'ob':colander.tests,
+            'seq':[(1, 's'),(2, 's'), (3, 's'), (4, 's')],
+            'seq2':[{'key':1, 'key2':2}, {'key':3, 'key2':4}],
+            'tup':(1, 's'),
+            }
+        schema = self._makeSchema()
+        result = schema.flatten(appstruct)
+
+        expected = {
+            'schema.seq.2.tup.tupstring': 's',
+            'schema.seq2.0.mapping.key2': 2,
+            'schema.seq.0': (1, 's'),
+            'schema.seq.1': (2, 's'),
+            'schema.seq.2': (3, 's'),
+            'schema.seq.3': (4, 's'),
+            'schema.seq': [(1, 's'), (2, 's'), (3, 's'), (4, 's')],
+            'schema.ob': colander.tests,
+            'schema.seq2.1.mapping.key2': 4,
+            'schema.seq.0.tup': (1, 's'),
+            'schema.seq.1.tup': (2, 's'),
+            'schema.seq2.0.mapping': {'key2': 2, 'key': 1},
+            'schema.seq2.1.mapping': {'key2': 4, 'key': 3},
+            'schema.seq.1.tup.tupstring': 's',
+            'schema.seq2.0.mapping.key': 1,
+            'schema.seq.1.tup.tupint': 2,
+            'schema.tup': (1, 's'),
+            'schema.seq.3.tup': (4, 's'),
+            'schema.seq.0.tup.tupstring': 's',
+            'schema.seq.2.tup': (3, 's'),
+            'schema.seq.3.tup.tupstring': 's',
+            'schema.seq.3.tup.tupint': 4,
+            'schema.seq2.1.mapping.key': 3,
+            'schema.int': 10,
+            'schema.seq2.0': {'key2': 2, 'key': 1},
+            'schema.seq.0.tup.tupint': 1,
+            'schema.tup.tupint': 1,
+            'schema.tup.tupstring': 's',
+            'schema.seq.2.tup.tupint': 3,
+            'schema.seq2': [{'key2': 2, 'key': 1}, {'key2': 4, 'key': 3}],
+            'schema.seq2.1': {'key2': 4, 'key': 3},
+            'schema': {'int': 10,
+                       'seq2': [{'key2': 2, 'key': 1}, {'key2': 4, 'key': 3}],
+                       'tup': (1, 's'),
+                       'ob':colander.tests,
+                       'seq': [(1, 's'), (2, 's'), (3, 's'), (4, 's')]}}
+
+        for k, v in result.items():
+            self.assertEqual(v, expected[k])
         
     def test_invalid_asdict(self):
         expected = {
-            'int': '20 is greater than maximum value 10',
-            'ob': 'The dotted name "no.way.this.exists" cannot be imported',
-            'seq.0.0': '"q" is not a number',
-            'seq.1.0': '"w" is not a number',
-            'seq.2.0': '"e" is not a number',
-            'seq.3.0': '"r" is not a number',
-            'seq2.0.key': '"t" is not a number',
-            'seq2.0.key2': '"y" is not a number',
-            'seq2.1.key': '"u" is not a number',
-            'seq2.1.key2': '"i" is not a number',
-            'tup.0': '"s" is not a number'}
+            'schema.int': '20 is greater than maximum value 10',
+            'schema.ob': 'The dotted name "no.way.this.exists" cannot be imported',
+            'schema.seq.0.0': '"q" is not a number',
+            'schema.seq.1.0': '"w" is not a number',
+            'schema.seq.2.0': '"e" is not a number',
+            'schema.seq.3.0': '"r" is not a number',
+            'schema.seq2.0.key': '"t" is not a number',
+            'schema.seq2.0.key2': '"y" is not a number',
+            'schema.seq2.1.key': '"u" is not a number',
+            'schema.seq2.1.key2': '"i" is not a number',
+            'schema.tup.0': '"s" is not a number'}
         data = {
             'int':'20',
             'ob':'no.way.this.exists',
@@ -1701,7 +1808,8 @@ class TestImperative(unittest.TestCase, TestFunctional):
             ob,
             tup,
             seq,
-            seq2)
+            seq2,
+            name='schema')
 
         return schema
 
@@ -1721,7 +1829,7 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
             key2 = colander.SchemaNode(colander.Int())
 
         class SequenceOne(colander.SequenceSchema):
-            tuple = TupleSchema()
+            tup = TupleSchema()
 
         class SequenceTwo(colander.SequenceSchema):
             mapping = MappingSchema()
@@ -1734,7 +1842,7 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
             tup = TupleSchema()
             seq2 = SequenceTwo()
 
-        schema = MainSchema()
+        schema = MainSchema(name='schema')
         return schema
 
 class Test_null(unittest.TestCase):
@@ -1791,4 +1899,8 @@ class DummyType(object):
 
     def deserialize(self, node, value):
         return value
+
+    def flatten(self, node, appstruct, prefix=''):
+        key = prefix + 'appstruct'
+        return {key:appstruct}
 
