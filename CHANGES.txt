@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.9  (unreleased)
+0.9  (2010-11-28)
 -----------------
 
 - SchemaNode constructor now accepts arbitrary keyword arguments.  It
