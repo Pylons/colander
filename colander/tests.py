@@ -1854,6 +1854,11 @@ class Test_null(unittest.TestCase):
         from colander import null
         self.assertEqual(repr(null), '<colander.null>')
 
+    def test_pickling(self):
+        from colander import null
+        import cPickle
+        self.failUnless(cPickle.loads(cPickle.dumps(null)) is null)
+
 class Dummy(object):
     pass
 

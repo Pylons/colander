@@ -4,6 +4,12 @@ Changes
 Next release
 ------------
 
+- When ``colander.null`` was unpickled, the reference created during
+  unpickling was *not* a reference to the singleton but rather a new instance
+  of the ``colander._null`` class.  This was unintentional, because lots of
+  code checks for ``if x is colander.null``, which will fail across pickling
+  and unpickling.  Now the reference created when ``colander.null`` is
+  pickled is unpickled as the singleton itself.
 
 0.9  (2010-11-28)
 -----------------

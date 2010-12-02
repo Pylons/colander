@@ -18,6 +18,9 @@ class _null(object):
     def __repr__(self):
         return '<colander.null>'
 
+    def __reduce__(self):
+        return 'null' # when unpickled, refers to "null" below (singleton)
+
 null = _null()
 
 def interpolate(msgs):
