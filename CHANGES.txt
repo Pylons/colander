@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.9.1 (2010-12-02)
+------------------
 
 - When ``colander.null`` was unpickled, the reference created during
   unpickling was *not* a reference to the singleton but rather a new instance

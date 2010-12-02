@@ -24,7 +24,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = ['iso8601', 'translationstring']
 
 setup(name='colander',
-      version='0.9',
+      version='0.9.1',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,
