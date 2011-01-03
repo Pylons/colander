@@ -8,7 +8,8 @@ import translationstring
 
 _ = translationstring.TranslationStringFactory('colander')
 
-_marker = object()
+required = object()
+_marker = required # bw compat
 
 class _null(object):
     """ Represents a null value in colander-related operations. """
@@ -1201,11 +1202,11 @@ class SchemaNode(object):
     - ``default``: The default serialization value for this node.
       Default: :attr:`colander.null`.
 
-    - ``missing``: The default deserialization value for this node.
-      If it is not provided, the missing value of this node will be a
-      special marker value, indicating that it is considered
-      'required' (the ``required`` computed attribute will be
-      ``True``).
+    - ``missing``: The default deserialization value for this node.  If it is
+      not provided, the missing value of this node will be the special marker
+      value :attr:`colander.required`, indicating that it is considered
+      'required'.  When ``missing`` is :attr:`colander.required`, the
+      ``required`` computed attribute will be ``True``.
 
     - ``validator``: Optional validator for this node.  It should be
       an object that implements the
@@ -1253,7 +1254,7 @@ class SchemaNode(object):
         self.typ = typ
         self.validator = kw.pop('validator', None)
         self.default = kw.pop('default', null)
-        self.missing = kw.pop('missing', _marker)
+        self.missing = kw.pop('missing', required)
         self.name = kw.pop('name', '')
         self.title = kw.pop('title', self.name.replace('_', ' ').title())
         self.description = kw.pop('description', '')
@@ -1267,12 +1268,13 @@ class SchemaNode(object):
         """ A property which returns ``True`` if the ``missing`` value
         related to this node was not specified.
 
-        A return value of ``True`` implies that a ``missing`` value
-        wasn't specified for this node.  A return value of ``False``
-        implies that a ``missing`` value was specified for this node."""
+        A return value of ``True`` implies that a ``missing`` value wasn't
+        specified for this node or that the ``missing`` value of this node is
+        :attr:`colander.required`.  A return value of ``False`` implies that
+        a 'real' ``missing`` value was specified for this node."""
         if isinstance(self.missing, deferred):  # unbound schema with deferreds
             return True
-        return self.missing is _marker
+        return self.missing is required
 
     def serialize(self, appstruct=null):
         """ Serialize the :term:`appstruct` to a :term:`cstruct` based
@@ -1328,7 +1330,7 @@ class SchemaNode(object):
         """
         if cstruct is null:
             appstruct = self.missing
-            if appstruct is _marker:
+            if appstruct is required:
                 raise Invalid(self, _('Required'))
             if isinstance(appstruct, deferred): # unbound schema with deferreds
                 raise Invalid(self, _('Required'))

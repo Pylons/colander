@@ -124,4 +124,6 @@ Schema-Related
 
      Represents a null value in colander-related operations.
 
+  .. attribute:: required
 
+     Represents a required value in colander-related operations.

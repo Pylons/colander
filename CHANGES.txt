@@ -1,6 +1,12 @@
 Changes
 =======
 
+Next release
+------------
+
+- New API: ``colander.required``.  Used as the marker value when a
+  ``missing`` argument is left unspecified.
+
 0.9.1 (2010-12-02)
 ------------------
 
