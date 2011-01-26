@@ -1256,7 +1256,11 @@ class SchemaNode(object):
         self.default = kw.pop('default', null)
         self.missing = kw.pop('missing', required)
         self.name = kw.pop('name', '')
-        self.title = kw.pop('title', self.name.replace('_', ' ').title())
+        self.raw_title = kw.pop('title', _marker)
+        if self.raw_title is _marker:
+            self.title = self.name.replace('_', ' ').title()
+        else:
+            self.title = self.raw_title
         self.description = kw.pop('description', '')
         self.widget = kw.pop('widget', None)
         self.after_bind = kw.pop('after_bind', None)
@@ -1403,14 +1407,13 @@ class SchemaNode(object):
             self.name,
             )
 
-
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []
         for name, value in clsattrs.items():
             if isinstance(value, SchemaNode):
                 value.name = name
-                if not value.title:
+                if value.raw_title is _marker:
                     value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))
         cls.__schema_nodes__ = nodes

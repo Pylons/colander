@@ -1608,6 +1608,19 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.children[0].title, 'Thing A')
         self.assertEqual(node.children[1].title, 'bar')
 
+    def test_title_munging(self):
+        import colander
+        class MySchema(colander.Schema):
+            thing1 = colander.SchemaNode(colander.String())
+            thing2 = colander.SchemaNode(colander.String(), title=None)
+            thing3 = colander.SchemaNode(colander.String(), title='')
+            thing4 = colander.SchemaNode(colander.String(), title='thing2')
+        node = MySchema()
+        self.assertEqual(node.children[0].title, 'Thing1')
+        self.assertEqual(node.children[1].title, None)
+        self.assertEqual(node.children[2].title, '')
+        self.assertEqual(node.children[3].title, 'thing2')
+
 class TestSequenceSchema(unittest.TestCase):
     def test_succeed(self):
         import colander

@@ -7,6 +7,10 @@ Next release
 - New API: ``colander.required``.  Used as the marker value when a
   ``missing`` argument is left unspecified.
 
+- Bug fix: if a ``title`` argument which is the empty string or ``None`` is
+  passed explicitly to a SchemaNode, it is no longer replaced by a title
+  computed from the name.
+
 0.9.1 (2010-12-02)
 ------------------
 
