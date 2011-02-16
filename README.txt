@@ -9,5 +9,5 @@ An extensible package which can be used to:
 - serialize an arbitrary data structure to a data structure composed
   of strings, mappings, and lists.
 
-Please see `http://docs.repoze.org/colander
-<http://docs.repoze.org/colander>`_ for further documentation.
+Please see http://docs.pylonsproject.org/colander/dev/
+for further documentation.

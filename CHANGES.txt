@@ -4,6 +4,10 @@ Changes
 Next release
 ------------
 
+- Moved to Pylons Project GitHub (https://github.com/Pylons/colander).
+
+- Add tox.ini for testing purposes.
+
 - New API: ``colander.required``.  Used as the marker value when a
   ``missing`` argument is left unspecified.
 

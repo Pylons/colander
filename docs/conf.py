@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'colander'
-copyright = '2010, Repoze Developers <repoze-dev@lists.repoze.org>'
+copyright = '2010, Agendaless Consulting <pylons-discuss@googlegroups.com>'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -91,10 +91,14 @@ pygments_style = 'sphinx'
 # Options for HTML output
 # -----------------------
 
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'pylons'
+
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = 'repoze.css'
+#html_style = 'pylons.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -106,7 +110,7 @@ html_style = 'repoze.css'
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-html_logo = '.static/logo_hi.gif'
+#html_logo = '.static/logo_hi.gif'
 
 # The name of an image file (within the static path) to use as favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or
@@ -117,7 +121,7 @@ html_logo = '.static/logo_hi.gif'
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['.static']
+#html_static_path = ['.static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -173,7 +177,7 @@ htmlhelp_basename = 'atemplatedoc'
 #  author, document class [howto/manual]).
 latex_documents = [
   ('index', 'atemplate.tex', 'colander Documentation',
-   'Repoze Developers', 'manual'),
+   'Pylons Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the

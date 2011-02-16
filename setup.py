@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2010 Agendaless Consulting and Contributors.
+# Copyright (c) 2011 Agendaless Consulting and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the BSD-like license at
@@ -18,8 +18,13 @@ from setuptools import setup
 from setuptools import find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.txt')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+
+try:
+    README = open(os.path.join(here, 'README.txt')).read()
+    CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+except:
+    README = ''
+    CHANGES = ''
 
 requires = ['iso8601', 'translationstring']
 
@@ -34,8 +39,8 @@ setup(name='colander',
         ],
       keywords='serialize deserialize validate schema validation',
       author="Agendaless Consulting",
-      author_email="repoze-dev@lists.repoze.org",
-      url="http://docs.repoze.org/colander",
+      author_email="pylons-discuss@googlegroups.com",
+      url="http://docs.pylonsproject.org/colander/dev/",
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
       packages=find_packages(),
       include_package_data=True,
