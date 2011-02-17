@@ -738,16 +738,16 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, unicode(value))
 
     def test_deserialize_from_utf8(self):
-        utf8 = '\xc3\xb8'
         uni = u'\xf8'
+        utf8 = uni.encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
         result = typ.deserialize(node, utf8)
         self.assertEqual(result, uni)
 
     def test_deserialize_from_utf16(self):
-        utf16 = '\xff\xfe\xf8\x00'
         uni = u'\xf8'
+        utf16 = uni.encode('utf-16')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
         result = typ.deserialize(node, utf16)
@@ -782,16 +782,16 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, value)
 
     def test_serialize_to_utf8(self):
-        utf8 = '\xc3\xb8'
         uni = u'\xf8'
+        utf8 = uni.encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
         result = typ.serialize(node, uni)
         self.assertEqual(result, utf8)
 
     def test_serialize_to_utf16(self):
-        utf16 = '\xff\xfe\xf8\x00'
         uni = u'\xf8'
+        utf16 = uni.encode('utf-16')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
         result = typ.serialize(node, uni)
