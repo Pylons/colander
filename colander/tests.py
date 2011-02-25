@@ -716,7 +716,7 @@ class TestString(unittest.TestCase):
         result = typ.deserialize(node, '')
         self.assertEqual(result, '')
 
-    def test_deserialize_Nones_to_empty_tring(self):
+    def test_deserialize_None_to_empty_string(self):
         node = DummySchemaNode(None)
         typ = self._makeOne(None)
         result = typ.deserialize(node, None)
