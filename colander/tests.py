@@ -716,6 +716,12 @@ class TestString(unittest.TestCase):
         result = typ.deserialize(node, '')
         self.assertEqual(result, '')
 
+    def test_deserialize_Nones_to_empty_tring(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne(None)
+        result = typ.deserialize(node, None)
+        self.assertEqual(result, '')
+
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
         node = DummySchemaNode(None)
@@ -780,6 +786,13 @@ class TestString(unittest.TestCase):
         typ = self._makeOne()
         result = typ.serialize(node, value)
         self.assertEqual(result, value)
+
+    def test_serialize_None_to_empty_string(self):
+        value = None
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, value)
+        self.assertEqual(result, u'')
 
     def test_serialize_to_utf8(self):
         uni = u'\xf8'

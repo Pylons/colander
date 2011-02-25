@@ -760,6 +760,8 @@ class String(SchemaType):
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
+        elif appstruct is None:
+            return u''
             
         try:
             if isinstance(appstruct, unicode):
@@ -782,7 +784,9 @@ class String(SchemaType):
     def deserialize(self, node, cstruct):
         try:
             result = cstruct
-            if not isinstance(result, unicode):
+            if result is None:
+                return u''
+            elif not isinstance(result, unicode):
                 if self.encoding:
                     result = unicode(str(cstruct), self.encoding)
                 else:
