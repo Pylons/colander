@@ -613,36 +613,6 @@ class TestSequence(unittest.TestCase):
         result = typ.deserialize(node, None)
         self.assertEqual(result, [None])
 
-    def test_deserialize_min_len_fail(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne(min_len=1)
-        e = invalid_exc(typ.deserialize, node, [])
-        self.assertEqual(e.msg.interpolate(),
-                         'Too few sequence elements (minimum 1)')
-
-    def test_deserialize_min_len_success(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne(min_len=1)
-        child = DummySchemaNode(None)
-        node.children = [child]
-        result = typ.deserialize(node, [None])
-        self.assertEqual(result, [None])
-
-    def test_deserialize_max_len_fail(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne(max_len=1)
-        e = invalid_exc(typ.deserialize, node, [None, None])
-        self.assertEqual(e.msg.interpolate(),
-                         'Too many sequence elements (maximum 1)')
-
-    def test_deserialize_max_len_success(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne(max_len=1)
-        child = DummySchemaNode(None)
-        node.children = [child]
-        result = typ.deserialize(node, [None])
-        self.assertEqual(result, [None])
-        
     def test_deserialize_no_subnodes(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
