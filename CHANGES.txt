@@ -15,6 +15,11 @@ Next release
   passed explicitly to a SchemaNode, it is no longer replaced by a title
   computed from the name.
 
+- Added ``min_len`` and ``max_len`` arguments to ``colander.Sequence``
+  constructor.  If used, these arguments indicate the minimum and maximum
+  length of the sequence during deserialization.  If either constraint is not
+  met, an Invalid error is raised.
+
 0.9.1 (2010-12-02)
 ------------------
 

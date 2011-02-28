@@ -561,8 +561,7 @@ class Tuple(Positional, SchemaType):
         return result
 
 class Sequence(Positional, SchemaType):
-    """
-    A type which represents a variable-length sequence of nodes,
+    """A type which represents a variable-length sequence of nodes,
     all of which must be of the same type.
 
     The type of the first subnode of the
@@ -572,35 +571,66 @@ class Sequence(Positional, SchemaType):
     The optional ``accept_scalar`` argument to this type's constructor
     indicates what should happen if the value found during serialization or
     deserialization does not have an ``__iter__`` method or is a
-    mapping type.
+    mapping type:
 
-    If ``accept_scalar`` is ``True`` and the value does not have an
-    ``__iter__`` method or is a mapping type, the value will be turned
-    into a single element list.
+    - If ``accept_scalar`` is ``True`` and the value does not have an
+      ``__iter__`` method or is a mapping type, the value will be turned into
+      a single element list.
 
-    If ``accept_scalar`` is ``False`` and the value does not have an
-    ``__iter__`` method or is a mapping type, an
-    :exc:`colander.Invalid` error will be raised during serialization
-    and deserialization.
+    - If ``accept_scalar`` is ``False`` and the value does not have an
+      ``__iter__`` method or is a mapping type, an :exc:`colander.Invalid`
+      error will be raised during serialization and deserialization.
 
     The default value of ``accept_scalar`` is ``False``.
 
+    The option ``min_len`` argument to this type's constructor indicates the
+    minimum number of values that must be present in this sequence during
+    deserialization.  If a number of values fewer than ``min_len`` is present
+    in the deserialized sequence, an ``Invalid`` exception is raised.
+
+    The option ``max_len`` argument to this type's constructor indicates the
+    minimum number of values that must be present in this sequence during
+    deserialization.  If a number of values greater than ``max_len`` is
+    present in the deserialized sequence, an ``Invalid`` exception is raised.
+    
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value is returned.
+
     """
-    def __init__(self, accept_scalar=False):
+    def __init__(self, accept_scalar=False, min_len=None, max_len=None):
         self.accept_scalar = accept_scalar
+        self.min = min_len
+        self.max = max_len
 
     def _validate(self, node, value, accept_scalar):
-        if hasattr(value, '__iter__') and not hasattr(value, 'get'):
-            return list(value)
         if accept_scalar:
-            return [value]
-        else:
+            if (not hasattr(value, '__iter__')) or hasattr(value, 'get'):
+                value = [value]
+
+        if not hasattr(value, '__iter__'):
             raise Invalid(node, _('"${val}" is not iterable',
                                   mapping={'val':value})
                           )
 
+        val = list(value)
+
+        if self.max is not None:
+            if len(val) > self.max:
+                raise Invalid(
+                    node,
+                    _('Too many sequence elements (maximum ${num})',
+                      mapping={'num':self.max})
+                )
+
+        if self.min is not None:
+            if len(val) < self.min:
+                raise Invalid(node,
+                    _('Too few sequence elements (minimum ${num})',
+                      mapping={'num':self.min})
+                )
+
+        return val
+                
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
             accept_scalar = self.accept_scalar
