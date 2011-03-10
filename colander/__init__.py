@@ -1399,6 +1399,13 @@ class SchemaNode(object):
         """ Iterate over the children nodes of this schema node """
         return iter(self.children)
 
+    def __contains__(self, name):
+        try:
+            self[name]
+        except KeyError:
+            return False
+        return True
+
     def __repr__(self):
         return '<%s.%s object at %d (named %s)>' % (
             self.__module__,

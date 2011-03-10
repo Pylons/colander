@@ -1503,6 +1503,13 @@ class TestSchemaNode(unittest.TestCase):
         it = node.__iter__()
         self.assertEqual(list(it), ['a', 'b', 'c'])
 
+    def test___contains__(self):
+        node = self._makeOne(None)
+        another = self._makeOne(None, name='another')
+        node.add(another)
+        self.assertEquals('another' in node, True)
+        self.assertEquals('b' in node, False)
+
     def test_clone(self):
         inner_typ = DummyType()
         outer_typ = DummyType()
