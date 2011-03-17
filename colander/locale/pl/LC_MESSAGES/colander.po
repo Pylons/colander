@@ -48,7 +48,7 @@ msgstr "Dłuższa niż maksymalna długość ${max}"
 
 #: colander/__init__.py:328
 msgid "\"${val}\" is not one of ${choices}"
-msgstr "\"${val}\" nie jest żadnym ${choices}"
+msgstr "\"${val}\" nie jest żadnym z ${choices}"
 
 #: colander/__init__.py:398
 msgid "\"${val}\" is not a mapping type: ${err}"
@@ -56,7 +56,7 @@ msgstr "\"${val}\" nie jest zmapowanym typem: ${err}"
 
 #: colander/__init__.py:422
 msgid "Unrecognized keys in mapping: \"${val}\""
-msgstr "Nierozpoznane klucze w mapowaniu: \"${val}\""
+msgstr "Nieznane klucze w mapowaniu: \"${val}\""
 
 #: colander/__init__.py:477 colander/__init__.py:563
 msgid "\"${val}\" is not iterable"
@@ -71,7 +71,7 @@ msgstr "\"${val}\" ma niepoprawną ilość elementów (oczekiwano ${exp}, było 
 
 #: colander/__init__.py:725
 msgid "\"${val} cannot be serialized: ${err}"
-msgstr "\"${val} nie może być zserializowana: ${err}"
+msgstr "\"${val} nie może zostać zserializowana: ${err}"
 
 #: colander/__init__.py:738
 msgid "${val} is not a string: %{err}"
@@ -79,7 +79,7 @@ msgstr "${val} nie jest stringiem: %{err}"
 
 #: colander/__init__.py:759 colander/__init__.py:770
 msgid "\"${val}\" is not a number"
-msgstr "\"${val}\" nie jest numerem"
+msgstr "\"${val}\" nie jest liczbą"
 
 #: colander/__init__.py:764 colander/__init__.py:1263
 msgid "Required"
