@@ -48,7 +48,7 @@ msgstr "Dłuższa niż maksymalna długość ${max}"
 
 #: colander/__init__.py:328
 msgid "\"${val}\" is not one of ${choices}"
-msgstr "\'${val}\" nie jest żadnym ${choices}"
+msgstr "\"${val}\" nie jest żadnym ${choices}"
 
 #: colander/__init__.py:398
 msgid "\"${val}\" is not a mapping type: ${err}"
@@ -66,8 +66,8 @@ msgstr "\"${val}\" nie jest iterable"
 msgid ""
 "\"${val}\" has an incorrect number of elements (expected ${exp}, was "
 "${was})"
-msgstr "\"${val}\" ma niepoprawną ilość elementów (oczekiwane ${exp}, było
-${was})"
+msgstr "\"${val}\" ma niepoprawną ilość elementów (oczekiwano ${exp}, było "
+"${was})"
 
 #: colander/__init__.py:725
 msgid "\"${val} cannot be serialized: ${err}"
