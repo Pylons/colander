@@ -4,6 +4,8 @@ Changes
 Next release
 ------------
 
+- Added Polish translation, thanks to Jędrzej Nowak.
+
 - Moved to Pylons Project GitHub (https://github.com/Pylons/colander).
 
 - Add tox.ini for testing purposes.
