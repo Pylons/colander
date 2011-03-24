@@ -15,6 +15,8 @@ Next release
   passed explicitly to a SchemaNode, it is no longer replaced by a title
   computed from the name.
 
+- Add SchemaNode.__contains__ to support "name in schema".
+
 0.9.1 (2010-12-02)
 ------------------
 
