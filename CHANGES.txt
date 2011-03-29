@@ -4,7 +4,7 @@ Changes
 0.9.2 (2011-03-28)
 ------------------
 
-- Added Polish translation, thanks to Jędrzej Nowak.
+- Added Polish translation, thanks to Jedrzej Nowak.
 
 - Moved to Pylons Project GitHub (https://github.com/Pylons/colander).
 
