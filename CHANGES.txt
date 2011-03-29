@@ -7,6 +7,9 @@ Next release
 - Fix documentation: 0.9.2 requires ``deserialize`` of types to explicitly
   deal with the potential to receive ``colander.null``.
 
+- Use ``default_tzinfo`` when deserializing naive datetimes.  See
+  https://github.com/Pylons/colander/issues#issue/5.
+
 0.9.2 (2011-03-28)
 ------------------
 
