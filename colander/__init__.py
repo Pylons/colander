@@ -706,7 +706,7 @@ Seq = Sequence
 class String(SchemaType):
     """ A type representing a Unicode string.
 
-    This type constructor accepts two arguments:
+    This type constructor accepts one argument:
 
     ``encoding``
        Represents the encoding which should be applied to value
