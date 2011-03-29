@@ -1118,7 +1118,8 @@ class DateTime(SchemaType):
             return null
         
         try:
-            result = iso8601.parse_date(cstruct)
+            result = iso8601.parse_date(
+                cstruct, default_timezone=self.default_tzinfo)
         except (iso8601.ParseError, TypeError), e:
             try:
                 year, month, day = map(int, cstruct.split('-', 2))

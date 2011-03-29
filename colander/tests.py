@@ -1312,7 +1312,18 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), iso)
-        
+
+    def test_deserialize_naive_with_default_tzinfo(self):
+        import iso8601
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
+        typ = self._makeOne(default_tzinfo=tzinfo)
+        dt = self._dt()
+        dt_with_tz = dt.replace(tzinfo=tzinfo)
+        iso = dt.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, iso)
+        self.assertEqual(result.isoformat(), dt_with_tz.isoformat())
+
 class TestDate(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Date
