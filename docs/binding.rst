@@ -27,13 +27,15 @@ scope.
 What Is Schema Binding?
 -----------------------
 
-- Values passed to a SchemaNode (e.g. ``description``, ``missing``,
-  etc.) may be an instance of the ``colander.deferred`` class.
-  Instances of the ``colander.deferred`` class are callables which
-  accept two positional arguments: a ``node`` and a ``kw`` dictionary.
+- Any values passed as a keyword argument to a SchemaNode
+  (e.g. ``description``, ``missing``, etc.)  may be an instance of the
+  ``colander.deferred`` class.  Instances of the ``colander.deferred`` class
+  are callables which accept two positional arguments: a ``node`` and a
+  ``kw`` dictionary.
 
-- When a schema node is bound, it is cloned, and any
-  ``colander.deferred`` values it has as attributes will be resolved.
+- When a schema node is bound, it is cloned, and any ``colander.deferred``
+  values it has as attributes will be resolved by invoking the callable
+  represented by the deferred value.
 
 - A ``colander.deferred`` value is a callable that accepts two
   positional arguments: the schema node being bound and a set of

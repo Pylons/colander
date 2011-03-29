@@ -17,8 +17,11 @@ that the :term:`cstruct` value corresponding to the node it's passed
 to is missing, and if possible, the value of the ``missing`` attribute
 of the corresponding node should be used instead.
 
-Note that :attr:`colander.null` has no relationship to the built-in
-Python ``None`` value.
+Note that :attr:`colander.null` has no relationship to the built-in Python
+``None`` value.  ``colander.null`` is used instead of ``None`` because
+``None`` is a potentially valid value for some serializations and
+deserializations, and using it as a sentinel would prevent ``None`` from
+being used in this way.
 
 .. _serializing_null:
 
@@ -206,15 +209,24 @@ When a :attr:`colander.null` sentinel marker is passed to the
 :meth:`colander.SchemaNode.deserialize` method of a particular node in
 a schema, the node will take the following steps:
 
-- If the schema node has an explicit ``missing`` attribute (the node's
-  constructor was supplied with an explicit ``missing`` argument), the
-  ``missing`` value will be returned.  Note that when this happens,
-  the ``missing`` value is not validated by any schema node validator:
-  it is simply returned.
+- The *type* object's ``deserialize`` method will be called with the null
+  value to allow the type to convert the null value to a type-specific
+  default.  The resulting "appstruct" is used instead of the value passed
+  directly to :meth:`colander.SchemaNode.deserialize` in subsequent
+  operations.  Most types, when they receive the ``null`` value will simply
+  return it, however.
 
-- If the schema node does *not* have an explicitly provided
-  ``missing`` attribute (the node's constructor was not supplied with
-  an explicit ``missing`` value), a :exc:`colander.Invalid` exception
+- If the appstruct value computed by the type's ``deserialize`` method is
+  ``colander.null`` and the schema node has an explicit ``missing`` attribute
+  (the node's constructor was supplied with an explicit ``missing``
+  argument), the ``missing`` value will be returned.  Note that when this
+  happens, the ``missing`` value is not validated by any schema node
+  validator: it is simply returned.
+
+- If the appstruct value computed by the type's ``deserialize`` method is
+  ``colander.null`` and the schema node does *not* have an explicitly
+  provided ``missing`` attribute (the node's constructor was not supplied
+  with an explicit ``missing`` value), a :exc:`colander.Invalid` exception
   will be raised with a message indicating that the field is required.
 
 .. note:: There are differences between serialization and
@@ -255,7 +267,7 @@ an ``age`` key of :attr:`colander.null`, the ``missing`` value of
 
 .. note:: Note that ``None`` can be used for the ``missing`` schema
    node value as required, as in the above example.  It's no different
-   than any other value used as ``missing``.  or ``colander.nuil`` can
+   than any other value used as ``missing``.  The empty string can
    also be used as the ``missing`` value if that is helpful.
 
 The :attr:`colander.null` value is also the default, so it needn't be

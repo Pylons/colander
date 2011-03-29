@@ -87,13 +87,12 @@ of our definitions, a ``Person`` represents:
 Schema Node Objects
 ~~~~~~~~~~~~~~~~~~~
 
-A schema is composed of one or more *schema node* objects, each
-typically of the class :class:`colander.SchemaNode`, usually in a
-nested arrangement.  Each schema node object has a required *type*, an
-optional deserialization *validator*, an optional *default*, an
-optional *missing*, an optional *title*, an optional *description*, an
-optional *widget*, and a slightly less optional *name*.  It also
-accepts *arbitrary* keyword arguments, which are attached directly as
+A schema is composed of one or more *schema node* objects, each typically of
+the class :class:`colander.SchemaNode`, usually in a nested arrangement.
+Each schema node object has a required *type*, an optional deserialization
+*validator*, an optional *default*, an optional *missing*, an optional
+*title*, an optional *description*, and a slightly less optional *name*.  It
+also accepts *arbitrary* keyword arguments, which are attached directly as
 attributes to the node instance.
 
 The *type* of a schema node indicates its data type (such as
@@ -126,19 +125,20 @@ of the *name*.
 The *description* of a schema node is metadata about a schema node
 that can be used by higher-level systems.  By default, it is empty.
 
-The *widget* of a schema node is a concept used only by higher level
-systems (such as form systems).  By default it is ``None``.  It won't
-be discussed any further in the Colander documentation; it will
-instead be explained in the context of the documentation of systems
-which make use of it.
-
 Any other keyword arguments to a schema node constructor will be
 attached to the node unmolested (e.g. when ``foo=1`` is passed, the
 resulting schema node will have an attribute named ``foo`` with the
 value ``1``).
 
-.. note:: Abitrary keyword arguments are allowed to a schema node
-          constructor in Colander 0.9+.  Prior version disallow them.
+.. note:: You may see some higher-level systems (such as Deform) pass a
+   ``widget`` argument to a SchemaNode constructor.  Such systems make use of
+   the fact that a SchemaNode can be passed arbitrary keyword arguments for
+   extension purposes.  ``widget`` and other keyword arguments not enumerated
+   here but which are passed during schema node construction by someone
+   constructing a schema for a particular purpose are not used internally by
+   Colander; they are instead only meaningful to higher-level systems which
+   consume Colander schemas.  Abitrary keyword arguments are allowed to a
+   schema node constructor in Colander 0.9+.  Prior version disallow them.
 
 The name of a schema node that is introduced as a class-level
 attribute of a :class:`colander.MappingSchema`,
@@ -193,7 +193,7 @@ Earlier we defined a schema:
 
    class Friend(colander.TupleSchema):
        rank = colander.SchemaNode(colander.Int(), 
-                                 validator=colander.Range(0, 9999))
+                                  validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
