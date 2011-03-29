@@ -19,6 +19,12 @@ Next release
 
 - Add SchemaNode.__contains__ to support "name in schema".
 
+- SchemaNode deserialization now unconditionally calls the schema type's
+  ``deserialize`` method to obtain an appstruct before attempting to
+  validate.  Third party schema types should now return ``colander.null`` if
+  passed a ``colander.null`` value or another logically "empty" value as a
+  cstruct during ``deserialize``.
+
 0.9.1 (2010-12-02)
 ------------------
 

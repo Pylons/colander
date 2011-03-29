@@ -453,6 +453,8 @@ class Mapping(SchemaType):
         return self._impl(node, appstruct, callback)
 
     def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
 
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
@@ -543,6 +545,9 @@ class Tuple(Positional, SchemaType):
         return self._impl(node, appstruct, callback)
 
     def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+        
         def callback(subnode, subval):
             return subnode.deserialize(subval)
 
@@ -671,6 +676,9 @@ class Sequence(Positional, SchemaType):
         respect the default ``accept_scalar`` value attached to this
         instance via its constructor.
         """
+        if cstruct is null:
+            return null
+        
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
@@ -698,7 +706,7 @@ Seq = Sequence
 class String(SchemaType):
     """ A type representing a Unicode string.
 
-    This type constructor accepts one argument:
+    This type constructor accepts two arguments:
 
     ``encoding``
        Represents the encoding which should be applied to value
@@ -751,6 +759,12 @@ class String(SchemaType):
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
 
+    ``empty``
+
+       When an empty value is deserialized, empty represents the value passed
+       back to the caller of ``deserialize`` or ``validate``.  By default,
+       this is ``colander.null``.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
@@ -780,6 +794,9 @@ class String(SchemaType):
                             mapping={'val':appstruct, 'err':e})
                           )
     def deserialize(self, node, cstruct):
+        if not cstruct:
+            return null
+        
         try:
             result = cstruct
             if not isinstance(result, unicode):
@@ -813,9 +830,9 @@ class Number(SchemaType):
                             mapping={'val':appstruct}),
                           )
     def deserialize(self, node, cstruct):
-        if not cstruct:
-            raise Invalid(node, _('Required'))
-
+        if cstruct != 0 and not cstruct:
+            return null
+        
         try:
             return self.num(cstruct)
         except Exception:
@@ -889,6 +906,9 @@ class Boolean(SchemaType):
         return appstruct and 'true' or 'false'
 
     def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+        
         try:
             result = str(cstruct)
         except:
@@ -1014,6 +1034,9 @@ class GlobalObject(SchemaType):
                             mapping={'val':appstruct})
                           )
     def deserialize(self, node, cstruct):
+        if not cstruct:
+            return null
+        
         if not isinstance(cstruct, basestring):
             raise Invalid(node,
                           _('"${val}" is not a string',
@@ -1097,6 +1120,9 @@ class DateTime(SchemaType):
         return appstruct.isoformat()
 
     def deserialize(self, node, cstruct):
+        if not cstruct:
+            return null
+        
         try:
             result = iso8601.parse_date(cstruct)
         except (iso8601.ParseError, TypeError), e:
@@ -1167,6 +1193,8 @@ class Date(SchemaType):
         return appstruct.isoformat()
 
     def deserialize(self, node, cstruct):
+        if not cstruct:
+            return null
         try:
             result = iso8601.parse_date(cstruct)
             result = result.date()
@@ -1314,25 +1342,31 @@ class SchemaNode(object):
         this node using the fstruct passed. """
 
     def deserialize(self, cstruct=null):
-        """ Deserialize and validate the :term:`cstruct` into an
-        :term:`appstruct` based on the schema, and return the
-        deserialized, validated appstruct.  If the cstruct cannot be
-        validated, a :exc:`colander.Invalid` exception will be raised.
+        """ Deserialize the :term:`cstruct` into an :term:`appstruct` based
+        on the schema, and return the deserialized, then validate the
+        resulting appstruct.  The ``cstruct`` value is deserialized into an
+        ``appstruct`` unconditionally.
 
-        If ``cstruct`` is :attr:`colander.null`, do something special:
+        If ``appstruct`` returned by type deserialization is the value
+        :attr:`colander.null`, do something special before attempting
+        validation:
 
-        - If the ``missing`` attribute of this node has been set
-          explicitly, return its value.  No deserialization or
-          validation of this value is performed; it is simply
-          returned.
+        - If the ``missing`` attribute of this node has been set explicitly,
+          return its value.  No validation of this value is performed; it is
+          simply returned.
 
         - If the ``missing`` attribute of this node has not been set
           explicitly, raise a :exc:`colander.Invalid` exception error.
 
+        If the appstruct is not ``colander.null`` and cannot be validated , a
+        :exc:`colander.Invalid` exception will be raised.
+
         If a ``cstruct`` argument is not explicitly provided, it
         defaults to :attr:`colander.null`.
         """
-        if cstruct is null:
+        appstruct = self.typ.deserialize(self, cstruct)
+
+        if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
                 raise Invalid(self, _('Required'))
@@ -1341,7 +1375,6 @@ class SchemaNode(object):
             # We never deserialize or validate the missing value
             return appstruct
 
-        appstruct = self.typ.deserialize(self, cstruct)
         if self.validator is not None:
             if not isinstance(self.validator, deferred): # unbound
                 self.validator(self, appstruct)

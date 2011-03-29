@@ -354,6 +354,13 @@ class TestMapping(unittest.TestCase):
         self.failUnless(
             e.msg.interpolate().startswith('"None" is not a mapping type'))
 
+    def test_deserialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
+
     def test_deserialize_no_subnodes(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -482,6 +489,13 @@ class TestTuple(unittest.TestCase):
         typ = self._makeOne()
         result = typ.deserialize(node, ())
         self.assertEqual(result, ())
+
+    def test_deserialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
 
     def test_deserialize_ok(self):
         node = DummySchemaNode(None)
@@ -620,6 +634,12 @@ class TestSequence(unittest.TestCase):
         result = typ.deserialize(node, ())
         self.assertEqual(result, [])
 
+    def test_deserialize_no_null(self):
+        import colander
+        typ = self._makeOne()
+        result = typ.deserialize(None, colander.null)
+        self.assertEqual(result, colander.null)
+
     def test_deserialize_ok(self):
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
@@ -711,10 +731,11 @@ class TestString(unittest.TestCase):
         self.assertEqual(Str, String)
 
     def test_deserialize_emptystring(self):
+        from colander import null
         node = DummySchemaNode(None)
         typ = self._makeOne(None)
         result = typ.deserialize(node, '')
-        self.assertEqual(result, '')
+        self.assertEqual(result, null)
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
@@ -822,12 +843,13 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
-    def test_serialize_emptystring_required(self):
+    def test_serialize_emptystring(self):
+        import colander
         val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, val)
-        self.assertEqual(e.msg, 'Required')
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, colander.null)
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -870,12 +892,13 @@ class TestFloat(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
-    def test_serialize_emptystring_required(self):
+    def test_serialize_emptystring(self):
+        import colander
         val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, val)
-        self.assertEqual(e.msg, 'Required')
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, colander.null)
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -918,12 +941,13 @@ class TestDecimal(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
-    def test_serialize_emptystring_required(self):
+    def test_serialize_emptystring(self):
+        import colander
         val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        e = invalid_exc(typ.deserialize, node, val)
-        self.assertEqual(e.msg, 'Required')
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, colander.null)
 
     def test_deserialize_fails(self):
         val = 'P'
@@ -986,6 +1010,13 @@ class TestBoolean(unittest.TestCase):
         node = DummySchemaNode(None)
         e = invalid_exc(typ.deserialize, node, Uncooperative())
         self.failUnless(e.msg.endswith('not a string'))
+
+    def test_deserialize_null(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
 
     def test_serialize(self):
         typ = self._makeOne()
@@ -1110,11 +1141,25 @@ class TestGlobalObject(unittest.TestCase):
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
                           ':notexisting')
 
-    def test_deserialize_not_a_string(self):
+    def test_deserialize_None(self):
+        import colander
         typ = self._makeOne()
         node = DummySchemaNode(None)
-        e = invalid_exc(typ.deserialize, node, None)
-        self.assertEqual(e.msg.interpolate(), '"None" is not a string')
+        result = typ.deserialize(node, None)
+        self.assertEqual(result, colander.null)
+
+    def test_deserialize_null(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
+
+    def test_deserialize_notastring(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertRaises(colander.Invalid, typ.deserialize, node, True)
 
     def test_deserialize_using_pkgresources_style(self):
         typ = self._makeOne()
@@ -1243,6 +1288,20 @@ class TestDateTime(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, 'garbage')
         self.failUnless('Invalid' in e.msg)
 
+    def test_deserialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
+
+    def test_deserialize_empty(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, '')
+        self.assertEqual(result, colander.null)
+
     def test_deserialize_success(self):
         import iso8601
         typ = self._makeOne()
@@ -1308,6 +1367,20 @@ class TestDate(unittest.TestCase):
         typ = self._makeOne()
         e = invalid_exc(typ.deserialize, node, '10-10-10-10')
         self.failUnless('Invalid' in e.msg)
+
+    def test_deserialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
+
+    def test_deserialize_empty(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, '')
+        self.assertEqual(result, colander.null)
 
     def test_deserialize_success_date(self):
         typ = self._makeOne()
