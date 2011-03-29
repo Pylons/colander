@@ -759,12 +759,6 @@ class String(SchemaType):
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
 
-    ``empty``
-
-       When an empty value is deserialized, empty represents the value passed
-       back to the caller of ``deserialize`` or ``validate``.  By default,
-       this is ``colander.null``.
-
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
