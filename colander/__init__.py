@@ -1091,8 +1091,8 @@ class DateTime(SchemaType):
     """
     err_template =  _('Invalid date')
 
-    def __init__(self, default_tzinfo=None):
-        if default_tzinfo is None:
+    def __init__(self, default_tzinfo=_marker):
+        if default_tzinfo is _marker:
             default_tzinfo = iso8601.iso8601.Utc()
         self.default_tzinfo = default_tzinfo
         

@@ -1258,6 +1258,13 @@ class TestDateTime(unittest.TestCase):
         expected = dt.replace(tzinfo=typ.default_tzinfo).isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_with_none_tzinfo_naive_datetime(self):
+        typ = self._makeOne(default_tzinfo=None)
+        node = DummySchemaNode(None)
+        dt = self._dt()
+        result = typ.serialize(node, dt)
+        self.assertEqual(result, dt.isoformat())
+
     def test_serialize_with_tzware_datetime(self):
         import iso8601
         typ = self._makeOne()
@@ -1323,6 +1330,14 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), dt_with_tz.isoformat())
+
+    def test_deserialize_none_tzinfo(self):
+        typ = self._makeOne(default_tzinfo=None)
+        dt = self._dt()
+        iso = dt.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, iso)
+        self.assertEqual(result.isoformat(), dt.isoformat())
 
 class TestDate(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
