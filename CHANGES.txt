@@ -10,6 +10,10 @@ Next release
 - Use ``default_tzinfo`` when deserializing naive datetimes.  See
   https://github.com/Pylons/colander/issues#issue/5.
 
+- Allow ``default_tzinfo`` to be ``None`` when creating a
+  ``colander.DateTime``.  See
+  https://github.com/Pylons/colander/issues#issue/6.
+
 0.9.2 (2011-03-28)
 ------------------
 
