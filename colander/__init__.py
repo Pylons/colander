@@ -88,10 +88,12 @@ class Invalid(Exception):
         self.children.append(exc)
 
     def __setitem__(self, name, msg):
-        """ Add a subexception related to a child node with the
-        message ``msg``. ``name`` must be present in the names of the
-        set of child nodes of this exception's node; if this is not
-        so, a :exc:`KeyError` is raised.
+        """ Add a subexception related to a child node.  If with the
+        message ``msg``.
+
+        ``name`` must be present in the names of the set of child nodes of
+        this exception's node; if this is not so, a :exc:`KeyError` is
+        raised.
 
         For example, if the exception upon which ``__setitem__`` is
         called has a node attribute, and that node attribute has
@@ -111,6 +113,31 @@ class Invalid(Exception):
                 self.add(exc, num)
                 return
         raise KeyError(name)
+
+    def __getitem__(self, name):
+        """ Return the child Invalid exception object named ``name``.  If
+        ``name`` is an integer, return the Invalid exception object at the
+        child index position represented by ``name``.  If the item does not
+        exist, raise an :exc:`KeyError` (if name is a string) or
+        :exc:`IndexError` (if name is an integer)."""
+        result = self.get(name)
+        if result is None:
+            raise KeyError(name)
+        return result
+
+    def get(self, name, default=None):
+        """ Return the child Invalid exception object related to the child
+        schema node named ``name``.  If ``name`` is an integer, return the
+        Invalid object at the child index position represented by ``name``.
+        If the item does not exist, return the ``default`` value."""
+        # XXX crazy exponential time
+        for e in self.children:
+            if (e.pos is not None) and (e.pos == name):
+                return e
+            for num, child in enumerate(self.node.children):
+                if (e.pos == num) and (child.name == name):
+                    return e
+        return default
 
     def paths(self):
         """ A generator which returns each path through the exception

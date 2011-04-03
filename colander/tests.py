@@ -126,6 +126,49 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(childexc.pos, 0)
         self.assertEqual(childexc.node.name, 'found')
 
+    def test___getitem__fails(self):
+        node = DummySchemaNode(None)
+        exc = self._makeOne(node, 'msg')
+        self.assertRaises(KeyError, exc.__getitem__, 'notfound')
+
+    def test___getitem__succeeds_byname(self):
+        node = DummySchemaNode(None)
+        child1 = DummySchemaNode(None)
+        child1.name = 'one'
+        child1.pos = None
+        child2 = DummySchemaNode(None)
+        child2.name = 'two'
+        child2.pos = None
+        node.children = [child1, child2]
+        exc = self._makeOne(node, 'msg')
+        exc['one'] = 'one'
+        exc['two'] = 'two'
+        childexc = exc['one']
+        self.assertEqual(childexc.msg, 'one')
+        self.assertEqual(childexc.node.name, 'one')
+        childexc = exc['two']
+        self.assertEqual(childexc.msg, 'two')
+        self.assertEqual(childexc.node.name, 'two')
+
+    def test___getitem__succeeds_bypos(self):
+        node = DummySchemaNode(None)
+        child1 = DummySchemaNode(None)
+        child1.name = 'one'
+        child1.pos = 0
+        child2 = DummySchemaNode(None)
+        child2.name = 'two'
+        child2.pos = 1
+        node.children = [child1, child2]
+        exc = self._makeOne(node, 'msg')
+        exc['one'] = 'one'
+        exc['two'] = 'two'
+        childexc = exc[0]
+        self.assertEqual(childexc.msg, 'one')
+        self.assertEqual(childexc.node.name, 'one')
+        childexc = exc[1]
+        self.assertEqual(childexc.msg, 'two')
+        self.assertEqual(childexc.node.name, 'two')
+
     def test_messages_msg_iterable(self):
         node = DummySchemaNode(None)
         exc = self._makeOne(node, [123, 456])
