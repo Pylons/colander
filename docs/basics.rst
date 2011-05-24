@@ -401,6 +401,8 @@ which the exception is related.
 See the :class:`colander.Invalid` API documentation for more
 information.
 
+.. _preparing:
+
 Preparing deserialized data for validation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
