@@ -1463,6 +1463,14 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, 0, widget='abc')
         self.assertEqual(node.widget, 'abc')
 
+    def test_ctor_with_preparer(self):
+        node = self._makeOne(None, 0, preparer='abc')
+        self.assertEqual(node.preparer, 'abc')
+
+    def test_ctor_without_preparer(self):
+        node = self._makeOne(None, 0)
+        self.assertEqual(node.preparer, None)
+
     def test_ctor_with_unknown_kwarg(self):
         node = self._makeOne(None, 0, foo=1)
         self.assertEqual(node.foo, 1)
@@ -1485,6 +1493,29 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(typ)
         result = node.deserialize(1)
         self.assertEqual(result, 1)
+
+    def test_deserialize_with_preparer(self):
+        from colander import Invalid
+        typ = DummyType()
+        def preparer(value):
+            return 'prepared_'+value
+        def validator(node, value):
+            if not value.startswith('prepared'):
+                raise Invalid(node, 'not prepared')
+        node = self._makeOne(typ,
+                             preparer=preparer,
+                             validator=validator)
+        self.assertEqual(node.deserialize('value'),
+                         'prepared_value')
+
+    def test_deserialize_preparer_before_missing_check(self):
+        from colander import null
+        typ = DummyType()
+        def preparer(value):
+            return null
+        node = self._makeOne(typ,preparer=preparer)
+        e = invalid_exc(node.deserialize, 1)
+        self.assertEqual(e.msg, 'Required')
 
     def test_deserialize_with_validator(self):
         typ = DummyType()
