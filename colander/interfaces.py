@@ -1,6 +1,19 @@
+def Preparer(value):
+    """
+    A preparer is called after deserialization of a value but before
+    that value is validated.
+    
+    Any modifications to ``value`` required should be made by
+    returning the modified value rather than modifying in-place.
+
+    If no modification is required, then ``value`` should be returned
+    as-is.
+    """
+
+    
 def Validator(node, value):
     """
-    A validator is called after deserialization of a value.
+    A validator is called after preparation of the deserialized value.
     
     If ``value`` is not valid, raise a :class:`colander.Invalid`
     instance as an exception after.

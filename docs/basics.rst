@@ -89,14 +89,23 @@ Schema Node Objects
 
 A schema is composed of one or more *schema node* objects, each typically of
 the class :class:`colander.SchemaNode`, usually in a nested arrangement.
-Each schema node object has a required *type*, an optional deserialization
-*validator*, an optional *default*, an optional *missing*, an optional
-*title*, an optional *description*, and a slightly less optional *name*.  It
-also accepts *arbitrary* keyword arguments, which are attached directly as
-attributes to the node instance.
+Each schema node object has a required *type*, an optional *preparer*
+for adjusting data after deserialization, an optional
+*validator* for deserialized prepared data, an optional *default*, an
+optional *missing*, an optional *title*, an optional *description*,
+and a slightly less optional *name*.  It also accepts *arbitrary*
+keyword arguments, which are attached directly as attributes to the
+node instance.
 
 The *type* of a schema node indicates its data type (such as
 :class:`colander.Int` or :class:`colander.String`).
+
+The *preparer* of a schema node is called after
+deserialization but before validation; it prepares a deserialized
+value for validation. Examples would be to prepend schemes that may be
+missing on url values or to filter html provided by a rich text
+editor. A preparer is not called during serialization, only during
+deserialization.
 
 The *validator* of a schema node is called after deserialization; it
 makes sure the deserialized value matches a constraint.  An example of
@@ -391,6 +400,38 @@ which the exception is related.
 
 See the :class:`colander.Invalid` API documentation for more
 information.
+
+Preparing deserialized data for validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In certain circumstances, it is necessary to modify the deserialized
+value before validating it.
+
+For example, a :class:`~colander.String` node may be required to
+contain content, but that content may come from a rich text
+editor. Such an editor may return ``<b></b>`` which may appear to be
+valid but doesn't contain content, or 
+``<a href="javascript:alert('evil'')">good</a>`` which is valid, but
+only after some processing.
+
+The following schema uses `htmllaundry`__ and a
+:class:`~colander.interfaces.Preparer` to do the correct thing in both
+cases:
+
+__ http://pypi.python.org/pypi/htmllaundry/
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+   import htmlaundry
+
+   class Page(colander.MappingSchema):
+       title = colander.SchemaNode(colander.String())
+       content = colander.SchemaNode(colander.String(),
+                                     preparer=htmllaundry.sanitize,
+                                     validator=colander.Length(1))
+
 
 Serialization
 -------------
