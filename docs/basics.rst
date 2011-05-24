@@ -107,11 +107,11 @@ missing on url values or to filter html provided by a rich text
 editor. A preparer is not called during serialization, only during
 deserialization.
 
-The *validator* of a schema node is called after deserialization; it
-makes sure the deserialized value matches a constraint.  An example of
+The *validator* of a schema node is called after deserialization and
+preparation ; it makes sure the value matches a constraint.  An example of
 such a validator is provided in the schema above:
 ``validator=colander.Range(0, 200)``.  A validator is not called after
-serialization, only after deserialization.
+schema node serialization, only after node deserialization.
 
 The *default* of a schema node indicates the value to be serialized if
 a value for the schema node is not found in the input data during
