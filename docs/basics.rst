@@ -982,6 +982,63 @@ indeed be present in the child list of the ``schema`` instance
 ``title`` attribute will be ``Some Schema`` (``schema.title`` will return
 ``Some Schema``).
 
+Defining A Schema Declaratively
+-------------------------------
+
+Previously, we defined the schema in such a way that the individual
+sequences and mappings within the schema could be re-used in different
+schemas. If all nodes within a schema are only likely to be used in that
+schema, then the schema definition can be made more succinct using the
+:class:`~colander.instantiate` class decorator as shown below:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+
+   class Person(colander.MappingSchema):
+       name = colander.SchemaNode(colander.String())
+       age = colander.SchemaNode(colander.Int(),
+                                 validator=colander.Range(0, 200))
+
+       @colander.instantiate()
+       class friends(colander.SequenceSchema):
+
+           @colander.instantiate()
+           class friend(colander.TupleSchema):
+               rank = colander.SchemaNode(colander.Int(), 
+                                          validator=colander.Range(0, 9999))
+               name = colander.SchemaNode(colander.String())
+
+       @colander.instantiate()
+       class phones(colander.SequenceSchema):
+
+           @colander.instantiate()
+           class phone(colander.MappingSchema):
+               location = colander.SchemaNode(colander.String(), 
+                                              validator=colander.OneOf(['home', 'work']))
+               number = colander.SchemaNode(colander.String())
+
+If you need to pass parameters when using this style of schema
+definition, such as a ``missing`` value to a :class:`SchemaNode`
+during instantiation, you can pass these as parameters to
+:class:`~colander.instantiate`.
+For example, if we wanted to limit the number of friends a person can
+have, and cater for people who have no friends, we could adjust the
+schema as shown below:
+
+.. code-block:: python
+   :linenos:
+
+   class Person(colander.MappingSchema):
+
+       @colander.instantiate(missing=(),
+                             validator=colander.Length(max=5))
+       class friends(colander.SequenceSchema):
+
+           @colander.instantiate()
+           class friend(colander.TupleSchema):
+               name = colander.SchemaNode(colander.String())
 
 Defining A Schema Imperatively
 ------------------------------

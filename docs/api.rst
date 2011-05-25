@@ -132,6 +132,8 @@ Schema-Related
 
   .. autoclass:: deferred
 
+  .. autoclass:: instantiate
+
   .. attribute:: null
 
      Represents a null value in colander-related operations.
