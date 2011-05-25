@@ -1231,6 +1231,10 @@ class SchemaNode(object):
       'required'.  When ``missing`` is :attr:`colander.required`, the
       ``required`` computed attribute will be ``True``.
 
+    - ``preparer``: Optional preparer for this node.  It should be
+      an object that implements the
+      :class:`colander.interfaces.Preparer` interface.
+
     - ``validator``: Optional validator for this node.  It should be
       an object that implements the
       :class:`colander.interfaces.Validator` interface.
@@ -1275,6 +1279,7 @@ class SchemaNode(object):
         
     def __init__(self, typ, *children, **kw):
         self.typ = typ
+        self.preparer = kw.pop('preparer', None)
         self.validator = kw.pop('validator', None)
         self.default = kw.pop('default', null)
         self.missing = kw.pop('missing', required)
@@ -1338,13 +1343,14 @@ class SchemaNode(object):
 
     def deserialize(self, cstruct=null):
         """ Deserialize the :term:`cstruct` into an :term:`appstruct` based
-        on the schema, and return the deserialized, then validate the
-        resulting appstruct.  The ``cstruct`` value is deserialized into an
+        on the schema, run this :term:`appstruct` through the
+        preparer, if one is present, then validate the
+        prepared appstruct.  The ``cstruct`` value is deserialized into an
         ``appstruct`` unconditionally.
 
-        If ``appstruct`` returned by type deserialization is the value
-        :attr:`colander.null`, do something special before attempting
-        validation:
+        If ``appstruct`` returned by type deserialization and
+        preparation is the value :attr:`colander.null`, do something
+        special before attempting validation:
 
         - If the ``missing`` attribute of this node has been set explicitly,
           return its value.  No validation of this value is performed; it is
@@ -1361,6 +1367,9 @@ class SchemaNode(object):
         """
         appstruct = self.typ.deserialize(self, cstruct)
 
+        if self.preparer is not None:
+            appstruct = self.preparer(appstruct)
+            
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
