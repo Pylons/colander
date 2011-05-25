@@ -18,6 +18,9 @@ Next release
   deserialization and validation. See the Preparing section in the
   documentation.
 
+- Add ``colander.instantiate`` to help define schemas containing
+  mappings and sequences more succinctly.
+
 0.9.2 (2011-03-28)
 ------------------
 
