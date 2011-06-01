@@ -62,7 +62,7 @@ class TestInvalid(unittest.TestCase):
 
     def test_paths(self):
         exc1 = self._makeOne(None, 'exc1')
-        exc2 = self._makeOne(None, 'exc2') 
+        exc2 = self._makeOne(None, 'exc2')
         exc3 = self._makeOne(None, 'exc3')
         exc4 = self._makeOne(None, 'exc4')
         exc1.add(exc2)
@@ -89,6 +89,28 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(d, {'node1.node2.3': 'exc1; exc2; exc3',
                              'node1.node4': 'exc1; exc4'})
 
+    def test_asdict2(self):
+        '''Reproduces issue #2:
+        https://github.com/Pylons/colander/issues/2
+        '''
+        import colander as c
+        class MySchema(c.MappingSchema):
+            number1 = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+            number2 = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+        def validate_higher(node, val):
+            if val['number1'] > val['number2']:
+                raise c.Invalid(node, 'Number 1 must be lower than number 2')
+        def validate_different(node, val):
+            if val['number1'] == val['number2']:
+                raise c.Invalid(node, "They can't be the same, either")
+        schema = MySchema(validator=c.All(validate_higher, validate_different))
+        try:
+            schema.deserialize(dict(number1=2, number2=2))
+        except c.Invalid, e:
+            result = e.asdict() # Currently raises TypeError
+            print 'FIXED: ' + repr(result)  # TODO Remove 2 lines
+            raw_input()
+
     def test___str__(self):
         from colander import Positional
         node1 = DummySchemaNode(None, 'node1')
@@ -97,7 +119,7 @@ class TestInvalid(unittest.TestCase):
         node4 = DummySchemaNode(Positional(), 'node4')
         exc1 = self._makeOne(node1, 'exc1')
         exc1.pos = 1
-        exc2 = self._makeOne(node2, 'exc2') 
+        exc2 = self._makeOne(node2, 'exc2')
         exc3 = self._makeOne(node3, 'exc3')
         exc4 = self._makeOne(node4, 'exc4')
         exc1.add(exc2, 2)
@@ -228,7 +250,7 @@ class TestRegex(unittest.TestCase):
     def _makeOne(self, pattern):
         from colander import Regex
         return Regex(pattern)
-        
+
     def test_valid_regex(self):
         self.assertEqual(self._makeOne('a')(None, 'a'), None)
         self.assertEqual(self._makeOne('[0-9]+')(None, '1111'), None)
@@ -246,7 +268,7 @@ class TestRegex(unittest.TestCase):
         regex = re.compile('[0-9]+')
         self.assertEqual(self._makeOne(regex)(None, '01'), None)
         self.assertRaises(Invalid, self._makeOne(regex), None, 't')
-        
+
 
 class TestEmail(unittest.TestCase):
     def _makeOne(self):
@@ -265,7 +287,7 @@ class TestEmail(unittest.TestCase):
         validator = self._makeOne()
         e = invalid_exc(validator, None, '')
         self.assertEqual(e.msg, 'Invalid email address')
-      
+
     def test_invalid_emails(self):
         validator = self._makeOne()
         from colander import Invalid
@@ -824,7 +846,7 @@ class TestString(unittest.TestCase):
         typ = self._makeOne('utf-8')
         e = invalid_exc(typ.serialize, node, not_utf8)
         self.failUnless('cannot be serialized' in e.msg)
-        
+
 class TestInteger(unittest.TestCase):
     def _makeOne(self):
         from colander import Integer
@@ -1036,7 +1058,7 @@ class TestGlobalObject(unittest.TestCase):
         result = typ._zope_dottedname_style(None,
             'colander.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
-        
+
     def test_zope_dottedname_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._zope_dottedname_style, None,
@@ -1105,7 +1127,7 @@ class TestGlobalObject(unittest.TestCase):
         result = typ._pkg_resources_style(None,
             'colander.tests:TestGlobalObject')
         self.assertEqual(result, self.__class__)
-        
+
     def test__pkg_resources_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
@@ -1128,7 +1150,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne(package=colander.tests)
         result = typ._pkg_resources_style(None, '.')
         self.assertEqual(result, colander.tests)
-        
+
     def test__pkg_resources_style_resolve_relative_nocurrentpackage(self):
         typ = self._makeOne()
         import colander
@@ -1194,7 +1216,7 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
-        
+
     def test_serialize_fail(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1611,7 +1633,7 @@ class TestSchemaNode(unittest.TestCase):
         another = self._makeOne(None, name='another')
         node.add(another)
         self.assertEqual(node['another'], another)
-        
+
     def test___getitem__failure(self):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__getitem__, 'another')
@@ -1622,7 +1644,7 @@ class TestSchemaNode(unittest.TestCase):
         node.add(another)
         del node['another']
         self.assertEqual(node.children, [])
-        
+
     def test___delitem__failure(self):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__delitem__, 'another')
@@ -1741,7 +1763,7 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.default, 'abc')
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Mapping)
-        self.assertEqual(node.children[0].typ.__class__, colander.String) 
+        self.assertEqual(node.children[0].typ.__class__, colander.String)
         self.assertEqual(node.children[0].title, 'Thing A')
         self.assertEqual(node.children[1].title, 'bar')
 
@@ -1874,7 +1896,7 @@ class TestFunctional(object):
 
         for k, v in result.items():
             self.assertEqual(v, expected[k])
-        
+
     def test_invalid_asdict(self):
         expected = {
             'schema.int': '20 is greater than maximum value 10',
@@ -1901,7 +1923,7 @@ class TestFunctional(object):
         self.assertEqual(errors, expected)
 
 class TestImperative(unittest.TestCase, TestFunctional):
-    
+
     def _makeSchema(self):
         import colander
 
@@ -1965,7 +1987,7 @@ class TestImperative(unittest.TestCase, TestFunctional):
 
 
 class TestDeclarative(unittest.TestCase, TestFunctional):
-    
+
     def _makeSchema(self):
 
         import colander
@@ -2047,7 +2069,7 @@ class Uncooperative(object):
         raise ValueError('I wont cooperate')
 
     __unicode__ = __str__
-    
+
 class DummyType(object):
     def serialize(self, node, value):
         return value
