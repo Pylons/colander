@@ -10,6 +10,8 @@ def invalid_exc(func, *arg, **kw):
         raise AssertionError('Invalid not raised') # pragma: no cover
 
 class TestInvalid(unittest.TestCase):
+    maxDiff = 2000  # characters in test report diffs
+
     def _makeOne(self, node, msg=None, val=None):
         from colander import Invalid
         exc = Invalid(node, msg, val)
@@ -89,7 +91,7 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(d, {'node1.node2.3': 'exc1; exc2; exc3',
                              'node1.node4': 'exc1; exc4'})
 
-    def test_asdict2(self):
+    def test_asdict_again(self):
         '''Reproduces issue #2:
         https://github.com/Pylons/colander/issues/2
         '''
@@ -112,7 +114,7 @@ class TestInvalid(unittest.TestCase):
         else:
             raise RuntimeError('No Invalid exception raised.')
 
-    def test_asdict3(self):
+    def test_asdict2(self):
         '''Reproduces inter-field validation and message assignment,
         as in http://deformdemo.repoze.org/interfield/
         '''
@@ -132,7 +134,7 @@ class TestInvalid(unittest.TestCase):
         try:
             schema.deserialize(dict(name='Chopin', title='Liszt is great.'))
         except c.Invalid, e:
-            result = e.asdict()
+            result = e.asdict2()
             self.assertEquals(result,
                 {'': TOP_MSG, 'title': INNER_MSG % 'Chopin'}
             )

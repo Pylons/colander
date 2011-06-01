@@ -142,7 +142,10 @@ class Invalid(Exception):
 
     def asdict(self):
         """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
+        (non-language-translated) error report for this exception.
+
+        The output contains one key per leaf of the exception graph.
+        """
         paths = self.paths()
         errors = {}
         for path in paths:
@@ -154,6 +157,38 @@ class Invalid(Exception):
                 keyname and keyparts.append(keyname)
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
         return errors
+
+    def asdict2(self):
+        """Also returns a dictionary containing a basic
+        (non-language-translated) error report for this exception.
+
+        ``asdict`` returns a dictionary containing fewer items -- the keys
+        refer only to the leaves. This method returns a dictionary with
+        more items: one key for each node that has an error,
+        regardless of whether the node is a leaf or an ancestor.
+        Perhaps this way you can place error messages on more places of a form.
+
+        In my application I want to display messages on parents
+        as well as leaves... I am not using Deform in this case...
+        """
+        paths = self.paths()
+        errors = []
+        for path in paths:  # Each path is a tuple of Invalid instances.
+            keyparts = []
+            for exc in path:
+                keyname = exc._keyname()
+                if keyname:
+                    keyparts.append(keyname)
+                for msg in exc.messages():
+                    errors.append(('.'.join(keyparts), msg))
+        errors = set(errors)  # Filter out repeats
+        adict = {}
+        for key, msg in errors:
+            if adict.has_key(key):
+                adict[key] = adict[key] + '; ' + msg
+            else:
+                adict[key] = msg
+        return adict
 
     def __str__(self):
         """ Return a pretty-formatted string representation of the
