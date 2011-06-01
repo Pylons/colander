@@ -112,6 +112,33 @@ class TestInvalid(unittest.TestCase):
         else:
             raise RuntimeError('No Invalid exception raised.')
 
+    def test_asdict3(self):
+        '''Reproduces inter-field validation and message assignment,
+        as in http://deformdemo.repoze.org/interfield/
+        '''
+        import colander as c
+        TOP_MSG = 'Title must start with name.'
+        INNER_MSG = 'Must start with name "%s".'
+        class MySchema(c.MappingSchema):
+            name = c.SchemaNode(c.String(), description='Content name')
+            title = c.SchemaNode(c.String(),
+                description='Content title (must start with content name)')
+        def validator(node, value):
+            if not value['title'].startswith(value['name']):
+                exc = c.Invalid(node, TOP_MSG)
+                exc['title'] = INNER_MSG % value['name']
+                raise exc
+        schema = MySchema(validator=validator)
+        try:
+            schema.deserialize(dict(name='Chopin', title='Liszt is great.'))
+        except c.Invalid, e:
+            result = e.asdict()
+            self.assertEquals(result,
+                {'': TOP_MSG, 'title': INNER_MSG % 'Chopin'}
+            )
+        else:
+            raise RuntimeError('Invalid had to have been raised.')
+
     def test___str__(self):
         from colander import Positional
         node1 = DummySchemaNode(None, 'node1')
