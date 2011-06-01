@@ -107,9 +107,10 @@ class TestInvalid(unittest.TestCase):
         try:
             schema.deserialize(dict(number1=2, number2=2))
         except c.Invalid, e:
-            result = e.asdict() # No longer raises TypeError
-            print 'FIXED: ' + repr(result)  # TODO Remove 2 lines
-            raw_input()
+            result = e.asdict()
+            self.assertEquals(result, {'': "Numbers can't be the same."})
+        else:
+            raise RuntimeError('No Invalid exception raised.')
 
     def test___str__(self):
         from colander import Positional
