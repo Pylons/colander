@@ -207,6 +207,11 @@ class TestAll(unittest.TestCase):
         self.assertEqual(e.msg, ['msg1', 'msg2'])
 
     def test_invalid_children(self):
+        '''All() was losing children exceptions in a schema inspired by
+        http://deformdemo.repoze.org/interfield/
+
+        Make sure that doesn't happen...
+        '''
         import colander as c
         class OurSchema(c.MappingSchema):
             minLength = c.SchemaNode(c.Int(), validator=c.Range(min=1))

@@ -203,12 +203,18 @@ class All(object):
 
     def __call__(self, node, value):
         msgs = []
+        children = []
         for validator in self.validators:
             try:
                 validator(node, value)
             except Invalid, e:
-                msgs.append(e.msg)
-
+                if e.msg:
+                    msgs.append(e.msg)
+                children.extend(e.children)
+        if children:  # Do not lose the exceptions' children
+            exc = Invalid(node, msgs)
+            exc.children = children
+            raise exc
         if msgs:
             raise Invalid(node, msgs)
 
