@@ -102,12 +102,12 @@ class TestInvalid(unittest.TestCase):
                 raise c.Invalid(node, 'Number 1 must be lower than number 2')
         def validate_different(node, val):
             if val['number1'] == val['number2']:
-                raise c.Invalid(node, "They can't be the same, either")
+                raise c.Invalid(node, "Numbers can't be the same.")
         schema = MySchema(validator=c.All(validate_higher, validate_different))
         try:
             schema.deserialize(dict(number1=2, number2=2))
         except c.Invalid, e:
-            result = e.asdict() # Currently raises TypeError
+            result = e.asdict() # No longer raises TypeError
             print 'FIXED: ' + repr(result)  # TODO Remove 2 lines
             raw_input()
 
