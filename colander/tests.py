@@ -139,7 +139,7 @@ class TestInvalid(unittest.TestCase):
                 {'': TOP_MSG, 'title': INNER_MSG % 'Chopin'}
             )
         else:
-            raise RuntimeError('Invalid had to have been raised.')
+            self.fail('Invalid had to have been raised.')
 
     def test___str__(self):
         from colander import Positional
@@ -205,6 +205,47 @@ class TestAll(unittest.TestCase):
         validator = self._makeOne([validator1, validator2])
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, ['msg1', 'msg2'])
+
+    def test_invalid_children(self):
+        import colander as c
+        class OurSchema(c.MappingSchema):
+            minLength = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+            maxLength = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+            minWords = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+            maxWords = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+        # Validators
+        def validate_length(node, val):
+            if val['minLength'] > val['maxLength']:
+                e = c.Invalid(node, 'Length inconsistency')
+                e['minLength'] = 'Higher than max length'
+                raise e
+        def validate_words(node, val):
+            if val['minWords'] > val['maxWords']:
+                e = c.Invalid(node, 'Word count inconsistency')
+                e['minWords'] = 'Higher than max words'
+                raise e
+        schema = OurSchema(validator=c.All(validate_length, validate_words))
+        try:
+            schema.deserialize(dict(
+                minLength=2, maxLength=1, minWords=2, maxWords=1,
+            ))
+        except c.Invalid as e:
+            self.assertDictEqual({
+                'minLength': 'Length inconsistency; ' \
+                        'Word count inconsistency; Higher than max length',
+                'minWords': 'Length inconsistency; ' \
+                        'Word count inconsistency; Higher than max words'},
+                e.asdict()
+            )
+            self.assertDictEqual({
+                '': 'Word count inconsistency; Length inconsistency',
+                'minLength': 'Higher than max length',
+                'minWords': 'Higher than max words'},
+                e.asdict2()
+            )
+        else:
+            self.fail('Invalid had to have been raised.')
+
 
 class TestFunction(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
