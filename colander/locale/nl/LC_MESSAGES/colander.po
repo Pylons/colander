@@ -1,0 +1,113 @@
+# Translations template for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.8\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-09-10 08:00-0600\n"
+"PO-Revision-Date: 2011-06-03 00:22+0200\n"
+"Last-Translator: Wichert Akkerman <wichert@wiggy.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: colander/__init__.py:199
+msgid "Invalid value"
+msgstr "Ongeldige waarde"
+
+#: colander/__init__.py:232
+msgid "String does not match expected pattern"
+msgstr "Tekst is niet in het juiste formaat"
+
+#: colander/__init__.py:247
+msgid "Invalid email address"
+msgstr "Ongeldig e-mail adres"
+
+#: colander/__init__.py:276
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} is minder dan de minimum waarde ${min}"
+
+#: colander/__init__.py:277
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} is groter dan de maximale toegestaane waarde ${max}"
+
+#: colander/__init__.py:309
+msgid "Shorter than minimum length ${min}"
+msgstr "De minimale lengte is ${min}"
+
+#: colander/__init__.py:315
+msgid "Longer than maximum length ${max}"
+msgstr "De maximale lengte is ${mixn}"
+
+#: colander/__init__.py:328
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" is geen toegestaande waarde. Kies één van ${choices}."
+
+#: colander/__init__.py:398
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" is geen map type: ${err}"
+
+#: colander/__init__.py:422
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Onbekende waardes in map: \"${val}\""
+
+#: colander/__init__.py:477 colander/__init__.py:563
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" is niet itereerbaar"
+
+#: colander/__init__.py:485
+msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr "\"${val}\" bevat niet het juiste aantal element (${was} in plaats van ${exp})"
+
+#: colander/__init__.py:725
+msgid "\"${val} cannot be serialized: ${err}"
+msgstr "${val} kan niet worden opgeslagen: ${err}"
+
+#: colander/__init__.py:738
+msgid "${val} is not a string: ${err}"
+msgstr "${val} is geen tekst: ${err}"
+
+#: colander/__init__.py:759 colander/__init__.py:770
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" is geen getal"
+
+#: colander/__init__.py:764 colander/__init__.py:1263
+msgid "Required"
+msgstr "Verplicht"
+
+#: colander/__init__.py:844
+msgid "${val} is not a string"
+msgstr "${val} is geen tekst"
+
+#: colander/__init__.py:904 colander/__init__.py:921 colander/__init__.py:931
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "relatieve aanduiding \"${val}\" kan niet worden opgezocht zonder package"
+
+#: colander/__init__.py:961
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" heeft geen __name__"
+
+#: colander/__init__.py:967
+msgid "\"${val}\" is not a string"
+msgstr "\"${val}\" is geen tekst"
+
+#: colander/__init__.py:976
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "Kan \"${name}\" niet importeren"
+
+#: colander/__init__.py:1024 colander/__init__.py:1101
+msgid "Invalid date"
+msgstr "Geen geldige datum"
+
+#: colander/__init__.py:1040
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" is geen datetime object"
+
+#: colander/__init__.py:1112
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" is geen date object"
+
