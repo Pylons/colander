@@ -1487,6 +1487,13 @@ class TestTime(unittest.TestCase):
         result = typ.deserialize(node, '')
         self.assertEqual(result, colander.null)
 
+    def test_deserialize_missing_seconds(self):
+        import datetime
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, '10:12')
+        self.assertEqual(result, datetime.time(10, 12))
+
     def test_deserialize_success_time(self):
         import datetime
         typ = self._makeOne()

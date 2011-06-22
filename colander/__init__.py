@@ -1269,7 +1269,7 @@ class Time(SchemaType):
             result = result.time()
         except (iso8601.ParseError, TypeError):
             try:
-                result = iso8601.parse_date('1970-01-01 %s' % cstruct)
+                result = iso8601.parse_date('1970-01-01 %s:00' % cstruct)
                 result = result.time()
             except (iso8601.ParseError, TypeError):
                 try:
