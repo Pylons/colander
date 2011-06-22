@@ -1204,6 +1204,86 @@ class Date(SchemaType):
                               )
         return result
 
+class Time(SchemaType):
+    """ A type representing a Python ``datetime.time`` object.
+
+    This type serializes python ``datetime.time`` objects to a
+    `ISO8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ string format.
+    The format includes the date only.
+
+    The constructor accepts no arguments.
+
+    You can adjust the error message reported by this class by
+    changing its ``err_template`` attribute in a subclass on an
+    instance of this class.  By default, the ``err_template``
+    attribute is the string ``Invalid date``.  This string is used as
+    the interpolation subject of a dictionary composed of ``val`` and
+    ``err``.  ``val`` and ``err`` are the unvalidatable value and the
+    exception caused trying to convert the value, respectively. These
+    may be used in an overridden err_template as ``${val}`` and
+    ``${err}`` respectively as necessary, e.g. ``_('${val} cannot be
+    parsed as an iso8601 date: ${err}')``.
+
+    For convenience, this type is also willing to coerce
+    ``datetime.datetime`` objects to a time-only ISO string
+    representation during serialization.  It does so by stripping off
+    any date information, converting the ``datetime.datetime`` into a
+    time before serializing.
+
+    Likewise, for convenience, this type is also willing to coerce ISO
+    representations that contain time info into a ``datetime.time``
+    object during deserialization.  It does so by throwing away any
+    date information related to the serialized value during
+    deserialization.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    The subnodes of the :class:`colander.SchemaNode` that wraps
+    this type are ignored.
+    """
+
+    err_template =  _('Invalid time')
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        if isinstance(appstruct, datetime.datetime):
+            appstruct = appstruct.time()
+
+        if not isinstance(appstruct, datetime.time):
+            raise Invalid(node,
+                          _('"${val}" is not a time object',
+                            mapping={'val':appstruct})
+                          )
+
+        return appstruct.isoformat().split('.')[0]
+
+    def deserialize(self, node, cstruct):
+        if not cstruct:
+            return null
+        try:
+            result = iso8601.parse_date(cstruct)
+            result = result.time()
+        except (iso8601.ParseError, TypeError):
+            try:
+                result = iso8601.parse_date('1970-01-01 %s' % cstruct)
+                result = result.time()
+            except (iso8601.ParseError, TypeError):
+                try:
+                    parts = map(int, cstruct.split(':'))
+                    if len(parts) > 3:
+                        raise ValueError('Too many digits')
+                    result = datetime.date(*parts[:3])
+                except Exception, e:
+                    raise Invalid(node,
+                                  _(self.err_template,
+                                    mapping={'val':cstruct, 'err':e})
+                              )
+        return result
+
 class SchemaNode(object):
     """
     Fundamental building block of schemas.

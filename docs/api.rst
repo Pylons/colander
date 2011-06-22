@@ -98,6 +98,8 @@ Types
 
   .. autoclass:: Date
 
+  .. autoclass:: Time
+
 Schema-Related
 ~~~~~~~~~~~~~~
 

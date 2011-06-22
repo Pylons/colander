@@ -1424,6 +1424,85 @@ class TestDate(unittest.TestCase):
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), dt.date().isoformat())
 
+class TestTime(unittest.TestCase):
+    def _makeOne(self, *arg, **kw):
+        from colander import Time
+        return Time(*arg, **kw)
+
+    def _dt(self):
+        import datetime
+        return datetime.datetime(2010, 4, 26, 10, 48)
+
+    def _now(self):
+        import datetime
+        return datetime.datetime.now().time()
+
+    def test_serialize_null(self):
+        import colander
+        val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
+    def test_serialize_with_garbage(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        e = invalid_exc(typ.serialize, node, 'garbage')
+        self.assertEqual(e.msg.interpolate(), '"garbage" is not a time object')
+
+    def test_serialize_with_time(self):
+        typ = self._makeOne()
+        time = self._now()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, time)
+        expected = time.isoformat().split('.')[0]
+        self.assertEqual(result, expected)
+
+    def test_serialize_with_datetime(self):
+        typ = self._makeOne()
+        dt = self._dt()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, dt)
+        expected = dt.time().isoformat().split('.')[0]
+        self.assertEqual(result, expected)
+
+    def test_deserialize_invalid_ParseError(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, 'garbage')
+        self.failUnless('Invalid' in e.msg)
+
+    def test_deserialize_null(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, colander.null)
+        self.assertEqual(result, colander.null)
+
+    def test_deserialize_empty(self):
+        import colander
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, '')
+        self.assertEqual(result, colander.null)
+
+    def test_deserialize_success_time(self):
+        import datetime
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, '10:12:13')
+        self.assertEqual(result, datetime.time(10, 12, 13))
+
+    def test_deserialize_success_datetime(self):
+        dt = self._dt()
+        typ = self._makeOne()
+        iso = dt.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, iso)
+        self.assertEqual(result.isoformat(),
+                dt.time().isoformat().split('.')[0])
+
 class TestSchemaNode(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import SchemaNode
