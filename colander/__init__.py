@@ -1269,19 +1269,17 @@ class Time(SchemaType):
             result = result.time()
         except (iso8601.ParseError, TypeError):
             try:
-                result = iso8601.parse_date('1970-01-01 %s:00' % cstruct)
-                result = result.time()
-            except (iso8601.ParseError, TypeError):
-                try:
-                    parts = map(int, cstruct.split(':'))
-                    if len(parts) > 3:
-                        raise ValueError('Too many digits')
-                    result = datetime.date(*parts[:3])
-                except Exception, e:
-                    raise Invalid(node,
-                                  _(self.err_template,
-                                    mapping={'val':cstruct, 'err':e})
-                              )
+                parts = map(int, cstruct.split(':'))
+                if len(parts) < 2:
+                    raise ValueError('No minutes given ')
+                if len(parts) > 3:
+                    raise ValueError('Too many digits')
+                result = datetime.time(*parts[:3])
+            except Exception, e:
+                raise Invalid(node,
+                              _(self.err_template,
+                                mapping={'val':cstruct, 'err':e})
+                          )
         return result
 
 class SchemaNode(object):
