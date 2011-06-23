@@ -66,7 +66,10 @@ class Invalid(Exception):
         is returned."""
         if hasattr(self.msg, '__iter__'):
             return self.msg
-        return [self.msg]
+        elif self.msg:
+            return [self.msg]
+        else:  # maybe self.msg is None
+            return []
 
     def add(self, exc, pos=None):
         """ Add a child exception; ``exc`` must be an instance of
@@ -140,18 +143,53 @@ class Invalid(Exception):
 
     def asdict(self):
         """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
+        (non-language-translated) error report for this exception.
+
+        The output contains one key per leaf of the exception graph.
+        """
         paths = self.paths()
         errors = {}
         for path in paths:
             keyparts = []
             msgs = []
             for exc in path:
-                exc.msg and msgs.append(exc.msg)
+                msgs.extend(exc.messages())
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
         return errors
+
+    def asdict2(self):
+        """Also returns a dictionary containing a basic
+        (non-language-translated) error report for this exception.
+
+        ``asdict`` returns a dictionary containing fewer items -- the keys
+        refer only to the leaves. This method returns a dictionary with
+        more items: one key for each node that has an error,
+        regardless of whether the node is a leaf or an ancestor.
+        Perhaps this way you can place error messages on more places of a form.
+
+        In my application I want to display messages on parents
+        as well as leaves... I am not using Deform in this case...
+        """
+        paths = self.paths()
+        errors = []
+        for path in paths:  # Each path is a tuple of Invalid instances.
+            keyparts = []
+            for exc in path:
+                keyname = exc._keyname()
+                if keyname:
+                    keyparts.append(keyname)
+                for msg in exc.messages():
+                    errors.append(('.'.join(keyparts), msg))
+        errors = set(errors)  # Filter out repeats
+        adict = {}
+        for key, msg in errors:
+            if adict.has_key(key):
+                adict[key] = adict[key] + '; ' + msg
+            else:
+                adict[key] = msg
+        return adict
 
     def __str__(self):
         """ Return a pretty-formatted string representation of the
@@ -166,12 +204,18 @@ class All(object):
 
     def __call__(self, node, value):
         msgs = []
+        children = []
         for validator in self.validators:
             try:
                 validator(node, value)
             except Invalid, e:
-                msgs.append(e.msg)
-
+                if e.msg:
+                    msgs.append(e.msg)
+                children.extend(e.children)
+        if children:  # Do not lose the exceptions' children
+            exc = Invalid(node, msgs)
+            exc.children = children
+            raise exc
         if msgs:
             raise Invalid(node, msgs)
 
@@ -223,11 +267,11 @@ class Regex(object):
 
         The ``regex`` argument may also be a pattern object (the
         result of ``re.compile``) instead of a string.
-        
-        When calling, if ``value`` matches the regular expression, 
-        validation succeeds; otherwise, :exc:`colander.Invalid` is 
-        raised with the ``msg`` error message. 
-    """    
+
+        When calling, if ``value`` matches the regular expression,
+        validation succeeds; otherwise, :exc:`colander.Invalid` is
+        raised with the ``msg`` error message.
+    """
     def __init__(self, regex, msg=None):
         if isinstance(regex, basestring):
             self.match_object = re.compile(regex)
@@ -243,10 +287,10 @@ class Regex(object):
             raise Invalid(node, self.msg)
 
 class Email(Regex):
-    """ Email address validator. If ``msg`` is supplied, it will be 
-        the error message to be used when raising :exc:`colander.Invalid`; 
-        otherwise, defaults to 'Invalid email address'.  
-    """    
+    """ Email address validator. If ``msg`` is supplied, it will be
+        the error message to be used when raising :exc:`colander.Invalid`;
+        otherwise, defaults to 'Invalid email address'.
+    """
     def __init__(self, msg=None):
         if msg is None:
             msg = _("Invalid email address")
@@ -441,9 +485,9 @@ class Mapping(SchemaType):
 
         if error is not None:
             raise error
-                
+
         return result
-        
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             appstruct = {}
@@ -474,7 +518,7 @@ class Mapping(SchemaType):
             result.update(subnode.typ.flatten(subnode, substruct,
                                               prefix=selfprefix))
         return result
-        
+
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
@@ -530,7 +574,7 @@ class Tuple(Positional, SchemaType):
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
-                
+
         if error is not None:
             raise error
 
@@ -548,7 +592,7 @@ class Tuple(Positional, SchemaType):
     def deserialize(self, node, cstruct):
         if cstruct is null:
             return null
-        
+
         def callback(subnode, subval):
             return subnode.deserialize(subval)
 
@@ -623,7 +667,7 @@ class Sequence(Positional, SchemaType):
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
-                
+
         if error is not None:
             raise error
 
@@ -679,7 +723,7 @@ class Sequence(Positional, SchemaType):
         """
         if cstruct is null:
             return null
-        
+
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
@@ -746,7 +790,7 @@ class String(SchemaType):
          object using the encoding and returned.
 
        - A Unicode input value to ``deserialize`` is returned
-         untouched. 
+         untouched.
 
        - A non-Unicode input value to ``deserialize`` is converted to
          a ``str`` object using ``str(value``).  The resulting str
@@ -765,11 +809,11 @@ class String(SchemaType):
     """
     def __init__(self, encoding=None):
         self.encoding = encoding
-    
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
-            
+
         try:
             if isinstance(appstruct, unicode):
                 if self.encoding:
@@ -791,7 +835,7 @@ class String(SchemaType):
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
-        
+
         try:
             result = cstruct
             if not isinstance(result, unicode):
@@ -827,7 +871,7 @@ class Number(SchemaType):
     def deserialize(self, node, cstruct):
         if cstruct != 0 and not cstruct:
             return null
-        
+
         try:
             return self.num(cstruct)
         except Exception:
@@ -847,7 +891,7 @@ class Integer(Number):
     this type are ignored.
     """
     num = int
-    
+
 Int = Integer
 
 class Float(Number):
@@ -893,7 +937,7 @@ class Boolean(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
@@ -903,7 +947,7 @@ class Boolean(SchemaType):
     def deserialize(self, node, cstruct):
         if cstruct is null:
             return null
-        
+
         try:
             result = str(cstruct)
         except:
@@ -1031,7 +1075,7 @@ class GlobalObject(SchemaType):
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
-        
+
         if not isinstance(cstruct, basestring):
             raise Invalid(node,
                           _('"${val}" is not a string',
@@ -1096,7 +1140,7 @@ class DateTime(SchemaType):
         if default_tzinfo is _marker:
             default_tzinfo = iso8601.iso8601.Utc()
         self.default_tzinfo = default_tzinfo
-        
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
@@ -1117,7 +1161,7 @@ class DateTime(SchemaType):
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
-        
+
         try:
             result = iso8601.parse_date(
                 cstruct, default_timezone=self.default_tzinfo)
@@ -1351,14 +1395,14 @@ class SchemaNode(object):
     Arbitrary keyword arguments remaining will be attached to the node
     object unmolested.
     """
-    
+
     _counter = itertools.count()
-    
+
     def __new__(cls, *arg, **kw):
         inst = object.__new__(cls)
         inst._order = cls._counter.next()
         return inst
-        
+
     def __init__(self, typ, *children, **kw):
         self.typ = typ
         self.preparer = kw.pop('preparer', None)
@@ -1451,7 +1495,7 @@ class SchemaNode(object):
 
         if self.preparer is not None:
             appstruct = self.preparer(appstruct)
-            
+
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
