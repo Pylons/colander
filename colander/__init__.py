@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import time
 import itertools
 import iso8601
 import pprint
@@ -1269,20 +1270,19 @@ class Time(SchemaType):
             result = result.time()
         except (iso8601.ParseError, TypeError):
             try:
-                result = iso8601.parse_date('1970-01-01 %s:00' % cstruct)
-                result = result.time()
-            except (iso8601.ParseError, TypeError):
+                result = timeparse(cstruct, '%H:%M:%S')
+            except ValueError:
                 try:
-                    parts = map(int, cstruct.split(':'))
-                    if len(parts) > 3:
-                        raise ValueError('Too many digits')
-                    result = datetime.date(*parts[:3])
+                    result = timeparse(cstruct, '%H:%M')
                 except Exception, e:
                     raise Invalid(node,
                                   _(self.err_template,
                                     mapping={'val':cstruct, 'err':e})
-                              )
+                                  )
         return result
+
+def timeparse(t, format):
+    return datetime.datetime(*time.strptime(t, format)[0:6]).time()
 
 class SchemaNode(object):
     """

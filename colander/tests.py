@@ -1473,6 +1473,20 @@ class TestTime(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, 'garbage')
         self.failUnless('Invalid' in e.msg)
 
+    def test_deserialize_three_digit_string(self):
+        import datetime
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, '11:00:11')
+        self.assertEqual(result, datetime.time(11, 0, 11))
+
+    def test_deserialize_two_digit_string(self):
+        import datetime
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, '11:00')
+        self.assertEqual(result, datetime.time(11, 0))
+
     def test_deserialize_null(self):
         import colander
         node = DummySchemaNode(None)
