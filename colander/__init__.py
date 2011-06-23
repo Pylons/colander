@@ -1208,6 +1208,8 @@ class Date(SchemaType):
 class Time(SchemaType):
     """ A type representing a Python ``datetime.time`` object.
 
+    .. note:: This type is new as of Colander 0.9.3.
+
     This type serializes python ``datetime.time`` objects to a
     `ISO8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ string format.
     The format includes the date only.
