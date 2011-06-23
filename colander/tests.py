@@ -2095,6 +2095,42 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
         schema = MainSchema(name='schema')
         return schema
 
+class TestDeclarativeWithInstantiate(unittest.TestCase, TestFunctional):
+    
+    def _makeSchema(self):
+
+        import colander
+
+        # an unlikely usage, but goot to test passing
+        # parameters to instantiation works
+        @colander.instantiate(name='schema')
+        class schema(colander.MappingSchema):
+            int = colander.SchemaNode(colander.Int(),
+                                     validator=colander.Range(0, 10))
+            ob = colander.SchemaNode(colander.GlobalObject(package=colander))
+            @colander.instantiate()
+            class seq(colander.SequenceSchema):
+                
+                @colander.instantiate()
+                class tup(colander.TupleSchema):
+                    tupint = colander.SchemaNode(colander.Int())
+                    tupstring = colander.SchemaNode(colander.String())
+                    
+            @colander.instantiate()
+            class tup(colander.TupleSchema):
+                tupint = colander.SchemaNode(colander.Int())
+                tupstring = colander.SchemaNode(colander.String())
+                
+            @colander.instantiate()
+            class seq2(colander.SequenceSchema):
+                
+                @colander.instantiate()
+                class mapping(colander.MappingSchema):
+                    key = colander.SchemaNode(colander.Int())
+                    key2 = colander.SchemaNode(colander.Int())
+
+        return schema
+
 class Test_null(unittest.TestCase):
     def test___nonzero__(self):
         from colander import null
