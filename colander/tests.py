@@ -1587,7 +1587,7 @@ class TestSchemaNode(unittest.TestCase):
             return 'prepared_'+value
         def validator(node, value):
             if not value.startswith('prepared'):
-                raise Invalid(node, 'not prepared')
+                raise Invalid(node, 'not prepared') # pragma: no cover
         node = self._makeOne(typ,
                              preparer=preparer,
                              validator=validator)
