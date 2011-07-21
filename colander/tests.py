@@ -62,7 +62,7 @@ class TestInvalid(unittest.TestCase):
 
     def test_paths(self):
         exc1 = self._makeOne(None, 'exc1')
-        exc2 = self._makeOne(None, 'exc2') 
+        exc2 = self._makeOne(None, 'exc2')
         exc3 = self._makeOne(None, 'exc3')
         exc4 = self._makeOne(None, 'exc4')
         exc1.add(exc2)
@@ -97,7 +97,7 @@ class TestInvalid(unittest.TestCase):
         node4 = DummySchemaNode(Positional(), 'node4')
         exc1 = self._makeOne(node1, 'exc1')
         exc1.pos = 1
-        exc2 = self._makeOne(node2, 'exc2') 
+        exc2 = self._makeOne(node2, 'exc2')
         exc3 = self._makeOne(node3, 'exc3')
         exc4 = self._makeOne(node4, 'exc4')
         exc1.add(exc2, 2)
@@ -228,7 +228,7 @@ class TestRegex(unittest.TestCase):
     def _makeOne(self, pattern):
         from colander import Regex
         return Regex(pattern)
-        
+
     def test_valid_regex(self):
         self.assertEqual(self._makeOne('a')(None, 'a'), None)
         self.assertEqual(self._makeOne('[0-9]+')(None, '1111'), None)
@@ -246,7 +246,7 @@ class TestRegex(unittest.TestCase):
         regex = re.compile('[0-9]+')
         self.assertEqual(self._makeOne(regex)(None, '01'), None)
         self.assertRaises(Invalid, self._makeOne(regex), None, 't')
-        
+
 
 class TestEmail(unittest.TestCase):
     def _makeOne(self):
@@ -265,7 +265,7 @@ class TestEmail(unittest.TestCase):
         validator = self._makeOne()
         e = invalid_exc(validator, None, '')
         self.assertEqual(e.msg, 'Invalid email address')
-      
+
     def test_invalid_emails(self):
         validator = self._makeOne()
         from colander import Invalid
@@ -330,6 +330,17 @@ class TestSchemaType(unittest.TestCase):
         result = typ.flatten(node, 'appstruct')
         self.assertEqual(result, {'node':'appstruct'})
 
+    def test_flatten_listitem(self):
+        node = DummySchemaNode(None, name='node')
+        typ = self._makeOne()
+        result = typ.flatten(node, 'appstruct', listitem=True)
+        self.assertEqual(result, {'':'appstruct'})
+
+    def test_unflatten(self):
+        node = DummySchemaNode(None, name='node')
+        typ = self._makeOne()
+        result = typ.unflatten(node, ['node'], {'node': 'appstruct'})
+        self.assertEqual(result, 'appstruct')
 
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
@@ -467,8 +478,62 @@ class TestMapping(unittest.TestCase):
             ]
         typ = self._makeOne()
         result = typ.flatten(node, {'a':1, 'b':2})
-        self.assertEqual(result,
-                         {'node': {'a': 1, 'b': 2}, 'node.appstruct': 2})
+        self.assertEqual(result, {'node.appstruct': 2})
+
+    def test_flatten_listitem(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.flatten(node, {'a':1, 'b':2}, listitem=True)
+        self.assertEqual(result, {'appstruct': 2})
+
+    def test_unflatten(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.unflatten(node,
+            ['node', 'node.a', 'node.b'],
+            {'node': {'a':1, 'b':2}, 'node.a':1, 'node.b':2})
+        self.assertEqual(result, {'a': 1, 'b': 2})
+
+    def test_unflatten_nested(self):
+        node = DummySchemaNode(None, name='node')
+        inttype = DummyType()
+        one = DummySchemaNode(self._makeOne(), name='one')
+        one.children = [
+            DummySchemaNode(inttype, name='a'),
+            DummySchemaNode(inttype, name='b'),
+        ]
+        two = DummySchemaNode(self._makeOne(), name='two')
+        two.children = [
+            DummySchemaNode(inttype, name='c'),
+            DummySchemaNode(inttype, name='d'),
+        ]
+        node.children = [one, two]
+        typ = self._makeOne()
+        result = typ.unflatten(
+            node, ['node', 'node.one', 'node.one.a', 'node.one.b',
+                   'node.two', 'node.two.c', 'node.two.d'],
+            {'node': {'one': {'a': 1, 'b': 2}, 'two': {'c': 3, 'd': 4}},
+             'node.one': {'a': 1, 'b': 2},
+             'node.two': {'c': 3, 'd': 4},
+             'node.one.a': 1,
+             'node.one.b': 2,
+             'node.two.c': 3,
+             'node.two.d': 4,})
+        self.assertEqual(result, {
+            'one': {'a': 1, 'b': 2}, 'two': {'c': 3, 'd': 4}})
+
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
@@ -598,7 +663,32 @@ class TestTuple(unittest.TestCase):
             ]
         typ = self._makeOne()
         result = typ.flatten(node, (1, 2))
-        self.assertEqual(result, {'node': (1, 2), 'node.appstruct': 2})
+        self.assertEqual(result, {'node.appstruct': 2})
+
+    def test_flatten_listitem(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.flatten(node, (1, 2), listitem=True)
+        self.assertEqual(result, {'appstruct': 2})
+
+    def test_unflatten(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.unflatten(node, ['node', 'node.a', 'node.b'],
+                               {'node': (1, 2), 'node.a': 1, 'node.b': 2})
+        self.assertEqual(result, (1, 2))
 
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
@@ -712,13 +802,31 @@ class TestSequence(unittest.TestCase):
             ]
         typ = self._makeOne()
         result = typ.flatten(node, [1, 2])
-        self.assertEqual(
-            result,
-            {'node': [1, 2],
-             'node.0': 1,
-             'node.0.appstruct': 1,
-             'node.1.appstruct': 2,
-             'node.1': 2})
+        self.assertEqual(result, {'node.0': 1, 'node.1': 2})
+
+    def test_flatten_listitem(self):
+        node = DummySchemaNode(None, name='node')
+        int1 = DummyType()
+        int2 = DummyType()
+        node.children = [
+            DummySchemaNode(int1, name='a'),
+            DummySchemaNode(int2, name='b'),
+            ]
+        typ = self._makeOne()
+        result = typ.flatten(node, [1, 2], listitem=True)
+        self.assertEqual(result, {'0': 1, '1': 2})
+
+    def test_unflatten(self):
+        node = DummySchemaNode(None, name='node')
+        node.children = [
+            DummySchemaNode(DummyType(), name='foo'),
+        ]
+        typ = self._makeOne()
+        result = typ.unflatten(node,
+            ['node.0', 'node.1',],
+            {'node.0': 'a', 'node.1': 'b'})
+        self.assertEqual(result, ['a', 'b'])
+
 
 class TestString(unittest.TestCase):
     def _makeOne(self, encoding=None):
@@ -824,7 +932,7 @@ class TestString(unittest.TestCase):
         typ = self._makeOne('utf-8')
         e = invalid_exc(typ.serialize, node, not_utf8)
         self.failUnless('cannot be serialized' in e.msg)
-        
+
 class TestInteger(unittest.TestCase):
     def _makeOne(self):
         from colander import Integer
@@ -1036,7 +1144,7 @@ class TestGlobalObject(unittest.TestCase):
         result = typ._zope_dottedname_style(None,
             'colander.tests.TestGlobalObject')
         self.assertEqual(result, self.__class__)
-        
+
     def test_zope_dottedname_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._zope_dottedname_style, None,
@@ -1105,7 +1213,7 @@ class TestGlobalObject(unittest.TestCase):
         result = typ._pkg_resources_style(None,
             'colander.tests:TestGlobalObject')
         self.assertEqual(result, self.__class__)
-        
+
     def test__pkg_resources_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
@@ -1128,7 +1236,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne(package=colander.tests)
         result = typ._pkg_resources_style(None, '.')
         self.assertEqual(result, colander.tests)
-        
+
     def test__pkg_resources_style_resolve_relative_nocurrentpackage(self):
         typ = self._makeOne()
         import colander
@@ -1194,7 +1302,7 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
-        
+
     def test_serialize_fail(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1711,7 +1819,7 @@ class TestSchemaNode(unittest.TestCase):
         another = self._makeOne(None, name='another')
         node.add(another)
         self.assertEqual(node['another'], another)
-        
+
     def test___getitem__failure(self):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__getitem__, 'another')
@@ -1722,7 +1830,7 @@ class TestSchemaNode(unittest.TestCase):
         node.add(another)
         del node['another']
         self.assertEqual(node.children, [])
-        
+
     def test___delitem__failure(self):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__delitem__, 'another')
@@ -1841,7 +1949,7 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.default, 'abc')
         self.assertEqual(node.__class__, colander.SchemaNode)
         self.assertEqual(node.typ.__class__, colander.Mapping)
-        self.assertEqual(node.children[0].typ.__class__, colander.String) 
+        self.assertEqual(node.children[0].typ.__class__, colander.String)
         self.assertEqual(node.children[0].title, 'Thing A')
         self.assertEqual(node.children[1].title, 'bar')
 
@@ -1935,46 +2043,79 @@ class TestFunctional(object):
         result = schema.flatten(appstruct)
 
         expected = {
-            'schema.seq.2.tup.tupstring': 's',
-            'schema.seq2.0.mapping.key2': 2,
-            'schema.seq.0': (1, 's'),
-            'schema.seq.1': (2, 's'),
-            'schema.seq.2': (3, 's'),
-            'schema.seq.3': (4, 's'),
-            'schema.seq': [(1, 's'), (2, 's'), (3, 's'), (4, 's')],
+            'schema.seq.2.tupstring': 's',
+            'schema.seq2.0.key2': 2,
             'schema.ob': colander.tests,
-            'schema.seq2.1.mapping.key2': 4,
-            'schema.seq.0.tup': (1, 's'),
-            'schema.seq.1.tup': (2, 's'),
-            'schema.seq2.0.mapping': {'key2': 2, 'key': 1},
-            'schema.seq2.1.mapping': {'key2': 4, 'key': 3},
-            'schema.seq.1.tup.tupstring': 's',
-            'schema.seq2.0.mapping.key': 1,
-            'schema.seq.1.tup.tupint': 2,
-            'schema.tup': (1, 's'),
-            'schema.seq.3.tup': (4, 's'),
-            'schema.seq.0.tup.tupstring': 's',
-            'schema.seq.2.tup': (3, 's'),
-            'schema.seq.3.tup.tupstring': 's',
-            'schema.seq.3.tup.tupint': 4,
-            'schema.seq2.1.mapping.key': 3,
+            'schema.seq2.1.key2': 4,
+            'schema.seq.1.tupstring': 's',
+            'schema.seq2.0.key': 1,
+            'schema.seq.1.tupint': 2,
+            'schema.seq.0.tupstring': 's',
+            'schema.seq.3.tupstring': 's',
+            'schema.seq.3.tupint': 4,
+            'schema.seq2.1.key': 3,
             'schema.int': 10,
-            'schema.seq2.0': {'key2': 2, 'key': 1},
-            'schema.seq.0.tup.tupint': 1,
+            'schema.seq.0.tupint': 1,
             'schema.tup.tupint': 1,
             'schema.tup.tupstring': 's',
-            'schema.seq.2.tup.tupint': 3,
-            'schema.seq2': [{'key2': 2, 'key': 1}, {'key2': 4, 'key': 3}],
-            'schema.seq2.1': {'key2': 4, 'key': 3},
-            'schema': {'int': 10,
-                       'seq2': [{'key2': 2, 'key': 1}, {'key2': 4, 'key': 3}],
-                       'tup': (1, 's'),
-                       'ob':colander.tests,
-                       'seq': [(1, 's'), (2, 's'), (3, 's'), (4, 's')]}}
+            'schema.seq.2.tupint': 3,
+        }
 
+        for k, v in expected.items():
+            self.assertEqual(result[k], v)
         for k, v in result.items():
-            self.assertEqual(v, expected[k])
-        
+            self.assertEqual(expected[k], v)
+
+    def test_unflatten_ok(self):
+        import colander
+        fstruct = {
+            'schema.seq.2.tupstring': 's',
+            'schema.seq2.0.key2': 2,
+            'schema.ob': colander.tests,
+            'schema.seq2.1.key2': 4,
+            'schema.seq.1.tupstring': 's',
+            'schema.seq2.0.key': 1,
+            'schema.seq.1.tupint': 2,
+            'schema.seq.0.tupstring': 's',
+            'schema.seq.3.tupstring': 's',
+            'schema.seq.3.tupint': 4,
+            'schema.seq2.1.key': 3,
+            'schema.int': 10,
+            'schema.seq.0.tupint': 1,
+            'schema.tup.tupint': 1,
+            'schema.tup.tupstring': 's',
+            'schema.seq.2.tupint': 3,
+        }
+        schema = self._makeSchema()
+        result = schema.unflatten(fstruct)
+
+        expected = {
+            'int':10,
+            'ob':colander.tests,
+            'seq':[(1, 's'),(2, 's'), (3, 's'), (4, 's')],
+            'seq2':[{'key':1, 'key2':2}, {'key':3, 'key2':4}],
+            'tup':(1, 's'),
+            }
+
+        for k, v in expected.items():
+            self.assertEqual(result[k], v)
+        for k, v in result.items():
+            self.assertEqual(expected[k], v)
+
+    def test_flatten_unflatten_roundtrip(self):
+        import colander
+        appstruct = {
+            'int':10,
+            'ob':colander.tests,
+            'seq':[(1, 's'),(2, 's'), (3, 's'), (4, 's')],
+            'seq2':[{'key':1, 'key2':2}, {'key':3, 'key2':4}],
+            'tup':(1, 's'),
+            }
+        schema = self._makeSchema(name='')
+        self.assertEqual(
+            schema.unflatten(schema.flatten(appstruct)),
+            appstruct)
+
     def test_invalid_asdict(self):
         expected = {
             'schema.int': '20 is greater than maximum value 10',
@@ -2001,8 +2142,8 @@ class TestFunctional(object):
         self.assertEqual(errors, expected)
 
 class TestImperative(unittest.TestCase, TestFunctional):
-    
-    def _makeSchema(self):
+
+    def _makeSchema(self, name='schema'):
         import colander
 
         integer = colander.SchemaNode(
@@ -2059,14 +2200,13 @@ class TestImperative(unittest.TestCase, TestFunctional):
             tup,
             seq,
             seq2,
-            name='schema')
+            name=name)
 
         return schema
 
-
 class TestDeclarative(unittest.TestCase, TestFunctional):
-    
-    def _makeSchema(self):
+
+    def _makeSchema(self, name='schema'):
 
         import colander
 
@@ -2092,7 +2232,7 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
             tup = TupleSchema()
             seq2 = SequenceTwo()
 
-        schema = MainSchema(name='schema')
+        schema = MainSchema(name=name)
         return schema
 
 class Test_null(unittest.TestCase):
@@ -2133,6 +2273,11 @@ class DummySchemaNode(object):
             raise Invalid(self, self.exc)
         return val
 
+    def __getitem__(self, name):
+        for child in self.children:
+            if child.name == name:
+                return child
+
 class DummyValidator(object):
     def __init__(self, msg=None):
         self.msg = msg
@@ -2147,7 +2292,7 @@ class Uncooperative(object):
         raise ValueError('I wont cooperate')
 
     __unicode__ = __str__
-    
+
 class DummyType(object):
     def serialize(self, node, value):
         return value
@@ -2155,7 +2300,13 @@ class DummyType(object):
     def deserialize(self, node, value):
         return value
 
-    def flatten(self, node, appstruct, prefix=''):
-        key = prefix + 'appstruct'
+    def flatten(self, node, appstruct, prefix='', listitem=False):
+        if listitem:
+            key = prefix.rstrip('.')
+        else:
+            key = prefix + 'appstruct'
         return {key:appstruct}
 
+    def unflatten(self, node, paths, fstruct):
+        assert paths == [node.name]
+        return fstruct[node.name]

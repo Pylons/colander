@@ -1,6 +1,16 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- ``flatten`` now only includes leaf nodes in the flattened dict.
+
+- ``flatten`` does not include a path element for the name of the type node
+  for sequences.
+
+- ``unflatten`` is implemented.
+
 0.9.3 (2011-06-23)
 ------------------
 
