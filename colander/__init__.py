@@ -223,11 +223,11 @@ class Regex(object):
 
         The ``regex`` argument may also be a pattern object (the
         result of ``re.compile``) instead of a string.
-        
-        When calling, if ``value`` matches the regular expression, 
-        validation succeeds; otherwise, :exc:`colander.Invalid` is 
-        raised with the ``msg`` error message. 
-    """    
+
+        When calling, if ``value`` matches the regular expression,
+        validation succeeds; otherwise, :exc:`colander.Invalid` is
+        raised with the ``msg`` error message.
+    """
     def __init__(self, regex, msg=None):
         if isinstance(regex, basestring):
             self.match_object = re.compile(regex)
@@ -243,10 +243,10 @@ class Regex(object):
             raise Invalid(node, self.msg)
 
 class Email(Regex):
-    """ Email address validator. If ``msg`` is supplied, it will be 
-        the error message to be used when raising :exc:`colander.Invalid`; 
-        otherwise, defaults to 'Invalid email address'.  
-    """    
+    """ Email address validator. If ``msg`` is supplied, it will be
+        the error message to be used when raising :exc:`colander.Invalid`;
+        otherwise, defaults to 'Invalid email address'.
+    """
     def __init__(self, msg=None):
         if msg is None:
             msg = _("Invalid email address")
@@ -441,9 +441,9 @@ class Mapping(SchemaType):
 
         if error is not None:
             raise error
-                
+
         return result
-        
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             appstruct = {}
@@ -468,13 +468,13 @@ class Mapping(SchemaType):
         selfprefix = selfname + '.'
         result[selfname] = appstruct
 
-        for num, subnode in enumerate(node.children):
+        for subnode in node.children:
             name = subnode.name
             substruct = appstruct.get(name, null)
             result.update(subnode.typ.flatten(subnode, substruct,
                                               prefix=selfprefix))
         return result
-        
+
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
@@ -530,7 +530,7 @@ class Tuple(Positional, SchemaType):
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
-                
+
         if error is not None:
             raise error
 
@@ -548,7 +548,7 @@ class Tuple(Positional, SchemaType):
     def deserialize(self, node, cstruct):
         if cstruct is null:
             return null
-        
+
         def callback(subnode, subval):
             return subnode.deserialize(subval)
 
@@ -623,7 +623,7 @@ class Sequence(Positional, SchemaType):
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
-                
+
         if error is not None:
             raise error
 
@@ -679,7 +679,7 @@ class Sequence(Positional, SchemaType):
         """
         if cstruct is null:
             return null
-        
+
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
@@ -746,7 +746,7 @@ class String(SchemaType):
          object using the encoding and returned.
 
        - A Unicode input value to ``deserialize`` is returned
-         untouched. 
+         untouched.
 
        - A non-Unicode input value to ``deserialize`` is converted to
          a ``str`` object using ``str(value``).  The resulting str
@@ -765,11 +765,11 @@ class String(SchemaType):
     """
     def __init__(self, encoding=None):
         self.encoding = encoding
-    
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
-            
+
         try:
             if isinstance(appstruct, unicode):
                 if self.encoding:
@@ -791,7 +791,7 @@ class String(SchemaType):
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
-        
+
         try:
             result = cstruct
             if not isinstance(result, unicode):
@@ -827,7 +827,7 @@ class Number(SchemaType):
     def deserialize(self, node, cstruct):
         if cstruct != 0 and not cstruct:
             return null
-        
+
         try:
             return self.num(cstruct)
         except Exception:
@@ -847,7 +847,7 @@ class Integer(Number):
     this type are ignored.
     """
     num = int
-    
+
 Int = Integer
 
 class Float(Number):
@@ -893,7 +893,7 @@ class Boolean(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
@@ -903,7 +903,7 @@ class Boolean(SchemaType):
     def deserialize(self, node, cstruct):
         if cstruct is null:
             return null
-        
+
         try:
             result = str(cstruct)
         except:
@@ -1031,7 +1031,7 @@ class GlobalObject(SchemaType):
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
-        
+
         if not isinstance(cstruct, basestring):
             raise Invalid(node,
                           _('"${val}" is not a string',
@@ -1096,7 +1096,7 @@ class DateTime(SchemaType):
         if default_tzinfo is _marker:
             default_tzinfo = iso8601.iso8601.Utc()
         self.default_tzinfo = default_tzinfo
-        
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
@@ -1117,7 +1117,7 @@ class DateTime(SchemaType):
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
-        
+
         try:
             result = iso8601.parse_date(
                 cstruct, default_timezone=self.default_tzinfo)
@@ -1351,14 +1351,14 @@ class SchemaNode(object):
     Arbitrary keyword arguments remaining will be attached to the node
     object unmolested.
     """
-    
+
     _counter = itertools.count()
-    
+
     def __new__(cls, *arg, **kw):
         inst = object.__new__(cls)
         inst._order = cls._counter.next()
         return inst
-        
+
     def __init__(self, typ, *children, **kw):
         self.typ = typ
         self.preparer = kw.pop('preparer', None)
@@ -1451,7 +1451,7 @@ class SchemaNode(object):
 
         if self.preparer is not None:
             appstruct = self.preparer(appstruct)
-            
+
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
