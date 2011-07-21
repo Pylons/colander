@@ -794,24 +794,18 @@ class TestSequence(unittest.TestCase):
 
     def test_flatten(self):
         node = DummySchemaNode(None, name='node')
-        int1 = DummyType()
-        int2 = DummyType()
         node.children = [
-            DummySchemaNode(int1, name='a'),
-            DummySchemaNode(int2, name='b'),
-            ]
+            DummySchemaNode(DummyType(), name='foo'),
+        ]
         typ = self._makeOne()
         result = typ.flatten(node, [1, 2])
         self.assertEqual(result, {'node.0': 1, 'node.1': 2})
 
     def test_flatten_listitem(self):
         node = DummySchemaNode(None, name='node')
-        int1 = DummyType()
-        int2 = DummyType()
         node.children = [
-            DummySchemaNode(int1, name='a'),
-            DummySchemaNode(int2, name='b'),
-            ]
+            DummySchemaNode(DummyType(), name='foo'),
+        ]
         typ = self._makeOne()
         result = typ.flatten(node, [1, 2], listitem=True)
         self.assertEqual(result, {'0': 1, '1': 2})
