@@ -353,6 +353,9 @@ class SchemaType(object):
     def set_value(self, node, appstruct, path, value):
         raise AssertionError("Can't call 'set_value' on a leaf node.")
 
+    def get_value(self, node, appstruct, path):
+        raise AssertionError("Can't call 'set_value' on a leaf node.")
+
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
 
@@ -501,6 +504,14 @@ class Mapping(SchemaType):
             appstruct[path] = value
         return appstruct
 
+    def get_value(self, node, appstruct, path):
+        if '.' in path:
+            name, rest = path.split('.', 1)
+            next_node = node[name]
+            return next_node.typ.get_value(next_node, appstruct[name], rest)
+        return appstruct[path]
+
+
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
@@ -618,6 +629,21 @@ class Tuple(Positional, SchemaType):
         else:
             appstruct[index] = value
         return tuple(appstruct)
+
+    def get_value(self, node, appstruct, path):
+        if '.' in path:
+            name, rest = path.split('.', 1)
+        else:
+            name, rest = path, None
+        for index, next_node in enumerate(node.children):
+            if next_node.name == name:
+                break
+        else:
+            raise KeyError(name)
+        if rest is not None:
+            return next_node.typ.get_value(next_node, appstruct[index], rest)
+        return appstruct[index]
+
 
 class Sequence(Positional, SchemaType):
     """
@@ -781,6 +807,14 @@ class Sequence(Positional, SchemaType):
             index = int(path)
             appstruct[index] = value
         return appstruct
+
+    def get_value(self, node, appstruct, path):
+        if '.' in path:
+            name, rest = path.split('.', 1)
+            index = int(name)
+            next_node = node.children[0]
+            return next_node.typ.get_value(next_node, appstruct[index], rest)
+        return appstruct[int(path)]
 
 Seq = Sequence
 
@@ -1509,6 +1543,11 @@ class SchemaNode(object):
         """ Uses the schema to set a value in an appstruct from a dotted_name
         path. """
         self.typ.set_value(self, appstruct, dotted_name, value)
+
+    def get_value(self, appstruct, dotted_name):
+        """ Traverses the appstruct using the schema and retrieves the value
+        specified by the dotted_name path."""
+        return self.typ.get_value(self, appstruct, dotted_name)
 
     def deserialize(self, cstruct=null):
         """ Deserialize the :term:`cstruct` into an :term:`appstruct` based

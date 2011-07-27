@@ -347,6 +347,11 @@ class TestSchemaType(unittest.TestCase):
         self.assertRaises(
             AssertionError, typ.set_value, None, None, None, None)
 
+    def test_get_value(self):
+        typ = self._makeOne()
+        self.assertRaises(
+            AssertionError, typ.get_value, None, None, None)
+
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Mapping
@@ -548,6 +553,17 @@ class TestMapping(unittest.TestCase):
         typ.set_value(node1, appstruct, 'node2.foo', 'bar')
         self.assertEqual(appstruct, {'node2': {'foo': 'bar', 'baz': 'baz'}})
 
+    def test_get_value(self):
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node1.children = [node2]
+        appstruct = {'node2': {'foo': 'bar', 'baz': 'baz'}}
+        self.assertEqual(typ.get_value(node1, appstruct, 'node2'),
+                         {'foo': 'bar', 'baz': 'baz'})
+        self.assertEqual(typ.get_value(node1, appstruct, 'node2.foo'), 'bar')
+
+
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
         from colander import Tuple
@@ -732,6 +748,35 @@ class TestTuple(unittest.TestCase):
         self.assertRaises(
             KeyError, typ.set_value, node, (1, 2), 'foobar', 34)
 
+    def test_get_value(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ, name='node')
+        node.children = [
+            DummySchemaNode(typ, name='foo'),
+            DummySchemaNode(typ, name='bar')
+        ]
+        node['foo'].children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b'),
+        ]
+        node['bar'].children = [
+            DummySchemaNode(None, name='c'),
+            DummySchemaNode(None, name='d'),
+        ]
+        appstruct = ((1, 2), (3, 4))
+        self.assertEqual(typ.get_value(node, appstruct, 'foo'), (1, 2))
+        self.assertEqual(typ.get_value(node, appstruct, 'foo.b'), 2)
+
+    def test_get_value_bad_path(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ, name='node')
+        node.children = [
+            DummySchemaNode(None, name='foo'),
+            DummySchemaNode(None, name='bar')
+        ]
+        self.assertRaises(
+            KeyError, typ.get_value, node, (1, 2), 'foobar')
+
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
         from colander import Sequence
@@ -873,6 +918,15 @@ class TestSequence(unittest.TestCase):
         typ.set_value(node1, appstruct, '1.0', 34)
         self.assertEqual(appstruct, [[1, 2], [34, 4]])
 
+    def test_getvalue(self):
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='seq1')
+        node2 = DummySchemaNode(typ, name='seq2')
+        node1.children = [node2]
+        node2.children = DummySchemaNode(None, name='items')
+        appstruct = [[1, 2], [3, 4]]
+        self.assertEqual(typ.get_value(node1, appstruct, '1'), [3, 4])
+        self.assertEqual(typ.get_value(node1, appstruct, '1.0'), 3)
 
 class TestString(unittest.TestCase):
     def _makeOne(self, encoding=None):
@@ -2174,6 +2228,20 @@ class TestFunctional(object):
         schema = self._makeSchema()
         schema.set_value(appstruct, 'seq2.1.key', 6)
         self.assertEqual(appstruct['seq2'][1], {'key':6, 'key2':4})
+
+    def test_get_value(self):
+        import colander
+        appstruct = {
+            'int':10,
+            'ob':colander.tests,
+            'seq':[(1, 's'),(2, 's'), (3, 's'), (4, 's')],
+            'seq2':[{'key':1, 'key2':2}, {'key':3, 'key2':4}],
+            'tup':(1, 's'),
+            }
+        schema = self._makeSchema()
+        self.assertEqual(schema.get_value(appstruct, 'seq'),
+                         [(1, 's'),(2, 's'), (3, 's'), (4, 's')])
+        self.assertEqual(schema.get_value(appstruct, 'seq2.1.key'), 3)
 
     def test_invalid_asdict(self):
         expected = {
