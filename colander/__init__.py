@@ -350,6 +350,9 @@ class SchemaType(object):
         assert paths == [name], "paths should be [name] for leaf nodes."
         return fstruct[name]
 
+    def set_value(self, node, appstruct, path, value):
+        raise AssertionError("Can't call 'set_value' on a leaf node.")
+
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
 
@@ -487,6 +490,16 @@ class Mapping(SchemaType):
     def unflatten(self, node, paths, fstruct):
         return _unflatten_mapping(node, paths, fstruct)
 
+    def set_value(self, node, appstruct, path, value):
+        if '.' in path:
+            next_name, rest = path.split('.', 1)
+            next_node = node[next_name]
+            next_appstruct = appstruct[next_name]
+            appstruct[next_name] = next_node.typ.set_value(
+                next_node, next_appstruct, rest, value)
+        else:
+            appstruct[path] = value
+        return appstruct
 
 class Positional(object):
     """
@@ -585,6 +598,25 @@ class Tuple(Positional, SchemaType):
         appstruct = []
         for subnode in node.children:
             appstruct.append(mapstruct[subnode.name])
+        return tuple(appstruct)
+
+    def set_value(self, node, appstruct, path, value):
+        appstruct = list(appstruct)
+        if '.' in path:
+            next_name, rest = path.split('.', 1)
+        else:
+            next_name, rest = path, None
+        for index, next_node in enumerate(node.children):
+            if next_node.name == next_name:
+                break
+        else:
+            raise KeyError(next_name)
+        if rest is not None:
+            next_appstruct = appstruct[index]
+            appstruct[index] = next_node.typ.set_value(
+                next_node, next_appstruct, rest, value)
+        else:
+            appstruct[index] = value
         return tuple(appstruct)
 
 class Sequence(Positional, SchemaType):
@@ -737,6 +769,18 @@ class Sequence(Positional, SchemaType):
                                        get_child, rewrite_subpath)
         return [mapstruct[str(index)] for index in xrange(len(mapstruct))]
 
+    def set_value(self, node, appstruct, path, value):
+        if '.' in path:
+            next_name, rest = path.split('.', 1)
+            index = int(next_name)
+            next_node = node.children[0]
+            next_appstruct = appstruct[index]
+            appstruct[index] = next_node.typ.set_value(
+                next_node, next_appstruct, rest, value)
+        else:
+            index = int(path)
+            appstruct[index] = value
+        return appstruct
 
 Seq = Sequence
 
@@ -1460,6 +1504,11 @@ class SchemaNode(object):
         this node using the fstruct passed. """
         paths = sorted(fstruct.keys())
         return self.typ.unflatten(self, paths, fstruct)
+
+    def set_value(self, appstruct, dotted_name, value):
+        """ Uses the schema to set a value in an appstruct from a dotted_name
+        path. """
+        self.typ.set_value(self, appstruct, dotted_name, value)
 
     def deserialize(self, cstruct=null):
         """ Deserialize the :term:`cstruct` into an :term:`appstruct` based
