@@ -1640,6 +1640,15 @@ class SchemaNode(object):
                 return node
         raise KeyError(name)
 
+    def __setitem__(self, name, newnode):
+        """ Replace a subnode by name """
+        for idx, node in enumerate(self.children[:]):
+            if node.name == name:
+                self.children[idx] = newnode
+                newnode.name = name
+                return node
+        raise KeyError(name)
+
     def __iter__(self):
         """ Iterate over the children nodes of this schema node """
         return iter(self.children)

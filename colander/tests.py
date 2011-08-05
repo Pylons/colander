@@ -1935,6 +1935,19 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__delitem__, 'another')
 
+    def test___setitem__success(self):
+        node = self._makeOne(None)
+        another = self._makeOne(None, name='another')
+        node.add(another)
+        andanother = self._makeOne(None, name='andanother')
+        node['another'] = andanother
+        self.assertEqual(node['another'], andanother)
+        self.assertEqual(andanother.name, 'another')
+
+    def test___setitem__failure(self):
+        node = self._makeOne(None)
+        self.assertRaises(KeyError, node.__setitem__, 'another', None)
+
     def test___iter__(self):
         node = self._makeOne(None)
         node.children = ['a', 'b', 'c']

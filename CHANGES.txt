@@ -11,6 +11,12 @@ Unreleased
 
 - ``unflatten`` is implemented.
 
+- Added ``__setitem__`` to ``SchemaNode``, allowing replacement of nodes by
+  name.
+
+- Added ``get_value`` and ``set_value`` methods to ``Schema`` which allow
+  access and mutation of appstructs using dotted name paths.
+
 0.9.3 (2011-06-23)
 ------------------
 
