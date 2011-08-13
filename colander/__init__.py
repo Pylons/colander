@@ -45,7 +45,7 @@ class Invalid(Exception):
     argument, defaulting to ``None``.  The ``msg`` argument is a
     freeform field indicating the error circumstance.
 
-    The constructor additionally may receive a an optional ``value``
+    The constructor additionally may receive an optional ``value``
     keyword, indicating the value related to the error.
     """
     pos = None
