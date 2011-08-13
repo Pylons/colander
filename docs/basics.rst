@@ -294,7 +294,7 @@ validation error?
      schema.deserialize(cstruct)
 
 The ``deserialize`` method will raise an exception, and the ``except``
-clause above will be invoked, causing an error messaage to be printed.
+clause above will be invoked, causing an error message to be printed.
 It will print something like:
 
 .. code-block:: python
