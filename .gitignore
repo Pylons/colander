@@ -17,3 +17,5 @@ pypyenv/
 build/
 dist/
 colander/coverage.xml
+distribute*.gz
+venv
