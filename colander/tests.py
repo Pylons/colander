@@ -81,7 +81,7 @@ class TestInvalid(unittest.TestCase):
         exc1.pos = 1
         exc2 = self._makeOne(node2, 'exc2')
         exc3 = self._makeOne(node3, 'exc3')
-        exc4 = self._makeOne(node4, 'exc4')
+        exc4 = self._makeOne(node4, ['exc4'])
         exc1.add(exc2, 2)
         exc2.add(exc3, 3)
         exc1.add(exc4, 4)
