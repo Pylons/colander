@@ -222,7 +222,7 @@ This can be useful for adding and removing children from schema nodes:
               )
 
        blog_schema = BlogPostSchema(after_bind=maybe_remove_date)
-       blog_schema = blog_schema.bind({'use_date':False})
+       blog_schema = blog_schema.bind(use_date=False)
 
 An ``after_bind`` callback is called after a clone of this node has
 bound all of its values successfully.  The above example removes the
