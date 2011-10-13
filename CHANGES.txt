@@ -17,6 +17,8 @@ Unreleased
 - Added ``get_value`` and ``set_value`` methods to ``Schema`` which allow
   access and mutation of appstructs using dotted name paths.
 
+- ``All`` does not lose children exceptions.
+
 0.9.3 (2011-06-23)
 ------------------
 
