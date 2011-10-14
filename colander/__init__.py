@@ -62,10 +62,13 @@ class Invalid(Exception):
         """ Return an iterable of error messages for this exception
         using the ``msg`` attribute of this error node.  If the
         ``msg`` attribute is iterable, it is returned.  If it is not
-        iterable, a single-element list containing the ``msg`` value
-        is returned."""
+        iterable, and is not ``None``, a single-element list
+        containing the ``msg`` value is returned.  If ``msg`` is ``None``,
+        an empty list is returned."""
         if hasattr(self.msg, '__iter__'):
             return self.msg
+        elif self.msg is None:
+            return []
         return [self.msg]
 
     def add(self, exc, pos=None):

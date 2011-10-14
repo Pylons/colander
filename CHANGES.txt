@@ -17,6 +17,9 @@ Unreleased
 - Added ``get_value`` and ``set_value`` methods to ``Schema`` which allow
   access and mutation of appstructs using dotted name paths.
 
+- The ``messages`` method of ``Invalid`` now returns an empty list
+  when there are no messages.
+
 0.9.3 (2011-06-23)
 ------------------
 
