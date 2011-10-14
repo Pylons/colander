@@ -1,0 +1,120 @@
+# Translations template for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.8\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-09-10 08:00-0600\n"
+"PO-Revision-Date: 2011-10-02 21:38+0100\n"
+"Last-Translator: Bard Stéphane <stephane.bard@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: colander/__init__.py:199
+msgid "Invalid value"
+msgstr "Valeur incorrecte"
+
+#: colander/__init__.py:232
+msgid "String does not match expected pattern"
+msgstr "La chaîne de caractères n'a pas vérifié le modèle attendu"
+
+#: colander/__init__.py:247
+msgid "Invalid email address"
+msgstr "Invalide adresse email"
+
+#: colander/__init__.py:276
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} est plus petit que la valeur minimale autorisée (${min})"
+
+#: colander/__init__.py:277
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} est plus grand que la valeur maximum autorisée (${max})"
+
+#: colander/__init__.py:309
+msgid "Shorter than minimum length ${min}"
+msgstr "La longueur est inférieur à la taille minimum autorisée (${min})"
+
+#: colander/__init__.py:315
+msgid "Longer than maximum length ${max}"
+msgstr "La longueur dépasse la taille maximum autorisée (${max})"
+
+#: colander/__init__.py:328
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" ne fait pas partie des choix suivants ${choices}"
+
+#: colander/__init__.py:398
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" n'est pas du type table de correspondance (dictionnaire par exemple): ${err}"
+
+#: colander/__init__.py:422
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Clé inconnue dans dans la table de correspondance: \"${val}\""
+
+#: colander/__init__.py:477
+#: colander/__init__.py:563
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" n'est pas itérable"
+
+#: colander/__init__.py:485
+msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr "\"${val}\" possède un nombre incorrecte d'éléments (attendu ${exp}, trouvé ${was})"
+
+#: colander/__init__.py:725
+msgid "\"${val} cannot be serialized: ${err}"
+msgstr "\"${val} ne peut être sérialisé: ${err}"
+
+#: colander/__init__.py:738
+msgid "${val} is not a string: %{err}"
+msgstr "${val} n'est pas une chaîne de caractères: %{err}"
+
+#: colander/__init__.py:759
+#: colander/__init__.py:770
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" n'est pas un nombre"
+
+#: colander/__init__.py:764
+#: colander/__init__.py:1263
+msgid "Required"
+msgstr "Requis"
+
+#: colander/__init__.py:844
+msgid "${val} is not a string"
+msgstr "${val} n'est pas une chaîne de carctères"
+
+#: colander/__init__.py:904
+#: colander/__init__.py:921
+#: colander/__init__.py:931
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "le nom relatif \"${val}\" ne peut-être résolu sans son module intégré"
+
+#: colander/__init__.py:961
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" ne possède pas l'attribut __name__"
+
+#: colander/__init__.py:967
+msgid "\"${val}\" is not a string"
+msgstr "\"${val}\" n'est pas une chaîne de caractères"
+
+#: colander/__init__.py:976
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "Le symbole python  \"${name}\" n'a pu être importé"
+
+#: colander/__init__.py:1024
+#: colander/__init__.py:1101
+msgid "Invalid date"
+msgstr "Date invalide"
+
+#: colander/__init__.py:1040
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" n'est pas un objet datetime"
+
+#: colander/__init__.py:1112
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" n'est pas un objet date"
+
