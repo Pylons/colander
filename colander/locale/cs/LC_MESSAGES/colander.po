@@ -1,0 +1,118 @@
+# Czech translations for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.8\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2010-09-10 08:00-0600\n"
+"PO-Revision-Date: 2011-10-15 17:25+0300\n"
+"Last-Translator: Petr Viktorin <encukou@gmail.com>\n"
+"Language-Team: Petr Viktorin <encukou@gmail.com>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: colander/__init__.py:199
+msgid "Invalid value"
+msgstr "Neplatná hodnota"
+
+#: colander/__init__.py:232
+msgid "String does not match expected pattern"
+msgstr "Text neodpovídá očekávané struktuře"
+
+#: colander/__init__.py:247
+msgid "Invalid email address"
+msgstr "Neplatná e-mailová adresa"
+
+#: colander/__init__.py:276
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} je menší než minimální hodnota, ${min}"
+
+#: colander/__init__.py:277
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} je větší než maximální hodnota, ${max}"
+
+#: colander/__init__.py:309
+msgid "Shorter than minimum length ${min}"
+msgstr "Kratší než minimální délka, ${min}"
+
+#: colander/__init__.py:315
+msgid "Longer than maximum length ${max}"
+msgstr "Delší než maximální délka, ${max}"
+
+#: colander/__init__.py:328
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" není z ${choices}"
+
+#: colander/__init__.py:398
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" není typu zobrazení: ${err}"
+
+#: colander/__init__.py:422
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Neznámé klíče v zobrazení: \"${val}\""
+
+#: colander/__init__.py:477 colander/__init__.py:563
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" není sekvence"
+
+#: colander/__init__.py:485
+msgid ""
+"\"${val}\" has an incorrect number of elements (expected ${exp}, was "
+"${was})"
+msgstr "\"${val}\" má špatný počet položek (${was} místo ${exp})"
+
+#: colander/__init__.py:725
+msgid "\"${val} cannot be serialized: ${err}"
+msgstr "\"${val}\" nemůže být serializováno: ${err}"
+
+#: colander/__init__.py:738
+msgid "${val} is not a string: %{err}"
+msgstr "${val} není řetězec: %{err}"
+
+#: colander/__init__.py:759 colander/__init__.py:770
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" není číslo"
+
+#: colander/__init__.py:764 colander/__init__.py:1263
+msgid "Required"
+msgstr "Povinné pole"
+
+#: colander/__init__.py:844
+msgid "${val} is not a string"
+msgstr "${val} není řetězec"
+
+#: colander/__init__.py:904 colander/__init__.py:921 colander/__init__.py:931
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "relativní jméno \"${val}\" je neplatné bez Pythonového balíčku"
+
+#: colander/__init__.py:961
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" nemá __name__"
+
+#: colander/__init__.py:967
+msgid "\"${val}\" is not a string"
+msgstr "\"${val}\" není řetězec"
+
+#: colander/__init__.py:976
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "Jméno \"${name}\" nemohlo být importováno"
+
+#: colander/__init__.py:1024 colander/__init__.py:1101
+msgid "Invalid date"
+msgstr "Neplatné datum"
+
+#: colander/__init__.py:1040
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" není objekt s časem a datem"
+
+#: colander/__init__.py:1112
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" není objekt s datem"
+
