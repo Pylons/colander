@@ -4,6 +4,11 @@ Changes
 Unreleased
 ----------
 
+- ``All`` does not lose children exceptions.
+
+0.9.4 (2011-10-14)
+------------------
+
 - ``flatten`` now only includes leaf nodes in the flattened dict.
 
 - ``flatten`` does not include a path element for the name of the type node
@@ -17,7 +22,7 @@ Unreleased
 - Added ``get_value`` and ``set_value`` methods to ``Schema`` which allow
   access and mutation of appstructs using dotted name paths.
 
-- ``All`` does not lose children exceptions.
+- Add Swedish, French, Chinese translations.
 
 0.9.3 (2011-06-23)
 ------------------

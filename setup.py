@@ -29,7 +29,7 @@ except:
 requires = ['iso8601', 'translationstring']
 
 setup(name='colander',
-      version='0.9.3',
+      version='0.9.4',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,
