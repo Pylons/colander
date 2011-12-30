@@ -426,7 +426,7 @@ __ http://pypi.python.org/pypi/htmllaundry/
    :linenos:
 
    import colander
-   import htmlaundry
+   import htmllaundry
 
    class Page(colander.MappingSchema):
        title = colander.SchemaNode(colander.String())
