@@ -170,7 +170,7 @@ resolved.  In the above example:
 
 -  The ``date`` node's ``missing`` value will be ``datetime.date.today()``.
 
-- The ``date`` node's ``validator`` value will a
+- The ``date`` node's ``validator`` value will be a
   :class:`colander.Range` validator with a ``max`` of
   ``datetime.date.max``.
 
@@ -179,7 +179,7 @@ resolved.  In the above example:
 - The ``body`` node's ``description`` will be the string ``Blog post
   body (no longer than 5000 bytes)``.
 
-- The ``body`` node's ``validator`` value will a
+- The ``body`` node's ``validator`` value will be a
   :class:`colander.Length` validator with a ``max`` of 5000.
 
 - The ``body`` node's ``widget`` will be of the type ``RichTextWidget``.
