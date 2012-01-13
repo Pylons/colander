@@ -147,7 +147,7 @@ class Invalid(Exception):
             keyparts = []
             msgs = []
             for exc in path:
-                exc.msg and msgs.append(exc.msg)
+                exc.msg and msgs.extend(exc.messages())
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
@@ -166,14 +166,19 @@ class All(object):
 
     def __call__(self, node, value):
         msgs = []
+        excs = []
         for validator in self.validators:
             try:
                 validator(node, value)
             except Invalid, e:
+                excs.append(e)
                 msgs.append(e.msg)
 
         if msgs:
-            raise Invalid(node, msgs)
+            exc = Invalid(node, msgs)
+            for e in excs:
+                e.children and exc.children.extend(e.children)
+            raise exc
 
 class Function(object):
     """ Validator which accepts a function and an optional message;

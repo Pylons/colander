@@ -1,6 +1,11 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- ``All`` does not lose children exceptions.
+
 0.9.4 (2011-10-14)
 ------------------
 
