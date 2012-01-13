@@ -147,7 +147,7 @@ class Invalid(Exception):
             keyparts = []
             msgs = []
             for exc in path:
-                exc.msg and msgs.append(exc.msg)
+                exc.msg and msgs.extend(exc.messages())
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
