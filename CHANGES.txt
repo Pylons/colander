@@ -1,6 +1,17 @@
 Changes
 =======
 
+0.9.5
+-----
+
+- Added Czech translation.
+
+- Compile pt_BR translation (it was previously uncompiled).
+
+- Minor docs fixes.
+
+- Documentation added about flatten and unflatten.
+
 0.9.4 (2011-10-14)
 ------------------
 
