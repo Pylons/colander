@@ -1524,29 +1524,31 @@ class SchemaNode(object):
         return cstruct
 
     def flatten(self, appstruct):
-        """ Create an fstruct from the appstruct based on the schema
-        represented by this node and return the fstruct.  An fstruct
-        is a flattened representation of an appstruct.  An fstruct is
-        a dictionary; its keys are dotted names.  Each dotted name
-        represents a location in the schema.  The values of an fstruct
-        dictionary are appstruct subvalues."""
+        """ Create and return a data structure which is a flattened
+        representation of the passed in struct based on the schema represented
+        by this node.  The return data structure is a dictionary; its keys are
+        dotted names.  Each dotted name represents a path to a location in the
+        schema.  The values of of the flattened dictionary are subvalues of
+        the passed in struct."""
         flat = self.typ.flatten(self, appstruct)
         return flat
 
     def unflatten(self, fstruct):
-        """ Create an appstruct based on the schema represented by
-        this node using the fstruct passed. """
+        """ Create and return a data structure with nested substructures based
+        on the schema represented by this node using the flattened
+        representation passed in. This is the inverse operation to
+        :meth:`colander.SchemaNode.flatten`."""
         paths = sorted(fstruct.keys())
         return self.typ.unflatten(self, paths, fstruct)
 
     def set_value(self, appstruct, dotted_name, value):
-        """ Uses the schema to set a value in an appstruct from a dotted_name
-        path. """
+        """ Uses the schema to set a value in a nested datastructure from a
+        dotted name path. """
         self.typ.set_value(self, appstruct, dotted_name, value)
 
     def get_value(self, appstruct, dotted_name):
-        """ Traverses the appstruct using the schema and retrieves the value
-        specified by the dotted_name path."""
+        """ Traverses the nested data structure using the schema and retrieves
+        the value specified by the dotted name path."""
         return self.typ.get_value(self, appstruct, dotted_name)
 
     def deserialize(self, cstruct=null):

@@ -57,6 +57,7 @@ internationalizable.
    null.rst
    extending.rst
    binding.rst
+   manipulation.rst
    interfaces.rst
    api.rst
    glossary.rst
