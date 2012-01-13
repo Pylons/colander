@@ -1212,7 +1212,7 @@ class DateTime(SchemaType):
         self.default_tzinfo = default_tzinfo
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if not appstruct:
             return null
 
         if type(appstruct) is datetime.date: # cant use isinstance; dt subs date
