@@ -632,15 +632,6 @@ class TestTuple(unittest.TestCase):
         result = typ.serialize(node, colander.null)
         self.assertEqual(result, colander.null)
 
-    def test_serialize_not_iterable(self):
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        e = invalid_exc(typ.serialize, node, None)
-        self.assertEqual(
-            e.msg.interpolate(),
-            '"None" is not iterable')
-        self.assertEqual(e.node, node)
-
     def test_serialize_no_subnodes(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -1484,6 +1475,15 @@ class TestDateTime(unittest.TestCase):
         expected = dt.isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_with_datetime_str(self):
+        import iso8601
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        dt = "2012-01-01T13:34:00"
+        result = typ.serialize(node, dt)
+        expected = iso8601.parse_date(dt).isoformat()
+        self.assertEqual(result, expected)
+
     def test_deserialize_date(self):
         import datetime
         import iso8601
@@ -1590,6 +1590,14 @@ class TestDate(unittest.TestCase):
         expected = dt.date().isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_with_date_str(self):
+        import iso8601
+        typ = self._makeOne()
+        date = "2012-01-01"
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, date)
+        self.assertEqual(result, date)
+
     def test_deserialize_invalid_ParseError(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -1674,6 +1682,13 @@ class TestTime(unittest.TestCase):
         result = typ.serialize(node, dt)
         expected = dt.time().isoformat().split('.')[0]
         self.assertEqual(result, expected)
+
+    def test_serialize_with_time_str(self):
+        typ = self._makeOne()
+        time = "12:34:00"
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, time)
+        self.assertEqual(result, time)
 
     def test_deserialize_invalid_ParseError(self):
         node = DummySchemaNode(None)

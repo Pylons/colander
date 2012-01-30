@@ -574,7 +574,7 @@ class Tuple(Positional, SchemaType):
         return tuple(result)
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if appstruct in (null, None, ""):
             return null
 
         def callback(subnode, subappstruct):
@@ -928,7 +928,7 @@ class Number(SchemaType):
     num = None
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if appstruct in (null,None,""):
             return null
 
         try:
@@ -1212,8 +1212,20 @@ class DateTime(SchemaType):
         self.default_tzinfo = default_tzinfo
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if appstruct in (null,None,""):
             return null
+
+        if isinstance(appstruct, basestring):
+            try:
+                appstruct = iso8601.parse_date(
+                    appstruct, default_timezone=self.default_tzinfo)
+            except (iso8601.ParseError, TypeError), e:
+                try:
+                    year, month, day = map(int, appstruct.split('-', 2))
+                    appstruct = datetime.datetime(year, month, day,
+                                               tzinfo=self.default_tzinfo)
+                except:
+                    pass
 
         if type(appstruct) is datetime.date: # cant use isinstance; dt subs date
             appstruct = datetime.datetime.combine(appstruct, datetime.time())
@@ -1288,8 +1300,18 @@ class Date(SchemaType):
     err_template =  _('Invalid date')
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if appstruct in (null,None,""):
             return null
+
+        if isinstance(appstruct, basestring):
+            try:
+                appstruct = iso8601.parse_date(appstruct)
+            except (iso8601.ParseError, TypeError), e:
+                try:
+                    year, month, day = map(int, appstruct.split('-', 2))
+                    appstruct = datetime.date(year, month, day)
+                except:
+                    pass
 
         if isinstance(appstruct, datetime.datetime):
             appstruct = appstruct.date()
@@ -1364,8 +1386,21 @@ class Time(SchemaType):
     err_template =  _('Invalid time')
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if appstruct in (null, None, ""):
             return null
+
+        if isinstance(appstruct, basestring):
+            try:
+                value = iso8601.parse_date(appstruct)
+                appstruct = value.time()
+            except (iso8601.ParseError, TypeError):
+                try:
+                    appstruct = timeparse(appstruct, '%H:%M:%S')
+                except ValueError:
+                    try:
+                        appstruct = timeparse(appstruct, '%H:%M')
+                    except:
+                        pass
 
         if isinstance(appstruct, datetime.datetime):
             appstruct = appstruct.time()
