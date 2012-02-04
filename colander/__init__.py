@@ -89,9 +89,6 @@ class Invalid(Exception):
         ``msg`` attribute is iterable, it is returned.  If it is not
         iterable, a single-element list containing the ``msg`` value
         is returned."""
-        #if hasattr(self.msg, '__iter__'):
-        #    return self.msg
-        #return [self.msg]
         if isinstance(self.msg, basestring):
             return [self.msg]
         return self.msg
@@ -1501,7 +1498,6 @@ class SchemaNode(object):
 
     def __new__(cls, *arg, **kw):
         inst = object.__new__(cls)
-        #inst._order = cls._counter.next()
         inst._order = next(cls._counter)
         return inst
 
@@ -1721,26 +1717,9 @@ class _SchemaMeta(type):
         extended.sort()
         cls.nodes = [x[1] for x in extended]
 
-# class Schema(object):
-#     schema_type = Mapping
-#     node_type = SchemaNode
-#     __metaclass__ = _SchemaMeta
-# 
-#     def __new__(cls, *args, **kw):
-#         node = object.__new__(cls.node_type)
-#         node.name = None
-#         #node._order = SchemaNode._counter.next()
-#         node._order = next(SchemaNode._counter)
-#         typ = cls.schema_type()
-#         node.__init__(typ, *args, **kw)
-#         for n in cls.nodes:
-#             node.add(n)
-#         return node
-
 def _Schema__new__(cls, *args, **kw):
     node = object.__new__(cls.node_type)
     node.name = None
-    #node._order = SchemaNode._counter.next()
     node._order = next(SchemaNode._counter)
     typ = cls.schema_type()
     node.__init__(typ, *args, **kw)
@@ -1755,28 +1734,10 @@ Schema = _SchemaMeta('Schema', (object,),
 
 MappingSchema = Schema
 
-# class SequenceSchema(object):
-#     schema_type = Sequence
-#     node_type = SchemaNode
-#     __metaclass__ = _SchemaMeta
-# 
-#     def __new__(cls, *args, **kw):
-#         node = object.__new__(cls.node_type)
-#         node.name = None
-#         node._order = SchemaNode._counter.next()
-#         typ = cls.schema_type()
-#         node.__init__(typ, *args, **kw)
-#         if not len(cls.nodes) == 1:
-#             raise Invalid(node,
-#                           'Sequence schemas must have exactly one child node')
-#         for n in cls.nodes:
-#             node.add(n)
-#         return node
 
 def _SequanceSchema__new__(cls, *args, **kw):
     node = object.__new__(cls.node_type)
     node.name = None
-    #node._order = SchemaNode._counter.next()
     node._order = next(SchemaNode._counter)
     typ = cls.schema_type()
     node.__init__(typ, *args, **kw)
