@@ -1,6 +1,19 @@
 Changes
 =======
 
+Next release
+------------
+
+- No longer runs on Python 2.4 or 2.5.  Python 2.6+ is now required.
+
+- Python 3.2 compatibility.
+
+- Removed a dependency on the iso8601 package (code from the package is now
+  inlined in Colander itself).
+
+- Added copyright and licensing information for iso8601-derived code to
+  LICENSE.txt.
+
 0.9.5 (2012-01-13)
 ------------------
 
