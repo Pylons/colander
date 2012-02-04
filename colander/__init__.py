@@ -2,32 +2,19 @@ import datetime
 import decimal
 import time
 import itertools
-from . import iso8601
 import pprint
 import re
 import translationstring
 
-import sys
+from .compat import (
+    text_,
+    text_type,
+    string_types,
+    PY3,
+    xrange,
+    )
 
-inPy3k = sys.version_info[0] == 3
-
-try:
-    unicode
-except NameError:
-    # Python 3
-    basestring = unicode = str
-
-try:
-    next
-except NameError:
-    # for Python 2.4 & 2.5
-    def next(gen):
-        return gen.next()
-
-try:
-    xrange
-except NameError:
-    xrange = range
+from . import iso8601
 
 _ = translationstring.TranslationStringFactory('colander')
 
@@ -39,8 +26,8 @@ class _null(object):
     def __nonzero__(self):
         return False
 
-    def __bool__(self):
-        return False
+    # py3 compat
+    __bool__ = __nonzero__
 
     def __repr__(self):
         return '<colander.null>'
@@ -89,7 +76,7 @@ class Invalid(Exception):
         ``msg`` attribute is iterable, it is returned.  If it is not
         iterable, a single-element list containing the ``msg`` value
         is returned."""
-        if isinstance(self.msg, basestring):
+        if isinstance(self.msg, str):
             return [self.msg]
         return self.msg
 
@@ -234,7 +221,7 @@ class Function(object):
         result = self.function(value)
         if not result:
             raise Invalid(node, self.message)
-        if isinstance(result, basestring):
+        if isinstance(result, string_types):
             raise Invalid(node, result)
 
 class Regex(object):
@@ -254,7 +241,7 @@ class Regex(object):
         raised with the ``msg`` error message.
     """
     def __init__(self, regex, msg=None):
-        if isinstance(regex, basestring):
+        if isinstance(regex, string_types):
             self.match_object = re.compile(regex)
         else:
             self.match_object = regex
@@ -276,7 +263,7 @@ class Email(Regex):
         if msg is None:
             msg = _("Invalid email address")
         super(Email, self).__init__(
-            unicode('(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$'), msg=msg)
+            text_('(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$'), msg=msg)
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
@@ -910,17 +897,14 @@ class String(SchemaType):
             return null
 
         try:
-            if isinstance(appstruct, unicode):
-                if self.encoding:
-                    result = appstruct.encode(self.encoding)
-                else:
-                    result = appstruct
-            else:
+            if isinstance(appstruct, (text_type, bytes)):
                 encoding = self.encoding
                 if encoding:
-                    result = unicode(appstruct, encoding).encode(encoding)
+                    result = text_(appstruct, encoding).encode(encoding)
                 else:
-                    result = unicode(appstruct)
+                    result = text_type(appstruct)
+            else:
+                result = text_type(appstruct)
             return result
         except Exception as e:
             raise Invalid(node,
@@ -933,14 +917,13 @@ class String(SchemaType):
 
         try:
             result = cstruct
-            if not isinstance(result, unicode):
+            if isinstance(result, (text_type, bytes)):
                 if self.encoding:
-                    if inPy3k:
-                        result = unicode(bytes(cstruct), self.encoding)
-                    else:
-                        result = unicode(str(cstruct), self.encoding)
+                    result = text_(cstruct, self.encoding)
                 else:
-                    result = unicode(cstruct)
+                    result = text_type(cstruct)
+            else:
+                result = text_type(cstruct)
         except Exception as e:
             raise Invalid(node,
                           _('${val} is not a string: %{err}',
@@ -1174,7 +1157,7 @@ class GlobalObject(SchemaType):
         if not cstruct:
             return null
 
-        if not isinstance(cstruct, basestring):
+        if not isinstance(cstruct, string_types):
             raise Invalid(node,
                           _('"${val}" is not a string',
                             mapping={'val':cstruct}))
