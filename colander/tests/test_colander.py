@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import unittest
-from .compat import text_, text_type
+from colander.compat import text_, text_type
 
 def invalid_exc(func, *arg, **kw):
     from colander import Invalid
@@ -1244,7 +1244,7 @@ class TestGlobalObject(unittest.TestCase):
     def test_zope_dottedname_style_resolve_absolute(self):
         typ = self._makeOne()
         result = typ._zope_dottedname_style(None,
-            'colander.tests.TestGlobalObject')
+            'colander.tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_zope_dottedname_style_irrresolveable_absolute(self):
@@ -1256,14 +1256,18 @@ class TestGlobalObject(unittest.TestCase):
         import colander
         typ = self._makeOne(package=colander)
         node = DummySchemaNode(None)
-        result = typ._zope_dottedname_style(node, '.tests.TestGlobalObject')
+        result = typ._zope_dottedname_style(
+            node, 
+            '.tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__zope_dottedname_style_resolve_relative_leading_dots(self):
         import colander
         typ = self._makeOne(package=colander.tests)
         node = DummySchemaNode(None)
-        result = typ._zope_dottedname_style(node, '..tests.TestGlobalObject')
+        result = typ._zope_dottedname_style(
+            node, 
+            '..tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__zope_dottedname_style_resolve_relative_is_dot(self):
@@ -1301,36 +1305,40 @@ class TestGlobalObject(unittest.TestCase):
 
     def test__zope_dottedname_style_irresolveable_absolute(self):
         typ = self._makeOne()
-        self.assertRaises(ImportError,
-                          typ._zope_dottedname_style, None, 'colander.fudge.bar')
+        self.assertRaises(
+            ImportError,
+            typ._zope_dottedname_style, None, 'colander.fudge.bar')
 
     def test__zope_dottedname_style_resolveable_absolute(self):
         typ = self._makeOne()
-        result = typ._zope_dottedname_style(None,
-                                            'colander.tests.TestGlobalObject')
+        result = typ._zope_dottedname_style(
+            None,
+            'colander.tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__pkg_resources_style_resolve_absolute(self):
         typ = self._makeOne()
         result = typ._pkg_resources_style(None,
-            'colander.tests:TestGlobalObject')
+            'colander.tests.test_colander:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__pkg_resources_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(ImportError, typ._pkg_resources_style, None,
-            'colander.tests:nonexisting')
+            'colander.tests.test_colander:nonexisting')
 
     def test__pkg_resources_style_resolve_relative_startswith_colon(self):
         import colander.tests
         typ = self._makeOne(package=colander.tests)
-        result = typ._pkg_resources_style(None, ':TestGlobalObject')
-        self.assertEqual(result, self.__class__)
+        result = typ._pkg_resources_style(None, ':fixture')
+        self.assertEqual(result, 1)
 
     def test__pkg_resources_style_resolve_relative_startswith_dot(self):
         import colander
         typ = self._makeOne(package=colander)
-        result = typ._pkg_resources_style(None, '.tests:TestGlobalObject')
+        result = typ._pkg_resources_style(
+            None, 
+            '.tests.test_colander:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test__pkg_resources_style_resolve_relative_is_dot(self):
@@ -1374,13 +1382,17 @@ class TestGlobalObject(unittest.TestCase):
     def test_deserialize_using_pkgresources_style(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
-        result = typ.deserialize(node, 'colander.tests:TestGlobalObject')
+        result = typ.deserialize(
+            node, 
+            'colander.tests.test_colander:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_deserialize_using_zope_dottedname_style(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
-        result = typ.deserialize(node, 'colander.tests.TestGlobalObject')
+        result = typ.deserialize(
+            node, 
+            'colander.tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
     def test_deserialize_style_raises(self):
@@ -1425,12 +1437,12 @@ class TestDateTime(unittest.TestCase):
         return datetime.date.today()
 
     def test_ctor_default_tzinfo_None(self):
-        from . import iso8601
+        from .. import iso8601
         typ = self._makeOne()
         self.assertEqual(typ.default_tzinfo.__class__, iso8601.Utc)
 
     def test_ctor_default_tzinfo_non_None(self):
-        from . import iso8601
+        from .. import iso8601
         tzinfo = iso8601.FixedOffset(1, 0, 'myname')
         typ = self._makeOne(default_tzinfo=tzinfo)
         self.assertEqual(typ.default_tzinfo, tzinfo)
@@ -1476,7 +1488,7 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result, dt.isoformat())
 
     def test_serialize_with_tzware_datetime(self):
-        from . import iso8601
+        from .. import iso8601
         typ = self._makeOne()
         dt = self._dt()
         tzinfo = iso8601.FixedOffset(1, 0, 'myname')
@@ -1488,7 +1500,7 @@ class TestDateTime(unittest.TestCase):
 
     def test_deserialize_date(self):
         import datetime
-        from . import iso8601
+        from .. import iso8601
         date = self._today()
         typ = self._makeOne()
         formatted = date.isoformat()
@@ -1520,7 +1532,7 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result, colander.null)
 
     def test_deserialize_success(self):
-        from . import iso8601
+        from .. import iso8601
         typ = self._makeOne()
         dt = self._dt()
         tzinfo = iso8601.FixedOffset(1, 0, 'myname')
@@ -1531,7 +1543,7 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result.isoformat(), iso)
 
     def test_deserialize_naive_with_default_tzinfo(self):
-        from . import iso8601
+        from .. import iso8601
         tzinfo = iso8601.FixedOffset(1, 0, 'myname')
         typ = self._makeOne(default_tzinfo=tzinfo)
         dt = self._dt()
