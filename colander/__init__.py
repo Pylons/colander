@@ -1236,7 +1236,7 @@ class DateTime(SchemaType):
 
     def __init__(self, default_tzinfo=_marker):
         if default_tzinfo is _marker:
-            default_tzinfo = iso8601.iso8601.Utc()
+            default_tzinfo = iso8601.Utc()
         self.default_tzinfo = default_tzinfo
 
     def serialize(self, node, appstruct):
