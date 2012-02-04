@@ -26,7 +26,6 @@ except:
     README = ''
     CHANGES = ''
 
-#requires = ['iso8601', 'translationstring']
 requires = ['translationstring']
 
 setup(name='colander',

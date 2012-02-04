@@ -10,7 +10,6 @@ from .compat import (
     text_,
     text_type,
     string_types,
-    PY3,
     xrange,
     )
 
