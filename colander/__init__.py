@@ -2,10 +2,32 @@ import datetime
 import decimal
 import time
 import itertools
-import iso8601
+from . import iso8601
 import pprint
 import re
 import translationstring
+
+import sys
+
+inPy3k = sys.version_info[0] == 3
+
+try:
+    unicode
+except NameError:
+    # Python 3
+    basestring = unicode = str
+
+try:
+    next
+except NameError:
+    # for Python 2.4 & 2.5
+    def next(gen):
+        return gen.next()
+
+try:
+    xrange
+except NameError:
+    xrange = range
 
 _ = translationstring.TranslationStringFactory('colander')
 
@@ -15,6 +37,9 @@ _marker = required # bw compat
 class _null(object):
     """ Represents a null value in colander-related operations. """
     def __nonzero__(self):
+        return False
+
+    def __bool__(self):
         return False
 
     def __repr__(self):
@@ -64,9 +89,12 @@ class Invalid(Exception):
         ``msg`` attribute is iterable, it is returned.  If it is not
         iterable, a single-element list containing the ``msg`` value
         is returned."""
-        if hasattr(self.msg, '__iter__'):
-            return self.msg
-        return [self.msg]
+        #if hasattr(self.msg, '__iter__'):
+        #    return self.msg
+        #return [self.msg]
+        if isinstance(self.msg, basestring):
+            return [self.msg]
+        return self.msg
 
     def add(self, exc, pos=None):
         """ Add a child exception; ``exc`` must be an instance of
@@ -169,7 +197,7 @@ class All(object):
         for validator in self.validators:
             try:
                 validator(node, value)
-            except Invalid, e:
+            except Invalid as e:
                 msgs.append(e.msg)
 
         if msgs:
@@ -251,7 +279,7 @@ class Email(Regex):
         if msg is None:
             msg = _("Invalid email address")
         super(Email, self).__init__(
-            u'(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$', msg=msg)
+            unicode('(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$'), msg=msg)
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
@@ -420,7 +448,7 @@ class Mapping(SchemaType):
     def _validate(self, node, value):
         try:
             return dict(value)
-        except Exception, e:
+        except Exception as e:
             raise Invalid(node,
                           _('"${val}" is not a mapping type: ${err}',
                           mapping = {'val':value, 'err':e})
@@ -437,7 +465,7 @@ class Mapping(SchemaType):
             subval = value.pop(name, null)
             try:
                 result[name] = callback(subnode, subval)
-            except Invalid, e:
+            except Invalid as e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
@@ -563,7 +591,7 @@ class Tuple(Positional, SchemaType):
             subval = value[num]
             try:
                 result.append(callback(subnode, subval))
-            except Invalid, e:
+            except Invalid as e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
@@ -698,7 +726,7 @@ class Sequence(Positional, SchemaType):
         for num, subval in enumerate(value):
             try:
                 result.append(callback(node.children[0], subval))
-            except Invalid, e:
+            except Invalid as e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
@@ -897,7 +925,7 @@ class String(SchemaType):
                 else:
                     result = unicode(appstruct)
             return result
-        except Exception, e:
+        except Exception as e:
             raise Invalid(node,
                           _('"${val} cannot be serialized: ${err}',
                             mapping={'val':appstruct, 'err':e})
@@ -910,10 +938,13 @@ class String(SchemaType):
             result = cstruct
             if not isinstance(result, unicode):
                 if self.encoding:
-                    result = unicode(str(cstruct), self.encoding)
+                    if inPy3k:
+                        result = unicode(bytes(cstruct), self.encoding)
+                    else:
+                        result = unicode(str(cstruct), self.encoding)
                 else:
                     result = unicode(cstruct)
-        except Exception, e:
+        except Exception as e:
             raise Invalid(node,
                           _('${val} is not a string: %{err}',
                             mapping={'val':cstruct, 'err':e}))
@@ -1235,12 +1266,12 @@ class DateTime(SchemaType):
         try:
             result = iso8601.parse_date(
                 cstruct, default_timezone=self.default_tzinfo)
-        except (iso8601.ParseError, TypeError), e:
+        except (iso8601.ParseError, TypeError) as e:
             try:
                 year, month, day = map(int, cstruct.split('-', 2))
                 result = datetime.datetime(year, month, day,
                                            tzinfo=self.default_tzinfo)
-            except Exception, e:
+            except Exception as e:
                 raise Invalid(node, _(self.err_template,
                                       mapping={'val':cstruct, 'err':e}))
         return result
@@ -1312,7 +1343,7 @@ class Date(SchemaType):
             try:
                 year, month, day = map(int, cstruct.split('-', 2))
                 result = datetime.date(year, month, day)
-            except Exception, e:
+            except Exception as e:
                 raise Invalid(node,
                               _(self.err_template,
                                 mapping={'val':cstruct, 'err':e})
@@ -1390,7 +1421,7 @@ class Time(SchemaType):
             except ValueError:
                 try:
                     result = timeparse(cstruct, '%H:%M')
-                except Exception, e:
+                except Exception as e:
                     raise Invalid(node,
                                   _(self.err_template,
                                     mapping={'val':cstruct, 'err':e})
@@ -1470,7 +1501,8 @@ class SchemaNode(object):
 
     def __new__(cls, *arg, **kw):
         inst = object.__new__(cls)
-        inst._order = cls._counter.next()
+        #inst._order = cls._counter.next()
+        inst._order = next(cls._counter)
         return inst
 
     def __init__(self, typ, *children, **kw):
@@ -1689,40 +1721,76 @@ class _SchemaMeta(type):
         extended.sort()
         cls.nodes = [x[1] for x in extended]
 
-class Schema(object):
-    schema_type = Mapping
-    node_type = SchemaNode
-    __metaclass__ = _SchemaMeta
+# class Schema(object):
+#     schema_type = Mapping
+#     node_type = SchemaNode
+#     __metaclass__ = _SchemaMeta
+# 
+#     def __new__(cls, *args, **kw):
+#         node = object.__new__(cls.node_type)
+#         node.name = None
+#         #node._order = SchemaNode._counter.next()
+#         node._order = next(SchemaNode._counter)
+#         typ = cls.schema_type()
+#         node.__init__(typ, *args, **kw)
+#         for n in cls.nodes:
+#             node.add(n)
+#         return node
 
-    def __new__(cls, *args, **kw):
-        node = object.__new__(cls.node_type)
-        node.name = None
-        node._order = SchemaNode._counter.next()
-        typ = cls.schema_type()
-        node.__init__(typ, *args, **kw)
-        for n in cls.nodes:
-            node.add(n)
-        return node
+def _Schema__new__(cls, *args, **kw):
+    node = object.__new__(cls.node_type)
+    node.name = None
+    #node._order = SchemaNode._counter.next()
+    node._order = next(SchemaNode._counter)
+    typ = cls.schema_type()
+    node.__init__(typ, *args, **kw)
+    for n in cls.nodes:
+        node.add(n)
+    return node
+
+Schema = _SchemaMeta('Schema', (object,), 
+    dict(schema_type=Mapping,
+        node_type=SchemaNode,
+        __new__=_Schema__new__))
 
 MappingSchema = Schema
 
-class SequenceSchema(object):
-    schema_type = Sequence
-    node_type = SchemaNode
-    __metaclass__ = _SchemaMeta
+# class SequenceSchema(object):
+#     schema_type = Sequence
+#     node_type = SchemaNode
+#     __metaclass__ = _SchemaMeta
+# 
+#     def __new__(cls, *args, **kw):
+#         node = object.__new__(cls.node_type)
+#         node.name = None
+#         node._order = SchemaNode._counter.next()
+#         typ = cls.schema_type()
+#         node.__init__(typ, *args, **kw)
+#         if not len(cls.nodes) == 1:
+#             raise Invalid(node,
+#                           'Sequence schemas must have exactly one child node')
+#         for n in cls.nodes:
+#             node.add(n)
+#         return node
 
-    def __new__(cls, *args, **kw):
-        node = object.__new__(cls.node_type)
-        node.name = None
-        node._order = SchemaNode._counter.next()
-        typ = cls.schema_type()
-        node.__init__(typ, *args, **kw)
-        if not len(cls.nodes) == 1:
-            raise Invalid(node,
-                          'Sequence schemas must have exactly one child node')
-        for n in cls.nodes:
-            node.add(n)
-        return node
+def _SequanceSchema__new__(cls, *args, **kw):
+    node = object.__new__(cls.node_type)
+    node.name = None
+    #node._order = SchemaNode._counter.next()
+    node._order = next(SchemaNode._counter)
+    typ = cls.schema_type()
+    node.__init__(typ, *args, **kw)
+    if not len(cls.nodes) == 1:
+        raise Invalid(node,
+                      'Sequence schemas must have exactly one child node')
+    for n in cls.nodes:
+        node.add(n)
+    return node
+
+SequenceSchema = _SchemaMeta('SequenceSchema', (object,),
+    dict(schema_type=Sequence,
+        node_type=SchemaNode,
+        __new__=_SequanceSchema__new__))
 
 class TupleSchema(Schema):
     schema_type = Tuple
