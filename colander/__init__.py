@@ -11,6 +11,7 @@ from .compat import (
     text_type,
     string_types,
     xrange,
+    is_nonstr_iter,
     )
 
 from . import iso8601
@@ -75,9 +76,9 @@ class Invalid(Exception):
         ``msg`` attribute is iterable, it is returned.  If it is not
         iterable, a single-element list containing the ``msg`` value
         is returned."""
-        if isinstance(self.msg, string_types):
-            return [self.msg]
-        return self.msg
+        if is_nonstr_iter(self.msg):
+            return self.msg
+        return [self.msg]
 
     def add(self, exc, pos=None):
         """ Add a child exception; ``exc`` must be an instance of

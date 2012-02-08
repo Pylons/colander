@@ -16,6 +16,15 @@ def text_(s, encoding='latin-1', errors='strict'):
         return s.decode(encoding, errors)
     return s # pragma: no cover
 
+if PY3: # pragma: no cover
+    def is_nonstr_iter(v):
+        if isinstance(v, str):
+            return False
+        return hasattr(v, '__iter__')
+else:
+    def is_nonstr_iter(v):
+        return hasattr(v, '__iter__')
+
 try:
     xrange = xrange
 except NameError: # pragma: no cover
