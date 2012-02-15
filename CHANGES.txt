@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.9.6 (2012-02-14)
+------------------
 
 - No longer runs on Python 2.4 or 2.5.  Python 2.6+ is now required.
 

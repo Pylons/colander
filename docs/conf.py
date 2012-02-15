@@ -38,7 +38,7 @@ copyright = '2010, Agendaless Consulting <pylons-discuss@googlegroups.com>'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.9.5'
+version = '0.9.6'
 # The full version, including alpha/beta/rc tags.
 release = version
 
