@@ -109,7 +109,7 @@ if 'sphinx-build' in ' '.join(sys.argv): # protect against dumb importers
 
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
-html_theme = 'pyramid'
+html_theme = 'pylons'
 html_theme_options = dict(github_url='https://github.com/Pylons/colander')
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
