@@ -2265,6 +2265,42 @@ class TestFunctional(object):
         for k, v in result.items():
             self.assertEqual(expected[k], v)
 
+    def test_unflatten_mapping_no_name(self):
+        import colander
+        fstruct = {
+            'seq.2.tupstring': 's',
+            'seq2.0.key2': 2,
+            'ob': colander.tests,
+            'seq2.1.key2': 4,
+            'seq.1.tupstring': 's',
+            'seq2.0.key': 1,
+            'seq.1.tupint': 2,
+            'seq.0.tupstring': 's',
+            'seq.3.tupstring': 's',
+            'seq.3.tupint': 4,
+            'seq2.1.key': 3,
+            'int': 10,
+            'seq.0.tupint': 1,
+            'tup.tupint': 1,
+            'tup.tupstring': 's',
+            'seq.2.tupint': 3,
+        }
+        schema = self._makeSchema(name='')
+        result = schema.unflatten(fstruct)
+
+        expected = {
+            'int':10,
+            'ob':colander.tests,
+            'seq':[(1, 's'),(2, 's'), (3, 's'), (4, 's')],
+            'seq2':[{'key':1, 'key2':2}, {'key':3, 'key2':4}],
+            'tup':(1, 's'),
+            }
+
+        for k, v in expected.items():
+            self.assertEqual(result[k], v)
+        for k, v in result.items():
+            self.assertEqual(expected[k], v)
+            
     def test_flatten_unflatten_roundtrip(self):
         import colander
         appstruct = {
