@@ -1,6 +1,13 @@
 Changes
 =======
 
+Next release
+------------
+
+- Using ``schema.flatten(...)`` against a mapping schema node without a name
+  produced incorrectly dot-prefixed keys.  See
+  https://github.com/Pylons/colander/issues/37
+
 0.9.6 (2012-02-14)
 ------------------
 
