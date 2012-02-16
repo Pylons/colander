@@ -493,7 +493,10 @@ class Mapping(SchemaType):
         if listitem:
             selfprefix = prefix
         else:
-            selfprefix = '%s%s.' % (prefix, node.name)
+            if node.name:
+                selfprefix = '%s%s.' % (prefix, node.name)
+            else:
+                selfprefix = prefix
 
         for subnode in node.children:
             name = subnode.name
@@ -1756,7 +1759,10 @@ def _unflatten_mapping(node, paths, fstruct,
         def rewrite_subpath(subpath):
             return subpath
     node_name = node.name
-    prefix = node_name + '.'
+    if node_name:
+        prefix = node_name + '.'
+    else:
+        prefix = ''
     prefix_len = len(prefix)
     appstruct = {}
     subfstruct = {}
