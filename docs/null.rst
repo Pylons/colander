@@ -188,14 +188,15 @@ colander.null         <missing>             null serialized
 colander.null         value                 null serialized
 ===================== ===================== ===========================
 
-.. note:: ``<missing>`` in the above table represents the circumstance
-   in which a key present in a :class:`colander.MappingSchema` is not
-   present in a mapping passed to its
-   :meth:`colander.SchemaNode.serialize` method.  In reality,
-   ``<missing>`` means exactly the same thing as
-   :attr:`colanderr.null`, because the :class:`colander.Mapping` type
-   does the equivalent of ``mapping.get(keyname, colander.null)`` to
-   find a subvalue during serialization.
+.. note:: 
+
+   ``<missing>`` in the above table represents the circumstance in which a
+   key present in a :class:`colander.MappingSchema` is not present in a
+   mapping passed to its :meth:`colander.SchemaNode.serialize` method.  In
+   reality, ``<missing>`` means exactly the same thing as
+   :attr:`colanderr.null`, because the :class:`colander.Mapping` type does
+   the equivalent of ``mapping.get(keyname, colander.null)`` to find a
+   subvalue during serialization.
 
 .. _deserializing_null:
 
@@ -229,19 +230,20 @@ a schema, the node will take the following steps:
   with an explicit ``missing`` value), a :exc:`colander.Invalid` exception
   will be raised with a message indicating that the field is required.
 
-.. note:: There are differences between serialization and
-   deserialization involving the :attr:`colander.null` value.  During
-   serialization, if an :attr:`colander.null` value is encountered,
-   and no valid ``default`` attribute exists on the node related to
-   the value the *null value* for that node is returned.
-   Deserialization, however, doesn't use the ``default`` attribute of
-   the node to find a default deserialization value in the same
-   circumstance; instead it uses the ``missing`` attribute instead.
-   Also, if, during deserialization, an :attr:`colander.null` value is
-   encountered as the value passed to the deserialize method, and no
-   explicit ``missing`` value exists for the node, a
-   :exc:`colander.Invalid` exception is raised (:attr:`colander.null`
-   is not returned, as it is during serialization).
+.. note:: 
+
+   There are differences between serialization and deserialization involving
+   the :attr:`colander.null` value.  During serialization, if an
+   :attr:`colander.null` value is encountered, and no valid ``default``
+   attribute exists on the node related to the value the *null value* for
+   that node is returned.  Deserialization, however, doesn't use the
+   ``default`` attribute of the node to find a default deserialization value
+   in the same circumstance; instead it uses the ``missing`` attribute
+   instead.  Also, if, during deserialization, an :attr:`colander.null` value
+   is encountered as the value passed to the deserialize method, and no
+   explicit ``missing`` value exists for the node, a :exc:`colander.Invalid`
+   exception is raised (:attr:`colander.null` is not returned, as it is
+   during serialization).
 
 Here's an example of a deserialization which uses a ``missing`` value
 in the schema as a deserialization default value:
