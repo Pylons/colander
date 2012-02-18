@@ -139,15 +139,17 @@ attached to the node unmolested (e.g. when ``foo=1`` is passed, the
 resulting schema node will have an attribute named ``foo`` with the
 value ``1``).
 
-.. note:: You may see some higher-level systems (such as Deform) pass a
-   ``widget`` argument to a SchemaNode constructor.  Such systems make use of
-   the fact that a SchemaNode can be passed arbitrary keyword arguments for
-   extension purposes.  ``widget`` and other keyword arguments not enumerated
-   here but which are passed during schema node construction by someone
-   constructing a schema for a particular purpose are not used internally by
-   Colander; they are instead only meaningful to higher-level systems which
-   consume Colander schemas.  Abitrary keyword arguments are allowed to a
-   schema node constructor in Colander 0.9+.  Prior version disallow them.
+.. note:: 
+
+   You may see some higher-level systems (such as Deform) pass a ``widget``
+   argument to a SchemaNode constructor.  Such systems make use of the fact
+   that a SchemaNode can be passed arbitrary keyword arguments for extension
+   purposes.  ``widget`` and other keyword arguments not enumerated here but
+   which are passed during schema node construction by someone constructing a
+   schema for a particular purpose are not used internally by Colander; they
+   are instead only meaningful to higher-level systems which consume Colander
+   schemas.  Abitrary keyword arguments are allowed to a schema node
+   constructor in Colander 0.9+.  Prior version disallow them.
 
 The name of a schema node that is introduced as a class-level
 attribute of a :class:`colander.MappingSchema`,
@@ -389,9 +391,11 @@ attribute with the value ``None``.  Each exception instance will also
 have an attribute named ``node``, representing the schema node to
 which the exception is related.
 
-.. note:: Translation strings are objects which behave like Unicode objects
-  but have extra metadata associated with them for use in translation
-  systems.  See `http://docs.repoze.org/projects/translationstring/dev/
+.. note:: 
+
+  Translation strings are objects which behave like Unicode objects but have
+  extra metadata associated with them for use in translation systems.  See
+  `http://docs.repoze.org/projects/translationstring/dev/
   <http://docs.pylonsproject.org/projects/translationstring/dev/>`_ for
   documentation about translation strings.  All error messages used by
   Colander internally are translation strings, which means they can be

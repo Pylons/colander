@@ -1,7 +1,9 @@
 Schema Binding
 ==============
 
-.. note:: Schema binding is new in colander 0.8.
+.. note:: 
+
+   Schema binding is new in colander 0.8.
 
 Sometimes, when you define a schema at module-scope using a ``class``
 statement, you simply don't have enough information to provide

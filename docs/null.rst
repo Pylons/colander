@@ -308,12 +308,13 @@ value                 colander.null         value used
 value_a               value_b               value_a used
 ===================== ===================== ===========================
 
-.. note:: ``<missing>`` in the above table represents the circumstance
-   in which a key present in a :class:`colander.MappingSchema` is not
-   present in a mapping passed to its
-   :meth:`colander.SchemaNode.deserialize` method.  In reality,
-   ``<missing>`` means exactly the same thing as
-   :attr:`colander.null`, because the :class:`colander.Mapping`
-   type does the equivalent of ``mapping.get(keyname,
-   colander.null)`` to find a subvalue during deserialization.
+.. note:: 
+
+   ``<missing>`` in the above table represents the circumstance in which a
+   key present in a :class:`colander.MappingSchema` is not present in a
+   mapping passed to its :meth:`colander.SchemaNode.deserialize` method.  In
+   reality, ``<missing>`` means exactly the same thing as
+   :attr:`colander.null`, because the :class:`colander.Mapping` type does the
+   equivalent of ``mapping.get(keyname, colander.null)`` to find a subvalue
+   during deserialization.
 
