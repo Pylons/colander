@@ -2102,6 +2102,18 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(len(outer_clone.children), 0)
         self.assertEqual(len(outer_node.children), 1)
 
+    def test_declarative_name_reassignment(self):
+        # see https://github.com/Pylons/colander/issues/39
+        import colander
+        class FnordSchema(colander.Schema):
+            fnord = colander.SchemaNode(
+                colander.Sequence(), 
+                colander.SchemaNode(colander.Integer(), name=''), 
+                name="fnord[]"
+                )
+        schema = FnordSchema()
+        self.assertEqual(schema['fnord[]'].name, 'fnord[]')
+        
 class TestDeferred(unittest.TestCase):
     def _makeOne(self, wrapped):
         from colander import deferred

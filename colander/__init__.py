@@ -1694,7 +1694,8 @@ class _SchemaMeta(type):
         nodes = []
         for name, value in clsattrs.items():
             if isinstance(value, SchemaNode):
-                value.name = name
+                if not value.name:
+                    value.name = name
                 if value.raw_title is _marker:
                     value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))

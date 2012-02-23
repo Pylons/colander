@@ -17,6 +17,12 @@ Next release
 - Invalid.messages() now returns an empty list if there are no messages.
   See https://github.com/Pylons/colander/pull/21 .
 
+- ``name`` passed to a SchemaNode constructor was not respected in
+  declaratively constructed schemas.  Now if you pass ``name`` to the
+  SchemaNode constructor within the body of a schema class, it will take
+  precedence over the name it's been assigned to in the schema class.
+  See https://github.com/Pylons/colander/issues/39 .
+
 0.9.6 (2012-02-14)
 ------------------
 
