@@ -8,6 +8,12 @@ Next release
   produced incorrectly dot-prefixed keys.  See
   https://github.com/Pylons/colander/issues/37
 
+- Fix invalid.asdict for multiple error messages.  See
+  https://github.com/Pylons/colander/pull/22 ,
+  https://github.com/Pylons/colander/pull/27 ,
+  https://github.com/Pylons/colander/pull/12 , and
+  https://github.com/Pylons/colander/issues/2 .
+
 0.9.6 (2012-02-14)
 ------------------
 

@@ -91,6 +91,51 @@ class TestInvalid(unittest.TestCase):
         self.assertEqual(d, {'node1.node2.3': 'exc1; exc2; exc3',
                              'node1.node4': 'exc1; exc4'})
 
+    def test_asdict_with_all_validator(self):
+        # see https://github.com/Pylons/colander/pull/27
+        from colander import All
+        from colander import Positional
+        node1 = DummySchemaNode(None, 'node1')
+        node2 = DummySchemaNode(Positional(), 'node2')
+        node3 = DummySchemaNode(Positional(), 'node3')
+        node1.children = [node3]
+        validator1 = DummyValidator('validator1')
+        validator2 = DummyValidator('validator2')
+        validator = All(validator1, validator2)
+        exc1 =  self._makeOne(node1, 'exc1')
+        exc1.pos = 1
+        exc1['node3'] = 'message1'
+        exc2 = self._makeOne(node2, 'exc2')
+        exc3 = invalid_exc(validator, None, None)
+        exc1.add(exc2, 2)
+        exc2.add(exc3, 3)
+        d = exc1.asdict()
+        self.assertEqual(d, 
+                         {'node1.node2.3': 'exc1; exc2; validator1; validator2',
+                          'node1.node3': 'exc1; message1'})
+
+    def test_asdict_with_all_validator_functional(self):
+        # see https://github.com/Pylons/colander/issues/2
+        import colander as c
+        class MySchema(c.MappingSchema):
+            number1 = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+            number2 = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+        def validate_higher(node, val):
+            if val['number1'] >= val['number2']:
+                raise c.Invalid(node, 'Number 1 must be lower than number 2')
+        def validate_different(node, val):
+            if val['number1'] == val['number2']:
+                raise c.Invalid(node, "They can't be the same, either")
+        schema = MySchema(validator=c.All(validate_higher, validate_different))
+        try:
+            schema.deserialize(dict(number1=2, number2=2))
+        except c.Invalid as e:
+            result = e.asdict()
+            self.assertEqual(
+                result,
+                {'': ("Number 1 must be lower than number 2; "
+                      "They can't be the same, either")})
+
     def test___str__(self):
         from colander import Positional
         node1 = DummySchemaNode(None, 'node1')
@@ -156,6 +201,19 @@ class TestAll(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, ['msg1', 'msg2'])
 
+    def test_Invalid_children(self):
+        from colander import Invalid
+        node1 = DummySchemaNode(None, 'node1')
+        node = DummySchemaNode(None, 'node')
+        node.children = [node1]
+        exc1 = Invalid(node1, 'exc1')
+        exc2 = Invalid(node1, 'exc2')
+        validator1 = DummyValidator('validator1', [exc1])
+        validator2 = DummyValidator('validator2', [exc2])
+        validator = self._makeOne([validator1, validator2])
+        exc = invalid_exc(validator, node, None)
+        self.assertEqual(exc.children, [exc1, exc2])
+        
 class TestFunction(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Function
@@ -2505,13 +2563,16 @@ class DummySchemaNode(object):
                 return child
 
 class DummyValidator(object):
-    def __init__(self, msg=None):
+    def __init__(self, msg=None, children=None):
         self.msg = msg
+        self.children = children
 
     def __call__(self, node, value):
         from colander import Invalid
         if self.msg:
-            raise Invalid(node, self.msg)
+            e = Invalid(node, self.msg)
+            self.children and e.children.extend(self.children)
+            raise e
 
 class Uncooperative(object):
     def __str__(self):
