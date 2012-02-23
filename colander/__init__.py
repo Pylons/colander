@@ -71,13 +71,15 @@ class Invalid(Exception):
         self.children = []
 
     def messages(self):
-        """ Return an iterable of error messages for this exception
-        using the ``msg`` attribute of this error node.  If the
-        ``msg`` attribute is iterable, it is returned.  If it is not
-        iterable, a single-element list containing the ``msg`` value
-        is returned."""
+        """ Return an iterable of error messages for this exception using the
+        ``msg`` attribute of this error node.  If the ``msg`` attribute is
+        iterable, it is returned.  If it is not iterable, and is
+        non-``None``, a single-element list containing the ``msg`` value is
+        returned.  If the value is ``None``, an empty list is returned."""
         if is_nonstr_iter(self.msg):
             return self.msg
+        if self.msg is None:
+            return []
         return [self.msg]
 
     def add(self, exc, pos=None):

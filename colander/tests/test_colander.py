@@ -183,6 +183,11 @@ class TestInvalid(unittest.TestCase):
         exc = self._makeOne(node, 'msg')
         self.assertEqual(exc.messages(), ['msg'])
 
+    def test_messages_msg_None(self):
+        node = DummySchemaNode(None)
+        exc = self._makeOne(node, None)
+        self.assertEqual(exc.messages(), [])
+        
 class TestAll(unittest.TestCase):
     def _makeOne(self, validators):
         from colander import All
