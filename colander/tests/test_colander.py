@@ -243,6 +243,30 @@ class TestFunction(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, 'fail')
 
+    def test_error_message_adds_mapping_to_configured_message(self):
+        validator = self._makeOne(lambda x: False, message='fail ${val}')
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg.interpolate(), 'fail None')
+
+    def test_error_message_adds_mapping_to_return_message(self):
+        validator = self._makeOne(lambda x: 'fail ${val}')
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg.interpolate(), 'fail None')
+
+    def test_error_message_does_not_overwrite_configured_domain(self):
+        import translationstring
+        _ = translationstring.TranslationStringFactory('fnord')
+        validator = self._makeOne(lambda x: False, message=_('fail ${val}'))
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg.domain, 'fnord')
+
+    def test_error_message_does_not_overwrite_returned_domain(self):
+        import translationstring
+        _ = translationstring.TranslationStringFactory('fnord')
+        validator = self._makeOne(lambda x: _('fail ${val}'))
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg.domain, 'fnord')
+
     def test_propagation(self):
         validator = self._makeOne(lambda x: 'a' in x, 'msg')
         self.assertRaises(TypeError, validator, None, None)
