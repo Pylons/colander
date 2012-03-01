@@ -225,9 +225,9 @@ class Function(object):
     def __call__(self, node, value):
         result = self.function(value)
         if not result:
-            raise Invalid(node, self.message)
+            raise Invalid(node, translationstring.TranslationString(self.message, mapping={'val':value}))
         if isinstance(result, string_types):
-            raise Invalid(node, result)
+            raise Invalid(node, translationstring.TranslationString(result, mapping={'val':value}))
 
 class Regex(object):
     """ Regular expression validator.
