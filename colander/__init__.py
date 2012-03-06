@@ -916,7 +916,7 @@ class String(SchemaType):
             return result
         except Exception as e:
             raise Invalid(node,
-                          _('"${val} cannot be serialized: ${err}',
+                          _('${val} cannot be serialized: ${err}',
                             mapping={'val':appstruct, 'err':e})
                           )
     def deserialize(self, node, cstruct):
