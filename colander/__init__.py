@@ -934,7 +934,7 @@ class String(SchemaType):
                 result = text_type(cstruct)
         except Exception as e:
             raise Invalid(node,
-                          _('${val} is not a string: %{err}',
+                          _('${val} is not a string: ${err}',
                             mapping={'val':cstruct, 'err':e}))
 
         return result
