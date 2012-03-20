@@ -23,6 +23,8 @@ Next release
   precedence over the name it's been assigned to in the schema class.
   See https://github.com/Pylons/colander/issues/39 .
 
+- Japanese translation thanks to OCHIAI, Gouji.
+
 0.9.6 (2012-02-14)
 ------------------
 
