@@ -25,6 +25,9 @@ Next release
 
 - Japanese translation thanks to OCHIAI, Gouji.
 
+- Replaced incorrect ``%{err}`` with correct ``${err}`` in String.deserialize
+  error message.  See https://github.com/Pylons/colander/pull/41
+
 0.9.6 (2012-02-14)
 ------------------
 
