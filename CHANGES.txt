@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.9.7 (2012-03-20)
+------------------
 
 - Using ``schema.flatten(...)`` against a mapping schema node without a name
   produced incorrectly dot-prefixed keys.  See
