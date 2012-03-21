@@ -1,115 +1,127 @@
 # Translations template for colander.
-# Copyright (C) 2010 ORGANIZATION
+# Copyright (C) 2012 ORGANIZATION
 # This file is distributed under the same license as the colander project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: colander 0.8\n"
+"Project-Id-Version: colander 0.9.7\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2010-09-10 08:00-0600\n"
+"POT-Creation-Date: 2012-03-20 23:23-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.5\n"
+"Generated-By: Babel 0.9.6\n"
 
-#: colander/__init__.py:199
+#: colander/__init__.py:221
 msgid "Invalid value"
 msgstr ""
 
-#: colander/__init__.py:232
+#: colander/__init__.py:254
 msgid "String does not match expected pattern"
 msgstr ""
 
-#: colander/__init__.py:247
+#: colander/__init__.py:269
 msgid "Invalid email address"
 msgstr ""
 
-#: colander/__init__.py:276
+#: colander/__init__.py:298
 msgid "${val} is less than minimum value ${min}"
 msgstr ""
 
-#: colander/__init__.py:277
+#: colander/__init__.py:299
 msgid "${val} is greater than maximum value ${max}"
 msgstr ""
 
-#: colander/__init__.py:309
+#: colander/__init__.py:331
 msgid "Shorter than minimum length ${min}"
 msgstr ""
 
-#: colander/__init__.py:315
+#: colander/__init__.py:337
 msgid "Longer than maximum length ${max}"
 msgstr ""
 
-#: colander/__init__.py:328
+#: colander/__init__.py:350
 msgid "\"${val}\" is not one of ${choices}"
 msgstr ""
 
-#: colander/__init__.py:398
+#: colander/__init__.py:442
 msgid "\"${val}\" is not a mapping type: ${err}"
 msgstr ""
 
-#: colander/__init__.py:422
+#: colander/__init__.py:466
 msgid "Unrecognized keys in mapping: \"${val}\""
 msgstr ""
 
-#: colander/__init__.py:477 colander/__init__.py:563
+#: colander/__init__.py:562 colander/__init__.py:705
 msgid "\"${val}\" is not iterable"
 msgstr ""
 
-#: colander/__init__.py:485
+#: colander/__init__.py:570
 msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
 msgstr ""
 
-#: colander/__init__.py:725
-msgid "\"${val} cannot be serialized: ${err}"
+#: colander/__init__.py:919
+msgid "${val} cannot be serialized: ${err}"
 msgstr ""
 
-#: colander/__init__.py:738
-msgid "${val} is not a string: %{err}"
+#: colander/__init__.py:937
+msgid "${val} is not a string: ${err}"
 msgstr ""
 
-#: colander/__init__.py:759 colander/__init__.py:770
+#: colander/__init__.py:957 colander/__init__.py:968
 msgid "\"${val}\" is not a number"
 msgstr ""
 
-#: colander/__init__.py:764 colander/__init__.py:1263
-msgid "Required"
-msgstr ""
-
-#: colander/__init__.py:844
+#: colander/__init__.py:1044
 msgid "${val} is not a string"
 msgstr ""
 
-#: colander/__init__.py:904 colander/__init__.py:921 colander/__init__.py:931
+#: colander/__init__.py:1104 colander/__init__.py:1121 colander/__init__.py:1131
 msgid "relative name \"${val}\" irresolveable without package"
 msgstr ""
 
-#: colander/__init__.py:961
+#: colander/__init__.py:1161
 msgid "\"${val}\" has no __name__"
 msgstr ""
 
-#: colander/__init__.py:967
+#: colander/__init__.py:1170
 msgid "\"${val}\" is not a string"
 msgstr ""
 
-#: colander/__init__.py:976
+#: colander/__init__.py:1179
 msgid "The dotted name \"${name}\" cannot be imported"
 msgstr ""
 
-#: colander/__init__.py:1024 colander/__init__.py:1101
+#: colander/__init__.py:1226 colander/__init__.py:1307
 msgid "Invalid date"
 msgstr ""
 
-#: colander/__init__.py:1040
+#: colander/__init__.py:1242
 msgid "\"${val}\" is not a datetime object"
 msgstr ""
 
-#: colander/__init__.py:1112
+#: colander/__init__.py:1318
 msgid "\"${val}\" is not a date object"
+msgstr ""
+
+#: colander/__init__.py:1383
+msgid "Invalid time"
+msgstr ""
+
+#: colander/__init__.py:1394
+msgid "\"${val}\" is not a time object"
+msgstr ""
+
+#: colander/__init__.py:1605 colander/__init__.py:1607
+msgid "Required"
+msgstr ""
+
+#: colander/tests/test_colander.py:259 colander/tests/test_colander.py:266
+msgid "fail ${val}"
 msgstr ""
 
