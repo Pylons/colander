@@ -1,6 +1,11 @@
 Changes
 =======
 
+Next release
+------------
+
+- Updated Brazilian Portugese translations.
+
 0.9.7 (2012-03-20)
 ------------------
 
