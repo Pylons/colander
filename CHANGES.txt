@@ -6,6 +6,8 @@ Next release
 
 - Updated Brazilian Portugese translations.
 
+- Updated Japanese translation.
+
 0.9.7 (2012-03-20)
 ------------------
 
