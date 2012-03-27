@@ -1078,6 +1078,14 @@ class TestString(unittest.TestCase):
         result = typ.serialize(node, null)
         self.assertEqual(result, null)
 
+    def test_serialize_none(self):
+        import colander
+        val = None
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_uncooperative(self):
         val = Uncooperative()
         node = DummySchemaNode(None)
@@ -1677,6 +1685,14 @@ class TestDate(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
+    def test_serialize_none(self):
+        import colander
+        val = None
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_with_garbage(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1757,6 +1773,14 @@ class TestTime(unittest.TestCase):
     def test_serialize_null(self):
         import colander
         val = colander.null
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
+    def test_serialize_none(self):
+        import colander
+        val = None
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, val)
