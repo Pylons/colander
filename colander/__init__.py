@@ -901,7 +901,7 @@ class String(SchemaType):
         self.encoding = encoding
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if not appstruct:
             return null
 
         try:
@@ -1231,7 +1231,7 @@ class DateTime(SchemaType):
         self.default_tzinfo = default_tzinfo
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if not appstruct:
             return null
 
         if type(appstruct) is datetime.date: # cant use isinstance; dt subs date
@@ -1307,7 +1307,7 @@ class Date(SchemaType):
     err_template =  _('Invalid date')
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if not appstruct:
             return null
 
         if isinstance(appstruct, datetime.datetime):
@@ -1383,7 +1383,7 @@ class Time(SchemaType):
     err_template =  _('Invalid time')
 
     def serialize(self, node, appstruct):
-        if appstruct is null:
+        if not appstruct:
             return null
 
         if isinstance(appstruct, datetime.datetime):
