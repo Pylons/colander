@@ -4,6 +4,12 @@ Changes
 Next release
 ------------
 
+- False evaluating values are now serialized to colander.null for
+  String, Date, and Time.  This resolves the issue where a None value
+  would be rendered as 'None' for String, and missing='None' was not
+  possible for Date, Datetime, and Time.
+  See https://github.com/Pylons/colander/pull/1 .
+
 - Updated Brazilian Portugese translations.
 
 - Updated Japanese translation.
