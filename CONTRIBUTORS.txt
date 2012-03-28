@@ -105,3 +105,4 @@ Contributors
 - Chris Withers, 2011/05/45
 - Mathieu Le Marec - Pasquet (kiorky), 2011/07/11
 - Atsushi Odagiri, 2012/02/04
+- Daniel Nouri, 2012/03/28
