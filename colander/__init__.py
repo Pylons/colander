@@ -371,7 +371,7 @@ class SchemaType(object):
         raise AssertionError("Can't call 'set_value' on a leaf node.")
 
     def get_value(self, node, appstruct, path):
-        raise AssertionError("Can't call 'set_value' on a leaf node.")
+        raise AssertionError("Can't call 'get_value' on a leaf node.")
 
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
