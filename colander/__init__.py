@@ -1188,11 +1188,12 @@ class DateTime(SchemaType):
     datetime.
 
     The constructor accepts an argument named ``default_tzinfo`` which
-    should be a Python ``tzinfo`` object; by default it is None,
-    meaning that the default tzinfo will be equivalent to UTC (Zulu
-    time).  The ``default_tzinfo`` tzinfo object is used to convert
-    'naive' datetimes to a timezone-aware representation during
-    serialization.
+    should be a Python ``tzinfo`` object. If ``default_tzinfo`` is not
+    specified the default tzinfo will be equivalent to UTC (Zulu time).
+    The ``default_tzinfo`` tzinfo object is used to convert 'naive'
+    datetimes to a timezone-aware representation during serialization.
+    If ``default_tzinfo`` is explicitly set to ``None`` then no default
+    tzinfo will be applied to naive datetimes.
 
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an

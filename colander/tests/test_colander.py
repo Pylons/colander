@@ -1531,10 +1531,14 @@ class TestDateTime(unittest.TestCase):
         import datetime
         return datetime.date.today()
 
-    def test_ctor_default_tzinfo_None(self):
+    def test_ctor_default_tzinfo_not_specified(self):
         from .. import iso8601
         typ = self._makeOne()
         self.assertEqual(typ.default_tzinfo.__class__, iso8601.Utc)
+
+    def test_ctor_default_tzinfo_None(self):
+        typ = self._makeOne(default_tzinfo=None)
+        self.assertEqual(typ.default_tzinfo, None)
 
     def test_ctor_default_tzinfo_non_None(self):
         from .. import iso8601
@@ -1663,6 +1667,7 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), dt.isoformat())
+        self.assertEqual(result.tzinfo, None)
 
 class TestDate(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
