@@ -1,15 +1,15 @@
 # Russian translations for colander.
 # Copyright (C) 2010 ORGANIZATION
 # This file is distributed under the same license as the colander project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# Alexander Fedorov <xpoft@xpoft.ru>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: colander 0.5.2\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Report-Msgid-Bugs-To: xpoft@xpoft.ru\n"
 "POT-Creation-Date: 2010-04-25 21:09+0400\n"
 "PO-Revision-Date: 2010-04-25 21:18-0400\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Alexander Fedorov <xpoft@xpoft.ruS>\n"
 "Language-Team: ru <LL@li.org>\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
@@ -40,11 +40,11 @@ msgstr "${val} больше чем ${max}"
 
 #: colander/__init__.py:279
 msgid "Shorter than minimum length ${min}"
-msgstr "Меньше, чем минимальная длина {$min}"
+msgstr "Меньше, чем минимальная длина ${min}"
 
 #: colander/__init__.py:285
 msgid "Longer than maximum length ${max}"
-msgstr "Больше, чем максимальная длина {$min}"
+msgstr "Больше, чем максимальная длина ${min}"
 
 #: colander/__init__.py:298
 msgid "\"${val}\" is not one of ${choices}"
@@ -80,7 +80,7 @@ msgstr "${val} не является строкой: %{err}"
 #: colander/__init__.py:648 colander/__init__.py:680 colander/__init__.py:710
 #: colander/__init__.py:751 colander/__init__.py:996
 msgid "Required"
-msgstr "Требуется"
+msgstr "Обязательное"
 
 #: colander/__init__.py:662
 msgid "\"${val} cannot be serialized to str: ${err}"
