@@ -14,6 +14,9 @@ Next release
 
 - Updated Japanese translation.
 
+- Fix documentation: 0.9.3 allowed explicitly passing None to DateTime
+  to have no default timezone applied.
+
 0.9.7 (2012-03-20)
 ------------------
 
