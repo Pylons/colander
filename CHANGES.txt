@@ -1,8 +1,8 @@
 Changes
 =======
 
-Next release
-------------
+0.9.8 (2012-04-27)
+------------------
 
 - False evaluating values are now serialized to colander.null for
   String, Date, and Time.  This resolves the issue where a None value
