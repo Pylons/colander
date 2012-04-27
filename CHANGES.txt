@@ -12,10 +12,14 @@ Next release
 
 - Updated Brazilian Portugese translations.
 
-- Updated Japanese translation.
+- Updated Japanese translations.
+
+- Updated Russian translations.
 
 - Fix documentation: 0.9.3 allowed explicitly passing None to DateTime
   to have no default timezone applied.
+
+- Add ``dev`` and ``docs`` setup.py aliases (e.g. ``python setup.py dev``).
 
 0.9.7 (2012-03-20)
 ------------------

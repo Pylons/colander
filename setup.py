@@ -28,6 +28,9 @@ except:
 
 requires = ['translationstring']
 
+testing_extras = ['nose', 'coverage']
+docs_extras = ['Sphinx']
+
 setup(name='colander',
       version='0.9.7',
       description=('A simple schema-based serialization and deserialization '
@@ -52,8 +55,11 @@ setup(name='colander',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      tests_require = requires,
       install_requires = requires,
       test_suite="colander",
+      extras_require = {
+          'testing':testing_extras,
+          'docs':docs_extras,
+          },
       )
 
