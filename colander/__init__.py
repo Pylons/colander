@@ -225,9 +225,13 @@ class Function(object):
     def __call__(self, node, value):
         result = self.function(value)
         if not result:
-            raise Invalid(node, translationstring.TranslationString(self.message, mapping={'val':value}))
+            raise Invalid(
+                node, translationstring.TranslationString(
+                    self.message, mapping={'val':value}))
         if isinstance(result, string_types):
-            raise Invalid(node, translationstring.TranslationString(result, mapping={'val':value}))
+            raise Invalid(
+                node, translationstring.TranslationString(
+                    result, mapping={'val':value}))
 
 class Regex(object):
     """ Regular expression validator.
@@ -1728,7 +1732,7 @@ Schema = _SchemaMeta('Schema', (object,),
 MappingSchema = Schema
 
 
-def _SequanceSchema__new__(cls, *args, **kw):
+def _SequenceSchema__new__(cls, *args, **kw):
     node = object.__new__(cls.node_type)
     node.name = None
     node._order = next(SchemaNode._counter)
@@ -1744,7 +1748,7 @@ def _SequanceSchema__new__(cls, *args, **kw):
 SequenceSchema = _SchemaMeta('SequenceSchema', (object,),
     dict(schema_type=Sequence,
         node_type=SchemaNode,
-        __new__=_SequanceSchema__new__))
+        __new__=_SequenceSchema__new__))
 
 class TupleSchema(Schema):
     schema_type = Tuple
