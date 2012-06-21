@@ -1468,7 +1468,7 @@ class SchemaNode(object):
       or one of the parents of the clone's prototype nodes.  The
       deepest nodes in the node tree are bound first, so the
       ``after_bind`` methods of the deepest nodes are called before
-      the shallowest.  The ``after_bind`` callback should should
+      the shallowest.  The ``after_bind`` callback should
       accept two values: ``node`` and ``kw``.  ``node`` will be a
       clone of the bound node object, ``kw`` will be the set of
       keywords passed to the ``bind`` method.
