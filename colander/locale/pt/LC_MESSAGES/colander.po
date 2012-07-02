@@ -1,0 +1,132 @@
+# Portuguese translations for colander.
+# Copyright (C) 2012
+# This file is distributed under the same license as the colander project.
+# Nuno Teixeira <teixas@gmail.com>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.9.7\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-03-20 23:23-0300\n"
+"PO-Revision-Date: 2012-06-30 17:48+0100\n"
+"Last-Translator: Nuno Teixeira <teixas@gmail.com>\n"
+"Language-Team: pt <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: colander/__init__.py:221
+msgid "Invalid value"
+msgstr "Valor inválido"
+
+#: colander/__init__.py:254
+msgid "String does not match expected pattern"
+msgstr "Os caracteres não seguem o padrão"
+
+#: colander/__init__.py:269
+msgid "Invalid email address"
+msgstr "E-mail inválido"
+
+#: colander/__init__.py:298
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} é menor que o valor mínimo ${min}"
+
+#: colander/__init__.py:299
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} é maior que o valor máximo ${max}"
+
+#: colander/__init__.py:331
+msgid "Shorter than minimum length ${min}"
+msgstr "Menor que o tamanho mínimo ${min}"
+
+#: colander/__init__.py:337
+msgid "Longer than maximum length ${max}"
+msgstr "Maior que o tamanho máximo ${max}"
+
+#: colander/__init__.py:350
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" não se encontra em ${choices}"
+
+#: colander/__init__.py:442
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" não suporta mapeamento: ${err}"
+
+#: colander/__init__.py:466
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Índice inexistente no mapeamento: \"${val}\""
+
+#: colander/__init__.py:562 colander/__init__.py:705
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" não é iterável"
+
+#: colander/__init__.py:570
+msgid ""
+"\"${val}\" has an incorrect number of elements (expected ${exp}, was "
+"${was})"
+msgstr ""
+"\"${val}\" tem o número incorrecto de elementos (esperam-se ${exp}, mas "
+" mas existem ${was})"
+
+#: colander/__init__.py:919
+msgid "${val} cannot be serialized: ${err}"
+msgstr "${val} não pode ser serializado: ${err}"
+
+#: colander/__init__.py:937
+msgid "${val} is not a string: ${err}"
+msgstr "${val} não é uma cadeia de caracteres: ${err}"
+
+#: colander/__init__.py:957 colander/__init__.py:968
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" não é um número"
+
+#: colander/__init__.py:1044
+msgid "${val} is not a string"
+msgstr "${val} não é uma cadeia de caracteres"
+
+#: colander/__init__.py:1104 colander/__init__.py:1121
+#: colander/__init__.py:1131
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "O nome relativo \"${val}\" não pode ser resolvido sem o nome do pacote"
+
+#: colander/__init__.py:1161
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" não contém __name___"
+
+#: colander/__init__.py:1170
+msgid "\"${val}\"\W is not a string"
+msgstr "\"${val}\" não é uma cadeia de caracteres"
+
+#: colander/__init__.py:1179
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "O nome \"${name}\" não pode ser importado"
+
+#: colander/__init__.py:1226 colander/__init__.py:1307
+msgid "Invalid date"
+msgstr "Data inválida"
+
+#: colander/__init__.py:1242
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" não é um objecto datetime"
+
+#: colander/__init__.py:1318
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" não é um objecto date"
+
+#: colander/__init__.py:1383
+msgid "Invalid time"
+msgstr "Hora inválida"
+
+#: colander/__init__.py:1394
+msgid "\"${val}\" is not a time object"
+msgstr "\"${val}\" não é um objecto time"
+
+#: colander/__init__.py:1605 colander/__init__.py:1607
+msgid "Required"
+msgstr "Obrigatório"
+
+#: colander/tests/test_colander.py:259 colander/tests/test_colander.py:266
+msgid "fail ${val}"
+msgstr "Erro ${val}"
+
