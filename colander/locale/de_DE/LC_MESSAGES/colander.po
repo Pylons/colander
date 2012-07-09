@@ -38,11 +38,11 @@ msgstr "${val} ist größer als der erlaubter Höchstwert (${max})"
 
 #: colander/__init__.py:279
 msgid "Shorter than minimum length ${min}"
-msgstr "Kürzer als der erlaubte Mindestlänge (mindestens ${min} Zeichen)."
+msgstr "Kürzer als erlaubt, die Mindestlänge beträgt ${min} Zeichen"
 
 #: colander/__init__.py:285
 msgid "Longer than maximum length ${max}"
-msgstr "Länger als erlaubt. Nicht mehr als ${max} Zeichen."
+msgstr "Länger als erlaubt, die Maximallänge beträgt ${max} Zeichen"
 
 #: colander/__init__.py:298
 msgid "\"${val}\" is not one of ${choices}"
@@ -54,7 +54,7 @@ msgstr "\"${val}\" ist kein Mapping: ${err}"
 
 #: colander/__init__.py:394
 msgid "\"${val}\" is required but missing"
-msgstr "\"${val}\" ist Pflichtangabe"
+msgstr "\"${val}\" ist eine Pflichtangabe"
 
 #: colander/__init__.py:411
 msgid "Unrecognized keys in mapping: \"${val}\""
@@ -79,7 +79,7 @@ msgstr "${val} ist keine Zeichenkette: %{err}"
 #: colander/__init__.py:751
 #: colander/__init__.py:996
 msgid "Required"
-msgstr "Pflicht"
+msgstr "Pflichtangabe"
 
 #: colander/__init__.py:662
 msgid "\"${val} cannot be serialized to str: ${err}"
@@ -117,13 +117,13 @@ msgstr "\"${val}\" hat kein __name__ Attribut"
 #: colander/__init__.py:918
 #: colander/__init__.py:982
 msgid "${val} cannot be parsed as an iso8601 date: ${err}"
-msgstr "${val} kann nicht als ein ISO8601 Datum geparst werden: ${err}"
+msgstr "${val} ist keine gültige Zeitangabe nach ISO8601: ${err}"
 
 #: colander/__init__.py:929
 msgid "\"${val}\" is not a datetime object"
-msgstr "\"${val}\" ist kein Datetime Object"
+msgstr "\"${val}\" ist kein Datetime-Object"
 
 #: colander/__init__.py:988
 msgid "\"${val}\" is not a date object"
-msgstr "\"${val}\" ist kein Date Object"
+msgstr "\"${val}\" ist kein Date-Object"
 
