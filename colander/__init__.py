@@ -1618,9 +1618,14 @@ class SchemaNode(object):
                 self.validator(self, appstruct)
         return appstruct
 
-    def add(self, node):
-        """ Add a subnode to this node. """
-        self.children.append(node)
+    def add(self, node, pos=None):
+        """ Add a subnode to this node. If the ``pos`` has present,
+        a subnode will be inserted into that position. By default,
+        a subnode is inserted into the end."""
+        if pos is None:
+            self.children.append(node)
+        else:
+            self.children.insert(pos, node)
 
     def clone(self):
         """ Clone the schema node and return the clone.  All subnodes
