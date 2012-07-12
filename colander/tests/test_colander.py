@@ -2180,7 +2180,24 @@ class TestSchemaNode(unittest.TestCase):
                 )
         schema = FnordSchema()
         self.assertEqual(schema['fnord[]'].name, 'fnord[]')
-        
+
+    def test_insert_before(self):
+        import colander
+        class BaseSchema(colander.Schema):
+            b = colander.SchemaNode(colander.Integer())
+            d = colander.SchemaNode(colander.Integer())
+        class DeriveredSchema(BaseSchema):
+            e = colander.SchemaNode(colander.Integer())
+            c = colander.SchemaNode(colander.Integer(), insert_before='d')
+            a = colander.SchemaNode(colander.Integer(), insert_before='b')
+            f = colander.SchemaNode(colander.Integer())
+        class WrongInsertBefore(BaseSchema):
+            e = colander.SchemaNode(colander.Integer(), insert_before='f')
+        child_names = [node.name for node in DeriveredSchema().children]
+        self.assertEqual(['a', 'b', 'c', 'd', 'e', 'f'], child_names)
+        with self.assertRaises(LookupError):
+            WrongInsertBefore()
+
 class TestDeferred(unittest.TestCase):
     def _makeOne(self, wrapped):
         from colander import deferred

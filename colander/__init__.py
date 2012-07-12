@@ -1482,6 +1482,14 @@ class SchemaNode(object):
       ``''`` (the empty string).  The description is used by
       higher-level systems (not by Colander itself).
 
+    - ``insert_before``: The name of other node to determine position
+      of this node as ``children`` of its parent node.  It's meaningful
+      only when this node is a subnode (one of children) of an other
+      parent node.  If it's present and this node has a parent node,
+      a subnode ``insert_before`` refers to will be the next of
+      this node.  It is useful when you subclass an existing schema
+      and insert an additional node into other than the tail.
+
     - ``widget``: The 'widget' for this node.  Defaults to ``None``.
       The widget attribute is not interpreted by Colander itself, it
       is only meaningful to higher-level systems such as Deform.
@@ -1512,6 +1520,7 @@ class SchemaNode(object):
         self.description = kw.pop('description', '')
         self.widget = kw.pop('widget', None)
         self.after_bind = kw.pop('after_bind', None)
+        self.insert_before = kw.pop('insert_before', None)
         self.__dict__.update(kw)
         self.children = list(children)
 
@@ -1726,7 +1735,16 @@ def _Schema__new__(cls, *args, **kw):
     typ = cls.schema_type()
     node.__init__(typ, *args, **kw)
     for n in cls.nodes:
-        node.add(n)
+        if n.insert_before:
+            for pos, sibling in enumerate(node.children):
+                if sibling.name == n.insert_before:
+                    node.add(n, pos)
+                    break
+            else:
+                raise LookupError(
+                    'cannot find node named ' + repr(n.insert_before))
+        else:
+            node.add(n)
     return node
 
 Schema = _SchemaMeta('Schema', (object,), 
