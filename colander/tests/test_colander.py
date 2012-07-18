@@ -1148,6 +1148,14 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
+    def test_serialize_none(self):
+        import colander
+        val = None
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_emptystring(self):
         import colander
         val = ''
