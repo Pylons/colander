@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import time
+import inspect
 import itertools
 import pprint
 import re
@@ -1444,12 +1445,14 @@ class SchemaNode(object):
 
     - ``default``: The default serialization value for this node.
       Default: :attr:`colander.null`.
+      It can also be any python callable: it will be called during serialization.
 
-    - ``missing``: The default deserialization value for this node.  If it is
+    - ``missing``: The default deserialization value for this node. If it is
       not provided, the missing value of this node will be the special marker
       value :attr:`colander.required`, indicating that it is considered
       'required'.  When ``missing`` is :attr:`colander.required`, the
       ``required`` computed attribute will be ``True``.
+      It can also be any python callable: it will be called during deserialization.
 
     - ``preparer``: Optional preparer for this node.  It should be
       an object that implements the
@@ -1540,9 +1543,12 @@ class SchemaNode(object):
         If an ``appstruct`` argument is not explicitly provided, it
         defaults to :attr:`colander.null`.
         """
-        if appstruct is null:
+        if appstruct is null and\
+           not isinstance(self.default, deferred) and callable(self.default):
+            appstruct = self.default()
+        elif appstruct is null:
             appstruct = self.default
-        if isinstance(appstruct, deferred): # unbound schema with deferreds
+        if isinstance(appstruct, deferred):  # unbound schema with deferreds
             appstruct = null
         cstruct = self.typ.serialize(self, appstruct)
         return cstruct
@@ -1606,9 +1612,11 @@ class SchemaNode(object):
 
         if appstruct is null:
             appstruct = self.missing
+            if not isinstance(appstruct, deferred) and callable(appstruct):
+                appstruct = appstruct()
             if appstruct is required:
                 raise Invalid(self, _('Required'))
-            if isinstance(appstruct, deferred): # unbound schema with deferreds
+            if isinstance(appstruct, deferred):  # unbound schema with deferreds
                 raise Invalid(self, _('Required'))
             # We never deserialize or validate the missing value
             return appstruct
