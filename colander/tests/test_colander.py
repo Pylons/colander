@@ -2174,7 +2174,44 @@ class TestSchemaNode(unittest.TestCase):
                 )
         schema = FnordSchema()
         self.assertEqual(schema['fnord[]'].name, 'fnord[]')
-        
+
+    def test_deserialize_missing_callable(self):
+        import datetime
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = datetime.datetime.now
+        data = node.deserialize()
+        self.assertEqual(isinstance(data, datetime.datetime), True)
+
+    def test_deserialize_wrong_missing_callable(self):
+
+        def f(a):
+            return {}
+
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.missing = f
+        self.assertRaises(TypeError, node.deserialize)
+
+    def test_serialize_default_callable(self):
+        import datetime
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.default = datetime.datetime.now
+        data = node.serialize()
+        self.assertEqual(isinstance(data, datetime.datetime), True)
+
+    def test_serialize_wrong_default_callable(self):
+
+        def f(a):
+            return {}
+
+        typ = DummyType()
+        node = self._makeOne(typ)
+        node.default = f
+        self.assertRaises(TypeError, node.serialize)
+
+
 class TestDeferred(unittest.TestCase):
     def _makeOne(self, wrapped):
         from colander import deferred
