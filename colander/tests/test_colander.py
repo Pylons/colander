@@ -1192,6 +1192,13 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, '1')
 
+    def test_serialize_zero(self):
+        val = 0
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, '0')
+
 class TestFloat(unittest.TestCase):
     def _makeOne(self):
         from colander import Float

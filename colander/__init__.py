@@ -951,7 +951,7 @@ class Number(SchemaType):
     num = None
 
     def serialize(self, node, appstruct):
-        if not appstruct:
+        if appstruct in (null, None):
             return null
 
         try:

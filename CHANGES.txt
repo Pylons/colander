@@ -1,6 +1,12 @@
 Changes
 =======
 
+Next release
+------------
+
+- Allow the use of 'missing=None' for Number.  See
+  https://github.com/Pylons/colander/pull/59 .
+
 0.9.8 (2012-04-27)
 ------------------
 
