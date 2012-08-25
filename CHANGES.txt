@@ -7,6 +7,11 @@ Next release
 - Allow the use of 'missing=None' for Number.  See
   https://github.com/Pylons/colander/pull/59 .
 
+- Create a ``colander.Money`` type that is a Decimal type with
+  two-decimal-point precision rounded-up.
+
+- Allow ``quant`` and ``rounding`` args to ``colander.Decimal`` constructor.
+
 0.9.8 (2012-04-27)
 ------------------
 

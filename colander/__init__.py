@@ -1000,8 +1000,42 @@ class Float(Number):
     num = float
 
 class Decimal(Number):
-    """ A type representing a decimal floating point.  Deserialization
-    returns an instance of the Python ``decimal.Decimal`` type.
+    """
+    A type representing a decimal floating point.  Deserialization returns an
+    instance of the Python ``decimal.Decimal`` type.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    The Decimal constructor takes two optional arguments, ``quant`` and
+    ``rounding``.  If supplied, ``quant`` should be a string.  If supplied,
+    ``rounding`` should be one of the Python ``decimal`` module rounding
+    options (e.g. ``decimal.ROUND_UP``, ``decimal.ROUND_DOWN``, etc).  The
+    serialized and deserialized result will be quantized and rounded via
+    ``result.quantize(decimal.Decimal(quant), rounding)``.  ``rounding`` is
+    ignored if ``quant`` is not supplied.
+
+    The subnodes of the :class:`colander.SchemaNode` that wraps
+    this type are ignored.
+    """
+    def __init__(self, quant=None, rounding=None):
+        if quant is None:
+            self.quant = None
+        else:
+            self.quant = decimal.Decimal(quant)
+        self.rounding = rounding
+        
+    def num(self, val):
+        result = decimal.Decimal(str(val))
+        if self.quant is not None:
+            result = result.quantize(self.quant, self.rounding)
+        return result
+
+class Money(Decimal):
+    """ A type representing a money value with two digit precision.
+    Deserialization returns an instance of the Python ``decimal.Decimal``
+    type (quantized to two decimal places, rounded up).
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1010,8 +1044,9 @@ class Decimal(Number):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def num(self, val):
-        return decimal.Decimal(str(val))
+    def __init__(self):
+        self.quant = decimal.Decimal('.01')
+        self.rounding = decimal.ROUND_UP
 
 class Boolean(SchemaType):
     """ A type representing a boolean object.
