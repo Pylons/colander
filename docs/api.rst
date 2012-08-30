@@ -65,6 +65,8 @@ Validators
 
   .. autoclass:: Email
 
+  .. autofunction:: luhnok
+
 Types
 ~~~~~
 

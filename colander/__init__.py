@@ -355,6 +355,28 @@ class OneOf(object):
                     mapping={'val':value, 'choices':choices})
             raise Invalid(node, err)
 
+def luhnok(node, value):
+    """ Validator which checks to make sure that the value passes a luhn
+    mod-10 checksum (credit cards).  ``value`` must be a string, not an
+    integer."""
+    sum = 0
+    num_digits = len(value)
+    oddeven = num_digits & 1
+
+    for count in range(0, num_digits):
+        digit = int(value[count])
+
+        if not (( count & 1 ) ^ oddeven ):
+            digit = digit * 2
+        if digit > 9:
+            digit = digit - 9
+
+        sum = sum + digit
+
+    if not (sum % 10) == 0:
+        raise Invalid(node, 
+                      '%r is not a valid credit card number' % value)
+
 class SchemaType(object):
     """ Base class for all schema types """
     def flatten(self, node, appstruct, prefix='', listitem=False):

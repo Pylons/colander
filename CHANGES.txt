@@ -12,6 +12,8 @@ Next release
 
 - Allow ``quant`` and ``rounding`` args to ``colander.Decimal`` constructor.
 
+- ``luhnok`` validator added (credit card luhn mod10 validator).
+
 0.9.8 (2012-04-27)
 ------------------
 

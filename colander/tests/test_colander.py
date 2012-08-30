@@ -408,6 +408,25 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
 
+class Test_luhnok(unittest.TestCase):
+    def _callFUT(self, node, value):
+        from colander import luhnok
+        return luhnok(node, value)
+
+    def test_fail(self):
+        import colander
+        val = '10'
+        self.assertRaises(colander.Invalid, self._callFUT, None, val)
+
+    def test_fail2(self):
+        import colander
+        val = '99999999999999999999999'
+        self.assertRaises(colander.Invalid, self._callFUT, None, val)
+
+    def test_success(self):
+        val = '4111111111111111'
+        self.assertFalse(self._callFUT(None, val))
+
 class TestSchemaType(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import SchemaType
