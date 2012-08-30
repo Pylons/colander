@@ -359,6 +359,17 @@ def luhnok(node, value):
     """ Validator which checks to make sure that the value passes a luhn
     mod-10 checksum (credit cards).  ``value`` must be a string, not an
     integer."""
+    try:
+        sum = _luhnok(value)
+    except:
+        raise Invalid(node, 
+                      '%r is not a valid credit card number' % value)
+
+    if not (sum % 10) == 0:
+        raise Invalid(node, 
+                      '%r is not a valid credit card number' % value)
+
+def _luhnok(value):
     sum = 0
     num_digits = len(value)
     oddeven = num_digits & 1
@@ -372,10 +383,7 @@ def luhnok(node, value):
             digit = digit - 9
 
         sum = sum + digit
-
-    if not (sum % 10) == 0:
-        raise Invalid(node, 
-                      '%r is not a valid credit card number' % value)
+    return sum
 
 class SchemaType(object):
     """ Base class for all schema types """

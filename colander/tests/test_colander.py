@@ -423,6 +423,11 @@ class Test_luhnok(unittest.TestCase):
         val = '99999999999999999999999'
         self.assertRaises(colander.Invalid, self._callFUT, None, val)
 
+    def test_fail3(self):
+        import colander
+        val = 'abcdefghij'
+        self.assertRaises(colander.Invalid, self._callFUT, None, val)
+
     def test_success(self):
         val = '4111111111111111'
         self.assertFalse(self._callFUT(None, val))
