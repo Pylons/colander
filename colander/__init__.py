@@ -4,7 +4,6 @@ import time
 import itertools
 import pprint
 import re
-import sys
 import translationstring
 
 from .compat import (
@@ -16,9 +15,6 @@ from .compat import (
     )
 
 from . import iso8601
-
-FIRST = 0
-LAST = sys.maxint - 1
 
 _ = translationstring.TranslationStringFactory('colander')
 
