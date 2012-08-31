@@ -14,6 +14,8 @@ Next release
 
 - ``luhnok`` validator added (credit card luhn mod10 validator).
 
+- Add an ``insert`` method to SchemaNode objects.
+
 0.9.8 (2012-04-27)
 ------------------
 

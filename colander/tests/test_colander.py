@@ -2127,6 +2127,12 @@ class TestSchemaNode(unittest.TestCase):
         node.add(1)
         self.assertEqual(node.children, [1])
 
+    def test_insert(self):
+        node = self._makeOne(None)
+        node.children = [99, 99]
+        node.insert(1, 'foo')
+        self.assertEqual(node.children, [99, 'foo', 99])
+
     def test_repr(self):
         node = self._makeOne(None, name='flub')
         result = repr(node)

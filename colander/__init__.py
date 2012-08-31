@@ -1684,8 +1684,13 @@ class SchemaNode(object):
         return appstruct
 
     def add(self, node):
-        """ Add a subnode to this node. """
+        """ Add a subnode to this node. ``node`` must be a SchemaNode."""
         self.children.append(node)
+
+    def insert(self, index, node):
+        """ Insert a subnode into the position ``index``.  ``node`` must be
+        a SchemaNode."""
+        self.children.insert(index, node)
 
     def clone(self):
         """ Clone the schema node and return the clone.  All subnodes
@@ -1732,7 +1737,8 @@ class SchemaNode(object):
         raise KeyError(name)
 
     def __setitem__(self, name, newnode):
-        """ Replace a subnode by name """
+        """ Replace a subnode by name.  ``newnode`` must be a
+        SchemaNode."""
         for idx, node in enumerate(self.children[:]):
             if node.name == name:
                 self.children[idx] = newnode
