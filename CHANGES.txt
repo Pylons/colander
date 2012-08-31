@@ -16,19 +16,18 @@ Features
 
 - Add an ``insert`` method to SchemaNode objects.
 
+- Add an ``insert_before`` method to SchemaNode objects.
+
 - Better class-based mapping schema inheritance model.
 
   * A node declared in a subclass of a mapping schema superclass now
     overrides any node with the same name inherited from any superclass.
     Previously, it just repeated and didn't override.
 
-  * A ``schema_order`` attribute may be passed to SchemaNode constructor.
-    This is an integer which defines the position in a parent node's child
-    ordering.
+  * An ``insert_before`` keyword argument may be passed to a SchemaNode
+    constructor.  This is an string naming a node in a superclass which this
+    node should be placed before to influence schema ordering.
   
-  * ``colander.FIRST`` and ``colander.LAST`` constants are available for
-    passing in as ``schema_order``.
-
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

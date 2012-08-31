@@ -1696,6 +1696,15 @@ class SchemaNode(object):
         a SchemaNode."""
         self.children.insert(index, node)
 
+    def add_before(self, name, node):
+        """ Insert a subnode into the position before the node named ``name``
+        """
+        for pos, sub in enumerate(self.children[:]):
+            if sub.name == name:
+                self.insert(pos, node)
+                return
+        raise KeyError('No such node named %s' % name)
+
     def get(self, name, default=None):
         """ Return the subnode associated with ``name`` or ``default`` if no
         such node exists."""
@@ -1804,12 +1813,12 @@ def _Schema__new__(cls, *args, **kw):
     typ = cls.schema_type()
     node.__init__(typ, *args, **kw)
     for n in cls.nodes:
-        order = getattr(n, 'schema_order', None)
+        insert_before = getattr(n, 'insert_before', None)
         exists = node.get(n.name, _marker) is not _marker
         # use exists for microspeed; we could just call __setitem__
         # exclusively, but it does an enumeration that's unnecessary in the
         # common (nonexisting) case (.add is faster)
-        if order is None:
+        if insert_before is None:
             if exists:
                 node[n.name] = n
             else:
@@ -1817,7 +1826,7 @@ def _Schema__new__(cls, *args, **kw):
         else:
             if exists:
                 del node[n.name]
-            node.insert(order, n)
+            node.add_before(insert_before, n)
     return node
 
 Schema = _SchemaMeta('Schema', (object,), 

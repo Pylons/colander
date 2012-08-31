@@ -2276,7 +2276,7 @@ class TestMappingSchemaInheritance(unittest.TestCase):
             )
         iwannacomefirst1_node = colander.SchemaNode(
             colander.String(),
-            schema_order=colander.FIRST
+            insert_before='rank',
             )
         another_node = colander.SchemaNode(
             colander.String(),
@@ -2289,7 +2289,7 @@ class TestMappingSchemaInheritance(unittest.TestCase):
             )
         serial2_node = colander.SchemaNode(
             colander.Bool(),
-            schema_order=colander.LAST,
+            insert_before='name',
             )
         
         class Friend(colander.Schema):
@@ -2311,9 +2311,9 @@ class TestMappingSchemaInheritance(unittest.TestCase):
             [
                 iwannacomefirst2_node,
                 rank_node,
+                serial2_node,
                 name_node,
                 another_node,
-                serial2_node
              ]
             )
 
@@ -2354,7 +2354,20 @@ class TestMappingSchemaInheritance(unittest.TestCase):
             inst.children,
             [a2_node, b3_node, c2_node, d3_node]
             )
-        
+
+    def test_insert_before_failure(self):
+        import colander
+        a_node = colander.SchemaNode(
+            colander.Int(),
+            )
+        b_node = colander.SchemaNode(
+            colander.Int(),
+            insert_before='c'
+            )
+        class One(colander.Schema):
+            a = a_node
+            b = b_node
+        self.assertRaises(KeyError, One)
 
 class TestDeferred(unittest.TestCase):
     def _makeOne(self, wrapped):

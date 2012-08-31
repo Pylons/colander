@@ -537,7 +537,7 @@ One class-based schema can be inherited from another.  For example:
    class SpecialFriend(Friend):
        iwannacomefirst = colander.SchemaNode(
            colander.String(),
-           schema_order=colander.FIRST
+           insert_before='rank',
            )
        another = colander.SchemaNode(
            colander.String(),
@@ -549,7 +549,7 @@ One class-based schema can be inherited from another.  For example:
            )
 
    friend = SuperSpecialFriend()
-   pprint.print([(x, x.typ) for x in friend.children])
+   pprint.pprint([(x, x.typ) for x in friend.children])
 
 Here's what's printed when the above is run:
 
@@ -619,22 +619,25 @@ The behavior of subclassing one mapping schema using another is as follows:
 
 * A node declared in a subclass of a mapping schema overrides any node with
   the same name inherited from any superclass.  The node remains at the child
-  order of the superclass node unless the subclass node defines a
-  ``schema_order``.
+  order of the superclass node unless the subclass node defines an
+  ``insert_before`` value.
 
 * A node declared in a subclass of a mapping schema with a name that doesn't
   override any node in a superclass will be placed *after* all nodes defined
-  in all superclasses unless the subclass node defines a ``schema_order``.
-  You can think of it like this: nodes added in subclasses will *follow*
-  nodes added in superclasses.
+  in all superclasses unless the subclass node defines an ``insert_before``
+  value.  You can think of it like this: nodes added in subclasses will
+  *follow* nodes added in superclasses.
 
-A ``schema_order`` attribute may be passed to the SchemaNode constructor of
-mapping schema child nodes.  This is an integer which influences the position
-in its mapping schema's child ordering.  ``colander.FIRST`` and
-``colander.LAST`` constants are available for passing in as ``schema_order``.
-The former tries to place the node in the very first position.  The latter,
-the very last.  If ``schema_order`` is any other integer, the system will
-attempt to place the node at the integer position in the ordering.
+An ``insert_before`` keyword argument may be passed to the SchemaNode
+constructor of mapping schema child nodes.  This is a string which influences
+the node's position in its mapping schema.  The node will be inserted into
+the mapping schema before the node named by ``insert_before``.  An
+``insert_before`` value must match the name of a schema node in a superclass
+or it must match the name of a schema node already defined in the class; it
+cannot name a schema node in a subclass, and it cannot name a schema node in
+the same class that hasn't already been defined.  If an ``insert_before`` is
+provided that doesn't match any existing node name, a :exc:`KeyError` is
+raised.
 
 Defining A Schema Imperatively
 ------------------------------
