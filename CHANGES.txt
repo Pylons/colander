@@ -25,8 +25,9 @@ Features
     Previously, it just repeated and didn't override.
 
   * An ``insert_before`` keyword argument may be passed to a SchemaNode
-    constructor.  This is an string naming a node in a superclass which this
-    node should be placed before to influence schema ordering.
+    constructor.  This is a string naming a node in a superclass.  A node
+    with an ``insert_before`` will be placed before the named node in a
+    parent mapping schema.
   
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
