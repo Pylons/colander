@@ -1,8 +1,8 @@
-Changes
-=======
-
 Next release
 ------------
+
+Features
+~~~~~~~~
 
 - Allow the use of 'missing=None' for Number.  See
   https://github.com/Pylons/colander/pull/59 .
@@ -15,6 +15,34 @@ Next release
 - ``luhnok`` validator added (credit card luhn mod10 validator).
 
 - Add an ``insert`` method to SchemaNode objects.
+
+- Better class-based mapping schema inheritance model.
+
+  * A node declared in a subclass of a mapping schema superclass now
+    overrides any node with the same name inherited from any superclass.
+    Previously, it just repeated and didn't override.
+
+  * A ``schema_order`` attribute may be passed to SchemaNode constructor.
+    This is an integer which defines the position in a parent node's child
+    ordering.
+  
+  * ``colander.FIRST`` and ``colander.LAST`` constants are available for
+    passing in as ``schema_order``.
+
+Backwards Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The inheritance changes required a minor backwards incompatibility: calling
+  ``__setitem__`` on a SchemaNode will no longer raise ``KeyError`` when
+  attempting to set a subnode into a node that doesn't already have an
+  existing subnode by that name.  Instead, the subnode will be appended to
+  the child list.
+
+Documentation
+~~~~~~~~~~~~~
+
+- A "Schema Inheritance" section was added to the Basics chapter
+  documentation.
 
 0.9.8 (2012-04-27)
 ------------------

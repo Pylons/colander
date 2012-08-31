@@ -2160,7 +2160,7 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None)
         self.assertRaises(KeyError, node.__delitem__, 'another')
 
-    def test___setitem__success(self):
+    def test___setitem__override(self):
         node = self._makeOne(None)
         another = self._makeOne(None, name='another')
         node.add(another)
@@ -2169,9 +2169,12 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node['another'], andanother)
         self.assertEqual(andanother.name, 'another')
 
-    def test___setitem__failure(self):
+    def test___setitem__no_override(self):
+        another = self._makeOne(None, name='another')
         node = self._makeOne(None)
-        self.assertRaises(KeyError, node.__setitem__, 'another', None)
+        node['another'] = another
+        self.assertEqual(node['another'], another)
+        self.assertEqual(node.children[0], another)
 
     def test___iter__(self):
         node = self._makeOne(None)
@@ -2261,7 +2264,98 @@ class TestSchemaNode(unittest.TestCase):
                 )
         schema = FnordSchema()
         self.assertEqual(schema['fnord[]'].name, 'fnord[]')
+
+class TestMappingSchemaInheritance(unittest.TestCase):
+    def test_single_inheritance(self):
+        import colander
+        rank_node = colander.SchemaNode(
+            colander.Int(),
+            )
+        name_node = colander.SchemaNode(
+            colander.String(),
+            )
+        iwannacomefirst1_node = colander.SchemaNode(
+            colander.String(),
+            schema_order=colander.FIRST
+            )
+        another_node = colander.SchemaNode(
+            colander.String(),
+            )
+        iwannacomefirst2_node = colander.SchemaNode(
+            colander.Int(),
+            )
+        serial1_node = colander.SchemaNode(
+            colander.Int(),
+            )
+        serial2_node = colander.SchemaNode(
+            colander.Bool(),
+            schema_order=colander.LAST,
+            )
         
+        class Friend(colander.Schema):
+            rank = rank_node
+            name = name_node
+            serial = serial1_node
+
+        class SpecialFriend(Friend):
+            iwannacomefirst = iwannacomefirst1_node
+
+        class SuperSpecialFriend(SpecialFriend):
+            iwannacomefirst = iwannacomefirst2_node
+            another = another_node
+            serial = serial2_node
+
+        inst = SuperSpecialFriend()
+        self.assertEqual(
+            inst.children,
+            [
+                iwannacomefirst2_node,
+                rank_node,
+                name_node,
+                another_node,
+                serial2_node
+             ]
+            )
+
+    def test_multiple_inheritance(self):
+        import colander
+        a1_node = colander.SchemaNode(
+            colander.Int(),
+            )
+        b1_node = colander.SchemaNode(
+            colander.Int(),
+            )
+        a2_node = colander.SchemaNode(
+            colander.String(),
+            )
+        c2_node = colander.SchemaNode(
+            colander.String(),
+            )
+        b3_node = colander.SchemaNode(
+            colander.Bool(),
+            )
+        d3_node = colander.SchemaNode(
+            colander.Bool(),
+            )
+        class One(colander.Schema):
+            a = a1_node
+            b = b1_node
+
+        class Two(colander.Schema):
+            a = a2_node
+            c = c2_node
+
+        class Three(One, Two):
+            b = b3_node
+            d = d3_node
+
+        inst = Three()
+        self.assertEqual(
+            inst.children,
+            [a2_node, b3_node, c2_node, d3_node]
+            )
+        
+
 class TestDeferred(unittest.TestCase):
     def _makeOne(self, wrapped):
         from colander import deferred

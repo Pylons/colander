@@ -4,6 +4,7 @@ import time
 import itertools
 import pprint
 import re
+import sys
 import translationstring
 
 from .compat import (
@@ -15,6 +16,9 @@ from .compat import (
     )
 
 from . import iso8601
+
+FIRST = 0
+LAST = sys.maxint - 1
 
 _ = translationstring.TranslationStringFactory('colander')
 
@@ -1684,13 +1688,21 @@ class SchemaNode(object):
         return appstruct
 
     def add(self, node):
-        """ Add a subnode to this node. ``node`` must be a SchemaNode."""
+        """ Append a subnode to this node. ``node`` must be a SchemaNode."""
         self.children.append(node)
 
     def insert(self, index, node):
         """ Insert a subnode into the position ``index``.  ``node`` must be
         a SchemaNode."""
         self.children.insert(index, node)
+
+    def get(self, name, default=None):
+        """ Return the subnode associated with ``name`` or ``default`` if no
+        such node exists."""
+        for node in self.children:
+            if node.name == name:
+                return node
+        return default
 
     def clone(self):
         """ Clone the schema node and return the clone.  All subnodes
@@ -1731,31 +1743,31 @@ class SchemaNode(object):
 
     def __getitem__(self, name):
         """ Get a subnode by name. """
-        for node in self.children:
-            if node.name == name:
-                return node
-        raise KeyError(name)
+        val = self.get(name, _marker)
+        if val is _marker:
+            raise KeyError(name)
+        return val
 
     def __setitem__(self, name, newnode):
-        """ Replace a subnode by name.  ``newnode`` must be a
-        SchemaNode."""
+        """ Replace a subnode by name.  ``newnode`` must be a SchemaNode.  If
+        a subnode named ``name`` doesn't already exist, calling this method
+        is the same as setting the node's name to ``name`` and calling the
+        ``add`` method with the node (it will be appended to the children
+        list)."""
+        newnode.name = name
         for idx, node in enumerate(self.children[:]):
             if node.name == name:
                 self.children[idx] = newnode
-                newnode.name = name
                 return node
-        raise KeyError(name)
+        self.add(newnode)
 
     def __iter__(self):
         """ Iterate over the children nodes of this schema node """
         return iter(self.children)
 
     def __contains__(self, name):
-        try:
-            self[name]
-        except KeyError:
-            return False
-        return True
+        """ Return True if subnode named ``name`` exists in this node """
+        return self.get(name, _marker) is not _marker
 
     def __repr__(self):
         return '<%s.%s object at %d (named %s)>' % (
@@ -1792,7 +1804,20 @@ def _Schema__new__(cls, *args, **kw):
     typ = cls.schema_type()
     node.__init__(typ, *args, **kw)
     for n in cls.nodes:
-        node.add(n)
+        order = getattr(n, 'schema_order', None)
+        exists = node.get(n.name, _marker) is not _marker
+        # use exists for microspeed; we could just call __setitem__
+        # exclusively, but it does an enumeration that's unnecessary in the
+        # common (nonexisting) case (.add is faster)
+        if order is None:
+            if exists:
+                node[n.name] = n
+            else:
+                node.add(n)
+        else:
+            if exists:
+                del node[n.name]
+            node.insert(order, n)
     return node
 
 Schema = _SchemaMeta('Schema', (object,), 

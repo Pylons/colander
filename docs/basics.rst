@@ -134,6 +134,11 @@ of the *name*.
 The *description* of a schema node is metadata about a schema node
 that can be used by higher-level systems.  By default, it is empty.
 
+The *schema_order* of a schema node is an integer which defines its ultimate
+order position within its parent node.  It is not useful unless a mapping
+schema is inherited from another mapping schema, and you need to control the
+ordering of the resulting nodes.
+
 Any other keyword arguments to a schema node constructor will be
 attached to the node unmolested (e.g. when ``foo=1`` is passed, the
 resulting schema node will have an attribute named ``foo`` with the
@@ -506,6 +511,130 @@ substitution during serialization, see :ref:`serializing_null`.
 The corollary: it is the responsibility of the developer to ensure he
 serializes "the right" data; :mod:`colander` will not raise an error
 when asked to serialize something that is partially nonsense.
+
+Inheriting Schemas
+------------------
+
+.. note::
+
+   This feature is new as of Colander 0.9.9.
+
+One class-based schema can be inherited from another.  For example:
+
+.. code-block:: python
+
+   import colander
+   import pprint
+
+   class Friend(colander.Schema):
+       rank = colander.SchemaNode(
+           colander.Int(),
+           )
+       name = colander.SchemaNode(
+           colander.String(),
+           )
+
+   class SpecialFriend(Friend):
+       iwannacomefirst = colander.SchemaNode(
+           colander.String(),
+           schema_order=colander.FIRST
+           )
+       another = colander.SchemaNode(
+           colander.String(),
+           )
+
+   class SuperSpecialFriend(SpecialFriend):
+       iwannacomefirst = colander.SchemaNode(
+           colander.Int(),
+           )
+
+   friend = SuperSpecialFriend()
+   pprint.print([(x, x.typ) for x in friend.children])
+
+Here's what's printed when the above is run:
+
+.. code-block:: text
+
+   [(<colander.SchemaNode object at 38407568 (named iwannacomefirst)>,
+     <colander.Integer object at 0x24a0d10>),
+    (<colander.SchemaNode object at 37016144 (named rank)>,
+     <colander.Integer object at 0x7f17c5606710>),
+    (<colander.SchemaNode object at 37017424 (named name)>,
+     <colander.String object at 0x234d610>),
+    (<colander.SchemaNode object at 38407184 (named another)>,
+     <colander.String object at 0x2359250>)]
+
+Multiple inheritance also works:
+
+.. code-block:: python
+
+   import colander
+   import pprint
+
+   class One(colander.Schema):
+       a = colander.SchemaNode(
+           colander.Int(),
+           )
+       b = colander.SchemaNode(
+           colander.Int(),
+           )
+
+   class Two(colander.Schema):
+       a = colander.SchemaNode(
+           colander.String(),
+           )
+       c = colander.SchemaNode(
+           colander.String(),
+           )
+
+   class Three(One, Two):
+       b = colander.SchemaNode(
+           colander.Bool(),
+           )
+       d = colander.SchemaNode(
+           colander.Bool(),
+           )
+
+   s = Three()
+   pprint.pprint([(x, x.typ) for x in s.children])
+
+Here's what's printed when the above is run:
+
+.. code-block:: text
+
+   [(<colander.SchemaNode object at 14868560 (named a)>,
+     <colander.String object at 0xe25f90>),
+    (<colander.SchemaNode object at 14868816 (named b)>,
+     <colander.Boolean object at 0xe2e110>),
+    (<colander.SchemaNode object at 14868688 (named c)>,
+     <colander.String object at 0xe2e090>),
+    (<colander.SchemaNode object at 14868944 (named d)>,
+     <colander.Boolean object at 0xe2e190>)]
+
+This feature only works with mapping schemas.  A "mapping schema" is schema
+defined as a class which inherits from :class:`colander.Schema` or
+:class:`colander.MappingSchema`.
+
+The behavior of subclassing one mapping schema using another is as follows:
+
+* A node declared in a subclass of a mapping schema overrides any node with
+  the same name inherited from any superclass.  The node remains at the child
+  order of the superclass node unless the subclass node defines a
+  ``schema_order``.
+
+* A node declared in a subclass of a mapping schema with a name that doesn't
+  override any node in a superclass will be placed *after* all nodes defined
+  in all superclasses unless the subclass node defines a ``schema_order``.
+  You can think of it like this: nodes added in subclasses will *follow*
+  nodes added in superclasses.
+
+A ``schema_order`` attribute may be passed to the SchemaNode constructor of
+mapping schema child nodes.  This is an integer which influences the position
+in its mapping schema's child ordering.  ``colander.FIRST`` and
+``colander.LAST`` constants are available for passing in as ``schema_order``.
+The former tries to place the node in the very first position.  The latter,
+the very last.  If ``schema_order`` is any other integer, the system will
+attempt to place the node at the integer position in the ordering.
 
 Defining A Schema Imperatively
 ------------------------------
