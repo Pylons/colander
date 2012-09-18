@@ -29,6 +29,9 @@ Features
     with an ``insert_before`` will be placed before the named node in a
     parent mapping schema.
 
+- The ``preparer=`` argument to SchemaNodes may now be a sequence of
+  preparers.
+
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
