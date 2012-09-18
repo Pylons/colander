@@ -111,7 +111,7 @@ within its ``deserialize`` method.
 
 Type Constructors
 ~~~~~~~~~~~~~~~~~
-        
+
 A type class does not need to implement a constructor (``__init__``),
 but it isn't prevented from doing so if it needs to accept arguments;
 Colander itself doesn't construct any types, only users of Colander
@@ -157,9 +157,9 @@ card number.
            sum = sum + digit
 
        if not (sum % 10) == 0:
-           raise Invalid(node, 
+           raise Invalid(node,
                          '%r is not a valid credit card number' % value)
-        
+
 Here's how the resulting ``luhnok`` validator might be used in a
 schema:
 

@@ -53,7 +53,7 @@ class ParseError(Exception):
 ZERO = timedelta(0)
 class Utc(tzinfo):
     """UTC
-    
+
     """
     def utcoffset(self, dt):
         return ZERO
@@ -67,7 +67,7 @@ UTC = Utc()
 
 class FixedOffset(tzinfo):
     """Fixed offset in hours and minutes from UTC
-    
+
     """
     def __init__(self, offset_hours, offset_minutes, name):
         self.__offset = timedelta(hours=offset_hours, minutes=offset_minutes)
@@ -81,13 +81,13 @@ class FixedOffset(tzinfo):
 
     def dst(self, dt):
         return ZERO
-    
+
     def __repr__(self):
         return "<FixedOffset %r>" % self.__name
 
 def parse_timezone(tzstring, default_timezone=UTC):
     """Parses ISO 8601 time zone specs into tzinfo offsets
-    
+
     """
     if tzstring == "Z":
         return default_timezone
@@ -106,7 +106,7 @@ def parse_timezone(tzstring, default_timezone=UTC):
 
 def parse_date(datestring, default_timezone=UTC):
     """Parses ISO 8601 dates into datetime objects
-    
+
     The timezone is parsed from the date string. However it is quite common to
     have dates without a timezone (not strictly correct). In this case the
     default timezone specified in default_timezone is used. This is UTC by
