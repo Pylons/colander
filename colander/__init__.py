@@ -1671,7 +1671,7 @@ class SchemaNode(object):
             if hasattr(self.preparer, '__call__'):
                 appstruct = self.preparer(appstruct)
             # if the preparer is a list, call each separate preparer
-            elif hasattr(self.preparer, '__iter__'):
+            elif is_nonstr_iter(self.preparer):
                 for preparer in self.preparer:
                     appstruct = preparer(appstruct)
 
