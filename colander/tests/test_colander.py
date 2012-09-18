@@ -110,7 +110,7 @@ class TestInvalid(unittest.TestCase):
         exc1.add(exc2, 2)
         exc2.add(exc3, 3)
         d = exc1.asdict()
-        self.assertEqual(d, 
+        self.assertEqual(d,
                          {'node1.node2.3': 'exc1; exc2; validator1; validator2',
                           'node1.node3': 'exc1; message1'})
 
@@ -187,7 +187,7 @@ class TestInvalid(unittest.TestCase):
         node = DummySchemaNode(None)
         exc = self._makeOne(node, None)
         self.assertEqual(exc.messages(), [])
-        
+
 class TestAll(unittest.TestCase):
     def _makeOne(self, validators):
         from colander import All
@@ -218,7 +218,7 @@ class TestAll(unittest.TestCase):
         validator = self._makeOne([validator1, validator2])
         exc = invalid_exc(validator, node, None)
         self.assertEqual(exc.children, [exc1, exc2])
-        
+
 class TestFunction(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Function
@@ -1433,7 +1433,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne(package=colander)
         node = DummySchemaNode(None)
         result = typ._zope_dottedname_style(
-            node, 
+            node,
             '.tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
@@ -1442,7 +1442,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne(package=colander.tests)
         node = DummySchemaNode(None)
         result = typ._zope_dottedname_style(
-            node, 
+            node,
             '..tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
@@ -1513,7 +1513,7 @@ class TestGlobalObject(unittest.TestCase):
         import colander
         typ = self._makeOne(package=colander)
         result = typ._pkg_resources_style(
-            None, 
+            None,
             '.tests.test_colander:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
@@ -1559,7 +1559,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne()
         node = DummySchemaNode(None)
         result = typ.deserialize(
-            node, 
+            node,
             'colander.tests.test_colander:TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
@@ -1567,7 +1567,7 @@ class TestGlobalObject(unittest.TestCase):
         typ = self._makeOne()
         node = DummySchemaNode(None)
         result = typ.deserialize(
-            node, 
+            node,
             'colander.tests.test_colander.TestGlobalObject')
         self.assertEqual(result, self.__class__)
 
@@ -2035,6 +2035,22 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.deserialize('value'),
                          'prepared_value')
 
+    def test_deserialize_with_multiple_preparers(self):
+        from colander import Invalid
+        typ = DummyType()
+        def preparer1(value):
+            return 'prepared1_'+value
+        def preparer2(value):
+            return 'prepared2_'+value
+        def validator(node, value):
+            if not value.startswith('prepared2_prepared1'):
+                raise Invalid(node, 'not prepared') # pragma: no cover
+        node = self._makeOne(typ,
+                             preparer=[preparer1, preparer2],
+                             validator=validator)
+        self.assertEqual(node.deserialize('value'),
+                         'prepared2_prepared1_value')
+
     def test_deserialize_preparer_before_missing_check(self):
         from colander import null
         typ = DummyType()
@@ -2258,8 +2274,8 @@ class TestSchemaNode(unittest.TestCase):
         import colander
         class FnordSchema(colander.Schema):
             fnord = colander.SchemaNode(
-                colander.Sequence(), 
-                colander.SchemaNode(colander.Integer(), name=''), 
+                colander.Sequence(),
+                colander.SchemaNode(colander.Integer(), name=''),
                 name="fnord[]"
                 )
         schema = FnordSchema()
@@ -2291,7 +2307,7 @@ class TestMappingSchemaInheritance(unittest.TestCase):
             colander.Bool(),
             insert_before='name',
             )
-        
+
         class Friend(colander.Schema):
             rank = rank_node
             name = name_node
@@ -2558,7 +2574,7 @@ class TestFunctional(object):
             self.assertEqual(result[k], v)
         for k, v in result.items():
             self.assertEqual(expected[k], v)
-            
+
     def test_unflatten_ok(self):
         import colander
         fstruct = {
@@ -2630,7 +2646,7 @@ class TestFunctional(object):
             self.assertEqual(result[k], v)
         for k, v in result.items():
             self.assertEqual(expected[k], v)
-            
+
     def test_flatten_unflatten_roundtrip(self):
         import colander
         appstruct = {

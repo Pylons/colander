@@ -362,11 +362,11 @@ def luhnok(node, value):
     try:
         sum = _luhnok(value)
     except:
-        raise Invalid(node, 
+        raise Invalid(node,
                       '%r is not a valid credit card number' % value)
 
     if not (sum % 10) == 0:
-        raise Invalid(node, 
+        raise Invalid(node,
                       '%r is not a valid credit card number' % value)
 
 def _luhnok(value):
@@ -1055,7 +1055,7 @@ class Decimal(Number):
         else:
             self.quant = decimal.Decimal(quant)
         self.rounding = rounding
-        
+
     def num(self, val):
         result = decimal.Decimal(str(val))
         if self.quant is not None:
@@ -1667,7 +1667,13 @@ class SchemaNode(object):
         appstruct = self.typ.deserialize(self, cstruct)
 
         if self.preparer is not None:
-            appstruct = self.preparer(appstruct)
+            # if the preparer is a function, call a single preparer
+            if hasattr(self.preparer, '__call__'):
+                appstruct = self.preparer(appstruct)
+            # if the preparer is a list, call each separate preparer
+            elif is_nonstr_iter(self.preparer):
+                for preparer in self.preparer:
+                    appstruct = preparer(appstruct)
 
         if appstruct is null:
             appstruct = self.missing
@@ -1825,7 +1831,7 @@ def _Schema__new__(cls, *args, **kw):
             node.add_before(insert_before, n)
     return node
 
-Schema = _SchemaMeta('Schema', (object,), 
+Schema = _SchemaMeta('Schema', (object,),
     dict(schema_type=Mapping,
         node_type=SchemaNode,
         __new__=_Schema__new__))

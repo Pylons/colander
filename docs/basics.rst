@@ -42,12 +42,12 @@ different types.
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.SchemaNode(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(),
                                  validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(), 
+       location = colander.SchemaNode(colander.String(),
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
@@ -63,7 +63,7 @@ different types.
                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
-       
+
 For ease of reading, we've actually defined *five* schemas above, but
 we coalesce them all into a single ``Person`` schema.  As the result
 of our definitions, a ``Person`` represents:
@@ -105,7 +105,7 @@ deserialization but before validation; it prepares a deserialized
 value for validation. Examples would be to prepend schemes that may be
 missing on url values or to filter html provided by a rich text
 editor. A preparer is not called during serialization, only during
-deserialization.
+deserialization. You can also pass a schema node a list of preparers.
 
 The *validator* of a schema node is called after deserialization and
 preparation ; it makes sure the value matches a constraint.  An example of
@@ -144,7 +144,7 @@ attached to the node unmolested (e.g. when ``foo=1`` is passed, the
 resulting schema node will have an attribute named ``foo`` with the
 value ``1``).
 
-.. note:: 
+.. note::
 
    You may see some higher-level systems (such as Deform) pass a ``widget``
    argument to a SchemaNode constructor.  Such systems make use of the fact
@@ -167,7 +167,7 @@ its class attribute name.  For example:
    import colander
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(), 
+       location = colander.SchemaNode(colander.String(),
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
@@ -181,7 +181,7 @@ Schema Objects
 In the examples above, if you've been paying attention, you'll have
 noticed that we're defining classes which subclass from
 :class:`colander.MappingSchema`, :class:`colander.TupleSchema` and
-:class:`colander.SequenceSchema`.  
+:class:`colander.SequenceSchema`.
 
 It's turtles all the way down: the result of creating an instance of
 any of :class:`colander.MappingSchema`, :class:`colander.TupleSchema`
@@ -208,12 +208,12 @@ Earlier we defined a schema:
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.SchemaNode(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(),
                                   validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(), 
+       location = colander.SchemaNode(colander.String(),
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
@@ -370,13 +370,13 @@ error reporting in a different way.  In particular, such a system may
 need to present the errors next to a field in a form. It may need to
 translate error messages to another language.  To do these things
 effectively, it will almost certainly need to walk and introspect the
-exception graph manually. 
+exception graph manually.
 
 The :exc:`colander.Invalid` exceptions raised by Colander validation
 are very rich.  They contain detailed information about the
 circumstances of an error.  If you write a system based on Colander
 that needs to display and format Colander exceptions specially, you
-will need to get comfy with the Invalid exception API.  
+will need to get comfy with the Invalid exception API.
 
 When a validation-related error occurs during deserialization, each
 node in the schema that had an error (and any of its parents) will be
@@ -396,7 +396,7 @@ attribute with the value ``None``.  Each exception instance will also
 have an attribute named ``node``, representing the schema node to
 which the exception is related.
 
-.. note:: 
+.. note::
 
   Translation strings are objects which behave like Unicode objects but have
   extra metadata associated with them for use in translation systems.  See
@@ -421,7 +421,7 @@ value before validating it.
 For example, a :class:`~colander.String` node may be required to
 contain content, but that content may come from a rich text
 editor. Such an editor may return ``<b></b>`` which may appear to be
-valid but doesn't contain content, or 
+valid but doesn't contain content, or
 ``<a href="javascript:alert('evil'')">good</a>`` which is valid, but
 only after some processing.
 
@@ -443,6 +443,23 @@ __ http://pypi.python.org/pypi/htmllaundry/
                                      preparer=htmllaundry.sanitize,
                                      validator=colander.Length(1))
 
+You can even specify multiple preparers to be run in order, by passing
+a list of functions to the `preparer` kwarg, like so:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+   # removes whitespace, newlines, and tabs from the beginning/end of a string
+   strip_whitespace = lambda v: v.strip(' \t\n\r') if v is not None else v
+   # replaces multiple spaces with a single space
+   remove_multiple_spaces = lambda v: re.sub(' +', ' ', v)
+
+   class Page(colander.MappingSchema):
+       title = colander.SchemaNode(colander.String())
+       content = colander.SchemaNode(colander.String(),
+                                     preparer=[strip_whitespace, remove_multiple_spaces],
+                                     validator=colander.Length(1))
 
 Serialization
 -------------
@@ -653,12 +670,12 @@ schema configuration.  Here's our previous declarative schema:
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.SchemaNode(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(),
                                  validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(), 
+       location = colander.SchemaNode(colander.String(),
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
@@ -696,7 +713,7 @@ We can imperatively construct a completely equivalent schema like so:
 
    schema = colander.SchemaNode(Mapping())
    schema.add(colander.SchemaNode(colander.String(), name='name'))
-   schema.add(colander.SchemaNode(colander.Int(), name='age'), 
+   schema.add(colander.SchemaNode(colander.Int(), name='age'),
                                  validator=colander.Range(0, 200))
    schema.add(colander.SchemaNode(colander.Sequence(), friend, name='friends'))
    schema.add(colander.SchemaNode(colander.Sequence(), phone, name='phones'))

@@ -16,13 +16,13 @@ class Test_Utc(unittest.TestCase):
         inst = self._makeOne()
         result = inst.tzname(None)
         self.assertEqual(result, "UTC")
-        
+
     def test_dst(self):
         from ..iso8601 import ZERO
         inst = self._makeOne()
         result = inst.dst(None)
         self.assertEqual(result, ZERO)
-        
+
 class Test_FixedOffset(unittest.TestCase):
     def _makeOne(self):
         from ..iso8601 import FixedOffset
@@ -67,15 +67,15 @@ class Test_parse_timezone(unittest.TestCase):
     def test_positive(self):
         tzstring = "+01:00"
         result = self._callFUT(tzstring)
-        self.assertEqual(result.utcoffset(None), 
+        self.assertEqual(result.utcoffset(None),
                          datetime.timedelta(hours=1, minutes=0))
 
     def test_negative(self):
         tzstring = "-01:00"
         result = self._callFUT(tzstring)
-        self.assertEqual(result.utcoffset(None), 
+        self.assertEqual(result.utcoffset(None),
                          datetime.timedelta(hours=-1, minutes=0))
-        
+
 class Test_parse_date(unittest.TestCase):
     def _callFUT(self, datestring):
         from ..iso8601 import parse_date
@@ -92,13 +92,13 @@ class Test_parse_date(unittest.TestCase):
     def test_normal(self):
         from ..iso8601 import UTC
         result = self._callFUT("2007-01-25T12:00:00Z")
-        self.assertEqual(result, 
+        self.assertEqual(result,
                          datetime.datetime(2007, 1, 25, 12, 0, tzinfo=UTC))
-        
+
     def test_fraction(self):
         from ..iso8601 import UTC
         result = self._callFUT("2007-01-25T12:00:00.123Z")
-        self.assertEqual(result, 
+        self.assertEqual(result,
                          datetime.datetime(2007, 1, 25, 12, 0, 0, 123000,
                                            tzinfo=UTC))
-        
+

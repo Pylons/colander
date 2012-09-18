@@ -70,7 +70,7 @@ for serialization which had the :attr:`colander.null` sentinel as the
    import colander
 
    schema = Person()
-   serialized = schema.serialize({'name':'Fred', 'age':20, 
+   serialized = schema.serialize({'name':'Fred', 'age':20,
                                   'hair_color':colander.null})
 
 When the above is run, the value of ``serialized`` will be
@@ -188,7 +188,7 @@ colander.null         <missing>             null serialized
 colander.null         value                 null serialized
 ===================== ===================== ===========================
 
-.. note:: 
+.. note::
 
    ``<missing>`` in the above table represents the circumstance in which a
    key present in a :class:`colander.MappingSchema` is not present in a
@@ -230,7 +230,7 @@ a schema, the node will take the following steps:
   with an explicit ``missing`` value), a :exc:`colander.Invalid` exception
   will be raised with a message indicating that the field is required.
 
-.. note:: 
+.. note::
 
    There are differences between serialization and deserialization involving
    the :attr:`colander.null` value.  During serialization, if an
@@ -310,7 +310,7 @@ value                 colander.null         value used
 value_a               value_b               value_a used
 ===================== ===================== ===========================
 
-.. note:: 
+.. note::
 
    ``<missing>`` in the above table represents the circumstance in which a
    key present in a :class:`colander.MappingSchema` is not present in a
