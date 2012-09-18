@@ -105,7 +105,7 @@ deserialization but before validation; it prepares a deserialized
 value for validation. Examples would be to prepend schemes that may be
 missing on url values or to filter html provided by a rich text
 editor. A preparer is not called during serialization, only during
-deserialization. You can also pass a Schema Node a list of preparers.
+deserialization. You can also pass a schema node a list of preparers.
 
 The *validator* of a schema node is called after deserialization and
 preparation ; it makes sure the value matches a constraint.  An example of
@@ -443,8 +443,8 @@ __ http://pypi.python.org/pypi/htmllaundry/
                                      preparer=htmllaundry.sanitize,
                                      validator=colander.Length(1))
 
-You can even specify multiple preparers to be run in order by passing
-a list of functions to the 'preparer' kwarg, like so:
+You can even specify multiple preparers to be run in order, by passing
+a list of functions to the `preparer` kwarg, like so:
 
 .. code-block:: python
    :linenos:
