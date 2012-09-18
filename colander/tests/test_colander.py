@@ -2035,6 +2035,22 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.deserialize('value'),
                          'prepared_value')
 
+    def test_deserialize_with_multiple_preparers(self):
+        from colander import Invalid
+        typ = DummyType()
+        def preparer1(value):
+            return 'prepared1_'+value
+        def preparer2(value):
+            return 'prepared2_'+value
+        def validator(node, value):
+            if not value.startswith('prepared2_prepared1'):
+                raise Invalid(node, 'not prepared') # pragma: no cover
+        node = self._makeOne(typ,
+                             preparer=[preparer1, preparer2],
+                             validator=validator)
+        self.assertEqual(node.deserialize('value'),
+                         'prepared2_prepared1_value')
+
     def test_deserialize_preparer_before_missing_check(self):
         from colander import null
         typ = DummyType()
