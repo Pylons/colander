@@ -407,6 +407,12 @@ class SchemaType(object):
     def get_value(self, node, appstruct, path):
         raise AssertionError("Can't call 'get_value' on a leaf node.")
 
+    def serialize_sub(self, node, appstruct):
+        return self.serialize(node, appstruct), []
+
+    def deserialize_sub(self, node, cstruct):
+        return self.deserialize(node, cstruct), []
+
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
 
@@ -482,10 +488,12 @@ class Mapping(SchemaType):
 
         error = None
         result = {}
+        substructs = []
 
         for num, subnode in enumerate(node.children):
             name = subnode.name
             subval = value.pop(name, null)
+            substructs.append(subval)
             try:
                 result[name] = callback(subnode, subval)
             except Invalid as e:
@@ -505,27 +513,38 @@ class Mapping(SchemaType):
             result.update(value)
 
         if error is not None:
+            error.substructs = substructs
             raise error
 
-        return result
+        return result, substructs
 
-    def serialize(self, node, appstruct):
+    def serialize_sub(self, node, appstruct):
         if appstruct is null:
             appstruct = {}
 
         def callback(subnode, subappstruct):
             return subnode.serialize(subappstruct)
 
-        return self._impl(node, appstruct, callback)
+        cstruct, sub_appstructs = self._impl(node, appstruct, callback)
+        return cstruct, sub_appstructs
 
-    def deserialize(self, node, cstruct):
+    def serialize(self, node, appstruct):
+        cstruct, sub_appstructs = self.serialize_sub(node, appstruct)
+        return cstruct
+
+    def deserialize_sub(self, node, cstruct):
         if cstruct is null:
             return null
 
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
-        return self._impl(node, cstruct, callback)
+        appstruct, sub_cstructs = self._impl(node, cstruct, callback)
+        return appstruct, sub_cstructs
+
+    def deserialize(self, node, cstruct):
+        appstruct, sub_cstructs = self.deserialize_sub(node, cstruct)
+        return appstruct
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}
@@ -612,9 +631,11 @@ class Tuple(Positional, SchemaType):
         value = self._validate(node, value)
         error = None
         result = []
+        substructs = []
 
         for num, subnode in enumerate(node.children):
             subval = value[num]
+            substructs.append(subval)
             try:
                 result.append(callback(subnode, subval))
             except Invalid as e:
@@ -623,11 +644,12 @@ class Tuple(Positional, SchemaType):
                 error.add(e, num)
 
         if error is not None:
+            error.substructs = substructs
             raise error
 
-        return tuple(result)
+        return tuple(result), substructs
 
-    def serialize(self, node, appstruct):
+    def serialize_sub(self, node, appstruct):
         if appstruct is null:
             return null
 
@@ -636,14 +658,23 @@ class Tuple(Positional, SchemaType):
 
         return self._impl(node, appstruct, callback)
 
-    def deserialize(self, node, cstruct):
+    def serialize(self, node, appstruct):
+        cstruct, sub_appstructs = self.serialize_sub(node, appstruct)
+        return cstruct
+
+    def deserialize_sub(self, node, cstruct):
         if cstruct is null:
             return null
 
         def callback(subnode, subval):
             return subnode.deserialize(subval)
 
-        return self._impl(node, cstruct, callback)
+        appstruct, sub_cstructs = self._impl(node, cstruct, callback)
+        return appstruct, sub_cstructs
+
+    def deserialize(self, node, cstruct):
+        appstruct, sub_cstructs = self.deserialize_sub(node, cstruct)
+        return appstruct
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}
@@ -745,11 +776,13 @@ class Sequence(Positional, SchemaType):
             accept_scalar = self.accept_scalar
 
         value = self._validate(node, value, accept_scalar)
+        substructs = []
 
         error = None
         result = []
 
         for num, subval in enumerate(value):
+            substructs.append(subval)
             try:
                 result.append(callback(node.children[0], subval))
             except Invalid as e:
@@ -758,11 +791,12 @@ class Sequence(Positional, SchemaType):
                 error.add(e, num)
 
         if error is not None:
+            error.substructs = substructs
             raise error
 
-        return result
+        return result, substructs
 
-    def serialize(self, node, appstruct, accept_scalar=None):
+    def serialize_sub(self, node, appstruct, accept_scalar=None):
         """
         Along with the normal ``node`` and ``appstruct`` arguments,
         this method accepts an additional optional keyword argument:
@@ -788,9 +822,17 @@ class Sequence(Positional, SchemaType):
         def callback(subnode, subappstruct):
             return subnode.serialize(subappstruct)
 
-        return self._impl(node, appstruct, callback, accept_scalar)
+        cstruct, sub_appstructs = self._impl(
+            node, appstruct, callback, accept_scalar
+            )
+        return cstruct, sub_appstructs
 
-    def deserialize(self, node, cstruct, accept_scalar=None):
+    def serialize(self, node, appstruct, accept_scalar=None):
+        cstruct, sub_appstructs = self.serialize_sub(
+            node, appstruct, accept_scalar,
+            )
+
+    def deserialize_sub(self, node, cstruct, accept_scalar=None):
         """
         Along with the normal ``node`` and ``cstruct`` arguments, this
         method accepts an additional optional keyword argument:
@@ -816,7 +858,16 @@ class Sequence(Positional, SchemaType):
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
-        return self._impl(node, cstruct, callback, accept_scalar)
+        appstruct, sub_cstructs = self._impl(
+            node, cstruct, callback, accept_scalar
+            )
+        return appstruct, sub_cstructs
+
+    def deserialize(self, node, cstruct, accept_scalar=None):
+        appstruct, sub_cstructs = self.deserialize_sub(
+            node, cstruct, accept_scalar
+            )
+        return appstruct
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}
@@ -1593,7 +1644,7 @@ class SchemaNode(object):
             return True
         return self.missing is required
 
-    def serialize(self, appstruct=null):
+    def serialize_sub(self, appstruct=null):
         """ Serialize the :term:`appstruct` to a :term:`cstruct` based
         on the schema represented by this node and return the
         cstruct.
@@ -1609,7 +1660,11 @@ class SchemaNode(object):
             appstruct = self.default
         if isinstance(appstruct, deferred): # unbound schema with deferreds
             appstruct = null
-        cstruct = self.typ.serialize(self, appstruct)
+        cstruct, sub_appstruct = self.typ.serialize_sub(self, appstruct)
+        return cstruct, sub_appstruct
+
+    def serialize(self, appstruct=null):
+        cstruct, sub_appstruct = self.serialize_sub(appstruct)
         return cstruct
 
     def flatten(self, appstruct):
@@ -1640,7 +1695,7 @@ class SchemaNode(object):
         the value specified by the dotted name path."""
         return self.typ.get_value(self, appstruct, dotted_name)
 
-    def deserialize(self, cstruct=null):
+    def deserialize_sub(self, cstruct=null):
         """ Deserialize the :term:`cstruct` into an :term:`appstruct` based
         on the schema, run this :term:`appstruct` through the
         preparer, if one is present, then validate the
@@ -1664,7 +1719,7 @@ class SchemaNode(object):
         If a ``cstruct`` argument is not explicitly provided, it
         defaults to :attr:`colander.null`.
         """
-        appstruct = self.typ.deserialize(self, cstruct)
+        appstruct, sub_cstructs = self.typ.deserialize_sub(self, cstruct)
 
         if self.preparer is not None:
             # if the preparer is a function, call a single preparer
@@ -1687,6 +1742,11 @@ class SchemaNode(object):
         if self.validator is not None:
             if not isinstance(self.validator, deferred): # unbound
                 self.validator(self, appstruct)
+                
+        return appstruct, sub_cstructs
+
+    def deserialize(self, cstruct=null):
+        appstruct, sub_cstructs = self.deserialize_sub(cstruct)
         return appstruct
 
     def add(self, node):
