@@ -32,6 +32,10 @@ Features
 - The ``preparer=`` argument to SchemaNodes may now be a sequence of
   preparers.
 
+- Added a ``cstruct_children`` method to SchemaNode.
+
+- A new ``cstruct_children`` API should exist on schema types.
+
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

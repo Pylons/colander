@@ -407,9 +407,6 @@ class SchemaType(object):
     def get_value(self, node, appstruct, path):
         raise AssertionError("Can't call 'get_value' on a leaf node.")
 
-    def appstruct_children(self, node, appstruct):
-        return []
-
     def cstruct_children(self, node, cstruct):
         return []
 
@@ -483,7 +480,7 @@ class Mapping(SchemaType):
                           mapping = {'val':value, 'err':e})
                           )
 
-    def _struct_children(self, node, struct):
+    def cstruct_children(self, node, struct):
         if struct is null:
             value = {}
         else:
@@ -491,12 +488,11 @@ class Mapping(SchemaType):
         children = []
         for num, subnode in enumerate(node.children):
             name = subnode.name
-            subval = value.get(name, null)
+            subval = value.get(name, _marker)
+            if subval is _marker:
+                subval = subnode.serialize(null)
             children.append(subval)
         return children
-
-    cstruct_children = _struct_children
-    appstruct_children = _struct_children
 
     def _impl(self, node, value, callback):
         value = self._validate(node, value)
@@ -629,22 +625,21 @@ class Tuple(Positional, SchemaType):
 
         return list(value)
 
-    def _struct_children(self, node, struct):
+    def cstruct_children(self, node, cstruct):
         childlen = len(node.children)
-        if struct is null:
-            struct = []
-        structlen = len(struct)
+        if cstruct is null:
+            cstruct = []
+        structlen = len(cstruct)
         if structlen < childlen:
-            struct = list(struct)
-            struct.extend([null] * (childlen - structlen))
+            missing_children = self.children[childlen-structlen:]
+            cstruct = list(cstruct)
+            for child in missing_children:
+                cstruct.append(child.serialize(null))
         elif structlen > childlen:
-            struct = struct[:childlen]
+            cstruct = cstruct[:childlen]
         else:
-            struct = list(struct)
-        return struct
-
-    cstruct_children = _struct_children
-    appstruct_children = _struct_children
+            cstruct = list(cstruct)
+        return cstruct
 
     def _impl(self, node, value, callback):
         value = self._validate(node, value)
@@ -739,11 +734,10 @@ class Tuple(Positional, SchemaType):
 
 class SequenceItems(list):
     """
-    List marker subclass for use by Sequence.appstruct_children and
-    Sequence.cstruct_children, which indicates to a caller of that method
-    that the result is from a sequence type.  Usually these values need to be
-    treated specially, because all of the children of a Sequence are not
-    present in a schema.
+    List marker subclass for use by Sequence.cstruct_children, which indicates
+    to a caller of that method that the result is from a sequence type.
+    Usually these values need to be treated specially, because all of the
+    children of a Sequence are not present in a schema.
     """
 
 class Sequence(Positional, SchemaType):
@@ -787,13 +781,10 @@ class Sequence(Positional, SchemaType):
                                   mapping={'val':value})
                           )
 
-    def _struct_children(self, node, struct):
-        if struct is null:
+    def cstruct_children(self, node, cstruct):
+        if cstruct is null:
             return SequenceItems([])
-        return SequenceItems(struct)
-
-    cstruct_children = _struct_children
-    appstruct_children = _struct_children
+        return SequenceItems(cstruct)
 
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
@@ -1806,13 +1797,6 @@ class SchemaNode(object):
             # bw compat for types created before this method was required
             return []
         return cstruct_children(self, cstruct)
-
-    def appstruct_children(self, appstruct):
-        appstruct_children = getattr(self.typ, 'appstruct_children', None)
-        if appstruct_children is None:
-            # bw compat for types created before this method was required
-            return []
-        return appstruct_children(self, appstruct)
 
     def __delitem__(self, name):
         """ Remove a subnode by name """
