@@ -5,6 +5,7 @@ import itertools
 import pprint
 import re
 import translationstring
+import warnings
 
 from .compat import (
     text_,
@@ -1794,7 +1795,16 @@ class SchemaNode(object):
     def cstruct_children(self, cstruct):
         cstruct_children = getattr(self.typ, 'cstruct_children', None)
         if cstruct_children is None:
-            # bw compat for types created before this method was required
+            warnings.warn(
+                'The node type %s has no cstruct_children method.'
+                'This method is required to be implemented by schema types for '
+                'compatibility with Colander 0.9.9+.  In a future Colander '
+                'version, the absence of this method will cause an '
+                'exception.  Returning [] for compatibility although it '
+                'may not be the right value.' % self.typ.__class__,
+                DeprecationWarning,
+                stacklevel=2
+                )
             return []
         return cstruct_children(self, cstruct)
 
