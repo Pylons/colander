@@ -407,6 +407,12 @@ class SchemaType(object):
     def get_value(self, node, appstruct, path):
         raise AssertionError("Can't call 'get_value' on a leaf node.")
 
+    def appstruct_children(self, node, appstruct):
+        return []
+
+    def cstruct_children(self, node, cstruct):
+        return []
+
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
 
@@ -476,6 +482,21 @@ class Mapping(SchemaType):
                           _('"${val}" is not a mapping type: ${err}',
                           mapping = {'val':value, 'err':e})
                           )
+
+    def _struct_children(self, node, struct):
+        if struct is null:
+            value = {}
+        else:
+            value = self._validate(node, struct)
+        children = []
+        for num, subnode in enumerate(node.children):
+            name = subnode.name
+            subval = value.get(name, null)
+            children.append(subval)
+        return children
+
+    cstruct_children = _struct_children
+    appstruct_children = _struct_children
 
     def _impl(self, node, value, callback):
         value = self._validate(node, value)
@@ -608,6 +629,23 @@ class Tuple(Positional, SchemaType):
 
         return list(value)
 
+    def _struct_children(self, node, struct):
+        childlen = len(node.children)
+        if struct is null:
+            struct = []
+        structlen = len(struct)
+        if structlen < childlen:
+            struct = list(struct)
+            struct.extend([null] * (childlen - structlen))
+        elif structlen > childlen:
+            struct = struct[:childlen]
+        else:
+            struct = list(struct)
+        return struct
+
+    cstruct_children = _struct_children
+    appstruct_children = _struct_children
+
     def _impl(self, node, value, callback):
         value = self._validate(node, value)
         error = None
@@ -699,6 +737,15 @@ class Tuple(Positional, SchemaType):
         return appstruct[index]
 
 
+class SequenceItems(list):
+    """
+    List marker subclass for use by Sequence.appstruct_children and
+    Sequence.cstruct_children, which indicates to a caller of that method
+    that the result is from a sequence type.  Usually these values need to be
+    treated specially, because all of the children of a Sequence are not
+    present in a schema.
+    """
+
 class Sequence(Positional, SchemaType):
     """
     A type which represents a variable-length sequence of nodes,
@@ -739,6 +786,14 @@ class Sequence(Positional, SchemaType):
             raise Invalid(node, _('"${val}" is not iterable',
                                   mapping={'val':value})
                           )
+
+    def _struct_children(self, node, struct):
+        if struct is null:
+            return SequenceItems([])
+        return SequenceItems(struct)
+
+    cstruct_children = _struct_children
+    appstruct_children = _struct_children
 
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
@@ -1744,6 +1799,20 @@ class SchemaNode(object):
                 setattr(self, k, v)
         if getattr(self, 'after_bind', None):
             self.after_bind(self, kw)
+
+    def cstruct_children(self, cstruct):
+        cstruct_children = getattr(self.typ, 'cstruct_children', None)
+        if cstruct_children is None:
+            # bw compat for types created before this method was required
+            return []
+        return cstruct_children(self, cstruct)
+
+    def appstruct_children(self, appstruct):
+        appstruct_children = getattr(self.typ, 'appstruct_children', None)
+        if appstruct_children is None:
+            # bw compat for types created before this method was required
+            return []
+        return appstruct_children(self, appstruct)
 
     def __delitem__(self, name):
         """ Remove a subnode by name """
