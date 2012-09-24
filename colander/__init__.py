@@ -1793,6 +1793,8 @@ class SchemaNode(object):
             self.after_bind(self, kw)
 
     def cstruct_children(self, cstruct):
+        """ Will call the node's type's ``cstruct_children`` method with this
+        node as a first argument, and ``cstruct`` as a second argument."""
         cstruct_children = getattr(self.typ, 'cstruct_children', None)
         if cstruct_children is None:
             warnings.warn(
