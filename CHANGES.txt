@@ -1,10 +1,10 @@
-Next release
-------------
+0.9.9 (2012-09-24)
+------------------
 
 Features
 ~~~~~~~~
 
-- Allow the use of 'missing=None' for Number.  See
+- Allow the use of ``missing=None`` for Number.  See
   https://github.com/Pylons/colander/pull/59 .
 
 - Create a ``colander.Money`` type that is a Decimal type with
