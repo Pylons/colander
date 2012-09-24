@@ -34,7 +34,10 @@ Features
 
 - Added a ``cstruct_children`` method to SchemaNode.
 
-- A new ``cstruct_children`` API should exist on schema types.
+- A new ``cstruct_children`` API should exist on schema types.  If
+  ``SchemaNode.cstruct_children`` is called on a node with a type that does
+  not have a ``cstruct_children`` method, a deprecation warning is raised and
+  ``[]`` is returned (this may or may not be the correct value).
 
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
