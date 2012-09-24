@@ -481,11 +481,11 @@ class Mapping(SchemaType):
                           mapping = {'val':value, 'err':e})
                           )
 
-    def cstruct_children(self, node, struct):
-        if struct is null:
+    def cstruct_children(self, node, cstruct):
+        if cstruct is null:
             value = {}
         else:
-            value = self._validate(node, struct)
+            value = self._validate(node, cstruct)
         children = []
         for subnode in node.children:
             name = subnode.name

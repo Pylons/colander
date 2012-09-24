@@ -465,6 +465,10 @@ class TestSchemaType(unittest.TestCase):
         self.assertRaises(
             AssertionError, typ.get_value, None, None, None)
 
+    def test_cstruct_children(self):
+        typ = self._makeOne()
+        self.assertEqual(typ.cstruct_children(None, None), [])
+
 class TestMapping(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Mapping
@@ -676,6 +680,24 @@ class TestMapping(unittest.TestCase):
                          {'foo': 'bar', 'baz': 'baz'})
         self.assertEqual(typ.get_value(node1, appstruct, 'node2.foo'), 'bar')
 
+    def test_cstruct_children_cstruct_is_null(self):
+        from colander import null
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node1.children = [node2]
+        result = typ.cstruct_children(node1, null)
+        self.assertEqual(result, [null])
+        
+    def test_cstruct_children(self):
+        from colander import null
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node3 = DummySchemaNode(typ, name='node3')
+        node1.children = [node2, node3]
+        result = typ.cstruct_children(node1, {'node2':'abc'})
+        self.assertEqual(result, ['abc', null])
 
 class TestTuple(unittest.TestCase):
     def _makeOne(self):
@@ -890,6 +912,43 @@ class TestTuple(unittest.TestCase):
         self.assertRaises(
             KeyError, typ.get_value, node, (1, 2), 'foobar')
 
+    def test_cstruct_children_cstruct_is_null(self):
+        from colander import null
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node1.children = [node2]
+        result = typ.cstruct_children(node1, null)
+        self.assertEqual(result, [null])
+        
+    def test_cstruct_children_toomany(self):
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node3 = DummySchemaNode(typ, name='node3')
+        node1.children = [node2, node3]
+        result = typ.cstruct_children(node1, ['one', 'two', 'three'])
+        self.assertEqual(result, ['one', 'two'])
+
+    def test_cstruct_children_toofew(self):
+        from colander import null
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node3 = DummySchemaNode(typ, name='node3')
+        node1.children = [node2, node3]
+        result = typ.cstruct_children(node1, ['one'])
+        self.assertEqual(result, ['one', null])
+
+    def test_cstruct_children_justright(self):
+        typ = self._makeOne()
+        node1 = DummySchemaNode(typ, name='node1')
+        node2 = DummySchemaNode(typ, name='node2')
+        node3 = DummySchemaNode(typ, name='node3')
+        node1.children = [node2, node3]
+        result = typ.cstruct_children(node1, ['one', 'two'])
+        self.assertEqual(result, ['one', 'two'])
+
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
         from colander import Sequence
@@ -1040,6 +1099,19 @@ class TestSequence(unittest.TestCase):
         appstruct = [[1, 2], [3, 4]]
         self.assertEqual(typ.get_value(node1, appstruct, '1'), [3, 4])
         self.assertEqual(typ.get_value(node1, appstruct, '1.0'), 3)
+
+    def test_cstruct_children_cstruct_is_null(self):
+        from colander import null
+        from colander import SequenceItems
+        typ = self._makeOne()
+        result = typ.cstruct_children(None, null)
+        self.assertEqual(result, SequenceItems([]))
+        
+    def test_cstruct_children_cstruct_is_non_null(self):
+        from colander import SequenceItems
+        typ = self._makeOne()
+        result = typ.cstruct_children(None, ['a'])
+        self.assertEqual(result, SequenceItems(['a']))
 
 class TestString(unittest.TestCase):
     def _makeOne(self, encoding=None):
@@ -2280,6 +2352,22 @@ class TestSchemaNode(unittest.TestCase):
                 )
         schema = FnordSchema()
         self.assertEqual(schema['fnord[]'].name, 'fnord[]')
+
+    def test_cstruct_children(self):
+        typ = DummyType()
+        typ.cstruct_children = lambda *arg: ['foo']
+        node = self._makeOne(typ)
+        self.assertEqual(node.cstruct_children(None), ['foo'])
+
+    def test_cstruct_children_warning(self):
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            typ = None
+            node = self._makeOne(typ)
+            self.assertEqual(node.cstruct_children(None), [])
+            self.assertEqual(len(w), 1)
+        
 
 class TestMappingSchemaInheritance(unittest.TestCase):
     def test_single_inheritance(self):
