@@ -487,7 +487,7 @@ class Mapping(SchemaType):
         else:
             value = self._validate(node, struct)
         children = []
-        for num, subnode in enumerate(node.children):
+        for subnode in node.children:
             name = subnode.name
             subval = value.get(name, _marker)
             if subval is _marker:
@@ -632,7 +632,7 @@ class Tuple(Positional, SchemaType):
             cstruct = []
         structlen = len(cstruct)
         if structlen < childlen:
-            missing_children = self.children[childlen-structlen:]
+            missing_children = node.children[structlen:]
             cstruct = list(cstruct)
             for child in missing_children:
                 cstruct.append(child.serialize(null))
