@@ -41,10 +41,10 @@ __all__ = ["parse_date", "ParseError", "Utc", "FixedOffset"]
 ISO8601_REGEX = re.compile(
     r"(?P<year>[0-9]{4})(-(?P<month>[0-9]{1,2})(-(?P<day>[0-9]{1,2})"
     r"((?P<separator>.)(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2})(:(?P<second>[0-9]{2})(\.(?P<fraction>[0-9]+))?)?"
-    r"(?P<timezone>Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?"
+    r"(?P<timezone>Z|(([-+])([0-9]{2})(:?([0-9]{2}))?))?)?)?)?"
 )
 TIMEZONE_REGEX = re.compile(
-    "(?P<prefix>[+-])(?P<hours>[0-9]{2}).(?P<minutes>[0-9]{2})")
+    "(?P<prefix>[+-])(?P<hours>[0-9]{2})(:?(?P<minutes>[0-9]{2}))?")
 
 class ParseError(Exception):
     """Raised when there is a problem parsing a date string"""
@@ -97,8 +97,13 @@ def parse_timezone(tzstring, default_timezone=UTC):
     if tzstring is None:
         return default_timezone
     m = TIMEZONE_REGEX.match(tzstring)
-    prefix, hours, minutes = m.groups()
-    hours, minutes = int(hours), int(minutes)
+    prefix = m.group('prefix')
+    hours = int(m.group('hours'))
+    minutes = m.group('minutes')
+    if minutes is None:
+        minutes = 0
+    else:
+        minutes = int(minutes)
     if prefix == "-":
         hours = -hours
         minutes = -minutes
