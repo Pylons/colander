@@ -1,3 +1,19 @@
+Next release
+------------
+
+Bug Fixes
+~~~~~~~~~
+
+- Work around a regression in Python 3.3 for ``colander.Decimal`` when it's
+  used with a ``quant`` argument but without a ``rounding`` argument.
+  See https://github.com/Pylons/colander/issues/66
+
+Features
+~~~~~~~~
+
+- Add Python 3.3 to tox configuration and use newer tox testing regime
+  (setup.py dev).
+
 0.9.9 (2012-09-24)
 ------------------
 

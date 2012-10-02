@@ -1086,10 +1086,11 @@ class Decimal(Number):
     returned.
 
     The Decimal constructor takes two optional arguments, ``quant`` and
-    ``rounding``.  If supplied, ``quant`` should be a string.  If supplied,
-    ``rounding`` should be one of the Python ``decimal`` module rounding
-    options (e.g. ``decimal.ROUND_UP``, ``decimal.ROUND_DOWN``, etc).  The
-    serialized and deserialized result will be quantized and rounded via
+    ``rounding``.  If supplied, ``quant`` should be a string,
+    (e.g. ``1.00``).  If supplied, ``rounding`` should be one of the Python
+    ``decimal`` module rounding options (e.g. ``decimal.ROUND_UP``,
+    ``decimal.ROUND_DOWN``, etc).  The serialized and deserialized result
+    will be quantized and rounded via
     ``result.quantize(decimal.Decimal(quant), rounding)``.  ``rounding`` is
     ignored if ``quant`` is not supplied.
 
@@ -1106,7 +1107,10 @@ class Decimal(Number):
     def num(self, val):
         result = decimal.Decimal(str(val))
         if self.quant is not None:
-            result = result.quantize(self.quant, self.rounding)
+            if self.rounding is None:
+                result = result.quantize(self.quant)
+            else:
+                result = result.quantize(self.quant, self.rounding)
         return result
 
 class Money(Decimal):
