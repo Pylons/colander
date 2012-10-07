@@ -14,6 +14,192 @@ Features
 - Add Python 3.3 to tox configuration and use newer tox testing regime
   (setup.py dev).
 
+- Calling ``bind`` on a schema node e.g. ``cloned_node = somenode.bind(a=1,
+  b=2)`` on a schema node now results in the cloned node having a
+  ``bindings`` attribute of the value ``{'a':1, 'b':2}``.
+
+- It is no longer necessary to pass a ``typ`` argument to a SchemaNode
+  constructor if the node class has a ``__schema_type__`` callable as a class
+  attribute which, when called with no arguments, returns a schema type.
+  This callable will be called to obtain the schema type if a ``typ`` is not
+  supplied to the constructor.  The default ``SchemaNode`` object's
+  ``__schema_type__`` callable raises a ``NotImplementedError`` when it is
+  called.
+
+- SchemaNode now has a ``raise_invalid`` method which accepts a message and
+  raises a colander.Invalid exception using ``self`` as the node and the
+  message as its message.
+
+- It is now possible and advisable to subclass ``SchemaNode`` in order to
+  create a bundle of default node behavior.  The subclass can define the
+  following methods and attributes: ``preparer``, ``validator``, ``default``,
+  ``missing``, ``name``, ``title``, ``description``, ``widget``, and
+  ``after_bind``.  For example, the older, more imperative style that
+  looked like this still works::
+
+     from colander import SchemaNode
+
+     ranged_int = colander.SchemaNode(
+         validator=colander.Range(0, 10),
+         default = 10,
+         title='Ranged Int'
+         )
+
+  But you can alternately now do something like::
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         validator = colander.range(0, 10)
+         default = 10
+         title = 'Ranged Int'
+
+     ranged_int = RangedInt()
+
+   Values that are expected to be callables can be methods of the schemanode
+   subclass instead of plain attributes::
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         def validator(self, node, cstruct):
+            if not 0 < cstruct < 10:
+                raise colander.Invalid(node, 'Must be between 0 and 10')
+
+     ranged_int = RangedInt()
+
+   When implementing a method value that expects ``node``, ``node`` must be
+   provided in the call signature, even though ``node`` will almost always be
+   the same as ``self``.  This is because Colander simply treats the method
+   as another kind of callable, be it a method, or a function, or an instance
+   that has a ``__call__`` method.  It doesn't care that it happens to be a
+   method of ``self``, and it needs to support callables that are not
+   methods, so it sends ``node`` in regardless.
+
+   Normal inheritance rules apply to class attributes and methods defined in
+   a schemanode subclass.  If your schemanode subclass inherits from another
+   schemanode class, your schemanode subclass' methods and class attributes
+   will override the superclass' methods and class attributes.
+
+   Method values that need to be deferred for binding cannot currently be
+   implemented as ``colander.deferred`` callables.  For example this will
+   *not* work::
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         @colander.deferred
+         def validator(self, node, kw):
+            request = kw['request']
+            def avalidator(node, cstruct):
+                if not 0 < cstruct < 10:
+                    if request.user != 'admin':
+                        raise colander.Invalid(node, 'Must be between 0 and 10')
+            return avalidator
+
+     ranged_int = RangedInt()
+     bound_ranged_int = ranged_int.bind(request=request)
+
+   This will result in::
+
+        TypeError: avalidator() takes exactly 3 arguments (2 given)
+
+   Instead of trying to defer methods via a decorator, you can instead use
+   the ``bindings`` attribute of ``self`` to obtain access to the bind
+   parameters within values that are methody::
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         def validator(self, node, cstruct):
+            request = self.bindings['request']
+            if not 0 < cstruct < 10:
+                if request.user != 'admin':
+                    raise colander.Invalid(node, 'Must be between 0 and 10')
+
+     ranged_int = RangedInt()
+     bound_range_int = ranged_int.bind(request=request)
+
+   You can use ``after_bind`` to set attributes of the schemanode that rely
+   on binding variables, such as ``missing`` and ``default``::
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         def validator(self, node, cstruct):
+            request = self.bindings['request']
+            if not 0 < cstruct < 10:
+                if request.user != 'admin':
+                    raise colander.Invalid(node, 'Must be between 0 and 10')
+
+         def after_bind(self, node, kw):
+             self.request = kw['request']
+             self.default = self.request.user.id
+
+   Non-method values can still be implemented as ``colander.deferred``
+   however::
+
+     from colander import SchemaNode
+
+     def _missing(node, kw):
+         request = kw['request']
+         if request.user.name == 'admin':
+             return 10
+          return 20
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+         missing = colander.deferred(_missing)
+
+     ranged_int = RangedInt()
+
+   You can override the default values of a schemanode subclass in its
+   constructor::
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+         validator = colander.Range(0, 10)
+
+     ranged_int = RangedInt(validator=colander.Range(0, 20))
+
+   In the above example, the validation will be done on 0-20, not 0-10.
+
+   If your schema node names conflict with schema value attribute names, you
+   can work around it with the ``name`` argument to the schema node::
+
+     from colander import SchemaNode, Schema
+
+     class TitleNode(SchemaNode):
+         validator = colander.range(0, 10)
+         default = 10
+
+     class SomeSchema(Schema):
+         title = 'Some Schema'
+         thisnamewontmatter = TitleNode(name='title')
+
+Backwards Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Passing non-SchemaNode derivative instances as ``*children`` into a
+  SchemaNode constructor is no longer supported.  Symptom: ``AttributeError:
+  name`` when constructing a SchemaNode.
+
 0.9.9 (2012-09-24)
 ------------------
 

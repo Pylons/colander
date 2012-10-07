@@ -1540,17 +1540,35 @@ class Time(SchemaType):
 def timeparse(t, format):
     return datetime.datetime(*time.strptime(t, format)[0:6]).time()
 
-class SchemaNode(object):
+def _add_node_children(node, children):
+    for n in children:
+        insert_before = getattr(n, 'insert_before', None)
+        exists = node.get(n.name, _marker) is not _marker
+        # use exists for microspeed; we could just call __setitem__
+        # exclusively, but it does an enumeration that's unnecessary in the
+        # common (nonexisting) case (.add is faster)
+        if insert_before is None:
+            if exists:
+                node[n.name] = n
+            else:
+                node.add(n)
+        else:
+            if exists:
+                del node[n.name]
+            node.add_before(insert_before, n)
+
+class _SchemaNode(object):
     """
     Fundamental building block of schemas.
 
     The constructor accepts these positional arguments:
 
-    - ``typ`` (required): The 'type' for this node.  It should be an
+    - ``typ``: The 'type' for this node.  It should be an
       instance of a class that implements the
-      :class:`colander.interfaces.Type` interface.
+      :class:`colander.interfaces.Type` interface.  If ``typ`` is not passed,
+      it defaults to ``colander.Mapping()``.
 
-    - ``children``: a sequence of subnodes.  If the subnodes of this
+    - ``*children``: a sequence of subnodes.  If the subnodes of this
       node are not known at construction time, they can later be added
       via the ``add`` method.
 
@@ -1607,29 +1625,49 @@ class SchemaNode(object):
     """
 
     _counter = itertools.count()
+    preparer = None
+    validator = None
+    default = null
+    missing = required
+    name = ''
+    raw_title = _marker
+    title = ''
+    description = ''
+    widget = None
+    after_bind = None
+    bindings = None
 
-    def __new__(cls, *arg, **kw):
-        inst = object.__new__(cls)
-        inst._order = next(cls._counter)
-        return inst
+    def __new__(cls, *args, **kw):
+        node = object.__new__(cls)
+        node._order = next(cls._counter)
+        node.children = []
+        _add_node_children(node, cls.__all_schema_nodes__)
+        return node
 
-    def __init__(self, typ, *children, **kw):
-        self.typ = typ
-        self.preparer = kw.pop('preparer', None)
-        self.validator = kw.pop('validator', None)
-        self.default = kw.pop('default', null)
-        self.missing = kw.pop('missing', required)
-        self.name = kw.pop('name', '')
-        self.raw_title = kw.pop('title', _marker)
-        if self.raw_title is _marker:
-            self.title = self.name.replace('_', ' ').title()
+    def __init__(self, *arg, **kw):
+        # bw compat forces us to treat first arg as type always
+        if arg:
+            self.typ = arg[0]
+            _add_node_children(self, arg[1:])
         else:
-            self.title = self.raw_title
-        self.description = kw.pop('description', '')
-        self.widget = kw.pop('widget', None)
-        self.after_bind = kw.pop('after_bind', None)
+            self.typ = self.__schema_type__()
+        
+        # bw compat forces us to manufacture a title if one is not supplied
+        title = kw.get('title', _marker)
+        if title is _marker:
+            name = kw.get('name', self.name)
+            kw['title'] = name.replace('_', ' ').title()
+        else:
+            kw['raw_title'] = title
+
         self.__dict__.update(kw)
-        self.children = list(children)
+
+    @staticmethod
+    def __schema_type__():
+        raise NotImplementedError(
+            'Schema node construction without a typ argument or '
+            'a __schema_node__ callable present on the node class '
+            )
 
     @property
     def required(self):
@@ -1787,9 +1825,12 @@ class SchemaNode(object):
         return cloned
 
     def _bind(self, kw):
+        self.bindings = kw
         for child in self.children:
             child._bind(kw)
-        for k, v in self.__dict__.items():
+        names = dir(self)
+        for k in names:
+            v = getattr(self, k)
             if isinstance(v, deferred):
                 v = v(self, kw)
                 setattr(self, k, v)
@@ -1857,77 +1898,66 @@ class SchemaNode(object):
             self.name,
             )
 
+    def raise_invalid(self, msg, node=None):
+        """ Raise a :exc:`colander.Invalid` exception with the message
+        ``msg``.  ``node``, if supplied, should be an instance of a
+        :class:`colander.SchemaNode`.  If it is not supplied, ``node`` will
+        be this node.  Example usage::
+
+            class CustomSchemaNode(SchemaNode):
+                def validator(self, node, cstruct):
+                    if cstruct != 'the_right_thing':
+                        self.raise_invalid('Not the right thing')
+
+        """
+        if node is None:
+            node = self
+        raise Invalid(node, msg)
+
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []
         for name, value in clsattrs.items():
-            if isinstance(value, SchemaNode):
+            if isinstance(value, _SchemaNode):
+                delattr(cls, name)
                 if not value.name:
                     value.name = name
                 if value.raw_title is _marker:
                     value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))
-        cls.__schema_nodes__ = nodes
+        cls.__class_schema_nodes__ = nodes
         # Combine all attrs from this class and its subclasses.
         extended = []
         for c in cls.__mro__:
-            extended.extend(getattr(c, '__schema_nodes__', []))
+            extended.extend(getattr(c, '__class_schema_nodes__', []))
         # Sort the attrs to maintain the order as defined, and assign to the
         # class.
         extended.sort()
-        cls.nodes = [x[1] for x in extended]
+        cls.__all_schema_nodes__ = [x[1] for x in extended]
 
-def _Schema__new__(cls, *args, **kw):
-    node = object.__new__(cls.node_type)
-    node.name = None
-    node._order = next(SchemaNode._counter)
-    typ = cls.schema_type()
-    node.__init__(typ, *args, **kw)
-    for n in cls.nodes:
-        insert_before = getattr(n, 'insert_before', None)
-        exists = node.get(n.name, _marker) is not _marker
-        # use exists for microspeed; we could just call __setitem__
-        # exclusively, but it does an enumeration that's unnecessary in the
-        # common (nonexisting) case (.add is faster)
-        if insert_before is None:
-            if exists:
-                node[n.name] = n
-            else:
-                node.add(n)
-        else:
-            if exists:
-                del node[n.name]
-            node.add_before(insert_before, n)
-    return node
-
-Schema = _SchemaMeta('Schema', (object,),
-    dict(schema_type=Mapping,
-        node_type=SchemaNode,
-        __new__=_Schema__new__))
+# metaclass spelling compatibility across Python 2 and Python 3
+SchemaNode = _SchemaMeta(
+    'SchemaNode',
+    (_SchemaNode,),
+    {}
+    )
+    
+class Schema(SchemaNode):
+    __schema_type__ = Mapping
 
 MappingSchema = Schema
 
+class TupleSchema(SchemaNode):
+    __schema_type__ = Tuple
 
-def _SequenceSchema__new__(cls, *args, **kw):
-    node = object.__new__(cls.node_type)
-    node.name = None
-    node._order = next(SchemaNode._counter)
-    typ = cls.schema_type()
-    node.__init__(typ, *args, **kw)
-    if not len(cls.nodes) == 1:
-        raise Invalid(node,
-                      'Sequence schemas must have exactly one child node')
-    for n in cls.nodes:
-        node.add(n)
-    return node
+class SequenceSchema(SchemaNode):
+    __schema_type__ = Sequence
 
-SequenceSchema = _SchemaMeta('SequenceSchema', (object,),
-    dict(schema_type=Sequence,
-        node_type=SchemaNode,
-        __new__=_SequenceSchema__new__))
-
-class TupleSchema(Schema):
-    schema_type = Tuple
+    def __init__(self, *args, **kw):
+        SchemaNode.__init__(self, *args, **kw)
+        if len(self.children) != 1:
+            raise Invalid(self,
+                          'Sequence schemas must have exactly one child node')
 
 class deferred(object):
     """ A decorator which can be used to define deferred schema values

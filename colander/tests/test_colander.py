@@ -2033,10 +2033,11 @@ class TestSchemaNode(unittest.TestCase):
         self.assertTrue(hasattr(node, '_order'))
 
     def test_ctor_no_title(self):
-        node = self._makeOne(None, 0, validator=1, default=2, name='name_a',
+        child = DummySchemaNode(None, name='fred')
+        node = self._makeOne(None, child, validator=1, default=2, name='name_a',
                              missing='missing')
         self.assertEqual(node.typ, None)
-        self.assertEqual(node.children, [0])
+        self.assertEqual(node.children, [child])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
         self.assertEqual(node.missing, 'missing')
@@ -2044,35 +2045,39 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.title, 'Name A')
 
     def test_ctor_with_title(self):
-        node = self._makeOne(None, 0, validator=1, default=2, name='name',
+        child = DummySchemaNode(None, name='fred')
+        node = self._makeOne(None, child, validator=1, default=2, name='name',
                              title='title')
         self.assertEqual(node.typ, None)
-        self.assertEqual(node.children, [0])
+        self.assertEqual(node.children, [child])
         self.assertEqual(node.validator, 1)
         self.assertEqual(node.default, 2)
         self.assertEqual(node.name, 'name')
         self.assertEqual(node.title, 'title')
 
     def test_ctor_with_description(self):
-        node = self._makeOne(None, 0, validator=1, default=2, name='name',
+        node = self._makeOne(None, validator=1, default=2, name='name',
                              title='title', description='desc')
         self.assertEqual(node.description, 'desc')
 
     def test_ctor_with_widget(self):
-        node = self._makeOne(None, 0, widget='abc')
+        node = self._makeOne(None, widget='abc')
         self.assertEqual(node.widget, 'abc')
 
     def test_ctor_with_preparer(self):
-        node = self._makeOne(None, 0, preparer='abc')
+        node = self._makeOne(None, preparer='abc')
         self.assertEqual(node.preparer, 'abc')
 
     def test_ctor_without_preparer(self):
-        node = self._makeOne(None, 0)
+        node = self._makeOne(None)
         self.assertEqual(node.preparer, None)
 
     def test_ctor_with_unknown_kwarg(self):
-        node = self._makeOne(None, 0, foo=1)
+        node = self._makeOne(None, foo=1)
         self.assertEqual(node.foo, 1)
+
+    def test_ctor_without_type(self):
+        self.assertRaises(NotImplementedError, self._makeOne)
 
     def test_required_true(self):
         node = self._makeOne(None)
@@ -2367,7 +2372,119 @@ class TestSchemaNode(unittest.TestCase):
             node = self._makeOne(typ)
             self.assertEqual(node.cstruct_children(None), [])
             self.assertEqual(len(w), 1)
+
+    def test_raise_invalid(self):
+        import colander
+        typ = DummyType()
+        node = self._makeOne(typ)
+        self.assertRaises(colander.Invalid, node.raise_invalid, 'Wrong')
+
+class TestSchemaNodeSubcassing(unittest.TestCase):
+    def test_subclass_uses_validator_method(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            name = 'my'
+            def validator(self, node, cstruct):
+                if cstruct > 10:
+                    self.raise_invalid('Wrong')
+        node = MyNode()
+        self.assertRaises(colander.Invalid, node.deserialize, 20)
+
+    def test_subclass_uses_missing(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            name = 'my'
+            missing = 10
+        node = MyNode()
+        result = node.deserialize(colander.null)
+        self.assertEqual(result, 10)
+
+    def test_subclass_value_overridden_by_constructor(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            name = 'my'
+            missing = 10
+        node = MyNode(missing=5)
+        result = node.deserialize(colander.null)
+        self.assertEqual(result, 5)
         
+    def test_method_values_can_rely_on_binding(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            def amethod(self):
+                return self.bindings['request']
+
+        node = MyNode()
+        newnode = node.bind(request=True)
+        self.assertEqual(newnode.amethod(), True)
+
+    def test_nonmethod_values_can_rely_on_after_bind(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            def after_bind(self, node, kw):
+                self.missing = kw['missing']
+
+        node = MyNode()
+        newnode = node.bind(missing=10)
+        self.assertEqual(newnode.deserialize(colander.null), 10)
+
+    def test_deferred_methods_dont_quite_work_yet(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            @colander.deferred
+            def avalidator(self, node, kw):
+                def _avalidator(node, cstruct):
+                    self.raise_invalid('Foo')
+                return _avalidator
+
+        node = MyNode()
+        self.assertRaises(TypeError, node.bind)
+
+    def test_nonmethod_values_can_be_deferred_though(self):
+        import colander
+        def _missing(node, kw):
+            return 10
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            missing = colander.deferred(_missing)
+
+        node = MyNode()
+        bound_node = node.bind()
+        self.assertEqual(bound_node.deserialize(colander.null), 10)
+
+    def test_schema_child_names_conflict_with_value_names_notused(self):
+        import colander
+        def _missing(node, kw):
+            return 10
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Mapping
+            title = colander.SchemaNode(
+                colander.String(),
+                )
+        node = MyNode()
+        self.assertEqual(node.title, '')
+
+    def test_schema_child_names_conflict_with_value_names_used(self):
+        import colander
+        def _missing(node, kw):
+            return 10
+        doesntmatter = colander.SchemaNode(
+            colander.String(),
+            name='name',
+            )
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Mapping
+            name = 'fred'
+            wontmatter = doesntmatter
+        node = MyNode()
+        self.assertEqual(node.name, 'fred')
+        self.assertEqual(node['name'], doesntmatter)
 
 class TestMappingSchemaInheritance(unittest.TestCase):
     def test_single_inheritance(self):
@@ -2508,7 +2625,7 @@ class TestSchema(unittest.TestCase):
         node = MySchema(default='abc')
         self.assertTrue(hasattr(node, '_order'))
         self.assertEqual(node.default, 'abc')
-        self.assertEqual(node.__class__, colander.SchemaNode)
+        self.assertTrue(isinstance(node, colander.SchemaNode))
         self.assertEqual(node.typ.__class__, colander.Mapping)
         self.assertEqual(node.children[0].typ.__class__, colander.String)
         self.assertEqual(node.children[0].title, 'Thing A')
@@ -2535,7 +2652,7 @@ class TestSequenceSchema(unittest.TestCase):
             inner = _inner
         node = MySchema()
         self.assertTrue(hasattr(node, '_order'))
-        self.assertEqual(node.__class__, colander.SchemaNode)
+        self.assertTrue(isinstance(node, colander.SchemaNode))
         self.assertEqual(node.typ.__class__, colander.Sequence)
         self.assertEqual(node.children[0], _inner)
 
@@ -2567,7 +2684,7 @@ class TestTupleSchema(unittest.TestCase):
             thing = colander.SchemaNode(colander.String())
         node = MySchema()
         self.assertTrue(hasattr(node, '_order'))
-        self.assertEqual(node.__class__, colander.SchemaNode)
+        self.assertTrue(isinstance(node, colander.SchemaNode))
         self.assertEqual(node.typ.__class__, colander.Tuple)
         self.assertEqual(node.children[0].typ.__class__, colander.String)
 
@@ -2893,6 +3010,51 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
             seq2 = SequenceTwo()
 
         schema = MainSchema(name=name)
+        return schema
+
+class TestUltraDeclarative(unittest.TestCase, TestFunctional):
+
+    def _makeSchema(self, name='schema'):
+
+        import colander
+
+        class IntSchema(colander.SchemaNode):
+            __schema_type__ = colander.Int
+
+        class StringSchema(colander.SchemaNode):
+            __schema_type__ = colander.String
+
+        class TupleSchema(colander.TupleSchema):
+            tupint = IntSchema()
+            tupstring = StringSchema()
+
+        class MappingSchema(colander.MappingSchema):
+            key = IntSchema()
+            key2 = IntSchema()
+
+        class SequenceOne(colander.SequenceSchema):
+            tup = TupleSchema()
+
+        class SequenceTwo(colander.SequenceSchema):
+            mapping = MappingSchema()
+
+        class IntSchemaRanged(IntSchema):
+            validator = colander.Range(0, 10)
+
+        class GlobalObjectSchema(colander.SchemaNode):
+            def __schema_type__(self):
+                return colander.GlobalObject(package=colander)
+
+        class MainSchema(colander.MappingSchema):
+            int = IntSchemaRanged()
+            ob = GlobalObjectSchema()
+            seq = SequenceOne()
+            tup = TupleSchema()
+            seq2 = SequenceTwo()
+
+        MainSchema.name = name
+
+        schema = MainSchema()
         return schema
 
 class Test_null(unittest.TestCase):
