@@ -1928,12 +1928,13 @@ class _SchemaMeta(type):
         cls.__class_schema_nodes__ = nodes
         # Combine all attrs from this class and its subclasses.
         extended = []
-        for c in cls.__mro__:
-            extended.extend(getattr(c, '__class_schema_nodes__', []))
+        for i, c in enumerate(reversed(cls.__mro__)):
+            csn = getattr(c, '__class_schema_nodes__', [])
+            extended.extend([(i, x, y) for x, y in csn])
         # Sort the attrs to maintain the order as defined, and assign to the
         # class.
         extended.sort()
-        cls.__all_schema_nodes__ = [x[1] for x in extended]
+        cls.__all_schema_nodes__ = [x[2] for x in extended]
 
 # metaclass spelling compatibility across Python 2 and Python 3
 SchemaNode = _SchemaMeta(

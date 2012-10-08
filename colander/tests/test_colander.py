@@ -2379,7 +2379,7 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(typ)
         self.assertRaises(colander.Invalid, node.raise_invalid, 'Wrong')
 
-class TestSchemaNodeSubcassing(unittest.TestCase):
+class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_subclass_uses_validator_method(self):
         import colander
         class MyNode(colander.SchemaNode):
@@ -2438,7 +2438,7 @@ class TestSchemaNodeSubcassing(unittest.TestCase):
         class MyNode(colander.SchemaNode):
             __schema_type__ = colander.Int
             @colander.deferred
-            def avalidator(self, node, kw):
+            def avalidator(self, node, kw): # pragma: no cover
                 def _avalidator(node, cstruct):
                     self.raise_invalid('Foo')
                 return _avalidator
@@ -2458,10 +2458,20 @@ class TestSchemaNodeSubcassing(unittest.TestCase):
         bound_node = node.bind()
         self.assertEqual(bound_node.deserialize(colander.null), 10)
 
+    def test_functions_can_be_deferred(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Int
+            @colander.deferred
+            def missing(node, kw):
+                return 10
+
+        node = MyNode()
+        bound_node = node.bind()
+        self.assertEqual(bound_node.deserialize(colander.null), 10)
+
     def test_schema_child_names_conflict_with_value_names_notused(self):
         import colander
-        def _missing(node, kw):
-            return 10
         class MyNode(colander.SchemaNode):
             __schema_type__ = colander.Mapping
             title = colander.SchemaNode(
@@ -2472,8 +2482,6 @@ class TestSchemaNodeSubcassing(unittest.TestCase):
 
     def test_schema_child_names_conflict_with_value_names_used(self):
         import colander
-        def _missing(node, kw):
-            return 10
         doesntmatter = colander.SchemaNode(
             colander.String(),
             name='name',
@@ -2486,108 +2494,206 @@ class TestSchemaNodeSubcassing(unittest.TestCase):
         self.assertEqual(node.name, 'fred')
         self.assertEqual(node['name'], doesntmatter)
 
+    def test_schema_child_names_conflict_with_value_names_in_superclass(self):
+        import colander
+        doesntmatter = colander.SchemaNode(
+            colander.String(),
+            name='name',
+            )
+        _name = colander.SchemaNode(
+            colander.String(),
+            )
+        class MyNode(colander.SchemaNode):
+            __schema_type__ = colander.Mapping
+            name = 'fred'
+            wontmatter = doesntmatter
+        class AnotherNode(MyNode):
+            name = _name
+        node = AnotherNode()
+        self.assertEqual(node.name, 'fred')
+        self.assertEqual(node['name'], _name)
+
+    def test_schema_child_names_conflict_with_value_names_in_subclass(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            name = colander.SchemaNode(
+                colander.String(),
+                id='name',
+                )
+        class AnotherNode(MyNode):
+            __schema_type__ = colander.Mapping
+            name = 'fred'
+            doesntmatter = colander.SchemaNode(
+                colander.String(),
+                name='name',
+                id='doesntmatter',
+                )
+        node = AnotherNode()
+        self.assertEqual(node.name, 'fred')
+        self.assertEqual(node['name'].id, 'doesntmatter')
+
 class TestMappingSchemaInheritance(unittest.TestCase):
     def test_single_inheritance(self):
         import colander
-        rank_node = colander.SchemaNode(
-            colander.Int(),
-            )
-        name_node = colander.SchemaNode(
-            colander.String(),
-            )
-        iwannacomefirst1_node = colander.SchemaNode(
-            colander.String(),
-            insert_before='rank',
-            )
-        another_node = colander.SchemaNode(
-            colander.String(),
-            )
-        iwannacomefirst2_node = colander.SchemaNode(
-            colander.Int(),
-            )
-        serial1_node = colander.SchemaNode(
-            colander.Int(),
-            )
-        serial2_node = colander.SchemaNode(
-            colander.Bool(),
-            insert_before='name',
-            )
-
         class Friend(colander.Schema):
-            rank = rank_node
-            name = name_node
-            serial = serial1_node
+            rank = colander.SchemaNode(
+                colander.Int(),
+                id='rank',
+                )
+            name = colander.SchemaNode(
+                colander.String(),
+                id='name'
+                )
+            serial = colander.SchemaNode(
+                colander.Bool(),
+                id='serial2',
+                )
 
         class SpecialFriend(Friend):
-            iwannacomefirst = iwannacomefirst1_node
+            iwannacomefirst = colander.SchemaNode(
+                colander.Int(),
+                id='iwannacomefirst2',
+                )
 
         class SuperSpecialFriend(SpecialFriend):
-            iwannacomefirst = iwannacomefirst2_node
-            another = another_node
-            serial = serial2_node
+            iwannacomefirst = colander.SchemaNode(
+                colander.String(),
+                id='iwannacomefirst1',
+                )
+            another = colander.SchemaNode(
+                colander.String(),
+                id='another',
+                )
+            serial = colander.SchemaNode(
+                colander.Int(),
+                id='serial1',
+                )
 
         inst = SuperSpecialFriend()
         self.assertEqual(
-            inst.children,
+            [ x.id for x in inst.children],
             [
-                iwannacomefirst2_node,
-                rank_node,
-                serial2_node,
-                name_node,
-                another_node,
+                'rank',
+                'name',
+                'serial1',
+                'iwannacomefirst1',
+                'another',
+             ]
+            )
+
+    def test_single_inheritance_with_insert_before(self):
+        import colander
+        class Friend(colander.Schema):
+            rank = colander.SchemaNode(
+                colander.Int(),
+                id='rank',
+                )
+            name = colander.SchemaNode(
+                colander.String(),
+                id='name'
+                )
+            serial = colander.SchemaNode(
+                colander.Bool(),
+                insert_before='name',
+                id='serial2',
+                )
+
+        class SpecialFriend(Friend):
+            iwannacomefirst = colander.SchemaNode(
+                colander.Int(),
+                id='iwannacomefirst2',
+                )
+
+        class SuperSpecialFriend(SpecialFriend):
+            iwannacomefirst = colander.SchemaNode(
+                colander.String(),
+                insert_before='rank',
+                id='iwannacomefirst1',
+                )
+            another = colander.SchemaNode(
+                colander.String(),
+                id='another',
+                )
+            serial = colander.SchemaNode(
+                colander.Int(),
+                id='serial1',
+                )
+
+        inst = SuperSpecialFriend()
+        self.assertEqual(
+            [ x.id for x in inst.children],
+            [
+                'iwannacomefirst1',
+                'rank',
+                'serial1',
+                'name',
+                'another',
              ]
             )
 
     def test_multiple_inheritance(self):
         import colander
-        a1_node = colander.SchemaNode(
-            colander.Int(),
-            )
-        b1_node = colander.SchemaNode(
-            colander.Int(),
-            )
-        a2_node = colander.SchemaNode(
-            colander.String(),
-            )
-        c2_node = colander.SchemaNode(
-            colander.String(),
-            )
-        b3_node = colander.SchemaNode(
-            colander.Bool(),
-            )
-        d3_node = colander.SchemaNode(
-            colander.Bool(),
-            )
         class One(colander.Schema):
-            a = a1_node
-            b = b1_node
+            a = colander.SchemaNode(
+                colander.Int(),
+                id='a1',
+                )
+            b = colander.SchemaNode(
+                colander.Int(),
+                id='b1',
+                )
+            d = colander.SchemaNode(
+                colander.Int(),
+                id='d1',
+                )
 
         class Two(colander.Schema):
-            a = a2_node
-            c = c2_node
-
+            a = colander.SchemaNode(
+                colander.String(),
+                id='a2',
+                )
+            c = colander.SchemaNode(
+                colander.String(), 
+                id='c2',
+                )
+            e = colander.SchemaNode(
+                colander.String(),
+                id='e2',
+                )
+            
         class Three(One, Two):
-            b = b3_node
-            d = d3_node
+            b = colander.SchemaNode(
+                colander.Bool(),
+                id='b3',
+                )
+            d = colander.SchemaNode(
+                colander.Bool(),
+                id='d3',
+                )
+            f = colander.SchemaNode(
+                colander.Bool(),
+                id='f3',
+                )
 
         inst = Three()
-        self.assertEqual(
-            inst.children,
-            [a2_node, b3_node, c2_node, d3_node]
-            )
+        self.assertEqual(len(inst.children), 6)
+        self.assertEqual(inst.children[0].id, 'a1')
+        self.assertEqual(inst.children[1].id, 'b3')
+        self.assertEqual(inst.children[2].id, 'd3')
+        self.assertEqual(inst.children[3].id, 'c2')
+        self.assertEqual(inst.children[4].id, 'e2')
+        self.assertEqual(inst.children[5].id, 'f3')
 
     def test_insert_before_failure(self):
         import colander
-        a_node = colander.SchemaNode(
-            colander.Int(),
-            )
-        b_node = colander.SchemaNode(
-            colander.Int(),
-            insert_before='c'
-            )
         class One(colander.Schema):
-            a = a_node
-            b = b_node
+            a = colander.SchemaNode(
+                colander.Int(),
+                )
+            b = colander.SchemaNode(
+                colander.Int(),
+                insert_before='c'
+                )
         self.assertRaises(KeyError, One)
 
 class TestDeferred(unittest.TestCase):
