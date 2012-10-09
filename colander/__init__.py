@@ -1917,6 +1917,7 @@ class _SchemaNode(object):
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []
+
         for name, value in clsattrs.items():
             if isinstance(value, _SchemaNode):
                 delattr(cls, name)
@@ -1925,16 +1926,15 @@ class _SchemaMeta(type):
                 if value.raw_title is _marker:
                     value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))
-        cls.__class_schema_nodes__ = nodes
-        # Combine all attrs from this class and its subclasses.
-        extended = []
-        for i, c in enumerate(reversed(cls.__mro__)):
+
+        nodes.sort()
+        cls.__class_schema_nodes__ = [ n[1] for n in nodes ]
+
+        # Combine all attrs from this class and its _SchemaNode superclasses.
+        cls.__all_schema_nodes__ = []
+        for c in reversed(cls.__mro__):
             csn = getattr(c, '__class_schema_nodes__', [])
-            extended.extend([(i, x, y) for x, y in csn])
-        # Sort the attrs to maintain the order as defined, and assign to the
-        # class.
-        extended.sort()
-        cls.__all_schema_nodes__ = [x[2] for x in extended]
+            cls.__all_schema_nodes__.extend(csn)
 
 # metaclass spelling compatibility across Python 2 and Python 3
 SchemaNode = _SchemaMeta(

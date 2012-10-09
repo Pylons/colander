@@ -2631,6 +2631,56 @@ class TestMappingSchemaInheritance(unittest.TestCase):
              ]
             )
 
+    def test_single_inheritance2(self):
+        import colander
+        class One(colander.Schema):
+            a = colander.SchemaNode(
+                colander.Int(),
+                id='a1',
+                )
+            b = colander.SchemaNode(
+                colander.Int(),
+                id='b1',
+                )
+            d = colander.SchemaNode(
+                colander.Int(),
+                id='d1',
+                )
+
+        class Two(One):
+            a = colander.SchemaNode(
+                colander.String(),
+                id='a2',
+                )
+            c = colander.SchemaNode(
+                colander.String(), 
+                id='c2',
+                )
+            e = colander.SchemaNode(
+                colander.String(),
+                id='e2',
+                )
+            
+        class Three(Two):
+            b = colander.SchemaNode(
+                colander.Bool(),
+                id='b3',
+                )
+            d = colander.SchemaNode(
+                colander.Bool(),
+                id='d3',
+                )
+            f = colander.SchemaNode(
+                colander.Bool(),
+                id='f3',
+                )
+
+        inst = Three()
+        c = inst.children
+        self.assertEqual(len(c), 6)
+        result = [ x.id for x in c ]
+        self.assertEqual(result, ['a2', 'b3', 'd3', 'c2', 'e2', 'f3'])
+
     def test_multiple_inheritance(self):
         import colander
         class One(colander.Schema):
@@ -2661,7 +2711,7 @@ class TestMappingSchemaInheritance(unittest.TestCase):
                 id='e2',
                 )
             
-        class Three(One, Two):
+        class Three(Two, One):
             b = colander.SchemaNode(
                 colander.Bool(),
                 id='b3',
@@ -2676,13 +2726,10 @@ class TestMappingSchemaInheritance(unittest.TestCase):
                 )
 
         inst = Three()
-        self.assertEqual(len(inst.children), 6)
-        self.assertEqual(inst.children[0].id, 'a1')
-        self.assertEqual(inst.children[1].id, 'b3')
-        self.assertEqual(inst.children[2].id, 'd3')
-        self.assertEqual(inst.children[3].id, 'c2')
-        self.assertEqual(inst.children[4].id, 'e2')
-        self.assertEqual(inst.children[5].id, 'f3')
+        c = inst.children
+        self.assertEqual(len(c), 6)
+        result = [ x.id for x in c ]
+        self.assertEqual(result, ['a2', 'b3', 'd3', 'c2', 'e2', 'f3'])
 
     def test_insert_before_failure(self):
         import colander
