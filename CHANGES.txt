@@ -209,8 +209,8 @@ Features
   In the above example, even though the ``title = 'Some Schema'`` appears to
   override the superclass' ``title`` SchemaNode, a ``title`` SchemaNode will
   indeed be present in the child list of the ``schema`` instance
-  (``schema['title']`` will return the title SchemaNode) and the schema's
-  ``title`` attribute will be ``Some Schema`` (schema.title will return
+  (``schema['title']`` will return the ``title`` SchemaNode) and the schema's
+  ``title`` attribute will be ``Some Schema`` (``schema.title`` will return
   ``Some Schema``).
 
   Normal inheritance rules apply to class attributes and methods defined in
