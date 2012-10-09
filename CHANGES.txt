@@ -19,11 +19,11 @@ Features
   ``bindings`` attribute of the value ``{'a':1, 'b':2}``.
 
 - It is no longer necessary to pass a ``typ`` argument to a SchemaNode
-  constructor if the node class has a ``__schema_type__`` callable as a class
+  constructor if the node class has a ``schema_type`` callable as a class
   attribute which, when called with no arguments, returns a schema type.
   This callable will be called to obtain the schema type if a ``typ`` is not
   supplied to the constructor.  The default ``SchemaNode`` object's
-  ``__schema_type__`` callable raises a ``NotImplementedError`` when it is
+  ``schema_type`` callable raises a ``NotImplementedError`` when it is
   called.
 
 - SchemaNode now has a ``raise_invalid`` method which accepts a message and

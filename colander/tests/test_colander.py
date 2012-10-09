@@ -2383,7 +2383,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_subclass_uses_validator_method(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             name = 'my'
             def validator(self, node, cstruct):
                 if cstruct > 10:
@@ -2394,7 +2394,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_subclass_uses_missing(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             name = 'my'
             missing = 10
         node = MyNode()
@@ -2404,7 +2404,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_subclass_value_overridden_by_constructor(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             name = 'my'
             missing = 10
         node = MyNode(missing=5)
@@ -2414,7 +2414,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_method_values_can_rely_on_binding(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             def amethod(self):
                 return self.bindings['request']
 
@@ -2425,7 +2425,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_nonmethod_values_can_rely_on_after_bind(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             def after_bind(self, node, kw):
                 self.missing = kw['missing']
 
@@ -2436,7 +2436,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_deferred_methods_dont_quite_work_yet(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             @colander.deferred
             def avalidator(self, node, kw): # pragma: no cover
                 def _avalidator(node, cstruct):
@@ -2451,7 +2451,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
         def _missing(node, kw):
             return 10
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             missing = colander.deferred(_missing)
 
         node = MyNode()
@@ -2461,7 +2461,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_functions_can_be_deferred(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
             @colander.deferred
             def missing(node, kw):
                 return 10
@@ -2473,7 +2473,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
     def test_schema_child_names_conflict_with_value_names_notused(self):
         import colander
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Mapping
+            schema_type = colander.Mapping
             title = colander.SchemaNode(
                 colander.String(),
                 )
@@ -2487,7 +2487,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
             name='name',
             )
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Mapping
+            schema_type = colander.Mapping
             name = 'fred'
             wontmatter = doesntmatter
         node = MyNode()
@@ -2504,7 +2504,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
             colander.String(),
             )
         class MyNode(colander.SchemaNode):
-            __schema_type__ = colander.Mapping
+            schema_type = colander.Mapping
             name = 'fred'
             wontmatter = doesntmatter
         class AnotherNode(MyNode):
@@ -2521,7 +2521,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
                 id='name',
                 )
         class AnotherNode(MyNode):
-            __schema_type__ = colander.Mapping
+            schema_type = colander.Mapping
             name = 'fred'
             doesntmatter = colander.SchemaNode(
                 colander.String(),
@@ -3172,10 +3172,10 @@ class TestUltraDeclarative(unittest.TestCase, TestFunctional):
         import colander
 
         class IntSchema(colander.SchemaNode):
-            __schema_type__ = colander.Int
+            schema_type = colander.Int
 
         class StringSchema(colander.SchemaNode):
-            __schema_type__ = colander.String
+            schema_type = colander.String
 
         class TupleSchema(colander.TupleSchema):
             tupint = IntSchema()
@@ -3195,7 +3195,7 @@ class TestUltraDeclarative(unittest.TestCase, TestFunctional):
             validator = colander.Range(0, 10)
 
         class GlobalObjectSchema(colander.SchemaNode):
-            def __schema_type__(self):
+            def schema_type(self):
                 return colander.GlobalObject(package=colander)
 
         class MainSchema(colander.MappingSchema):

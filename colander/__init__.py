@@ -1650,7 +1650,7 @@ class _SchemaNode(object):
             self.typ = arg[0]
             _add_node_children(self, arg[1:])
         else:
-            self.typ = self.__schema_type__()
+            self.typ = self.schema_type()
         
         # bw compat forces us to manufacture a title if one is not supplied
         title = kw.get('title', _marker)
@@ -1663,10 +1663,10 @@ class _SchemaNode(object):
         self.__dict__.update(kw)
 
     @staticmethod
-    def __schema_type__():
+    def schema_type():
         raise NotImplementedError(
             'Schema node construction without a typ argument or '
-            'a __schema_node__ callable present on the node class '
+            'a schema_type() callable present on the node class '
             )
 
     @property
@@ -1944,15 +1944,15 @@ SchemaNode = _SchemaMeta(
     )
     
 class Schema(SchemaNode):
-    __schema_type__ = Mapping
+    schema_type = Mapping
 
 MappingSchema = Schema
 
 class TupleSchema(SchemaNode):
-    __schema_type__ = Tuple
+    schema_type = Tuple
 
 class SequenceSchema(SchemaNode):
-    __schema_type__ = Sequence
+    schema_type = Sequence
 
     def __init__(self, *args, **kw):
         SchemaNode.__init__(self, *args, **kw)
