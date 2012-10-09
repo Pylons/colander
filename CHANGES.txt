@@ -82,11 +82,6 @@ Features
    ``self``, and it needs to support callables that are not methods, so it
    sends ``node`` in regardless.
 
-   Normal inheritance rules apply to class attributes and methods defined in
-   a schemanode subclass.  If your schemanode subclass inherits from another
-   schemanode class, your schemanode subclass' methods and class attributes
-   will override the superclass' methods and class attributes.
-
    You can't currently use *method* definitions as ``colander.deferred``
    callables.  For example this will *not* work::
 
@@ -217,6 +212,121 @@ Features
   (``schema['title']`` will return the title SchemaNode) and the schema's
   ``title`` attribute will be ``Some Schema`` (schema.title will return
   ``Some Schema``).
+
+   Normal inheritance rules apply to class attributes and methods defined in
+   a schemanode subclass.  If your schemanode subclass inherits from another
+   schemanode class, your schemanode subclass' methods and class attributes
+   will override the superclass' methods and class attributes.
+
+   Ordering of child schema nodes when inheritance is used works like this:
+   the "deepest" SchemaNode class in the MRO of the inheritance chain is
+   consulted first for nodes, then the next deepest, then the next, and so
+   on.  So the deepest class' nodes come first in the relative ordering of
+   schema nodes, then the next deepest, and so on.  For example::
+
+      class One(colander.Schema):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a1',
+              )
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b1',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d1',
+              )
+
+      class Two(One):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a2',
+              )
+          c = colander.SchemaNode(
+              colander.String(), 
+              id='c2',
+              )
+          e = colander.SchemaNode(
+              colander.String(),
+              id='e2',
+              )
+
+      class Three(Two):
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b3',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d3',
+              )
+          f = colander.SchemaNode(
+              colander.String(),
+              id='f3',
+              )
+
+      three = Three()
+
+   The ordering of child nodes computed in the schema node ``three`` will be
+   ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']``.  The ordering starts ``a1``,
+   ``b1``, ``d1`` because that's the ordering of nodes in ``One``, and
+   ``One`` is the deepest SchemaNode in the inheritance hierarchy.  Then it
+   processes the nodes attached to ``Two``, the next deepest, which causes
+   ``a1`` to be replaced by ``a2``, and ``c2`` and ``e2`` to be appended to
+   the node list.  Then finally it processes the nodes attached to ``Three``,
+   which causes ``b1`` to be replaced by ``b3``, and ``d1`` to be replaced by
+   ``d3``, then finally ``f`` is appended.
+
+   Multiple inheritance works the same way::
+
+      class One(colander.Schema):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a1',
+              )
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b1',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d1',
+              )
+
+      class Two(colander.Schema):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a2',
+              )
+          c = colander.SchemaNode(
+              colander.String(), 
+              id='c2',
+              )
+          e = colander.SchemaNode(
+              colander.String(),
+              id='e2',
+              )
+
+      class Three(Two, One):
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b3',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d3',
+              )
+          f = colander.SchemaNode(
+              colander.String(),
+              id='f3',
+              )
+
+      three = Three()
+
+   The resulting node ordering of ``three`` is the same as the single
+   inheritance example: ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']`` due to the
+   MRO deepest-first ordering (``One``, then ``Two``, then ``Three``).
 
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
