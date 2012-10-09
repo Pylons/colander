@@ -58,8 +58,8 @@ Features
 
      ranged_int = RangedInt()
 
-   Values that are expected to be callables can now alternately be methods of
-   the schemanode subclass instead of plain attributes::
+  Values that are expected to be callables can now alternately be methods of
+  the schemanode subclass instead of plain attributes::
 
      from colander import SchemaNode
 
@@ -73,17 +73,17 @@ Features
 
      ranged_int = RangedInt()
 
-   Note that when implementing a method value such as ``validator`` that
-   expects to receive a ``node`` argument, ``node`` must be provided in the
-   call signature, even though ``node`` will almost always be the same as
-   ``self``.  This is because Colander simply treats the method as another
-   kind of callable, be it a method, or a function, or an instance that has a
-   ``__call__`` method.  It doesn't care that it happens to be a method of
-   ``self``, and it needs to support callables that are not methods, so it
-   sends ``node`` in regardless.
+  Note that when implementing a method value such as ``validator`` that
+  expects to receive a ``node`` argument, ``node`` must be provided in the
+  call signature, even though ``node`` will almost always be the same as
+  ``self``.  This is because Colander simply treats the method as another
+  kind of callable, be it a method, or a function, or an instance that has a
+  ``__call__`` method.  It doesn't care that it happens to be a method of
+  ``self``, and it needs to support callables that are not methods, so it
+  sends ``node`` in regardless.
 
-   You can't currently use *method* definitions as ``colander.deferred``
-   callables.  For example this will *not* work::
+  You can't currently use *method* definitions as ``colander.deferred``
+  callables.  For example this will *not* work::
 
      from colander import SchemaNode
 
@@ -103,13 +103,13 @@ Features
      ranged_int = RangedInt()
      bound_ranged_int = ranged_int.bind(request=request)
 
-   This will result in::
+  This will result in::
 
         TypeError: avalidator() takes exactly 3 arguments (2 given)
 
-   However, if you treat the thing being decorated as a function instead of a
-   method (remove the ``self`` argument from the argument list), it will
-   indeed work)::
+  However, if you treat the thing being decorated as a function instead of a
+  method (remove the ``self`` argument from the argument list), it will
+  indeed work)::
 
      from colander import SchemaNode
 
@@ -129,11 +129,11 @@ Features
      ranged_int = RangedInt()
      bound_ranged_int = ranged_int.bind(request=request)
 
-   In previous releases of Colander, the only way to defer the computation of
-   values was via the ``colander.deferred`` decorator.  In this release,
-   however, you can instead use the ``bindings`` attribute of ``self`` to
-   obtain access to the bind parameters within values that are plain old
-   methods::
+  In previous releases of Colander, the only way to defer the computation of
+  values was via the ``colander.deferred`` decorator.  In this release,
+  however, you can instead use the ``bindings`` attribute of ``self`` to
+  obtain access to the bind parameters within values that are plain old
+  methods::
 
      from colander import SchemaNode
 
@@ -150,10 +150,10 @@ Features
      ranged_int = RangedInt()
      bound_range_int = ranged_int.bind(request=request)
 
-   If the things you're trying to defer aren't callables like ``validator``,
-   but they're instead just plain attributes like ``missing`` or ``default``,
-   instead of using a ``colander.deferred``, you can use ``after_bind`` to
-   set attributes of the schemanode that rely on binding variables::
+  If the things you're trying to defer aren't callables like ``validator``,
+  but they're instead just plain attributes like ``missing`` or ``default``,
+  instead of using a ``colander.deferred``, you can use ``after_bind`` to set
+  attributes of the schemanode that rely on binding variables::
 
      from colander import SchemaNode
 
@@ -163,8 +163,8 @@ Features
          def after_bind(self, node, kw):
              self.default = kw['request'].user.id
 
-   You can override the default values of a schemanode subclass in its
-   constructor::
+  You can override the default values of a schemanode subclass in its
+  constructor::
 
      from colander import SchemaNode
 
@@ -175,12 +175,12 @@ Features
 
      ranged_int = RangedInt(validator=colander.Range(0, 20))
 
-   In the above example, the validation will be done on 0-20, not 0-10.
+  In the above example, the validation will be done on 0-20, not 0-10.
 
-   If a schema node name conflicts with a schema value attribute name on the
-   same class, you can work around it by giving the schema node a bogus name
-   in the class definition but providing a correct ``name`` argument to the
-   schema node constructor::
+  If a schema node name conflicts with a schema value attribute name on the
+  same class, you can work around it by giving the schema node a bogus name
+  in the class definition but providing a correct ``name`` argument to the
+  schema node constructor::
 
      from colander import SchemaNode, Schema
 
@@ -213,16 +213,16 @@ Features
   ``title`` attribute will be ``Some Schema`` (schema.title will return
   ``Some Schema``).
 
-   Normal inheritance rules apply to class attributes and methods defined in
-   a schemanode subclass.  If your schemanode subclass inherits from another
-   schemanode class, your schemanode subclass' methods and class attributes
-   will override the superclass' methods and class attributes.
+  Normal inheritance rules apply to class attributes and methods defined in
+  a schemanode subclass.  If your schemanode subclass inherits from another
+  schemanode class, your schemanode subclass' methods and class attributes
+  will override the superclass' methods and class attributes.
 
-   Ordering of child schema nodes when inheritance is used works like this:
-   the "deepest" SchemaNode class in the MRO of the inheritance chain is
-   consulted first for nodes, then the next deepest, then the next, and so
-   on.  So the deepest class' nodes come first in the relative ordering of
-   schema nodes, then the next deepest, and so on.  For example::
+  Ordering of child schema nodes when inheritance is used works like this:
+  the "deepest" SchemaNode class in the MRO of the inheritance chain is
+  consulted first for nodes, then the next deepest, then the next, and so on.
+  So the deepest class' nodes come first in the relative ordering of schema
+  nodes, then the next deepest, and so on.  For example::
 
       class One(colander.Schema):
           a = colander.SchemaNode(
@@ -268,17 +268,17 @@ Features
 
       three = Three()
 
-   The ordering of child nodes computed in the schema node ``three`` will be
-   ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']``.  The ordering starts ``a1``,
-   ``b1``, ``d1`` because that's the ordering of nodes in ``One``, and
-   ``One`` is the deepest SchemaNode in the inheritance hierarchy.  Then it
-   processes the nodes attached to ``Two``, the next deepest, which causes
-   ``a1`` to be replaced by ``a2``, and ``c2`` and ``e2`` to be appended to
-   the node list.  Then finally it processes the nodes attached to ``Three``,
-   which causes ``b1`` to be replaced by ``b3``, and ``d1`` to be replaced by
-   ``d3``, then finally ``f`` is appended.
+  The ordering of child nodes computed in the schema node ``three`` will be
+  ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']``.  The ordering starts ``a1``,
+  ``b1``, ``d1`` because that's the ordering of nodes in ``One``, and
+  ``One`` is the deepest SchemaNode in the inheritance hierarchy.  Then it
+  processes the nodes attached to ``Two``, the next deepest, which causes
+  ``a1`` to be replaced by ``a2``, and ``c2`` and ``e2`` to be appended to
+  the node list.  Then finally it processes the nodes attached to ``Three``,
+  which causes ``b1`` to be replaced by ``b3``, and ``d1`` to be replaced by
+  ``d3``, then finally ``f`` is appended.
 
-   Multiple inheritance works the same way::
+  Multiple inheritance works the same way::
 
       class One(colander.Schema):
           a = colander.SchemaNode(
@@ -324,9 +324,9 @@ Features
 
       three = Three()
 
-   The resulting node ordering of ``three`` is the same as the single
-   inheritance example: ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']`` due to the
-   MRO deepest-first ordering (``One``, then ``Two``, then ``Three``).
+  The resulting node ordering of ``three`` is the same as the single
+  inheritance example: ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']`` due to the
+  MRO deepest-first ordering (``One``, then ``Two``, then ``Three``).
 
 Backwards Incompatibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
