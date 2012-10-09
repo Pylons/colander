@@ -156,24 +156,175 @@ value ``1``).
    schemas.  Abitrary keyword arguments are allowed to a schema node
    constructor in Colander 0.9+.  Prior version disallow them.
 
-The name of a schema node that is introduced as a class-level
-attribute of a :class:`colander.MappingSchema`,
-:class:`colander.TupleSchema` or a :class:`colander.SequenceSchema` is
-its class attribute name.  For example:
+Subclassing SchemaNode
+++++++++++++++++++++++
+
+As of Colander 0.9.9.1+, it is possible and advisable to subclass
+:class:`colander.SchemaNode` in order to create a bundle of default node
+behavior.  The subclass can define the following methods and attributes:
+``preparer``, ``validator``, ``default``, ``missing``, ``name``, ``title``,
+``description``, ``widget``, and ``after_bind``.
+
+The imperative style that looks like this still works, of course:
 
 .. code-block:: python
-   :linenos:
 
-   import colander
+     from colander import SchemaNode
 
-   class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
-       number = colander.SchemaNode(colander.String())
+     ranged_int = colander.SchemaNode(
+         validator=colander.Range(0, 10),
+         default = 10,
+         title='Ranged Int'
+         )
 
-The name of the schema node defined via ``location =
-colander.SchemaNode(..)`` within the schema above is ``location``.
-The title of the same schema node is ``Location``.
+But in 0.9.9.1+, you can alternately now do something like this:
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         validator = colander.Range(0, 10)
+         default = 10
+         title = 'Ranged Int'
+
+     ranged_int = RangedInt()
+
+Values that are expected to be callables can now alternately be methods of
+the schemanode subclass instead of plain attributes:
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         def validator(self, node, cstruct):
+            if not 0 < cstruct < 10:
+                raise colander.Invalid(node, 'Must be between 0 and 10')
+
+     ranged_int = RangedInt()
+
+Note that when implementing a method value such as ``validator`` that expects
+to receive a ``node`` argument, ``node`` must be provided in the call
+signature, even though ``node`` will almost always be the same as ``self``.
+This is because Colander simply treats the method as another kind of
+callable, be it a method, or a function, or an instance that has a
+``__call__`` method.  It doesn't care that it happens to be a method of
+``self``, and it needs to support callables that are not methods, so it sends
+``node`` in regardless.
+
+You can't use *method* definitions as ``colander.deferred`` callables.  For
+example this will *not* work:
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         @colander.deferred
+         def validator(self, node, kw):
+            request = kw['request']
+            def avalidator(node, cstruct):
+                if not 0 < cstruct < 10:
+                    if request.user != 'admin':
+                        raise colander.Invalid(node, 'Must be between 0 and 10')
+            return avalidator
+
+     ranged_int = RangedInt()
+     bound_ranged_int = ranged_int.bind(request=request)
+
+This will result in::
+
+        TypeError: avalidator() takes exactly 3 arguments (2 given)
+
+However, if you treat the thing being decorated as a function instead of a
+method (remove the ``self`` argument from the argument list), it will
+indeed work):
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         @colander.deferred
+         def validator(node, kw):
+            request = kw['request']
+            def avalidator(node, cstruct):
+                if not 0 < cstruct < 10:
+                    if request.user != 'admin':
+                        raise colander.Invalid(node, 'Must be between 0 and 10')
+            return avalidator
+
+     ranged_int = RangedInt()
+     bound_ranged_int = ranged_int.bind(request=request)
+
+In releases of Colander before 0.9.9.1+, the only way to defer the
+computation of values was via the ``colander.deferred`` decorator.  In this
+release, however, you can instead use the ``bindings`` attribute of ``self``
+to obtain access to the bind parameters within values that are plain old
+methods:
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+
+         def validator(self, node, cstruct):
+            request = self.bindings['request']
+            if not 0 < cstruct < 10:
+                if request.user != 'admin':
+                    raise colander.Invalid(node, 'Must be between 0 and 10')
+
+     ranged_int = RangedInt()
+     bound_range_int = ranged_int.bind(request=request)
+
+If the things you're trying to defer aren't callables like ``validator``, but
+they're instead just plain attributes like ``missing`` or ``default``,
+instead of using a ``colander.deferred``, you can use ``after_bind`` to set
+attributes of the schemanode that rely on binding variables::
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class UserIdSchemaNode(SchemaNode):
+         title = 'User Id'
+
+         def after_bind(self, node, kw):
+             self.default = kw['request'].user.id
+
+You can override the default values of a schemanode subclass in its
+constructor:
+
+.. code-block:: python
+
+     from colander import SchemaNode
+
+     class RangedIntSchemaNode(SchemaNode):
+         default = 10
+         title = 'Ranged Int'
+         validator = colander.Range(0, 10)
+
+     ranged_int = RangedInt(validator=colander.Range(0, 20))
+
+In the above example, the validation will be done on 0-20, not 0-10.
+
+Normal inheritance rules apply to class attributes and methods defined in a
+schemanode subclass.  If your schemanode subclass inherits from another
+schemanode class, your schemanode subclass' methods and class attributes will
+override the superclass' methods and class attributes.
 
 Schema Objects
 ~~~~~~~~~~~~~~
@@ -196,6 +347,25 @@ which has a *type* value of :class:`colander.Tuple`.
 
 Instantiating a :class:`colander.SequenceSchema` creates a schema node
 which has a *type* value of :class:`colander.Sequence`.
+
+The name of a schema node that is introduced as a class-level
+attribute of a :class:`colander.MappingSchema`,
+:class:`colander.TupleSchema` or a :class:`colander.SequenceSchema` is
+its class attribute name.  For example:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+
+   class Phone(colander.MappingSchema):
+       location = colander.SchemaNode(colander.String(),
+                                     validator=colander.OneOf(['home', 'work']))
+       number = colander.SchemaNode(colander.String())
+
+The name of the schema node defined via ``location =
+colander.SchemaNode(..)`` within the schema above is ``location``.
+The title of the same schema node is ``Location``.
 
 Deserialization
 ---------------
@@ -543,7 +713,7 @@ One class-based schema can be inherited from another.  For example:
    import colander
    import pprint
 
-   class Friend(colander.Schema):
+   class Friend(colander.MappingSchema):
        rank = colander.SchemaNode(
            colander.Int(),
            )
@@ -588,7 +758,7 @@ Multiple inheritance also works:
    import colander
    import pprint
 
-   class One(colander.Schema):
+   class One(colander.MappingSchema):
        a = colander.SchemaNode(
            colander.Int(),
            )
@@ -596,7 +766,7 @@ Multiple inheritance also works:
            colander.Int(),
            )
 
-   class Two(colander.Schema):
+   class Two(colander.MappingSchema):
        a = colander.SchemaNode(
            colander.String(),
            )
@@ -632,6 +802,120 @@ This feature only works with mapping schemas.  A "mapping schema" is schema
 defined as a class which inherits from :class:`colander.Schema` or
 :class:`colander.MappingSchema`.
 
+Ordering of child schema nodes when inheritance is used works like this: the
+"deepest" SchemaNode class in the MRO of the inheritance chain is consulted
+first for nodes, then the next deepest, then the next, and so on.  So the
+deepest class' nodes come first in the relative ordering of schema nodes,
+then the next deepest, and so on.  For example:
+
+.. code-block:: python
+
+      class One(colander.MappingSchema):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a1',
+              )
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b1',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d1',
+              )
+
+      class Two(One):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a2',
+              )
+          c = colander.SchemaNode(
+              colander.String(), 
+              id='c2',
+              )
+          e = colander.SchemaNode(
+              colander.String(),
+              id='e2',
+              )
+
+      class Three(Two):
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b3',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d3',
+              )
+          f = colander.SchemaNode(
+              colander.String(),
+              id='f3',
+              )
+
+      three = Three()
+
+The ordering of child nodes computed in the schema node ``three`` will be
+``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']``.  The ordering starts ``a1``,
+``b1``, ``d1`` because that's the ordering of nodes in ``One``, and ``One``
+is the deepest SchemaNode in the inheritance hierarchy.  Then it processes
+the nodes attached to ``Two``, the next deepest, which causes ``a1`` to be
+replaced by ``a2``, and ``c2`` and ``e2`` to be appended to the node list.
+Then finally it processes the nodes attached to ``Three``, which causes
+``b1`` to be replaced by ``b3``, and ``d1`` to be replaced by ``d3``, then
+finally ``f`` is appended.
+
+Multiple inheritance works the same way:
+
+.. code-block:: python
+
+      class One(colander.MappingSchema):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a1',
+              )
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b1',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d1',
+              )
+
+      class Two(colander.MappingSchema):
+          a = colander.SchemaNode(
+              colander.String(),
+              id='a2',
+              )
+          c = colander.SchemaNode(
+              colander.String(), 
+              id='c2',
+              )
+          e = colander.SchemaNode(
+              colander.String(),
+              id='e2',
+              )
+
+      class Three(Two, One):
+          b = colander.SchemaNode(
+              colander.String(),
+              id='b3',
+              )
+          d = colander.SchemaNode(
+              colander.String(),
+              id='d3',
+              )
+          f = colander.SchemaNode(
+              colander.String(),
+              id='f3',
+              )
+
+      three = Three()
+
+The resulting node ordering of ``three`` is the same as the single
+inheritance example: ``['a2', 'b3', 'd3', 'c2', 'e2', 'f3']`` due to the
+MRO deepest-first ordering (``One``, then ``Two``, then ``Three``).
+
 The behavior of subclassing one mapping schema using another is as follows:
 
 * A node declared in a subclass of a mapping schema overrides any node with
@@ -643,7 +927,8 @@ The behavior of subclassing one mapping schema using another is as follows:
   override any node in a superclass will be placed *after* all nodes defined
   in all superclasses unless the subclass node defines an ``insert_before``
   value.  You can think of it like this: nodes added in subclasses will
-  *follow* nodes added in superclasses.
+  *follow* nodes added in superclasses unless the node is already defined in
+  any of those superclasses.
 
 An ``insert_before`` keyword argument may be passed to the SchemaNode
 constructor of mapping schema child nodes.  This is a string which influences
@@ -655,6 +940,49 @@ cannot name a schema node in a subclass, and it cannot name a schema node in
 the same class that hasn't already been defined.  If an ``insert_before`` is
 provided that doesn't match any existing node name, a :exc:`KeyError` is
 raised.
+
+If a schema node name conflicts with a schema value attribute name on the
+same class in a :class:`colander.MappingSchema`,
+:class:`colander.TupleSchema` or :class:`colander.SequenceSchema` definition,
+you can work around this by giving the schema node a bogus name in the class
+definition but providing a correct ``name`` argument to the schema node
+constructor:
+
+.. code-block:: python
+
+     from colander import SchemaNode, MappingSchema
+
+     class SomeSchema(MappingSchema):
+         title = 'Some Schema'
+         thisnamewillbeignored = colander.SchemaNode(
+                                             colander.String(),
+                                             name='title'
+                                             )
+
+Note that such a workaround is only required if the conflicting names are
+attached to the *exact same* class definition.  Colander scrapes off schema
+node definitions at each class' construction time, so it's not an issue for
+inherited values.  For example:
+
+.. code-block:: python
+
+     from colander import SchemaNode, MappingSchema
+
+     class SomeSchema(MappingSchema):
+         title = colander.SchemaNode(colander.String())
+
+     class AnotherSchema(SomeSchema):
+         title = 'Some Schema'
+
+     schema = AnotherSchema()
+
+In the above example, even though the ``title = 'Some Schema'`` appears to
+override the superclass' ``title`` SchemaNode, a ``title`` SchemaNode will
+indeed be present in the child list of the ``schema`` instance
+(``schema['title']`` will return the ``title`` SchemaNode) and the schema's
+``title`` attribute will be ``Some Schema`` (``schema.title`` will return
+``Some Schema``).
+
 
 Defining A Schema Imperatively
 ------------------------------
