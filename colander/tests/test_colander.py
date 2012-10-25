@@ -2157,7 +2157,7 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(typ, validator=All(DummyDeferredValidator))
         node = node.bind(message='good')
         e = invalid_exc(node.deserialize, 1)
-        self.assertEqual(e.msg, 'good')
+        self.assertEqual(e.msg, ['good'])
 
     def test_deserialize_value_is_null_no_missing(self):
         from colander import null
