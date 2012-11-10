@@ -755,7 +755,7 @@ class Set(SchemaType):
         if cstruct is null:
             return null
 
-        if not hasattr(cstruct, '__iter__'):
+        if not is_nonstr_iter(cstruct):
             raise Invalid(
                 node,
                 _('${cstruct} is not iterable', mapping={'cstruct': cstruct})

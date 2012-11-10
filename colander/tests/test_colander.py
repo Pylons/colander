@@ -975,6 +975,12 @@ class TestSet(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, 1)
         self.assertEqual(e.msg, '${cstruct} is not iterable')
 
+    def test_deserialize_str_no_iter(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        e = invalid_exc(typ.deserialize, node, "foo")
+        self.assertEqual(e.msg, '${cstruct} is not iterable')
+
     def test_deserialize_null(self):
         from colander import null
         typ = self._makeOne()
