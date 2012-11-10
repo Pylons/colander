@@ -11,6 +11,8 @@ Bug Fixes
 Features
 ~~~~~~~~
 
+- Add ``colander.Set`` type, ported from ``deform.Set``
+
 - Add Python 3.3 to tox configuration and use newer tox testing regime
   (setup.py dev).
 
