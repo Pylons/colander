@@ -761,10 +761,7 @@ class Set(SchemaType):
                 _('${cstruct} is not iterable', mapping={'cstruct': cstruct})
             )
 
-        cstruct = set(cstruct)
-        if not cstruct:
-            return null
-        return cstruct
+        return set(cstruct)
 
 
 class SequenceItems(list):

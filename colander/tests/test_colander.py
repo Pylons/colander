@@ -999,7 +999,7 @@ class TestSet(unittest.TestCase):
         typ = self._makeOne()
         node = DummySchemaNode(typ)
         result = typ.deserialize(node, set())
-        self.assertEqual(result, colander.null)
+        self.assertEqual(result, set())
 
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
