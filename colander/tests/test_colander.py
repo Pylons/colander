@@ -949,6 +949,58 @@ class TestTuple(unittest.TestCase):
         result = typ.cstruct_children(node1, ['one', 'two'])
         self.assertEqual(result, ['one', 'two'])
 
+
+class TestSet(unittest.TestCase):
+    def _makeOne(self, **kw):
+        from colander import Set
+        return Set(**kw)
+
+    def test_serialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        provided = []
+        result = typ.serialize(node, provided)
+        self.assertTrue(result is provided)
+
+    def test_serialize_null(self):
+        from colander import null
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.serialize(node, null)
+        self.assertTrue(result is null)
+
+    def test_deserialize_no_iter(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        e = invalid_exc(typ.deserialize, node, 1)
+        self.assertEqual(e.msg, '${cstruct} is not iterable')
+
+    def test_deserialize_str_no_iter(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        e = invalid_exc(typ.deserialize, node, "foo")
+        self.assertEqual(e.msg, '${cstruct} is not iterable')
+
+    def test_deserialize_null(self):
+        from colander import null
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.deserialize(node, null)
+        self.assertEqual(result, null)
+
+    def test_deserialize_valid(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.deserialize(node, ('a',))
+        self.assertEqual(result, set(('a',)))
+
+    def test_deserialize_empty_set(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.deserialize(node, set())
+        self.assertEqual(result, set())
+
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
         from colander import Sequence

@@ -74,6 +74,8 @@ Types
 
   .. autoclass:: Tuple
 
+  .. autoclass:: Set
+
   .. autoclass:: Sequence
 
   .. autoclass:: Seq

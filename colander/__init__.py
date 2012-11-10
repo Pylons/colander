@@ -733,6 +733,37 @@ class Tuple(Positional, SchemaType):
         return appstruct[index]
 
 
+class Set(SchemaType):
+    """ A type representing a non-overlapping set of items.
+    Deserializes an iterable to a ``set`` object.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    .. versionadded: 0.9.9.1
+
+    """
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        return appstruct
+
+    def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+
+        if not is_nonstr_iter(cstruct):
+            raise Invalid(
+                node,
+                _('${cstruct} is not iterable', mapping={'cstruct': cstruct})
+            )
+
+        return set(cstruct)
+
+
 class SequenceItems(list):
     """
     List marker subclass for use by Sequence.cstruct_children, which indicates
