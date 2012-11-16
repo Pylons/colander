@@ -982,7 +982,7 @@ class String(SchemaType):
         self.encoding = encoding
 
     def serialize(self, node, appstruct):
-        if not appstruct:
+        if appstruct in (null, None):
             return null
 
         try:

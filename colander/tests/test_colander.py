@@ -1182,6 +1182,14 @@ class TestString(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
+    def test_serialize_emptystring(self):
+        import colander
+        val = u''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, val)
+
     def test_serialize_uncooperative(self):
         val = Uncooperative()
         node = DummySchemaNode(None)
