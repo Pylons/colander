@@ -1235,8 +1235,7 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, colander.null)
 
     def test_serialize_emptystring(self):
-        import colander
-        val = u''
+        val = ''
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, val)
