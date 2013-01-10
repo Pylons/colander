@@ -741,7 +741,7 @@ class Set(SchemaType):
     method of this class, the :attr:`colander.null` value will be
     returned.
 
-    .. versionadded: 0.9.9.1
+    .. versionadded: 1.0a1
 
     """
 
