@@ -8,6 +8,11 @@ Bug Fixes
   used with a ``quant`` argument but without a ``rounding`` argument.
   See https://github.com/Pylons/colander/issues/66
 
+- Using ``SchemaNode(String, default='', ..)`` now works properly, or at least
+  more intuitively.  Previously if an empty-string ``default`` was supplied,
+  serialization would return a defaulted value as ``colander.null``.  See
+  https://github.com/Pylons/colander/pull/73.
+
 Features
 ~~~~~~~~
 
