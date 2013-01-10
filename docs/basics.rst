@@ -292,7 +292,7 @@ the bind parameters within values that are plain old methods:
 If the things you're trying to defer aren't callables like ``validator``, but
 they're instead just plain attributes like ``missing`` or ``default``,
 instead of using a ``colander.deferred``, you can use ``after_bind`` to set
-attributes of the schemanode that rely on binding variables::
+attributes of the schemanode that rely on binding variables:
 
 .. code-block:: python
 
