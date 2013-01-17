@@ -1177,6 +1177,8 @@ class Boolean(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+    false_string_reps = frozenset(('false', '0'))
+    true_string_reps = None
 
     def serialize(self, node, appstruct):
         if appstruct is null:
@@ -1196,9 +1198,16 @@ class Boolean(SchemaType):
                           )
         result = result.lower()
 
-        if result in ('false', '0'):
+        if result in self.false_string_reps:
             return False
-
+        elif self.true_string_reps:
+            if result in self.true_string_reps:
+                return True
+            else:
+                raise Invalid(node,
+                              _('"${val}" is not a valid representation '
+                                'of a boolean value', mapping={'val':cstruct})
+                              )
         return True
 
 Bool = Boolean
