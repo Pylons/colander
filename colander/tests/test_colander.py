@@ -1543,6 +1543,48 @@ class TestBoolean(unittest.TestCase):
         self.assertEqual(typ.serialize(node, None), 'false')
         self.assertEqual(typ.serialize(node, False), 'false')
 
+class TestBooleanSubClassingDefaultTrue(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        class BooleanDefaultTrue(Boolean):
+            false_string_reps = frozenset(('false', 'no', '0', 'f', 'n'))
+        return BooleanDefaultTrue()
+
+    def test_deserialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'false'), False)
+        self.assertEqual(typ.deserialize(node, 'NO'), False)
+        self.assertEqual(typ.deserialize(node, 'n'), False)
+        self.assertEqual(typ.deserialize(node, '0'), False)
+        self.assertEqual(typ.deserialize(node, 'true'), True)
+        self.assertEqual(typ.deserialize(node, 'other'), True)
+
+class TestBooleanSubClassingNoDefault(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        class BooleanNoDefault(Boolean):
+            false_string_reps = frozenset(('false', 'no', '0', 'f', 'n'))
+            true_string_reps = frozenset(('true','yes', '1', 't', 'y'))
+        return BooleanNoDefault()
+
+    def test_deserialize(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'false'), False)
+        self.assertEqual(typ.deserialize(node, 'NO'), False)
+        self.assertEqual(typ.deserialize(node, '0'), False)
+        self.assertEqual(typ.deserialize(node, 'f'), False)
+        self.assertEqual(typ.deserialize(node, 'n'), False)
+        self.assertEqual(typ.deserialize(node, 'true'), True)
+        self.assertEqual(typ.deserialize(node, 'yes'), True)
+        self.assertEqual(typ.deserialize(node, '1'), True)
+        self.assertEqual(typ.deserialize(node, 't'), True)
+        self.assertEqual(typ.deserialize(node, 'y'), True)
+        self.assertRaises(colander.Invalid, typ.deserialize, node, 'other')
+        self.assertRaises(colander.Invalid, typ.deserialize, node, '')
+
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
         from colander import GlobalObject
