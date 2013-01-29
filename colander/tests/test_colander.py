@@ -408,6 +408,30 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
 
+class TestContainsOnly(unittest.TestCase):
+    def _makeOne(self, values):
+        from colander import ContainsOnly
+        return ContainsOnly(values)
+
+    def test_success(self):
+        validator = self._makeOne([1])
+        self.assertEqual(validator(None, [1]), None)
+
+    def test_failure(self):
+        validator = self._makeOne([1])
+        e = invalid_exc(validator, None, [2])
+        self.assertEqual(
+            e.msg.interpolate(),
+            'One or more of the choices you made was not acceptable'
+            )
+
+    def test_failure_with_custom_error_template(self):
+        validator = self._makeOne([1])
+        from colander import _
+        validator.err_template = _('${val}: ${acceptable}')
+        e = invalid_exc(validator, None, [2])
+        self.assertTrue('[2]' in e.msg.interpolate())
+
 class Test_luhnok(unittest.TestCase):
     def _callFUT(self, node, value):
         from colander import luhnok
@@ -431,6 +455,21 @@ class Test_luhnok(unittest.TestCase):
     def test_success(self):
         val = '4111111111111111'
         self.assertFalse(self._callFUT(None, val))
+
+class Test_url_validator(unittest.TestCase):
+    def _callFUT(self, val):
+        from colander import url
+        return url(None, val)
+
+    def test_it_success(self):
+        val = 'http://example.com'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+        
+    def test_it_failure(self):
+        val = 'not-a-url'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
 
 class TestSchemaType(unittest.TestCase):
     def _makeOne(self, *arg, **kw):

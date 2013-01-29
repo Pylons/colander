@@ -59,6 +59,8 @@ Validators
 
   .. autoclass:: OneOf
 
+  .. autoclass:: ContainsOnly
+
   .. autoclass:: Function
 
   .. autoclass:: Regex
@@ -66,6 +68,10 @@ Validators
   .. autoclass:: Email
 
   .. autofunction:: luhnok
+
+  .. attribute:: url
+ 
+     A validator which ensures the value is a URL (via regex).
 
 Types
 ~~~~~

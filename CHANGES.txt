@@ -1,3 +1,11 @@
+Next release
+------------
+
+Features
+~~~~~~~~
+
+- Add ``colander.ContainsOnly`` and ``colander.url`` validators.
+
 1.0a1 (2013-01-10)
 ------------------
 
