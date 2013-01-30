@@ -428,7 +428,7 @@ class TestContainsOnly(unittest.TestCase):
     def test_failure_with_custom_error_template(self):
         validator = self._makeOne([1])
         from colander import _
-        validator.err_template = _('${val}: ${acceptable}')
+        validator.err_template = _('${val}: ${choices}')
         e = invalid_exc(validator, None, [2])
         self.assertTrue('[2]' in e.msg.interpolate())
 

@@ -360,19 +360,21 @@ class OneOf(object):
 
 class ContainsOnly(object):
     """ Validator which succeeds if the value passed to is a sequence and each
-    element in the sequence is also in the sequence passed as ``acceptable``
+    element in the sequence is also in the sequence passed as ``choices``.
+    This validator is useful when attached to a schemanode with, e.g. a
+    :class:`colander.Set` or another sequencetype.
     """
     err_template = _(
         'One or more of the choices you made was not acceptable'
         )
-    def __init__(self, acceptable):
-        self.acceptable = set(acceptable)
+    def __init__(self, choices):
+        self.choices = choices
 
     def __call__(self, node, value):
-        if not set(value).issubset(self.acceptable):
+        if not set(value).issubset(self.choices):
             err = _(
                 self.err_template,
-                mapping = {'val':value, 'acceptable':self.acceptable}
+                mapping = {'val':value, 'choices':self.choices}
                 )
             raise Invalid(node, err)
 
