@@ -1547,7 +1547,7 @@ class TestBooleanSubClassingDefaultTrue(unittest.TestCase):
     def _makeOne(self):
         from colander import Boolean
         class BooleanDefaultTrue(Boolean):
-            false_string_reps = frozenset(('false', 'no', '0', 'f', 'n'))
+            false_strings = frozenset(('false', 'no', '0', 'f', 'n'))
         return BooleanDefaultTrue()
 
     def test_deserialize(self):
@@ -1564,8 +1564,8 @@ class TestBooleanSubClassingNoDefault(unittest.TestCase):
     def _makeOne(self):
         from colander import Boolean
         class BooleanNoDefault(Boolean):
-            false_string_reps = frozenset(('false', 'no', '0', 'f', 'n'))
-            true_string_reps = frozenset(('true','yes', '1', 't', 'y'))
+            false_strings = frozenset(('false', 'no', '0', 'f', 'n'))
+            true_strings = frozenset(('true','yes', '1', 't', 'y'))
         return BooleanNoDefault()
 
     def test_deserialize(self):

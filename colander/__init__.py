@@ -1163,9 +1163,15 @@ class Money(Decimal):
 class Boolean(SchemaType):
     """ A type representing a boolean object.
 
-    During deserialization, a value in the set (``false``, ``0``) will
-    be considered ``False``.  Anything else is considered
-    ``True``. Case is ignored.
+    During deserialization, a value in the set :attr:`false_strings`,
+    which defaults to the set (``false``, ``0``), will be considered
+    ``False``.  In the default case of :attr:`true_strings` being
+    empty or None, anything else is considered ``True``; in the case
+    of :attr:`true_strings` being a non-empty collection of strings,
+    a value in the :attr:`true_strings` set will be considered ``True``
+    and the attempt to deserialize a value missing both from
+    ``false_strings`` and ``true_strings`` will raise a :class:`Invalid`
+    exception.  Case is ignored.
 
     Serialization will produce ``true`` or ``false`` based on the
     value.
@@ -1176,15 +1182,42 @@ class Boolean(SchemaType):
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
+
+    Behaviour can be customized in two ways:
+
+    - at the class level, by overriding the class attributes
+      :attr:`false_strings` and :attr:`true_strings` in subclasses
+      as in::
+
+        class ExtendedBoolean(Boolean):
+            false_strings = frozenset(('false', 'no', 'f', 'n', '0'))
+            true_strings = frozenset(('true', 'yes', 't', 'y', '1'))
+
+    - at the instance level, by setting the parameters at instance
+      creation time::
+
+        extBool = Boolean(false_strings=('false', 'f', '0'),
+                          true_strings=('true', 't', '1'))
+      
     """
-    false_string_reps = frozenset(('false', '0'))
-    true_string_reps = None
+    false_strings = frozenset(('false', '0'))
+    """ A collection of strings representing the :attr:`False` value"""
+
+    true_strings = None
+    """ A collection of strings representing the :attr:`True` value"""
 
     def __init__(self, false_strings=None, true_strings=None):
+        """ Boolean initializer.
+        :parameter false_strings:
+        :parameter true_strings:
+
+        If false_strings or true_string is not :py:`None`, the same-named
+        instance attribute will be set to the passed-in value
+        """
         if false_strings:
-            self.false_string_reps = false_strings
+            self.false_strings = false_strings
         if true_strings:
-            self.true_string_reps = true_strings
+            self.true_strings = true_strings
 
     def serialize(self, node, appstruct):
         if appstruct is null:
@@ -1204,10 +1237,10 @@ class Boolean(SchemaType):
                           )
         result = result.lower()
 
-        if result in self.false_string_reps:
+        if result in self.false_strings:
             return False
-        elif self.true_string_reps:
-            if result in self.true_string_reps:
+        elif self.true_strings:
+            if result in self.true_strings:
                 return True
             else:
                 raise Invalid(node,
