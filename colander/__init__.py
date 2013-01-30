@@ -1180,6 +1180,12 @@ class Boolean(SchemaType):
     false_string_reps = frozenset(('false', '0'))
     true_string_reps = None
 
+    def __init__(self, false_strings=None, true_strings=None):
+        if false_strings:
+            self.false_string_reps = false_strings
+        if true_strings:
+            self.true_string_reps = true_strings
+
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null

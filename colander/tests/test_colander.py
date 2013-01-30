@@ -1585,6 +1585,34 @@ class TestBooleanSubClassingNoDefault(unittest.TestCase):
         self.assertRaises(colander.Invalid, typ.deserialize, node, 'other')
         self.assertRaises(colander.Invalid, typ.deserialize, node, '')
 
+class TestBooleanFalseReprsFromInit(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        return Boolean(false_strings=('n','f'))
+
+    def test_deserialize(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'f'), False)
+        self.assertEqual(typ.deserialize(node, 'N'), False)
+        self.assertEqual(typ.deserialize(node, 'other'), True)
+
+class TestBooleanFalseAndTrueReprsFromInit(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        return Boolean(false_strings=('n','f'), true_strings=('y','t'))
+
+    def test_deserialize(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'f'), False)
+        self.assertEqual(typ.deserialize(node, 'N'), False)
+        self.assertEqual(typ.deserialize(node, 'T'), True)
+        self.assertEqual(typ.deserialize(node, 'y'), True)
+        self.assertRaises(colander.Invalid, typ.deserialize, node, 'other')
+
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
         from colander import GlobalObject
