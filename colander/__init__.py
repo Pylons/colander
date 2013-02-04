@@ -1163,18 +1163,31 @@ class Money(Decimal):
 class Boolean(SchemaType):
     """ A type representing a boolean object.
 
-    During deserialization, a value in the set :attr:`false_strings`,
-    which defaults to the set (``false``, ``0``), will be considered
-    ``False``.  In the default case of :attr:`true_strings` being
-    empty or None, anything else is considered ``True``; in the case
-    of :attr:`true_strings` being a non-empty collection of strings,
-    a value in the :attr:`true_strings` set will be considered ``True``
-    and the attempt to deserialize a value missing both from
-    ``false_strings`` and ``true_strings`` will raise a :class:`Invalid`
-    exception.  Case is ignored.
+    The constructor accepts these keyword arguments:
 
-    Serialization will produce ``true`` or ``false`` based on the
-    value.
+    - ``false_choices``: The set of strings representing a ``False``
+      value on deserialization.
+
+    - ``true_choices``:  The set of strings representing a ``True``
+      value on deserialization.
+
+    - ``false_val``: The value returned on serialization of a False
+      value.
+
+    - ``true_val``: The value returned on serialization of a True
+      value.
+
+    During deserialization, a value contained in :attr:`false_choices`,
+    will be considered ``False``.
+
+    The behaviour for values not contained in :attr:`false_choices`
+    depends on :attr:`true_choices`: if it's empty, any value is considered
+    ``True``; otherwise, only values contained in :attr:`true_choices`
+    are considered ``True``, and an Invalid exception would be raised
+    for values outside of both :attr:`false_choices` and :attr:`true_choices`.
+
+    Serialization will produce :attr:`true_val` or :attr:`false_val` 
+    based on the value.
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1182,48 +1195,23 @@ class Boolean(SchemaType):
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
-
-    Behaviour can be customized in two ways:
-
-    - at the class level, by overriding the class attributes
-      :attr:`false_strings` and :attr:`true_strings` in subclasses
-      as in::
-
-        class ExtendedBoolean(Boolean):
-            false_strings = frozenset(('false', 'no', 'f', 'n', '0'))
-            true_strings = frozenset(('true', 'yes', 't', 'y', '1'))
-
-    - at the instance level, by setting the parameters at instance
-      creation time::
-
-        extBool = Boolean(false_strings=('false', 'f', '0'),
-                          true_strings=('true', 't', '1'))
-      
     """
-    false_strings = frozenset(('false', '0'))
-    """ A collection of strings representing the :attr:`False` value"""
+    def __init__(self, false_choices=('false', '0'), true_choices=(),
+                 false_val='false', true_val='true'):
 
-    true_strings = None
-    """ A collection of strings representing the :attr:`True` value"""
+        self.false_choices = false_choices
+        self.true_choices = true_choices
+        self.false_val = false_val
+        self.true_val = true_val
 
-    def __init__(self, false_strings=None, true_strings=None):
-        """ Boolean initializer.
-        :parameter false_strings:
-        :parameter true_strings:
-
-        If false_strings or true_string is not :py:`None`, the same-named
-        instance attribute will be set to the passed-in value
-        """
-        if false_strings:
-            self.false_strings = false_strings
-        if true_strings:
-            self.true_strings = true_strings
+        self.true_reprs = ', '.join([repr(c) for c in self.true_choices])
+        self.false_reprs = ', '.join([repr(c) for c in self.false_choices])
 
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
 
-        return appstruct and 'true' or 'false'
+        return appstruct and self.true_val or self.false_val
 
     def deserialize(self, node, cstruct):
         if cstruct is null:
@@ -1237,16 +1225,20 @@ class Boolean(SchemaType):
                           )
         result = result.lower()
 
-        if result in self.false_strings:
+        if result in self.false_choices:
             return False
-        elif self.true_strings:
-            if result in self.true_strings:
+        elif self.true_choices:
+            if result in self.true_choices:
                 return True
             else:
                 raise Invalid(node,
-                              _('"${val}" is not a valid representation '
-                                'of a boolean value', mapping={'val':cstruct})
+                              _('"${val}" is neither in (${false_choices}) '
+                                'nor in (${true_choices})', 
+                                mapping={'val':cstruct, 
+                                         'false_choices': self.false_reprs,
+                                         'true_choices': self.true_reprs })
                               )
+
         return True
 
 Bool = Boolean
