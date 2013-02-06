@@ -102,3 +102,24 @@ class Test_parse_date(unittest.TestCase):
                          datetime.datetime(2007, 1, 25, 12, 0, 0, 123000,
                                            tzinfo=UTC))
 
+    def test_no_seconds(self):
+        from ..iso8601 import UTC
+        result = self._callFUT("2007-01-25T12:00Z")
+        self.assertEqual(result,
+                         datetime.datetime(2007, 1, 25, 12, 0, 0, 0,
+                                           tzinfo=UTC))
+
+    def test_no_minutes(self):
+        from ..iso8601 import UTC
+        result = self._callFUT("2007-01-25T12Z")
+        self.assertEqual(result,
+                         datetime.datetime(2007, 1, 25, 12, 0, 0, 0,
+                                           tzinfo=UTC))
+
+    def test_no_hours(self):
+        from ..iso8601 import UTC
+        result = self._callFUT("2007-01-25")
+        self.assertEqual(result,
+                         datetime.datetime(2007, 1, 25, 0, 0, 0, 0,
+                                           tzinfo=UTC))
+

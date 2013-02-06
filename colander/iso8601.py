@@ -40,7 +40,7 @@ __all__ = ["parse_date", "ParseError", "Utc", "FixedOffset"]
 # Adapted from http://delete.me.uk/2005/03/iso8601.html
 ISO8601_REGEX = re.compile(
     r"(?P<year>[0-9]{4})(-(?P<month>[0-9]{1,2})(-(?P<day>[0-9]{1,2})"
-    r"((?P<separator>.)(?P<hour>[0-9]{2}):(?P<minute>[0-9]{2})(:(?P<second>[0-9]{2})(\.(?P<fraction>[0-9]+))?)?"
+    r"((?P<separator>.)(?P<hour>[0-9]{2})(:(?P<minute>[0-9]{2})(:(?P<second>[0-9]{2})(\.(?P<fraction>[0-9]+))?)?)?"
     r"(?P<timezone>Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?"
 )
 TIMEZONE_REGEX = re.compile(
@@ -119,6 +119,12 @@ def parse_date(datestring, default_timezone=UTC):
         raise ParseError("Unable to parse date string %r" % datestring)
     groups = m.groupdict()
     tz = parse_timezone(groups["timezone"], default_timezone=default_timezone)
+    if groups["hour"] is None:
+        groups["hour"] = 0
+    if groups["minute"] is None:
+        groups["minute"] = 0
+    if groups["second"] is None:
+        groups["second"] = 0
     if groups["fraction"] is None:
         groups["fraction"] = 0
     else:
