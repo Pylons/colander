@@ -101,9 +101,9 @@ def parse_timezone(tzstring, default_timezone=UTC):
     hours = int(m.group('hours'))
     minutes = m.group('minutes')
     if minutes is None:
-	minutes = 0
+        minutes = 0
     else:
-	minutes = int(minutes)
+        minutes = int(minutes)
     if prefix == "-":
         hours = -hours
         minutes = -minutes
