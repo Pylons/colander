@@ -1,5 +1,13 @@
-Next release
-------------
+1.0a2 (2013-01-30)
+------------------
+
+Features
+~~~~~~~~
+
+- Add ``colander.ContainsOnly`` and ``colander.url`` validators.
+
+1.0a1 (2013-01-10)
+------------------
 
 Bug Fixes
 ~~~~~~~~~
@@ -8,11 +16,20 @@ Bug Fixes
   used with a ``quant`` argument but without a ``rounding`` argument.
   See https://github.com/Pylons/colander/issues/66
 
+- Using ``SchemaNode(String, default='', ..)`` now works properly, or at least
+  more intuitively.  Previously if an empty-string ``default`` was supplied,
+  serialization would return a defaulted value as ``colander.null``.  See
+  https://github.com/Pylons/colander/pull/73.
+
 Features
 ~~~~~~~~
 
+- Add ``colander.Set`` type, ported from ``deform.Set``
+
 - Add Python 3.3 to tox configuration and use newer tox testing regime
   (setup.py dev).
+
+- Add Python 3.3 Trove classifier.
 
 - Calling ``bind`` on a schema node e.g. ``cloned_node = somenode.bind(a=1,
   b=2)`` on a schema node now results in the cloned node having a

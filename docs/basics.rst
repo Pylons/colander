@@ -159,7 +159,7 @@ value ``1``).
 Subclassing SchemaNode
 ++++++++++++++++++++++
 
-As of Colander 0.9.9.1+, it is possible and advisable to subclass
+As of Colander 1.0a1+, it is possible and advisable to subclass
 :class:`colander.SchemaNode` in order to create a bundle of default node
 behavior.  The subclass can define the following methods and attributes:
 ``preparer``, ``validator``, ``default``, ``missing``, ``name``, ``title``,
@@ -177,7 +177,7 @@ The imperative style that looks like this still works, of course:
          title='Ranged Int'
          )
 
-But in 0.9.9.1+, you can alternately now do something like this:
+But in 1.0a1+, you can alternately now do something like this:
 
 .. code-block:: python
 
@@ -267,11 +267,10 @@ indeed work):
      ranged_int = RangedInt()
      bound_ranged_int = ranged_int.bind(request=request)
 
-In releases of Colander before 0.9.9.1+, the only way to defer the
-computation of values was via the ``colander.deferred`` decorator.  In this
-release, however, you can instead use the ``bindings`` attribute of ``self``
-to obtain access to the bind parameters within values that are plain old
-methods:
+In releases of Colander before 1.0a1+, the only way to defer the computation of
+values was via the ``colander.deferred`` decorator.  In this release, however,
+you can instead use the ``bindings`` attribute of ``self`` to obtain access to
+the bind parameters within values that are plain old methods:
 
 .. code-block:: python
 
@@ -293,7 +292,7 @@ methods:
 If the things you're trying to defer aren't callables like ``validator``, but
 they're instead just plain attributes like ``missing`` or ``default``,
 instead of using a ``colander.deferred``, you can use ``after_bind`` to set
-attributes of the schemanode that rely on binding variables::
+attributes of the schemanode that rely on binding variables:
 
 .. code-block:: python
 

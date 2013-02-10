@@ -59,6 +59,8 @@ Validators
 
   .. autoclass:: OneOf
 
+  .. autoclass:: ContainsOnly
+
   .. autoclass:: Function
 
   .. autoclass:: Regex
@@ -67,12 +69,18 @@ Validators
 
   .. autofunction:: luhnok
 
+  .. attribute:: url
+ 
+     A validator which ensures the value is a URL (via regex).
+
 Types
 ~~~~~
 
   .. autoclass:: Mapping
 
   .. autoclass:: Tuple
+
+  .. autoclass:: Set
 
   .. autoclass:: Sequence
 

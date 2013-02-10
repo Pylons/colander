@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import datetime
 import decimal
 import time
@@ -356,6 +358,26 @@ class OneOf(object):
                     mapping={'val':value, 'choices':choices})
             raise Invalid(node, err)
 
+class ContainsOnly(object):
+    """ Validator which succeeds if the value passed to is a sequence and each
+    element in the sequence is also in the sequence passed as ``choices``.
+    This validator is useful when attached to a schemanode with, e.g. a
+    :class:`colander.Set` or another sequencetype.
+    """
+    err_template = _(
+        'One or more of the choices you made was not acceptable'
+        )
+    def __init__(self, choices):
+        self.choices = choices
+
+    def __call__(self, node, value):
+        if not set(value).issubset(self.choices):
+            err = _(
+                self.err_template,
+                mapping = {'val':value, 'choices':self.choices}
+                )
+            raise Invalid(node, err)
+
 def luhnok(node, value):
     """ Validator which checks to make sure that the value passes a luhn
     mod-10 checksum (credit cards).  ``value`` must be a string, not an
@@ -385,6 +407,10 @@ def _luhnok(value):
 
         sum = sum + digit
     return sum
+
+URL_REGEX = r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))""" # "emacs!
+
+url = Regex(URL_REGEX, _('Must be a URL'))
 
 class SchemaType(object):
     """ Base class for all schema types """
@@ -733,6 +759,37 @@ class Tuple(Positional, SchemaType):
         return appstruct[index]
 
 
+class Set(SchemaType):
+    """ A type representing a non-overlapping set of items.
+    Deserializes an iterable to a ``set`` object.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    .. versionadded: 1.0a1
+
+    """
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        return appstruct
+
+    def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+
+        if not is_nonstr_iter(cstruct):
+            raise Invalid(
+                node,
+                _('${cstruct} is not iterable', mapping={'cstruct': cstruct})
+            )
+
+        return set(cstruct)
+
+
 class SequenceItems(list):
     """
     List marker subclass for use by Sequence.cstruct_children, which indicates
@@ -982,7 +1039,7 @@ class String(SchemaType):
         self.encoding = encoding
 
     def serialize(self, node, appstruct):
-        if not appstruct:
+        if appstruct in (null, None):
             return null
 
         try:

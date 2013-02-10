@@ -32,7 +32,7 @@ testing_extras = ['nose', 'coverage']
 docs_extras = ['Sphinx']
 
 setup(name='colander',
-      version='0.9.9.1dev',
+      version='1.0a2',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,
@@ -44,6 +44,7 @@ setup(name='colander',
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         ],

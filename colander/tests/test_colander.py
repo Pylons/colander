@@ -408,6 +408,30 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
 
+class TestContainsOnly(unittest.TestCase):
+    def _makeOne(self, values):
+        from colander import ContainsOnly
+        return ContainsOnly(values)
+
+    def test_success(self):
+        validator = self._makeOne([1])
+        self.assertEqual(validator(None, [1]), None)
+
+    def test_failure(self):
+        validator = self._makeOne([1])
+        e = invalid_exc(validator, None, [2])
+        self.assertEqual(
+            e.msg.interpolate(),
+            'One or more of the choices you made was not acceptable'
+            )
+
+    def test_failure_with_custom_error_template(self):
+        validator = self._makeOne([1])
+        from colander import _
+        validator.err_template = _('${val}: ${choices}')
+        e = invalid_exc(validator, None, [2])
+        self.assertTrue('[2]' in e.msg.interpolate())
+
 class Test_luhnok(unittest.TestCase):
     def _callFUT(self, node, value):
         from colander import luhnok
@@ -431,6 +455,21 @@ class Test_luhnok(unittest.TestCase):
     def test_success(self):
         val = '4111111111111111'
         self.assertFalse(self._callFUT(None, val))
+
+class Test_url_validator(unittest.TestCase):
+    def _callFUT(self, val):
+        from colander import url
+        return url(None, val)
+
+    def test_it_success(self):
+        val = 'http://example.com'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+        
+    def test_it_failure(self):
+        val = 'not-a-url'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
 
 class TestSchemaType(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
@@ -949,6 +988,58 @@ class TestTuple(unittest.TestCase):
         result = typ.cstruct_children(node1, ['one', 'two'])
         self.assertEqual(result, ['one', 'two'])
 
+
+class TestSet(unittest.TestCase):
+    def _makeOne(self, **kw):
+        from colander import Set
+        return Set(**kw)
+
+    def test_serialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        provided = []
+        result = typ.serialize(node, provided)
+        self.assertTrue(result is provided)
+
+    def test_serialize_null(self):
+        from colander import null
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.serialize(node, null)
+        self.assertTrue(result is null)
+
+    def test_deserialize_no_iter(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        e = invalid_exc(typ.deserialize, node, 1)
+        self.assertEqual(e.msg, '${cstruct} is not iterable')
+
+    def test_deserialize_str_no_iter(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        e = invalid_exc(typ.deserialize, node, "foo")
+        self.assertEqual(e.msg, '${cstruct} is not iterable')
+
+    def test_deserialize_null(self):
+        from colander import null
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.deserialize(node, null)
+        self.assertEqual(result, null)
+
+    def test_deserialize_valid(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.deserialize(node, ('a',))
+        self.assertEqual(result, set(('a',)))
+
+    def test_deserialize_empty_set(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(typ)
+        result = typ.deserialize(node, set())
+        self.assertEqual(result, set())
+
 class TestSequence(unittest.TestCase):
     def _makeOne(self, **kw):
         from colander import Sequence
@@ -1181,6 +1272,13 @@ class TestString(unittest.TestCase):
         typ = self._makeOne()
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
+
+    def test_serialize_emptystring(self):
+        val = ''
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, val)
+        self.assertEqual(result, val)
 
     def test_serialize_uncooperative(self):
         val = Uncooperative()
