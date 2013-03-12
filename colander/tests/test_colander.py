@@ -2210,6 +2210,33 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.deserialize('value'),
                          'prepared_value')
 
+    def test_deserialize_with_unbound_deferred_preparer(self):
+        from colander import deferred
+        typ = DummyType()
+        @deferred
+        def preparer(node, kw):
+            context = kw.get('context')
+            def prepare_value(value):
+                return 'prepared_'+value+'@'+context
+            return prepare_value
+        node = self._makeOne(typ,
+                             preparer=preparer)
+        self.assertEqual(node.deserialize('value'), 'value')
+
+    def test_deserialize_with_bound_deferred_preparer(self):
+        from colander import deferred
+        typ = DummyType()
+        @deferred
+        def preparer(node, kw):
+            context = kw.get('context')
+            def prepare_value(value):
+                return 'prepared_'+value+'@'+context
+            return prepare_value
+        node = self._makeOne(typ,
+                             preparer=preparer)
+        node = node.bind(context='1')
+        self.assertEqual(node.deserialize('value'), 'prepared_value@1')
+
     def test_deserialize_with_multiple_preparers(self):
         from colander import Invalid
         typ = DummyType()

@@ -95,6 +95,14 @@ Let's take a look at an example:
           return colander.Length(max=max_bodylen)
 
       @colander.deferred
+      def deferred_body_preparer(node, kw):
+          def prepare_body(value):
+              if kw.get('strip_ws'):
+                  value = value.strip()
+              return value
+          return prepare_body
+
+      @colander.deferred
       def deferred_body_description(node, kw):
           max_bodylen = kw.get('max_bodylen')
           if max_bodylen is None:
@@ -140,6 +148,7 @@ Let's take a look at an example:
               colander.String(),
               title = 'Body',
               description = deferred_body_description,
+              preparer = deferred_body_preparer,
               validator = deferred_body_validator,
               widget = deferred_body_widget,
               )
@@ -156,6 +165,7 @@ Let's take a look at an example:
           max_bodylen = 5000,
           body_type = 'richtext',
           default_date = datetime.date.today(),
+          strip_ws = True,
           categories = [('one', 'One'), ('two', 'Two')]
           )
 
@@ -254,6 +264,8 @@ deserialization without calling its ``bind`` method:
 
 - If ``default`` is deferred, the serialization default will be
   assumed to be ``colander.null``.
+
+- If ``preparer`` is deferred, no preparation will be performed.
 
 See Also
 --------

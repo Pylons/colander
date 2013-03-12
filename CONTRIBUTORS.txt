@@ -108,3 +108,4 @@ Contributors
 - Daniel Nouri, 2012/03/28
 - Gary van der Merwe, 2012/04/05
 - Domen KoÅ¾ar, 2012/04/16
+- André Caron, 2013/03/12
