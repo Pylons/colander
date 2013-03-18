@@ -829,7 +829,7 @@ then the next deepest, and so on.  For example:
               id='a2',
               )
           c = colander.SchemaNode(
-              colander.String(), 
+              colander.String(),
               id='c2',
               )
           e = colander.SchemaNode(
@@ -887,7 +887,7 @@ Multiple inheritance works the same way:
               id='a2',
               )
           c = colander.SchemaNode(
-              colander.String(), 
+              colander.String(),
               id='c2',
               )
           e = colander.SchemaNode(
