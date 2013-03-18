@@ -272,10 +272,11 @@ class Email(Regex):
         otherwise, defaults to 'Invalid email address'.
     """
     def __init__(self, msg=None):
+        email_regex = text_(
+            '(?i)^[A-Z0-9._%+-]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,4}$')
         if msg is None:
             msg = _("Invalid email address")
-        super(Email, self).__init__(
-            text_('(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$'), msg=msg)
+        super(Email, self).__init__(email_regex, msg=msg)
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
@@ -1708,7 +1709,7 @@ class _SchemaNode(object):
             _add_node_children(self, arg[1:])
         else:
             self.typ = self.schema_type()
-        
+
         # bw compat forces us to manufacture a title if one is not supplied
         title = kw.get('title', _marker)
         if title is _marker:
@@ -1999,7 +2000,7 @@ SchemaNode = _SchemaMeta(
     (_SchemaNode,),
     {}
     )
-    
+
 class Schema(SchemaNode):
     schema_type = Mapping
 
