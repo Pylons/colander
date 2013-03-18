@@ -162,10 +162,10 @@ Let's take a look at an example:
 
       schema = BlogPostSchema().bind(
           max_date = datetime.date.max,
+          strip_ws = True,
           max_bodylen = 5000,
           body_type = 'richtext',
           default_date = datetime.date.today(),
-          strip_ws = True,
           categories = [('one', 'One'), ('two', 'Two')]
           )
 
@@ -180,7 +180,7 @@ called.  ``bind`` returns a *clone* of the schema node (and its
 children, recursively), with all ``colander.deferred`` values
 resolved.  In the above example:
 
--  The ``date`` node's ``missing`` value will be ``datetime.date.today()``.
+- The ``date`` node's ``missing`` value will be ``datetime.date.today()``.
 
 - The ``date`` node's ``validator`` value will be a
   :class:`colander.Range` validator with a ``max`` of
@@ -188,11 +188,14 @@ resolved.  In the above example:
 
 - The ``date`` node's ``widget`` will be of the type ``DateInputWidget``.
 
-- The ``body`` node's ``description`` will be the string ``Blog post
-  body (no longer than 5000 bytes)``.
+- The ``body`` node's ``preparer`` function will strip whitespace from the
+  ``body`` string when the ``strip_ws`` keyword is ``True``.
 
 - The ``body`` node's ``validator`` value will be a
   :class:`colander.Length` validator with a ``max`` of 5000.
+
+- The ``body`` node's ``description`` will be the string ``Blog post
+  body (no longer than 5000 bytes)``.
 
 - The ``body`` node's ``widget`` will be of the type ``RichTextWidget``.
 
@@ -254,9 +257,11 @@ in :class:`SchemaNode`.
 Unbound Schemas With Deferreds
 ------------------------------
 
-If you use a schema with deferred ``validator``, ``missing`` or
+If you use a schema with deferred ``preparer``, ``validator``, ``missing`` or
 ``default`` attributes, but you use it to perform serialization and
 deserialization without calling its ``bind`` method:
+
+- If ``preparer`` is deferred, no preparation will be performed.
 
 - If ``validator`` is deferred, no validation will be performed.
 
@@ -264,8 +269,6 @@ deserialization without calling its ``bind`` method:
 
 - If ``default`` is deferred, the serialization default will be
   assumed to be ``colander.null``.
-
-- If ``preparer`` is deferred, no preparation will be performed.
 
 See Also
 --------
