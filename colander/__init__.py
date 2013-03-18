@@ -40,6 +40,15 @@ class _null(object):
 
 null = _null()
 
+class _drop(object):
+    """
+    Represents a value that should be dropped if it is missing during
+    deserialization.
+    """
+    pass
+
+drop = _drop()
+
 def interpolate(msgs):
     for s in msgs:
         if hasattr(s, 'interpolate'):
@@ -532,11 +541,14 @@ class Mapping(SchemaType):
             name = subnode.name
             subval = value.pop(name, null)
             try:
-                result[name] = callback(subnode, subval)
+                sub_result = callback(subnode, subval)
             except Invalid as e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
+            else:
+                if sub_result is not drop:
+                    result[name] = sub_result
 
         if self.unknown == 'raise':
             if value:
