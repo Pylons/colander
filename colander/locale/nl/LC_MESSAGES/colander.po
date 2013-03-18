@@ -41,7 +41,7 @@ msgstr "De minimale lengte is ${min}"
 
 #: colander/__init__.py:315
 msgid "Longer than maximum length ${max}"
-msgstr "De maximale lengte is ${mixn}"
+msgstr "De maximale lengte is ${max}"
 
 #: colander/__init__.py:328
 msgid "\"${val}\" is not one of ${choices}"
