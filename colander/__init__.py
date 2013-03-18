@@ -1815,11 +1815,13 @@ class _SchemaNode(object):
         if self.preparer is not None:
             # if the preparer is a function, call a single preparer
             if hasattr(self.preparer, '__call__'):
-                appstruct = self.preparer(appstruct)
+                if not isinstance(self.preparer, deferred):
+                    appstruct = self.preparer(appstruct)
             # if the preparer is a list, call each separate preparer
             elif is_nonstr_iter(self.preparer):
                 for preparer in self.preparer:
-                    appstruct = preparer(appstruct)
+                    if not isinstance(preparer, deferred):
+                        appstruct = preparer(appstruct)
 
         if appstruct is null:
             appstruct = self.missing
