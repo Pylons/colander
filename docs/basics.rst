@@ -829,7 +829,7 @@ then the next deepest, and so on.  For example:
               id='a2',
               )
           c = colander.SchemaNode(
-              colander.String(), 
+              colander.String(),
               id='c2',
               )
           e = colander.SchemaNode(
@@ -887,7 +887,7 @@ Multiple inheritance works the same way:
               id='a2',
               )
           c = colander.SchemaNode(
-              colander.String(), 
+              colander.String(),
               id='c2',
               )
           e = colander.SchemaNode(
@@ -1030,7 +1030,7 @@ We can imperatively construct a completely equivalent schema like so:
    friend.add(colander.SchemaNode(colander.Int(),
                                  validator=colander.Range(0, 9999),
               name='rank'))
-   friend.add(colander.SchemaNode(colander.String()), name='name')
+   friend.add(colander.SchemaNode(colander.String(), name='name')
 
    phone = colander.SchemaNode(Mapping())
    phone.add(colander.SchemaNode(colander.String(),
