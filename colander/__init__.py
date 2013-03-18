@@ -1708,7 +1708,7 @@ class _SchemaNode(object):
             _add_node_children(self, arg[1:])
         else:
             self.typ = self.schema_type()
-        
+
         # bw compat forces us to manufacture a title if one is not supplied
         title = kw.get('title', _marker)
         if title is _marker:
@@ -1999,7 +1999,7 @@ SchemaNode = _SchemaMeta(
     (_SchemaNode,),
     {}
     )
-    
+
 class Schema(SchemaNode):
     schema_type = Mapping
 
