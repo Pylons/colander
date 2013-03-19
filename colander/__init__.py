@@ -500,7 +500,10 @@ class Mapping(SchemaType):
 
     def _validate(self, node, value):
         try:
-            return dict(value)
+            if hasattr(value, 'items'):
+                return dict(value)
+            else:
+                raise TypeError('Does not implement dict-like functionality.')
         except Exception as e:
             raise Invalid(node,
                           _('"${val}" is not a mapping type: ${err}',
