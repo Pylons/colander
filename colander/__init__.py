@@ -1813,10 +1813,10 @@ class _SchemaNode(object):
         appstruct = self.typ.deserialize(self, cstruct)
 
         if self.preparer is not None:
-            # if the preparer is a function, call a single preparer
+            # if the preparer is a callable, call a single preparer
             if hasattr(self.preparer, '__call__'):
                 appstruct = self.preparer(appstruct)
-            # if the preparer is a list, call each separate preparer
+            # if the preparer is an iterable, call each separate preparer
             elif is_nonstr_iter(self.preparer):
                 for preparer in self.preparer:
                     appstruct = preparer(appstruct)
@@ -1831,8 +1831,14 @@ class _SchemaNode(object):
             return appstruct
 
         if self.validator is not None:
-            if not isinstance(self.validator, deferred): # unbound
-                self.validator(self, appstruct)
+            # if the validator is not an iterable, turn it into one
+            if not is_nonstr_iter(self.validator):
+                self.validator = [self.validator]
+
+            for validator in self.validator:
+                if not isinstance(validator, deferred):
+                    validator(self, appstruct)
+
         return appstruct
 
     def add(self, node):
@@ -1888,11 +1894,22 @@ class _SchemaNode(object):
         names = dir(self)
         for k in names:
             v = getattr(self, k)
-            if isinstance(v, deferred):
-                v = v(self, kw)
-                setattr(self, k, v)
+            self._find_deferreds(kw, k, v)
         if getattr(self, 'after_bind', None):
             self.after_bind(self, kw)
+
+    def _find_deferreds(self, kw, k, v):
+        if isinstance(v, deferred):
+            v = v(self, kw)
+            setattr(self, k, v)
+        elif is_nonstr_iter(v):
+            new_v = []
+            for item in v:
+                if isinstance(v, deferred):
+                    new_v.append(item(self, kw))
+                else:
+                    new_v.append(item)
+            setattr(self, k, new_v)
 
     def cstruct_children(self, cstruct):
         """ Will call the node's type's ``cstruct_children`` method with this
