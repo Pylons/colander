@@ -1652,7 +1652,9 @@ class _SchemaNode(object):
       not provided, the missing value of this node will be the special marker
       value :attr:`colander.required`, indicating that it is considered
       'required'.  When ``missing`` is :attr:`colander.required`, the
-      ``required`` computed attribute will be ``True``.
+      ``required`` computed attribute will be ``True``.  When ``missing`` is
+      :attr:`colander.drop`, the node is dropped from the schema if it isn't
+      set during serialization/deserialization.
 
     - ``preparer``: Optional preparer for this node.  It should be
       an object that implements the
