@@ -2897,6 +2897,16 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(node.children[2].title, '')
         self.assertEqual(node.children[3].title, 'thing2')
 
+    def test_deserialize_drop(self):
+        import colander
+        class MySchema(colander.Schema):
+            a = colander.SchemaNode(colander.String())
+            b = colander.SchemaNode(colander.String(), missing=colander.drop)
+        node = MySchema()
+        expected = {'a': 'test'}
+        result = node.deserialize(expected)
+        self.assertEqual(result, expected)
+
 class TestSequenceSchema(unittest.TestCase):
     def test_succeed(self):
         import colander
