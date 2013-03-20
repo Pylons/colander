@@ -141,5 +141,7 @@ Schema-Related
      Represents a required value in colander-related operations.
 
   .. attribute:: drop
-     Represents a value that will be dropped from the schema if it is missing.  Passed
-     ass a value to the `missing` keyword argument.
+
+     Represents a value that will be dropped from the schema if it is missing
+     during *deserialization*.  Passed as a value to the `missing` keyword
+     argument.
