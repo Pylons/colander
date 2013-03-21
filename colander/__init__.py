@@ -1406,7 +1406,7 @@ class DateTime(SchemaType):
         try:
             result = iso8601.parse_date(
                 cstruct, default_timezone=self.default_tzinfo)
-        except (iso8601.ParseError, TypeError) as e:
+        except iso8601.ParseError as e:
             raise Invalid(node, _(self.err_template,
                                   mapping={'val':cstruct, 'err':e}))
         return result
@@ -1474,7 +1474,7 @@ class Date(SchemaType):
         try:
             result = iso8601.parse_date(cstruct)
             result = result.date()
-        except (iso8601.ParseError, TypeError) as e:
+        except iso8601.ParseError as e:
             raise Invalid(node,
                           _(self.err_template,
                             mapping={'val':cstruct, 'err':e})
