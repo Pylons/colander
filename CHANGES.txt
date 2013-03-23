@@ -21,6 +21,10 @@ Bug Fixes
   serialization would return a defaulted value as ``colander.null``.  See
   https://github.com/Pylons/colander/pull/73.
 
+- Stricter checking in colander.Mapping to prevent items which are logically
+  not mappings from being accepted during validation (see
+  https://github.com/Pylons/colander/pull/96).
+
 Features
 ~~~~~~~~
 
