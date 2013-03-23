@@ -529,9 +529,26 @@ class TestMapping(unittest.TestCase):
     def test_deserialize_not_a_mapping(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
+
+        # None
         e = invalid_exc(typ.deserialize, node, None)
         self.assertTrue(
             e.msg.interpolate().startswith('"None" is not a mapping type'))
+
+        # list
+        e = invalid_exc(typ.deserialize, node, [])
+        self.assertTrue(
+            e.msg.interpolate().startswith('"[]" is not a mapping type'))
+
+        # str
+        e = invalid_exc(typ.deserialize, node, "")
+        self.assertTrue(
+            e.msg.interpolate().startswith('"" is not a mapping type'))
+
+        # tuple
+        e = invalid_exc(typ.deserialize, node, ())
+        self.assertTrue(
+            e.msg.interpolate().startswith('"()" is not a mapping type'))
 
     def test_deserialize_null(self):
         import colander
