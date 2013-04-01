@@ -1086,6 +1086,13 @@ class TestSequence(unittest.TestCase):
         result = typ.deserialize(node, None)
         self.assertEqual(result, [None])
 
+    def test_deserialize_string_accept_scalar(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne(accept_scalar=True)
+        node.children = [node]
+        result = typ.deserialize(node, 'abc')
+        self.assertEqual(result, ['abc'])
+
     def test_deserialize_no_subnodes(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -1138,6 +1145,13 @@ class TestSequence(unittest.TestCase):
         node.children = [node]
         result = typ.serialize(node, None)
         self.assertEqual(result, [None])
+
+    def test_serialize_string_accept_scalar(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne(accept_scalar=True)
+        node.children = [node]
+        result = typ.serialize(node, 'abc')
+        self.assertEqual(result, ['abc'])
 
     def test_serialize_no_subnodes(self):
         node = DummySchemaNode(None)
