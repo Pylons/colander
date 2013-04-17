@@ -2089,3 +2089,18 @@ def _unflatten_mapping(node, paths, fstruct,
         appstruct[curname] = subnode.typ.unflatten(
             subnode, subpaths, subfstruct)
     return appstruct
+
+class instantiate(object):
+    """
+    A decorator which can be used to instantiate :class:`SchemaNode`
+    elements inline within a class definition.
+
+    All parameters passed to the decorator and passed along to the
+    :class:`SchemaNode` during instantiation.
+    """
+    
+    def __init__(self,*args,**kw):
+        self.args,self.kw = args,kw
+        
+    def __call__(self,class_):
+        return class_(*self.args,**self.kw)

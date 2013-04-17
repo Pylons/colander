@@ -6,6 +6,9 @@ Features
 
 - Add ``colander.ContainsOnly`` and ``colander.url`` validators.
 
+- Add ``colander.instantiate`` to help define schemas containing
+  mappings and sequences more succinctly.
+
 1.0a1 (2013-01-10)
 ------------------
 
