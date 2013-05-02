@@ -134,8 +134,9 @@ of the *name*.
 The *description* of a schema node is metadata about a schema node
 that can be used by higher-level systems.  By default, it is empty.
 
-The *schema_order* of a schema node is an integer which defines its ultimate
-order position within its parent node.  It is not useful unless a mapping
+The *insert_before* of a schema node is a string:  if supplied, it names
+a sibling defined by a superclass for its parent node; the current node
+will be inserted before the named node. It is not useful unless a mapping
 schema is inherited from another mapping schema, and you need to control the
 ordering of the resulting nodes.
 
