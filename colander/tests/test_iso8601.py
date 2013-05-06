@@ -70,8 +70,32 @@ class Test_parse_timezone(unittest.TestCase):
         self.assertEqual(result.utcoffset(None),
                          datetime.timedelta(hours=1, minutes=0))
 
+    def test_positive_without_colon(self):
+        tzstring = "+0100"
+        result = self._callFUT(tzstring)
+        self.assertEqual(result.utcoffset(None),
+                         datetime.timedelta(hours=1, minutes=0))
+
+    def test_positive_without_minutes(self):
+        tzstring = "+01"
+        result = self._callFUT(tzstring)
+        self.assertEqual(result.utcoffset(None),
+                         datetime.timedelta(hours=1, minutes=0))
+
     def test_negative(self):
         tzstring = "-01:00"
+        result = self._callFUT(tzstring)
+        self.assertEqual(result.utcoffset(None),
+                         datetime.timedelta(hours=-1, minutes=0))
+
+    def test_negative_without_colon(self):
+        tzstring = "-0100"
+        result = self._callFUT(tzstring)
+        self.assertEqual(result.utcoffset(None),
+                         datetime.timedelta(hours=-1, minutes=0))
+
+    def test_negative_without_minutes(self):
+        tzstring = "-01"
         result = self._callFUT(tzstring)
         self.assertEqual(result.utcoffset(None),
                          datetime.timedelta(hours=-1, minutes=0))

@@ -4,6 +4,8 @@ Unreleased
 Features
 ~~~~~~~~
 
+- Support spec-mandated truncations of ISO-8601 timezones.
+
 - Support spec-mandated truncations of ISO-8601 datetimes.
 
 - Allow specifying custom representations of values for boolean fields.
