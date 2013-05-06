@@ -846,15 +846,16 @@ class Sequence(Positional, SchemaType):
         self.accept_scalar = accept_scalar
 
     def _validate(self, node, value, accept_scalar):
-        if hasattr(value, '__iter__') and not hasattr(value, 'get') and \
-                not isinstance(value, string_types):
+        if (hasattr(value, '__iter__') and
+            not hasattr(value, 'get') and 
+            not isinstance(value, string_types)):
             return list(value)
         if accept_scalar:
             return [value]
         else:
             raise Invalid(node, _('"${val}" is not iterable',
                                   mapping={'val':value})
-                          )
+                         )
 
     def cstruct_children(self, node, cstruct):
         if cstruct is null:
