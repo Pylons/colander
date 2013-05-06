@@ -1207,12 +1207,31 @@ class Money(Decimal):
 class Boolean(SchemaType):
     """ A type representing a boolean object.
 
-    During deserialization, a value in the set (``false``, ``0``) will
-    be considered ``False``.  Anything else is considered
-    ``True``. Case is ignored.
+    The constructor accepts these keyword arguments:
 
-    Serialization will produce ``true`` or ``false`` based on the
-    value.
+    - ``false_choices``: The set of strings representing a ``False``
+      value on deserialization.
+
+    - ``true_choices``:  The set of strings representing a ``True``
+      value on deserialization.
+
+    - ``false_val``: The value returned on serialization of a False
+      value.
+
+    - ``true_val``: The value returned on serialization of a True
+      value.
+
+    During deserialization, a value contained in :attr:`false_choices`,
+    will be considered ``False``.
+
+    The behaviour for values not contained in :attr:`false_choices`
+    depends on :attr:`true_choices`: if it's empty, any value is considered
+    ``True``; otherwise, only values contained in :attr:`true_choices`
+    are considered ``True``, and an Invalid exception would be raised
+    for values outside of both :attr:`false_choices` and :attr:`true_choices`.
+
+    Serialization will produce :attr:`true_val` or :attr:`false_val` 
+    based on the value.
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1221,12 +1240,22 @@ class Boolean(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+    def __init__(self, false_choices=('false', '0'), true_choices=(),
+                 false_val='false', true_val='true'):
+
+        self.false_choices = false_choices
+        self.true_choices = true_choices
+        self.false_val = false_val
+        self.true_val = true_val
+
+        self.true_reprs = ', '.join([repr(c) for c in self.true_choices])
+        self.false_reprs = ', '.join([repr(c) for c in self.false_choices])
 
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
 
-        return appstruct and 'true' or 'false'
+        return appstruct and self.true_val or self.false_val
 
     def deserialize(self, node, cstruct):
         if cstruct is null:
@@ -1240,8 +1269,19 @@ class Boolean(SchemaType):
                           )
         result = result.lower()
 
-        if result in ('false', '0'):
+        if result in self.false_choices:
             return False
+        elif self.true_choices:
+            if result in self.true_choices:
+                return True
+            else:
+                raise Invalid(node,
+                              _('"${val}" is neither in (${false_choices}) '
+                                'nor in (${true_choices})', 
+                                mapping={'val':cstruct, 
+                                         'false_choices': self.false_reprs,
+                                         'true_choices': self.true_reprs })
+                              )
 
         return True
 

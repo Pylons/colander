@@ -1,6 +1,11 @@
 Unreleased
 ------------------
 
+Features
+~~~~~~~~
+
+- Allow specifying custom representations of values for boolean fields.
+
 Bug Fixes
 ~~~~~~~~~
 

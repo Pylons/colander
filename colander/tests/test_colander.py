@@ -1615,6 +1615,52 @@ class TestBoolean(unittest.TestCase):
         self.assertEqual(typ.serialize(node, None), 'false')
         self.assertEqual(typ.serialize(node, False), 'false')
 
+class TestBooleanCustomFalseReprs(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        return Boolean(false_choices=('n','f'))
+
+    def test_deserialize(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'f'), False)
+        self.assertEqual(typ.deserialize(node, 'N'), False)
+        self.assertEqual(typ.deserialize(node, 'other'), True)
+
+class TestBooleanCustomFalseAndTrueReprs(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        return Boolean(false_choices=('n','f'), true_choices=('y','t'))
+
+    def test_deserialize(self):
+        import colander
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'f'), False)
+        self.assertEqual(typ.deserialize(node, 'N'), False)
+        self.assertEqual(typ.deserialize(node, 'T'), True)
+        self.assertEqual(typ.deserialize(node, 'y'), True)
+        self.assertRaises(colander.Invalid, typ.deserialize, node, 'other')
+        try:
+            _val = typ.deserialize(node, 'other')
+        except colander.Invalid, exc:
+            self.assertEqual(exc.msg.mapping['false_choices'], "'n', 'f'")
+            self.assertEqual(exc.msg.mapping['true_choices'], "'y', 't'")
+
+class TestBooleanCustomSerializations(unittest.TestCase):
+    def _makeOne(self):
+        from colander import Boolean
+        return Boolean(false_val='no', true_val='yes')
+
+    def test_serialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.serialize(node, 1), 'yes')
+        self.assertEqual(typ.serialize(node, True), 'yes')
+        self.assertEqual(typ.serialize(node, None), 'no')
+        self.assertEqual(typ.serialize(node, False), 'no')
+
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
         from colander import GlobalObject
