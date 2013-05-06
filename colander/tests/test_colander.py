@@ -1644,7 +1644,7 @@ class TestBooleanCustomFalseAndTrueReprs(unittest.TestCase):
         self.assertRaises(colander.Invalid, typ.deserialize, node, 'other')
         try:
             _val = typ.deserialize(node, 'other')
-        except colander.Invalid, exc:
+        except colander.Invalid as exc:
             self.assertEqual(exc.msg.mapping['false_choices'], "'n', 'f'")
             self.assertEqual(exc.msg.mapping['true_choices'], "'y', 't'")
 
