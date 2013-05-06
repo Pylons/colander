@@ -4,6 +4,8 @@ Unreleased
 Bug Fixes
 ~~~~~~~~~
 
+- Avoid validating strings as sequences under Py3k.
+
 - Sync documentation with 0.9.9 change to use ``insert_before`` rather than
   ``schema_order``.  See https://github.com/Pylons/colander/issues/104
 
