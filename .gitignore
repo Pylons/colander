@@ -17,7 +17,7 @@ jyenv/
 pypyenv/
 build/
 dist/
-colander/coverage.xml
+coverage.xml
 distribute*.gz
 venv/
 env*/
