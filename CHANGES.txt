@@ -13,6 +13,9 @@ Features
 Bug Fixes
 ~~~~~~~~~
 
+- Ensure that ``colander.iso8601.FixedOffset`` instances can be unpickled
+  cleanly under Py3k.
+
 - Avoid validating strings as sequences under Py3k.
 
 - Sync documentation with 0.9.9 change to use ``insert_before`` rather than
