@@ -32,7 +32,7 @@ testing_extras = ['nose', 'coverage']
 docs_extras = ['Sphinx']
 
 setup(name='colander',
-      version='1.0a2',
+      version='1.0a3',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,
