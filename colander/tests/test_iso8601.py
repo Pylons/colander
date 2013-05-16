@@ -28,6 +28,16 @@ class Test_FixedOffset(unittest.TestCase):
         from ..iso8601 import FixedOffset
         return FixedOffset(1, 30, 'oneandahalf')
 
+    def test_ctor_defaults(self):
+        # Ensure that instances can be unpickled on Py3k
+        from ..iso8601 import FixedOffset
+        NOW = datetime.datetime.now()
+        ZULU = datetime.timedelta(0, 0)
+        inst = FixedOffset()
+        self.assertEqual(inst.tzname(NOW), 'unknown')
+        self.assertEqual(inst.utcoffset(NOW), ZULU)
+        self.assertEqual(inst.dst(NOW), ZULU)
+        
     def test_utcoffset(self):
         inst = self._makeOne()
         result = inst.utcoffset(None)
