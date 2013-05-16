@@ -13,8 +13,7 @@ Features
 Bug Fixes
 ~~~~~~~~~
 
-- Ensure that ``colander.iso8601.FixedOffset`` instances can be unpickled
-  cleanly under Py3k.
+- Ensure that ``colander.iso8601.FixedOffset`` instances can be unpickled.
 
 - Avoid validating strings as sequences under Py3k.
 
