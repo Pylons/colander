@@ -69,9 +69,14 @@ class FixedOffset(tzinfo):
     """Fixed offset in hours and minutes from UTC
 
     """
-    def __init__(self, offset_hours=0, offset_minutes=0, name='unknown'):
+    def __init__(self, offset_hours, offset_minutes, name):
         self.__offset = timedelta(hours=offset_hours, minutes=offset_minutes)
         self.__name = name
+
+    def __getinitargs__(self):
+        # tzinfo.__reduce__ returns the type as the factory:  supply
+        # defaults here, rather than in __init__.
+        return 0, 0, 'unknown'
 
     def utcoffset(self, dt):
         return self.__offset
