@@ -349,6 +349,7 @@ class TestEmail(unittest.TestCase):
         self.assertEqual(validator(None, 'name@here1.us'), None)
         self.assertEqual(validator(None, 'name@here1.info'), None)
         self.assertEqual(validator(None, 'foo@bar.baz.biz'), None)
+        self.assertEqual(validator(None, "tip'oneill@house.gov"), None)
 
     def test_empty_email(self):
         validator = self._makeOne()
@@ -359,9 +360,8 @@ class TestEmail(unittest.TestCase):
         validator = self._makeOne()
         from colander import Invalid
         self.assertRaises(Invalid, validator, None, 'me@here.')
-        self.assertRaises(Invalid, validator, None, 'name@here.comcom')
+        self.assertRaises(Invalid, validator, None, 'name@here.tldiswaytoolong')
         self.assertRaises(Invalid, validator, None, '@here.us')
-        self.assertRaises(Invalid, validator, None, '(name)@here.info')
         self.assertRaises(Invalid, validator, None, 'me@here..com')
         self.assertRaises(Invalid, validator, None, 'me@we-here-.com')
 

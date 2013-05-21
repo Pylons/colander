@@ -275,14 +275,16 @@ class Regex(object):
         if self.match_object.match(value) is None:
             raise Invalid(node, self.msg)
 
+EMAIL_RE = "(?i)^[A-Z0-9._%!#$%&'*+-/=?^_`{|}~()]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,8}$"
+
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be
         the error message to be used when raising :exc:`colander.Invalid`;
         otherwise, defaults to 'Invalid email address'.
     """
+    
     def __init__(self, msg=None):
-        email_regex = text_(
-            '(?i)^[A-Z0-9._%+-]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,4}$')
+        email_regex = text_(EMAIL_RE)
         if msg is None:
             msg = _("Invalid email address")
         super(Email, self).__init__(email_regex, msg=msg)
