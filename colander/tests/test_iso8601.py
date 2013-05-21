@@ -23,21 +23,21 @@ class Test_Utc(unittest.TestCase):
         result = inst.dst(None)
         self.assertEqual(result, ZERO)
 
+    def test_picklability(self):
+        from ..iso8601 import ZERO
+        from ..compat import loads, dumps, HIGHEST_PROTOCOL
+        inst = self._makeOne()
+        for protocol in range(HIGHEST_PROTOCOL + 1):
+            inst2 = loads(dumps(inst, protocol))
+            self.assertEqual(inst2.utcoffset(None), ZERO)
+            self.assertEqual(inst2.tzname(None), 'UTC')
+            self.assertEqual(inst2.dst(None), ZERO)
+
 class Test_FixedOffset(unittest.TestCase):
     def _makeOne(self):
         from ..iso8601 import FixedOffset
         return FixedOffset(1, 30, 'oneandahalf')
 
-    def test_ctor_defaults(self):
-        # Ensure that instances can be unpickled on Py3k
-        from ..iso8601 import FixedOffset
-        NOW = datetime.datetime.now()
-        ZULU = datetime.timedelta(0, 0)
-        inst = FixedOffset()
-        self.assertEqual(inst.tzname(NOW), 'unknown')
-        self.assertEqual(inst.utcoffset(NOW), ZULU)
-        self.assertEqual(inst.dst(NOW), ZULU)
-        
     def test_utcoffset(self):
         inst = self._makeOne()
         result = inst.utcoffset(None)
@@ -53,6 +53,17 @@ class Test_FixedOffset(unittest.TestCase):
         inst = self._makeOne()
         result = inst.dst(None)
         self.assertEqual(result, ZERO)
+
+    def test_picklability(self):
+        from ..iso8601 import ZERO
+        from ..compat import loads, dumps, HIGHEST_PROTOCOL
+        inst = self._makeOne()
+        for protocol in range(HIGHEST_PROTOCOL + 1):
+            inst2 = loads(dumps(inst, protocol))
+            self.assertEqual(inst2.utcoffset(None),
+                            datetime.timedelta(hours=1, minutes=30))
+            self.assertEqual(inst2.tzname(None), 'oneandahalf')
+            self.assertEqual(inst2.dst(None), ZERO)
 
     def test___repr__(self):
         inst = self._makeOne()

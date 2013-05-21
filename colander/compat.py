@@ -30,3 +30,8 @@ try:
 except NameError: # pragma: no cover
     xrange = range
 
+
+try:
+    from cPickle import loads, dumps, HIGHEST_PROTOCOL
+except ImportError: # pragma: no cover
+    from pickle import loads, dumps, HIGHEST_PROTOCOL
