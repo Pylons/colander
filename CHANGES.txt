@@ -1,5 +1,5 @@
-Next release
-------------
+1.0a4 (2013-05-21)
+------------------
 
 - Loosen Email validator regex (permit apostrophes, bang, etc in localpart).
 
