@@ -1,5 +1,5 @@
-Next release
-------------
+1.0a5 (2013-05-31)
+------------------
 
 - Fix bug introduced by supporting spec-mandated truncations of ISO-8601
   timezones.  A TypeError would be raised instead of Invalid.  See
