@@ -168,3 +168,7 @@ class Test_parse_date(unittest.TestCase):
                          datetime.datetime(2007, 1, 25, 0, 0, 0, 0,
                                            tzinfo=UTC))
 
+    def test_slash_separated_raises_ParseError(self):
+        from ..iso8601 import ParseError
+        self.assertRaises(ParseError, self._callFUT, "2007/01/25")
+

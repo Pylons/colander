@@ -1954,6 +1954,12 @@ class TestDateTime(unittest.TestCase):
         e = invalid_exc(typ.deserialize, node, 'garbage')
         self.assertTrue('Invalid' in e.msg)
 
+    def test_deserialize_slashes_invalid(self):
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        e = invalid_exc(typ.deserialize, node, '2013/05/31')
+        self.assertTrue('Invalid' in e.msg)
+
     def test_deserialize_null(self):
         import colander
         node = DummySchemaNode(None)
