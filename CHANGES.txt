@@ -1,3 +1,10 @@
+Unreleased
+----------
+
+- ``iso8601.py``:  Convert ``ValueError`` (raised by ``datetime``) into
+  ``ParseErrorr`` in ``parse_date``, so that the validation machinery
+  upstream handles it properly.
+
 1.0a5 (2013-05-31)
 ------------------
 

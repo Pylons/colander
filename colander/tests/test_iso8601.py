@@ -134,6 +134,10 @@ class Test_parse_date(unittest.TestCase):
         from ..iso8601 import ParseError
         self.assertRaises(ParseError, self._callFUT, 'garbage')
 
+    def test_outfrange(self):
+        from ..iso8601 import ParseError
+        self.assertRaises(ParseError, self._callFUT, '2013-05-32')
+
     def test_normal(self):
         from ..iso8601 import UTC
         result = self._callFUT("2007-01-25T12:00:00Z")

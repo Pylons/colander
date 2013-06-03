@@ -143,6 +143,10 @@ def parse_date(datestring, default_timezone=UTC):
         groups["fraction"] = 0
     else:
         groups["fraction"] = int(float("0.%s" % groups["fraction"]) * 1e6)
-    return datetime(int(groups["year"]), int(groups["month"]), int(groups["day"]),
-        int(groups["hour"]), int(groups["minute"]), int(groups["second"]),
-        int(groups["fraction"]), tz)
+    try:
+        return datetime(
+            int(groups["year"]), int(groups["month"]), int(groups["day"]),
+            int(groups["hour"]), int(groups["minute"]), int(groups["second"]),
+            int(groups["fraction"]), tz)
+    except ValueError as e:
+        raise ParseError(*e.args)
