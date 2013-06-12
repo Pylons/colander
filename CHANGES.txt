@@ -1,9 +1,18 @@
 Unreleased
 ----------
 
+Bug Fixes
+~~~~~~~~~
+
 - ``iso8601.py``:  Convert ``ValueError`` (raised by ``datetime``) into
   ``ParseErrorr`` in ``parse_date``, so that the validation machinery
   upstream handles it properly.
+
+Features
+~~~~~~~~
+
+- Add ``colander.List`` type, modeled on ``deform.List``:  this type
+  preserves ordering, and allows duplicates.
 
 1.0a5 (2013-05-31)
 ------------------
