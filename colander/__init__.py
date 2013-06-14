@@ -808,6 +808,37 @@ class Set(SchemaType):
         return set(cstruct)
 
 
+class List(SchemaType):
+    """ Type representing an ordered sequence of items.
+
+    Desrializes an iterable to a ``list`` object.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    .. versionadded: 1.0a6
+    """
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        return appstruct
+
+    def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+
+        if not is_nonstr_iter(cstruct):
+            raise Invalid(
+                node,
+                _('${cstruct} is not iterable', mapping={'cstruct': cstruct})
+            )
+
+        return list(cstruct)
+
+
 class SequenceItems(list):
     """
     List marker subclass for use by Sequence.cstruct_children, which indicates
