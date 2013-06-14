@@ -82,6 +82,8 @@ Types
 
   .. autoclass:: Set
 
+  .. autoclass:: List
+
   .. autoclass:: Sequence
 
   .. autoclass:: Seq
