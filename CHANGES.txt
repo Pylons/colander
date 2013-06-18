@@ -4,6 +4,9 @@ Unreleased
 Bug Fixes
 ~~~~~~~~~
 
+- Normalize ``message`` argument to ``colander.Function`` -> ``msg`` (matches
+  other APIs.
+
 - ``iso8601.py``:  Convert ``ValueError`` (raised by ``datetime``) into
   ``ParseErrorr`` in ``parse_date``, so that the validation machinery
   upstream handles it properly.
