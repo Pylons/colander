@@ -212,8 +212,8 @@ class Function(object):
     empty string, ``0``, an object with a ``__nonzero__`` that returns
     ``False``, etc) when called during validation, an
     :exc:`colander.Invalid` exception is raised (validation fails);
-    its msg will be the value of the ``message`` argument passed to
-    this class' constructor.
+    its msg will be the value of the ``msg`` argument passed to this
+    class' constructor.
 
     If the function returns a stringlike object (a ``str`` or
     ``unicode`` object) that is *not* the empty string , a
@@ -227,19 +227,19 @@ class Function(object):
     :exc:`colander.Invalid` exception is *not* raised (validation
     succeeds).
 
-    The default value for the ``message`` when not provided via the
+    The default value for the ``msg`` when not provided via the
     constructor is ``Invalid value``.
     """
-    def __init__(self, function, message=_('Invalid value')):
+    def __init__(self, function, msg=_('Invalid value')):
         self.function = function
-        self.message = message
+        self.msg = msg
 
     def __call__(self, node, value):
         result = self.function(value)
         if not result:
             raise Invalid(
                 node, translationstring.TranslationString(
-                    self.message, mapping={'val':value}))
+                    self.msg, mapping={'val':value}))
         if isinstance(result, string_types):
             raise Invalid(
                 node, translationstring.TranslationString(

@@ -244,7 +244,7 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(e.msg, 'fail')
 
     def test_error_message_adds_mapping_to_configured_message(self):
-        validator = self._makeOne(lambda x: False, message='fail ${val}')
+        validator = self._makeOne(lambda x: False, msg='fail ${val}')
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.interpolate(), 'fail None')
 
@@ -256,7 +256,7 @@ class TestFunction(unittest.TestCase):
     def test_error_message_does_not_overwrite_configured_domain(self):
         import translationstring
         _ = translationstring.TranslationStringFactory('fnord')
-        validator = self._makeOne(lambda x: False, message=_('fail ${val}'))
+        validator = self._makeOne(lambda x: False, msg=_('fail ${val}'))
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.domain, 'fnord')
 
