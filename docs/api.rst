@@ -115,7 +115,7 @@ Types
 Schema-Related
 ~~~~~~~~~~~~~~
 
-  .. autoclass:: SchemaNode
+  .. autoclass:: _SchemaNode
      :members:
 
      .. automethod:: __delitem__
@@ -123,6 +123,10 @@ Schema-Related
      .. automethod:: __getitem__
 
      .. automethod:: __iter__
+
+  .. autoclass:: SchemaNode
+     :show-inheritance:
+     :members:
 
   .. autoclass:: Schema
 
