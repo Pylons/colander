@@ -115,18 +115,15 @@ Types
 Schema-Related
 ~~~~~~~~~~~~~~
 
-  .. autoclass:: _SchemaNode
+  .. autoclass:: SchemaNode
      :members:
+     :inherited-members:
 
      .. automethod:: __delitem__
 
      .. automethod:: __getitem__
 
      .. automethod:: __iter__
-
-  .. autoclass:: SchemaNode
-     :show-inheritance:
-     :members:
 
   .. autoclass:: Schema
 
