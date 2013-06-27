@@ -2081,7 +2081,7 @@ class _SchemaMeta(type):
 SchemaNode = _SchemaMeta(
     'SchemaNode',
     (_SchemaNode,),
-    {}
+    {'__doc__': _SchemaNode.__doc__}
     )
 
 class Schema(SchemaNode):

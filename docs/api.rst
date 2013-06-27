@@ -117,6 +117,7 @@ Schema-Related
 
   .. autoclass:: SchemaNode
      :members:
+     :inherited-members:
 
      .. automethod:: __delitem__
 
