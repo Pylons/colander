@@ -41,7 +41,7 @@ serializes a boolean to the string ``true`` or ``false`` or the special
            if appstruct is null:
                return null
            if not isinstance(appstruct, bool):
-               raise Invalid(node, '%r is not a boolean')
+               raise Invalid(node, '%r is not a boolean' % appstruct)
            return appstruct and 'true' or 'false'
 
        def deserialize(self, node, cstruct):
@@ -54,7 +54,7 @@ serializes a boolean to the string ``true`` or ``false`` or the special
                return True
            return False
 
-       def cstruct_children(self):
+       def cstruct_children(self, node, cstruct):
            return []
 
 Here's how you would use the resulting class as part of a schema:
