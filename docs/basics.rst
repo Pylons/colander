@@ -122,7 +122,7 @@ required".
 The *missing* of a schema node indicates the value if a value for the
 schema node is not found in the input data during deserialization.  It
 should be the deserialized representation.  If a schema node does not
-have a default, it is considered "deserialization required".  This
+have a missing, it is considered "deserialization required".  This
 value is never validated; it is considered pre-validated.
 
 The *name* of a schema node appears in error reports.
