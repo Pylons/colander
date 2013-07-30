@@ -465,7 +465,7 @@ class Test_url_validator(unittest.TestCase):
         val = 'http://example.com'
         result = self._callFUT(val)
         self.assertEqual(result, None)
-        
+
     def test_it_failure(self):
         val = 'not-a-url'
         from colander import Invalid
@@ -727,7 +727,7 @@ class TestMapping(unittest.TestCase):
         node1.children = [node2]
         result = typ.cstruct_children(node1, null)
         self.assertEqual(result, [null])
-        
+
     def test_cstruct_children(self):
         from colander import null
         typ = self._makeOne()
@@ -959,7 +959,7 @@ class TestTuple(unittest.TestCase):
         node1.children = [node2]
         result = typ.cstruct_children(node1, null)
         self.assertEqual(result, [null])
-        
+
     def test_cstruct_children_toomany(self):
         typ = self._makeOne()
         node1 = DummySchemaNode(typ, name='node1')
@@ -1197,7 +1197,7 @@ class TestSequence(unittest.TestCase):
         typ = self._makeOne()
         result = typ.cstruct_children(None, null)
         self.assertEqual(result, SequenceItems([]))
-        
+
     def test_cstruct_children_cstruct_is_non_null(self):
         from colander import SequenceItems
         typ = self._makeOne()
@@ -1581,6 +1581,30 @@ class TestBoolean(unittest.TestCase):
         self.assertEqual(typ.serialize(node, True), 'true')
         self.assertEqual(typ.serialize(node, None), 'false')
         self.assertEqual(typ.serialize(node, False), 'false')
+
+class TestNoneTypeWithBoolean(TestBoolean):
+    def _makeOne(self):
+        from colander import Boolean, NoneType
+        return NoneType(Boolean())
+
+    def test_serialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.serialize(node, 1), 'true')
+        self.assertEqual(typ.serialize(node, True), 'true')
+        self.assertEqual(typ.serialize(node, None), None)
+        self.assertEqual(typ.serialize(node, False), 'false')
+
+    def test_deserialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'false'), False)
+        self.assertEqual(typ.deserialize(node, 'FALSE'), False)
+        self.assertEqual(typ.deserialize(node, '0'), False)
+        self.assertEqual(typ.deserialize(node, 'true'), True)
+        self.assertEqual(typ.deserialize(node, 'other'), True)
+        self.assertEqual(typ.deserialize(node, None), None)
+
 
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
@@ -2508,7 +2532,7 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
         node = MyNode(missing=5)
         result = node.deserialize(colander.null)
         self.assertEqual(result, 5)
-        
+
     def test_method_values_can_rely_on_binding(self):
         import colander
         class MyNode(colander.SchemaNode):
@@ -2751,14 +2775,14 @@ class TestMappingSchemaInheritance(unittest.TestCase):
                 id='a2',
                 )
             c = colander.SchemaNode(
-                colander.String(), 
+                colander.String(),
                 id='c2',
                 )
             e = colander.SchemaNode(
                 colander.String(),
                 id='e2',
                 )
-            
+
         class Three(Two):
             b = colander.SchemaNode(
                 colander.Bool(),
@@ -2801,14 +2825,14 @@ class TestMappingSchemaInheritance(unittest.TestCase):
                 id='a2',
                 )
             c = colander.SchemaNode(
-                colander.String(), 
+                colander.String(),
                 id='c2',
                 )
             e = colander.SchemaNode(
                 colander.String(),
                 id='e2',
                 )
-            
+
         class Three(Two, One):
             b = colander.SchemaNode(
                 colander.Bool(),

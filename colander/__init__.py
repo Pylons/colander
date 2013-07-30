@@ -1597,6 +1597,37 @@ class Time(SchemaType):
 def timeparse(t, format):
     return datetime.datetime(*time.strptime(t, format)[0:6]).time()
 
+
+class NoneType(SchemaType):
+    """A type which accept None as value for (de)serialization.
+    When the value is not equla to None, it will use (de)serialization of
+    the given type.
+
+    Example:
+
+        date = colander.SchemaNode(
+            colander.NoneType(colander.DateTime()),
+            default=None,
+            missing=None,
+        )
+    """
+
+    def __init__(self, typ):
+        self.typ = typ
+
+    def serialize(self, node, appstruct):
+        if appstruct is None:
+            return None
+
+        return self.typ.serialize(node, appstruct)
+
+    def deserialize(self, node, cstruct):
+        if cstruct is None:
+            return None
+
+        return self.typ.deserialize(node, cstruct)
+
+
 def _add_node_children(node, children):
     for n in children:
         insert_before = getattr(n, 'insert_before', None)
@@ -1708,7 +1739,7 @@ class _SchemaNode(object):
             _add_node_children(self, arg[1:])
         else:
             self.typ = self.schema_type()
-        
+
         # bw compat forces us to manufacture a title if one is not supplied
         title = kw.get('title', _marker)
         if title is _marker:
@@ -1999,7 +2030,7 @@ SchemaNode = _SchemaMeta(
     (_SchemaNode,),
     {}
     )
-    
+
 class Schema(SchemaNode):
     schema_type = Mapping
 
