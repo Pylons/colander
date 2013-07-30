@@ -1599,9 +1599,9 @@ def timeparse(t, format):
 
 
 class NoneType(SchemaType):
-    """A type which accept None as value for (de)serialization.
-    When the value is not equla to None, it will use (de)serialization of
-    the given type.
+    """A type which accept serialize None to '' and deserialize '' to None.
+    When the value is not equal to None/'', it will use (de)serialization of
+    the given type. This can be used to make nodes optional.
 
     Example:
 
@@ -1617,12 +1617,12 @@ class NoneType(SchemaType):
 
     def serialize(self, node, appstruct):
         if appstruct is None:
-            return None
+            return ''
 
         return self.typ.serialize(node, appstruct)
 
     def deserialize(self, node, cstruct):
-        if cstruct is None:
+        if cstruct == '':
             return None
 
         return self.typ.deserialize(node, cstruct)

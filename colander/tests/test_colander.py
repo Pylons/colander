@@ -1592,7 +1592,7 @@ class TestNoneTypeWithBoolean(TestBoolean):
         node = DummySchemaNode(None)
         self.assertEqual(typ.serialize(node, 1), 'true')
         self.assertEqual(typ.serialize(node, True), 'true')
-        self.assertEqual(typ.serialize(node, None), None)
+        self.assertEqual(typ.serialize(node, None), '')
         self.assertEqual(typ.serialize(node, False), 'false')
 
     def test_deserialize(self):
@@ -1603,7 +1603,7 @@ class TestNoneTypeWithBoolean(TestBoolean):
         self.assertEqual(typ.deserialize(node, '0'), False)
         self.assertEqual(typ.deserialize(node, 'true'), True)
         self.assertEqual(typ.deserialize(node, 'other'), True)
-        self.assertEqual(typ.deserialize(node, None), None)
+        self.assertEqual(typ.deserialize(node, ''), None)
 
 
 class TestGlobalObject(unittest.TestCase):
