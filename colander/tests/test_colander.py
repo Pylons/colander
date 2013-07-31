@@ -1604,6 +1604,7 @@ class TestNoneTypeWithBoolean(TestBoolean):
         self.assertEqual(typ.deserialize(node, 'true'), True)
         self.assertEqual(typ.deserialize(node, 'other'), True)
         self.assertEqual(typ.deserialize(node, ''), None)
+        self.assertEqual(typ.deserialize(node, None), None)
 
 
 class TestGlobalObject(unittest.TestCase):

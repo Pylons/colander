@@ -1622,7 +1622,7 @@ class NoneType(SchemaType):
         return self.typ.serialize(node, appstruct)
 
     def deserialize(self, node, cstruct):
-        if cstruct == '':
+        if cstruct == '' or cstruct is None:
             return None
 
         return self.typ.deserialize(node, cstruct)
