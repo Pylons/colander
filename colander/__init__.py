@@ -576,7 +576,10 @@ class Mapping(SchemaType):
             appstruct = {}
 
         def callback(subnode, subappstruct):
-            return subnode.serialize(subappstruct)
+            cstruct = subnode.serialize(subappstruct)
+            if cstruct is null:
+                cstruct = subnode.default
+            return cstruct
 
         return self._impl(node, appstruct, callback)
 
