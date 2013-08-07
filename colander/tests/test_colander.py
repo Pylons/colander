@@ -653,6 +653,16 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, null)
         self.assertEqual(result, {'a':null})
 
+    def test_serialize_subnode_missing_default(self):
+        node = DummySchemaNode(None)
+        node.children = [
+            DummySchemaNode(None, name='a'),
+            DummySchemaNode(None, name='b', default='abc'),
+            ]
+        typ = self._makeOne()
+        result = typ.serialize(node, {'a':1})
+        self.assertEqual(result, {'a':1, 'b':'abc'})
+
     def test_flatten(self):
         node = DummySchemaNode(None, name='node')
         int1 = DummyType()
@@ -3508,8 +3518,13 @@ class Test_null(unittest.TestCase):
 class Dummy(object):
     pass
 
+_missing = object()
 class DummySchemaNode(object):
-    def __init__(self, typ, name='', exc=None, default=None):
+    def __init__(self, typ, name='', exc=None, default=_missing):
+        if default is _missing:
+            from colander import null
+            default = null
+
         self.typ = typ
         self.name = name
         self.exc = exc
