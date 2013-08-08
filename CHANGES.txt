@@ -4,6 +4,15 @@ Unreleased
 Bug Fixes
 ~~~~~~~~~
 
+- In 1.0a1, there was a change merged from
+  https://github.com/Pylons/colander/pull/73 which made it possible to supply
+  ``None`` as the ``default`` value for a String type, and upon serialization,
+  the value would be rendered as ``colander.null`` if the default were used.
+  This confused people who were actually supplying the value ``None`` as a
+  default when the associated appstruct had no value, so the change has been
+  reverted.  When you supply ``None`` as the ``default`` argument to a String,
+  the rendered serialize() value will again be ``'None'``.  Sorry.
+
 - Normalize ``message`` argument to ``colander.Function`` -> ``msg`` (matches
   other APIs.
 
@@ -16,6 +25,20 @@ Features
 
 - Add ``colander.List`` type, modeled on ``deform.List``:  this type
   preserves ordering, and allows duplicates.
+
+- It is now possible to use the value ``colander.drop`` as the ``default``
+  value for items that are subitems of a mapping.  If ``colander.drop`` is used
+  as the ``default`` for a subnode of a mapping schema, and the mapping
+  appstruct being serialized does not have a value for that schema node, the
+  value will be omitted from the serialized mapping.  For instance, the
+  following script, when run would not raise an assertion error::
+
+      class What(colander.MappingSchema):
+        thing = colander.SchemaNode(colander.String(), default=colander.drop,
+                                    missing=None)
+
+      result = What().serialize({}) # no "thing" in mapping
+      assert result == {}
 
 1.0a5 (2013-05-31)
 ------------------

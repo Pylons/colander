@@ -653,6 +653,14 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, null)
         self.assertEqual(result, {'a':null})
 
+    def test_serialize_value_has_drop(self):
+        from colander import drop
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        result = typ.serialize(node, {'a':drop})
+        self.assertEqual(result, {})
+        
     def test_flatten(self):
         node = DummySchemaNode(None, name='node')
         int1 = DummyType()
@@ -1350,14 +1358,6 @@ class TestString(unittest.TestCase):
         result = typ.serialize(node, null)
         self.assertEqual(result, null)
 
-    def test_serialize_none(self):
-        import colander
-        val = None
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.serialize(node, val)
-        self.assertEqual(result, colander.null)
-
     def test_serialize_emptystring(self):
         val = ''
         node = DummySchemaNode(None)
@@ -1422,14 +1422,6 @@ class TestInteger(unittest.TestCase):
     def test_serialize_null(self):
         import colander
         val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.serialize(node, val)
-        self.assertEqual(result, colander.null)
-
-    def test_serialize_none(self):
-        import colander
-        val = None
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, val)
