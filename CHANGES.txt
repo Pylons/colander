@@ -34,8 +34,7 @@ Features
   following script, when run would not raise an assertion error::
 
       class What(colander.MappingSchema):
-        thing = colander.SchemaNode(colander.String(), default=colander.drop,
-                                    missing=None)
+        thing = colander.SchemaNode(colander.String(), default=colander.drop)
 
       result = What().serialize({}) # no "thing" in mapping
       assert result == {}
