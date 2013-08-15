@@ -110,3 +110,4 @@ Contributors
 - Domen Kožar, 2012/04/16
 - Lorenzo M. Catucci, 2013/01/29
 - Doug Latornell, 2013/03/17
+- Clayton Parker, 2013/08/15
