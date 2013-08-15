@@ -1716,6 +1716,9 @@ class _SchemaNode(object):
 
     - ``name``: The name of this node.
 
+    - ``typ``: The 'type' for this node can optionally be passed in as a
+      keyword argument. See the documentation for the positional arg above.
+
     - ``default``: The default serialization value for this node.
       Default: :attr:`colander.null`.
 
@@ -1788,7 +1791,10 @@ class _SchemaNode(object):
 
     def __init__(self, *arg, **kw):
         # bw compat forces us to treat first arg as type always
-        if arg:
+        if 'typ' in kw:
+            self.typ = kw.pop('typ')
+            _add_node_children(self, arg)
+        elif arg:
             self.typ = arg[0]
             _add_node_children(self, arg[1:])
         else:
