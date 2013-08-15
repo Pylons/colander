@@ -39,6 +39,9 @@ Features
       result = What().serialize({}) # no "thing" in mapping
       assert result == {}
 
+- The ``typ`` of a ``SchemaNode`` can optionally be pased in as a keyword
+  argument. See https://github.com/Pylons/colander/issues/90
+
 1.0a5 (2013-05-31)
 ------------------
 

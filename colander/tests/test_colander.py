@@ -2303,6 +2303,16 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, foo=1)
         self.assertEqual(node.foo, 1)
 
+    def test_ctor_with_kwarg_typ(self):
+        node = self._makeOne(typ='foo')
+        self.assertEqual(node.typ, 'foo')
+
+    def test_ctor_children_kwarg_typ(self):
+        subnode1 = DummySchemaNode(None, name='sub1')
+        subnode2 = DummySchemaNode(None, name='sub2')
+        node = self._makeOne(subnode1, subnode2, typ='foo')
+        self.assertEqual(node.children, [subnode1, subnode2])
+
     def test_ctor_without_type(self):
         self.assertRaises(NotImplementedError, self._makeOne)
 
