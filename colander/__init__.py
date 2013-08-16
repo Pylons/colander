@@ -230,8 +230,18 @@ class Function(object):
     The default value for the ``msg`` when not provided via the
     constructor is ``Invalid value``.
     """
-    def __init__(self, function, msg=_('Invalid value')):
+    def __init__(self, function, msg=None, message=None):
         self.function = function
+        # Handle bw compat
+        if msg is None and message is None:
+            msg = _('Invalid value')
+        elif message is not None:
+            warnings.warn(
+                'The "message" argument has been deprecated, use "msg" '
+                'instead.',
+                DeprecationWarning
+                )
+            msg = message
         self.msg = msg
 
     def __call__(self, node, value):
