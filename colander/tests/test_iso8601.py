@@ -91,6 +91,12 @@ class Test_parse_timezone(unittest.TestCase):
         result = self._callFUT(None)
         self.assertEqual(result, UTC)
 
+    def test_None_with_default_timezone(self):
+        from ..iso8601 import FixedOffset
+        tz = FixedOffset(1, 0, 'myname')
+        result = self._callFUT(None, default_timezone=tz)
+        self.assertEqual(result, tz)
+
     def test_positive(self):
         tzstring = "+01:00"
         result = self._callFUT(tzstring)
