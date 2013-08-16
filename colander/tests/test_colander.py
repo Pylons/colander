@@ -243,6 +243,27 @@ class TestFunction(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, 'fail')
 
+    def test_deprecated_message(self):
+        validator = self._makeOne(lambda x: False, message='depr')
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg.interpolate(), 'depr')
+
+    def test_deprecated_message_warning(self):
+        import warnings
+        orig_warn = warnings.warn
+        log = []
+        def warn(message, category=None, stacklevel=1):
+            log.append((message, category, stacklevel))
+        try:
+            # Monkey patching warn since catch_warnings context manager
+            # is not working when running the full suite
+            warnings.warn = warn
+            validator = self._makeOne(lambda x: False, message='depr')
+            invalid_exc(validator, None, None)
+            self.assertEqual(len(log), 1)
+        finally:
+            warnings.warn = orig_warn
+
     def test_error_message_adds_mapping_to_configured_message(self):
         validator = self._makeOne(lambda x: False, msg='fail ${val}')
         e = invalid_exc(validator, None, None)
