@@ -13,8 +13,11 @@ Bug Fixes
   reverted.  When you supply ``None`` as the ``default`` argument to a String,
   the rendered serialize() value will again be ``'None'``.  Sorry.
 
-- Normalize ``message`` argument to ``colander.Function`` -> ``msg`` (matches
-  other APIs.
+- Normalize ``colander.Function`` argument ``message`` to be ``msg``. This now
+  matches other APIs within Colander. The ``message`` argument is now
+  deprecated and a warning will be emitted.
+  https://github.com/Pylons/colander/issues/31
+  https://github.com/Pylons/colander/issues/64
 
 - ``iso8601.py``:  Convert ``ValueError`` (raised by ``datetime``) into
   ``ParseErrorr`` in ``parse_date``, so that the validation machinery
