@@ -38,11 +38,11 @@ msgstr "${val} ist größer als der erlaubter Höchstwert (${max})"
 
 #: colander/__init__.py:279
 msgid "Shorter than minimum length ${min}"
-msgstr "Kürzer als erlaubt, die Mindestlänge beträgt ${min} Zeichen"
+msgstr "Kürzer als erlaubt, die Mindestlänge beträgt ${min}"
 
 #: colander/__init__.py:285
 msgid "Longer than maximum length ${max}"
-msgstr "Länger als erlaubt, die Maximallänge beträgt ${max} Zeichen"
+msgstr "Länger als erlaubt, die Maximallänge beträgt ${max}"
 
 #: colander/__init__.py:298
 msgid "\"${val}\" is not one of ${choices}"
@@ -67,7 +67,7 @@ msgstr "\"${val}\" ist nicht iterierbar"
 
 #: colander/__init__.py:469
 msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
-msgstr "Ungültige Anzahl von Elemente (${exp} erwartet, ${was} gegeben)"
+msgstr "Ungültige Anzahl von Elementen (${exp} erwartet, ${was} gegeben)"
 
 #: colander/__init__.py:644
 msgid "${val} is not a string: %{err}"
