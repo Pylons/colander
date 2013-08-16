@@ -1329,11 +1329,11 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, uni)
 
     def test_deserialize_nonunicode_from_None(self):
+        import colander
         value = object()
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(node, value)
-        self.assertEqual(result, text_type(value))
+        self.assertRaises(colander.Invalid, typ.deserialize, node, value)
 
     def test_deserialize_from_utf8(self):
         uni = text_(b'\xe3\x81\x82', encoding='utf-8')
@@ -1350,6 +1350,13 @@ class TestString(unittest.TestCase):
         typ = self._makeOne('utf-16')
         result = typ.deserialize(node, utf16)
         self.assertEqual(result, uni)
+
+    def test_deserialize_from_nonstring_obj(self):
+        import colander
+        value = object()
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        self.assertRaises(colander.Invalid, typ.deserialize, node, value)
 
     def test_serialize_null(self):
         from colander import null

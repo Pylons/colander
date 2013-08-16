@@ -1121,7 +1121,7 @@ class String(SchemaType):
                 else:
                     result = text_type(cstruct)
             else:
-                result = text_type(cstruct)
+                raise Invalid(node)
         except Exception as e:
             raise Invalid(node,
                           _('${val} is not a string: ${err}',
