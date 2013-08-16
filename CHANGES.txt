@@ -23,6 +23,10 @@ Bug Fixes
   ``ParseErrorr`` in ``parse_date``, so that the validation machinery
   upstream handles it properly.
 
+- ``iso8601.py``:  Correctly parse datetimes with a timezone of Z even
+  when the default_timezone is set. These previously had the default
+  timezone.
+
 Features
 ~~~~~~~~
 
