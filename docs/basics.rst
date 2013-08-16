@@ -174,7 +174,7 @@ The imperative style that looks like this still works, of course:
 
      ranged_int = colander.SchemaNode(
          validator=colander.Range(0, 10),
-         default = 10,
+         default=10,
          title='Ranged Int'
          )
 
@@ -184,7 +184,7 @@ But in 1.0a1+, you can alternately now do something like this:
 
      from colander import SchemaNode
 
-     class RangedIntSchemaNode(SchemaNode):
+     class RangedInt(SchemaNode):
          validator = colander.Range(0, 10)
          default = 10
          title = 'Ranged Int'
@@ -198,7 +198,7 @@ the schemanode subclass instead of plain attributes:
 
      from colander import SchemaNode
 
-     class RangedIntSchemaNode(SchemaNode):
+     class RangedInt(SchemaNode):
          default = 10
          title = 'Ranged Int'
 
@@ -224,7 +224,7 @@ example this will *not* work:
 
      from colander import SchemaNode
 
-     class RangedIntSchemaNode(SchemaNode):
+     class RangedInt(SchemaNode):
          default = 10
          title = 'Ranged Int'
 
@@ -252,7 +252,7 @@ indeed work):
 
      from colander import SchemaNode
 
-     class RangedIntSchemaNode(SchemaNode):
+     class RangedInt(SchemaNode):
          default = 10
          title = 'Ranged Int'
 
@@ -277,7 +277,7 @@ the bind parameters within values that are plain old methods:
 
      from colander import SchemaNode
 
-     class RangedIntSchemaNode(SchemaNode):
+     class RangedInt(SchemaNode):
          default = 10
          title = 'Ranged Int'
 
@@ -312,7 +312,7 @@ constructor:
 
      from colander import SchemaNode
 
-     class RangedIntSchemaNode(SchemaNode):
+     class RangedInt(SchemaNode):
          default = 10
          title = 'Ranged Int'
          validator = colander.Range(0, 10)
