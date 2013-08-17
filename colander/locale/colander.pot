@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the colander project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: colander 1.0a3\n"
@@ -136,12 +135,3 @@ msgstr ""
 #: colander/__init__.py:1878 colander/__init__.py:1880
 msgid "Required"
 msgstr ""
-
-#: colander/tests/test_colander.py:259 colander/tests/test_colander.py:266
-msgid "fail ${val}"
-msgstr ""
-
-#: colander/tests/test_colander.py:433
-msgid "${val}: ${choices}"
-msgstr ""
-
