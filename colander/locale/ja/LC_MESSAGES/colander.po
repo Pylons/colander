@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colander 0.8\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-03-20 23:23-0300\n"
+"POT-Creation-Date: 2013-05-19 13:15+0200\n"
 "PO-Revision-Date: 2012-03-28 01:12+0900\n"
 "Last-Translator: OCHIAI, Gouji <gjo.ext@gmail.com>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -15,116 +15,127 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
+"Generated-By: Babel 1.3\n"
 
-#: colander/__init__.py:221
+#: colander/__init__.py:233
 msgid "Invalid value"
 msgstr "無効な値です"
 
-#: colander/__init__.py:254
+#: colander/__init__.py:270
 msgid "String does not match expected pattern"
 msgstr "文字列がパターンに一致しません"
 
-#: colander/__init__.py:269
+#: colander/__init__.py:287
 msgid "Invalid email address"
 msgstr "無効なメールアドレスです"
 
-#: colander/__init__.py:298
+#: colander/__init__.py:315
 msgid "${val} is less than minimum value ${min}"
 msgstr "${val} は最小値 ${min} を下回っています"
 
-#: colander/__init__.py:299
+#: colander/__init__.py:316
 msgid "${val} is greater than maximum value ${max}"
 msgstr "${val} は最大値 ${max} を超過しています"
 
-#: colander/__init__.py:331
+#: colander/__init__.py:348
 msgid "Shorter than minimum length ${min}"
 msgstr "${min} 以上の長さが必要です"
 
-#: colander/__init__.py:337
+#: colander/__init__.py:354
 msgid "Longer than maximum length ${max}"
 msgstr "${max} より短くしてください"
 
-#: colander/__init__.py:350
+#: colander/__init__.py:367
 msgid "\"${val}\" is not one of ${choices}"
 msgstr "\"${val}\" は ${choices} のいずれかでなければなりません"
 
-#: colander/__init__.py:442
+#: colander/__init__.py:377
+msgid "One or more of the choices you made was not acceptable"
+msgstr ""
+
+#: colander/__init__.py:423
+msgid "Must be a URL"
+msgstr ""
+
+#: colander/__init__.py:519
 msgid "\"${val}\" is not a mapping type: ${err}"
 msgstr "\"${val}\" はマップ型でなければなりません: ${err}"
 
-#: colander/__init__.py:466
+#: colander/__init__.py:560
 msgid "Unrecognized keys in mapping: \"${val}\""
 msgstr "未定義のキーがマップに含まれています: \"${val}\""
 
-#: colander/__init__.py:562 colander/__init__.py:705
+#: colander/__init__.py:656 colander/__init__.py:856
 msgid "\"${val}\" is not iterable"
 msgstr "\"${val}\" は iterable でなければなりません"
 
-#: colander/__init__.py:570
+#: colander/__init__.py:664
 msgid ""
 "\"${val}\" has an incorrect number of elements (expected ${exp}, was "
 "${was})"
 msgstr "\"${val}\" の要素数が正しくありません (${exp} 個のはずが ${was} 個)"
 
-#: colander/__init__.py:919
+#: colander/__init__.py:803
+msgid "${cstruct} is not iterable"
+msgstr "${cstruct} は iterable でなければなりません"
+
+#: colander/__init__.py:1075
 msgid "${val} cannot be serialized: ${err}"
 msgstr "${val} が直列化できません: ${err}"
 
-#: colander/__init__.py:937
+#: colander/__init__.py:1093
 msgid "${val} is not a string: ${err}"
 msgstr "${val} は文字列ではありません: ${err}"
 
-#: colander/__init__.py:957 colander/__init__.py:968
+#: colander/__init__.py:1113 colander/__init__.py:1124
 msgid "\"${val}\" is not a number"
 msgstr "\"${val}\" は数値ではありません"
 
-#: colander/__init__.py:1044
+#: colander/__init__.py:1268
 msgid "${val} is not a string"
 msgstr "${val} は文字列ではありません"
 
-#: colander/__init__.py:1104 colander/__init__.py:1121
-#: colander/__init__.py:1131
+#: colander/__init__.py:1279
+msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
+msgstr ""
+
+#: colander/__init__.py:1339 colander/__init__.py:1356
+#: colander/__init__.py:1366
 msgid "relative name \"${val}\" irresolveable without package"
 msgstr "相対名 \"${val}\" はパッケージを指定しなければ名前解決できません"
 
-#: colander/__init__.py:1161
+#: colander/__init__.py:1396
 msgid "\"${val}\" has no __name__"
 msgstr "\"${val}\" には __name__ が含まれていません"
 
-#: colander/__init__.py:1170
+#: colander/__init__.py:1405
 msgid "\"${val}\" is not a string"
 msgstr "\"${val}\" は文字列ではありません"
 
-#: colander/__init__.py:1179
+#: colander/__init__.py:1414
 msgid "The dotted name \"${name}\" cannot be imported"
 msgstr "ドット区切り名  \"${name}\" がインポートできませんでした"
 
-#: colander/__init__.py:1226 colander/__init__.py:1307
+#: colander/__init__.py:1462 colander/__init__.py:1538
 msgid "Invalid date"
 msgstr "無効な日付です"
 
-#: colander/__init__.py:1242
+#: colander/__init__.py:1478
 msgid "\"${val}\" is not a datetime object"
 msgstr "\"${val}\" は datetime オブジェクトではありません"
 
-#: colander/__init__.py:1318
+#: colander/__init__.py:1549
 msgid "\"${val}\" is not a date object"
 msgstr "\"${val}\" は date オブジェクトではありません"
 
-#: colander/__init__.py:1383
+#: colander/__init__.py:1610
 msgid "Invalid time"
 msgstr "無効な時刻です"
 
-#: colander/__init__.py:1394
+#: colander/__init__.py:1621
 msgid "\"${val}\" is not a time object"
 msgstr "\"${val}\" は time オブジェクトではありません"
 
-#: colander/__init__.py:1605 colander/__init__.py:1607
+#: colander/__init__.py:1878 colander/__init__.py:1880
 msgid "Required"
 msgstr "必須です"
-
-#: colander/tests/test_colander.py:259 colander/tests/test_colander.py:266
-msgid "fail ${val}"
-msgstr "${val} で失敗しました"
-
