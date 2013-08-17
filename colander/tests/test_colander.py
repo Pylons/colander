@@ -244,9 +244,20 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(e.msg, 'fail')
 
     def test_deprecated_message(self):
-        validator = self._makeOne(lambda x: False, message='depr')
-        e = invalid_exc(validator, None, None)
-        self.assertEqual(e.msg.interpolate(), 'depr')
+        import warnings
+        orig_warn = warnings.warn
+        log = []
+        def warn(message, category=None, stacklevel=1):
+            log.append((message, category, stacklevel))
+        try:
+            # Monkey patching warn so that tests run quietly
+            warnings.warn = warn
+            validator = self._makeOne(lambda x: False, message='depr')
+            e = invalid_exc(validator, None, None)
+            self.assertEqual(e.msg.interpolate(), 'depr')
+        finally:
+            warnings.warn = orig_warn
+
 
     def test_deprecated_message_warning(self):
         import warnings
