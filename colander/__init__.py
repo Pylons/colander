@@ -232,6 +232,8 @@ class Function(object):
     """
     def __init__(self, function, msg=None, message=None):
         self.function = function
+        if msg is not None and message is not None:
+            raise ValueError('Only one of msg and message can be passed')
         # Handle bw compat
         if msg is None and message is None:
             msg = _('Invalid value')

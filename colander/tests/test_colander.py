@@ -264,6 +264,10 @@ class TestFunction(unittest.TestCase):
         finally:
             warnings.warn = orig_warn
 
+    def test_msg_and_message_error(self):
+        self.assertRaises(ValueError, self._makeOne,
+                          lambda x: False, msg='one', message='two')
+
     def test_error_message_adds_mapping_to_configured_message(self):
         validator = self._makeOne(lambda x: False, msg='fail ${val}')
         e = invalid_exc(validator, None, None)
