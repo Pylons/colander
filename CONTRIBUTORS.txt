@@ -112,3 +112,4 @@ Contributors
 - Doug Latornell, 2013/03/17
 - Clayton Parker, 2013/08/15
 - Brian Sutherland, 2013/08/16
+- Peter Lamut, 2013/08/16

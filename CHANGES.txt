@@ -27,6 +27,10 @@ Bug Fixes
   when the default_timezone is set. These previously had the default
   timezone.
 
+- ``colander.String`` schema type now raises ``colander.Invalid`` when trying
+  to deserialize a non-string item.
+  See https://github.com/Pylons/colander/issues/100
+
 Features
 ~~~~~~~~
 
