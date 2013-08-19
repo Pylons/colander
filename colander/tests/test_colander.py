@@ -2354,7 +2354,7 @@ class TestSchemaNode(unittest.TestCase):
 
     def test_required_deferred(self):
         from colander import deferred
-        node = self._makeOne(None, missing=deferred('123'))
+        node = self._makeOne(None, missing=deferred(lambda: '123'))
         self.assertEqual(node.required, True)
 
     def test_deserialize_no_validator(self):
@@ -2442,7 +2442,7 @@ class TestSchemaNode(unittest.TestCase):
         from colander import Invalid
         typ = DummyType()
         node = self._makeOne(typ)
-        node.missing = deferred('123')
+        node.missing = deferred(lambda: '123')
         self.assertRaises(Invalid, node.deserialize, null)
 
     def test_serialize(self):
@@ -2477,7 +2477,7 @@ class TestSchemaNode(unittest.TestCase):
         from colander import null
         typ = DummyType()
         node = self._makeOne(typ)
-        node.default = deferred('abc')
+        node.default = deferred(lambda: 'abc')
         self.assertEqual(node.serialize(), null)
 
     def test_add(self):
@@ -3014,7 +3014,7 @@ class TestDeferred(unittest.TestCase):
         return deferred(wrapped)
 
     def test_ctor(self):
-        wrapped = '123'
+        wrapped = lambda: 'foo'
         inst = self._makeOne(wrapped)
         self.assertEqual(inst.wrapped, wrapped)
 
@@ -3028,6 +3028,14 @@ class TestDeferred(unittest.TestCase):
         inst = self._makeOne(wrapped)
         result= inst(n, k)
         self.assertEqual(result, 'abc')
+
+    def test_retain_func_details(self):
+        def wrapper_func(node, kw):
+            """Can you hear me now?"""
+            pass  # pragma: no cover
+        inst = self._makeOne(wrapper_func)
+        self.assertEqual(inst.__doc__, 'Can you hear me now?')
+        self.assertEqual(inst.__name__, 'wrapper_func')
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):

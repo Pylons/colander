@@ -2,6 +2,7 @@
 
 import datetime
 import decimal
+import functools
 import time
 import itertools
 import pprint
@@ -2122,6 +2123,7 @@ class deferred(object):
     """ A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
     def __init__(self, wrapped):
+        functools.update_wrapper(self, wrapped)
         self.wrapped = wrapped
 
     def __call__(self, node, kw):
