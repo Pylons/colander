@@ -243,6 +243,42 @@ class TestFunction(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg, 'fail')
 
+    def test_deprecated_message(self):
+        import warnings
+        orig_warn = warnings.warn
+        log = []
+        def warn(message, category=None, stacklevel=1):
+            log.append((message, category, stacklevel))
+        try:
+            # Monkey patching warn so that tests run quietly
+            warnings.warn = warn
+            validator = self._makeOne(lambda x: False, message='depr')
+            e = invalid_exc(validator, None, None)
+            self.assertEqual(e.msg.interpolate(), 'depr')
+        finally:
+            warnings.warn = orig_warn
+
+
+    def test_deprecated_message_warning(self):
+        import warnings
+        orig_warn = warnings.warn
+        log = []
+        def warn(message, category=None, stacklevel=1):
+            log.append((message, category, stacklevel))
+        try:
+            # Monkey patching warn since catch_warnings context manager
+            # is not working when running the full suite
+            warnings.warn = warn
+            validator = self._makeOne(lambda x: False, message='depr')
+            invalid_exc(validator, None, None)
+            self.assertEqual(len(log), 1)
+        finally:
+            warnings.warn = orig_warn
+
+    def test_msg_and_message_error(self):
+        self.assertRaises(ValueError, self._makeOne,
+                          lambda x: False, msg='one', message='two')
+
     def test_error_message_adds_mapping_to_configured_message(self):
         validator = self._makeOne(lambda x: False, msg='fail ${val}')
         e = invalid_exc(validator, None, None)
@@ -653,6 +689,14 @@ class TestMapping(unittest.TestCase):
         result = typ.serialize(node, null)
         self.assertEqual(result, {'a':null})
 
+    def test_serialize_value_has_drop(self):
+        from colander import drop
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        result = typ.serialize(node, {'a':drop})
+        self.assertEqual(result, {})
+        
     def test_flatten(self):
         node = DummySchemaNode(None, name='node')
         int1 = DummyType()
@@ -1321,11 +1365,11 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, uni)
 
     def test_deserialize_nonunicode_from_None(self):
+        import colander
         value = object()
         node = DummySchemaNode(None)
         typ = self._makeOne()
-        result = typ.deserialize(node, value)
-        self.assertEqual(result, text_type(value))
+        self.assertRaises(colander.Invalid, typ.deserialize, node, value)
 
     def test_deserialize_from_utf8(self):
         uni = text_(b'\xe3\x81\x82', encoding='utf-8')
@@ -1343,20 +1387,19 @@ class TestString(unittest.TestCase):
         result = typ.deserialize(node, utf16)
         self.assertEqual(result, uni)
 
+    def test_deserialize_from_nonstring_obj(self):
+        import colander
+        value = object()
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        self.assertRaises(colander.Invalid, typ.deserialize, node, value)
+
     def test_serialize_null(self):
         from colander import null
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, null)
         self.assertEqual(result, null)
-
-    def test_serialize_none(self):
-        import colander
-        val = None
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.serialize(node, val)
-        self.assertEqual(result, colander.null)
 
     def test_serialize_emptystring(self):
         val = ''
@@ -1422,14 +1465,6 @@ class TestInteger(unittest.TestCase):
     def test_serialize_null(self):
         import colander
         val = colander.null
-        node = DummySchemaNode(None)
-        typ = self._makeOne()
-        result = typ.serialize(node, val)
-        self.assertEqual(result, colander.null)
-
-    def test_serialize_none(self):
-        import colander
-        val = None
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, val)
@@ -2311,6 +2346,16 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(None, foo=1)
         self.assertEqual(node.foo, 1)
 
+    def test_ctor_with_kwarg_typ(self):
+        node = self._makeOne(typ='foo')
+        self.assertEqual(node.typ, 'foo')
+
+    def test_ctor_children_kwarg_typ(self):
+        subnode1 = DummySchemaNode(None, name='sub1')
+        subnode2 = DummySchemaNode(None, name='sub2')
+        node = self._makeOne(subnode1, subnode2, typ='foo')
+        self.assertEqual(node.children, [subnode1, subnode2])
+
     def test_ctor_without_type(self):
         self.assertRaises(NotImplementedError, self._makeOne)
 
@@ -2324,7 +2369,7 @@ class TestSchemaNode(unittest.TestCase):
 
     def test_required_deferred(self):
         from colander import deferred
-        node = self._makeOne(None, missing=deferred('123'))
+        node = self._makeOne(None, missing=deferred(lambda: '123'))
         self.assertEqual(node.required, True)
 
     def test_deserialize_no_validator(self):
@@ -2412,7 +2457,7 @@ class TestSchemaNode(unittest.TestCase):
         from colander import Invalid
         typ = DummyType()
         node = self._makeOne(typ)
-        node.missing = deferred('123')
+        node.missing = deferred(lambda: '123')
         self.assertRaises(Invalid, node.deserialize, null)
 
     def test_serialize(self):
@@ -2447,7 +2492,7 @@ class TestSchemaNode(unittest.TestCase):
         from colander import null
         typ = DummyType()
         node = self._makeOne(typ)
-        node.default = deferred('abc')
+        node.default = deferred(lambda: 'abc')
         self.assertEqual(node.serialize(), null)
 
     def test_add(self):
@@ -2984,7 +3029,7 @@ class TestDeferred(unittest.TestCase):
         return deferred(wrapped)
 
     def test_ctor(self):
-        wrapped = '123'
+        wrapped = lambda: 'foo'
         inst = self._makeOne(wrapped)
         self.assertEqual(inst.wrapped, wrapped)
 
@@ -2998,6 +3043,14 @@ class TestDeferred(unittest.TestCase):
         inst = self._makeOne(wrapped)
         result= inst(n, k)
         self.assertEqual(result, 'abc')
+
+    def test_retain_func_details(self):
+        def wrapper_func(node, kw):
+            """Can you hear me now?"""
+            pass  # pragma: no cover
+        inst = self._makeOne(wrapper_func)
+        self.assertEqual(inst.__doc__, 'Can you hear me now?')
+        self.assertEqual(inst.__name__, 'wrapper_func')
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):

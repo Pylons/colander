@@ -71,19 +71,31 @@ class Test_FixedOffset(unittest.TestCase):
         self.assertEqual(result, "<FixedOffset 'oneandahalf'>")
 
 class Test_parse_timezone(unittest.TestCase):
-    def _callFUT(self, tzstring):
+    def _callFUT(self, tzstring, **kw):
         from ..iso8601 import parse_timezone
-        return parse_timezone(tzstring)
+        return parse_timezone(tzstring, **kw)
 
     def test_default_Z(self):
         from ..iso8601 import UTC
         result = self._callFUT('Z')
         self.assertEqual(result, UTC)
 
+    def test_Z_with_default_timezone(self):
+        from ..iso8601 import UTC, FixedOffset
+        tz = FixedOffset(1, 0, 'myname')
+        result = self._callFUT('Z', default_timezone=tz)
+        self.assertEqual(result, UTC)
+
     def test_default_None(self):
         from ..iso8601 import UTC
         result = self._callFUT(None)
         self.assertEqual(result, UTC)
+
+    def test_None_with_default_timezone(self):
+        from ..iso8601 import FixedOffset
+        tz = FixedOffset(1, 0, 'myname')
+        result = self._callFUT(None, default_timezone=tz)
+        self.assertEqual(result, tz)
 
     def test_positive(self):
         tzstring = "+01:00"

@@ -2,6 +2,7 @@
 
 import datetime
 import decimal
+import functools
 import time
 import itertools
 import pprint
@@ -230,8 +231,20 @@ class Function(object):
     The default value for the ``msg`` when not provided via the
     constructor is ``Invalid value``.
     """
-    def __init__(self, function, msg=_('Invalid value')):
+    def __init__(self, function, msg=None, message=None):
         self.function = function
+        if msg is not None and message is not None:
+            raise ValueError('Only one of msg and message can be passed')
+        # Handle bw compat
+        if msg is None and message is None:
+            msg = _('Invalid value')
+        elif message is not None:
+            warnings.warn(
+                'The "message" argument has been deprecated, use "msg" '
+                'instead.',
+                DeprecationWarning
+                )
+            msg = message
         self.msg = msg
 
     def __call__(self, node, value):
@@ -545,15 +558,16 @@ class Mapping(SchemaType):
         for num, subnode in enumerate(node.children):
             name = subnode.name
             subval = value.pop(name, null)
-            try:
-                sub_result = callback(subnode, subval)
-            except Invalid as e:
-                if error is None:
-                    error = Invalid(node)
-                error.add(e, num)
-            else:
-                if sub_result is not drop:
-                    result[name] = sub_result
+            if subval is not drop:
+                try:
+                    sub_result = callback(subnode, subval)
+                except Invalid as e:
+                    if error is None:
+                        error = Invalid(node)
+                    error.add(e, num)
+                else:
+                    if sub_result is not drop:
+                        result[name] = sub_result
 
         if self.unknown == 'raise':
             if value:
@@ -1090,7 +1104,7 @@ class String(SchemaType):
         self.encoding = encoding
 
     def serialize(self, node, appstruct):
-        if appstruct in (null, None):
+        if appstruct is null:
             return null
 
         try:
@@ -1120,7 +1134,7 @@ class String(SchemaType):
                 else:
                     result = text_type(cstruct)
             else:
-                result = text_type(cstruct)
+                raise Invalid(node)
         except Exception as e:
             raise Invalid(node,
                           _('${val} is not a string: ${err}',
@@ -1136,7 +1150,7 @@ class Number(SchemaType):
     num = None
 
     def serialize(self, node, appstruct):
-        if appstruct in (null, None):
+        if appstruct is null:
             return null
 
         try:
@@ -1715,6 +1729,9 @@ class _SchemaNode(object):
 
     - ``name``: The name of this node.
 
+    - ``typ``: The 'type' for this node can optionally be passed in as a
+      keyword argument. See the documentation for the positional arg above.
+
     - ``default``: The default serialization value for this node.
       Default: :attr:`colander.null`.
 
@@ -1787,7 +1804,10 @@ class _SchemaNode(object):
 
     def __init__(self, *arg, **kw):
         # bw compat forces us to treat first arg as type always
-        if arg:
+        if 'typ' in kw:
+            self.typ = kw.pop('typ')
+            _add_node_children(self, arg)
+        elif arg:
             self.typ = arg[0]
             _add_node_children(self, arg[1:])
         else:
@@ -2105,6 +2125,7 @@ class deferred(object):
     """ A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
     def __init__(self, wrapped):
+        functools.update_wrapper(self, wrapped)
         self.wrapped = wrapped
 
     def __call__(self, node, kw):
