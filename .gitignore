@@ -21,3 +21,4 @@ coverage.xml
 distribute*.gz
 venv/
 env*/
+.idea

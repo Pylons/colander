@@ -2424,6 +2424,21 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
+    def test_deserialize_deferred_validator(self):
+        typ = DummyType()
+        node = self._makeOne(typ, validator=DummyDeferredValidator)
+        node = node.bind(message='good')
+        e = invalid_exc(node.deserialize, 1)
+        self.assertEqual(e.msg, 'good')
+
+    def test_deserialize_all_with_deferred_validator(self):
+        from colander import All
+        typ = DummyType()
+        node = self._makeOne(typ, validator=All(DummyDeferredValidator))
+        node = node.bind(message='good')
+        e = invalid_exc(node.deserialize, 1)
+        self.assertEqual(e.msg, ['good'])
+
     def test_deserialize_value_is_null_no_missing(self):
         from colander import null
         from colander import Invalid
@@ -3605,6 +3620,11 @@ class DummyValidator(object):
             e = Invalid(node, self.msg)
             self.children and e.children.extend(self.children)
             raise e
+
+from colander import deferred
+@deferred
+def DummyDeferredValidator(node, kw):
+    return DummyValidator(kw.get('message','Deferred'))
 
 class Uncooperative(object):
     def __str__(self):

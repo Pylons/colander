@@ -205,6 +205,16 @@ class All(object):
                 exc.children.extend(e.children)
             raise exc
 
+    def _bind(self, node, kw):
+        bound = []
+        for validator in self.validators:
+            if isinstance(validator, deferred):
+                bound.append(validator(node, kw))
+            else:
+                bound.append(validator)
+        self.validators = bound
+
+
 class Function(object):
     """ Validator which accepts a function and an optional message;
     the function is called with the ``value`` during validation.
@@ -1999,6 +2009,8 @@ class _SchemaNode(object):
             if isinstance(v, deferred):
                 v = v(self, kw)
                 setattr(self, k, v)
+        if isinstance(self.validator, All):
+            self.validator._bind(self, kw)
         if getattr(self, 'after_bind', None):
             self.after_bind(self, kw)
 
