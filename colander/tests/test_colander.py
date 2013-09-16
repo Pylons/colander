@@ -3045,12 +3045,34 @@ class TestDeferred(unittest.TestCase):
         self.assertEqual(result, 'abc')
 
     def test_retain_func_details(self):
-        def wrapper_func(node, kw):
+        def wrapped_func(node, kw):
             """Can you hear me now?"""
             pass  # pragma: no cover
-        inst = self._makeOne(wrapper_func)
+        inst = self._makeOne(wrapped_func)
         self.assertEqual(inst.__doc__, 'Can you hear me now?')
-        self.assertEqual(inst.__name__, 'wrapper_func')
+        self.assertEqual(inst.__name__, 'wrapped_func')
+
+    def test_w_callable_instance_no_name(self):
+        from colander import deferred
+        class Wrapped(object):
+            """CLASS"""
+            def __call__(self, node, kw):
+                """METHOD"""
+                pass # pragma: no cover
+        wrapped = Wrapped()
+        inst = self._makeOne(wrapped)
+        self.assertEqual(inst.__doc__, wrapped.__doc__)
+        self.assertFalse('__name__' in inst.__dict__)
+
+    def test_w_callable_instance_no_name_or_doc(self):
+        from colander import deferred
+        class Wrapped(object):
+            def __call__(self, node, kw):
+                pass # pragma: no cover
+        wrapped = Wrapped()
+        inst = self._makeOne(wrapped)
+        self.assertEqual(inst.__doc__, None)
+        self.assertFalse('__name__' in inst.__dict__)
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):
