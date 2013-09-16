@@ -1,3 +1,12 @@
+Unreleased
+----------
+
+Bug Fixes
+~~~~~~~~~
+
+- Un-break wrapping of callable instances as ``colander.deferred``.
+  See https://github.com/Pylons/colander/issues/141.
+
 1.0b1 (2013-09-01)
 ------------------
 

@@ -2129,7 +2129,10 @@ class deferred(object):
     """ A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
     def __init__(self, wrapped):
-        functools.update_wrapper(self, wrapped)
+        try:
+            functools.update_wrapper(self, wrapped)
+        except AttributeError: #non-function
+            self.__doc__ = getattr(wrapped, '__doc__', None)
         self.wrapped = wrapped
 
     def __call__(self, node, kw):
