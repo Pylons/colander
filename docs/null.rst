@@ -357,5 +357,5 @@ When you use `colander.NoneType` you can pass the results of the deserialization
 without converting `colander.null` to None outside the schema. In other words, you have defined in the
 schema that the node can have None as value. 
 
-Note: NoneType can be used for strings, because the machinery does not known whether a serialization of `""` is 
-an empty string or a None.
+Note: NoneType can NOT be used for strings, because the machinery does not known whether a serialization of `""` is 
+an empty string or None.
