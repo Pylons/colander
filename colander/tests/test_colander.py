@@ -1347,8 +1347,9 @@ class TestString(unittest.TestCase):
         from colander import null
         node = DummySchemaNode(None)
         typ = self._makeOne(None)
-        result = typ.deserialize(node, '')
-        self.assertEqual(result, null)
+        val = ''
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, val)
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
