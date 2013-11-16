@@ -411,11 +411,13 @@ def luhnok(node, value):
         sum = _luhnok(value)
     except:
         raise Invalid(node,
-                      '%r is not a valid credit card number' % value)
+                      _('"${val}" is not a valid credit card number',
+                        mapping={'val': value}))
 
     if not (sum % 10) == 0:
         raise Invalid(node,
-                      '%r is not a valid credit card number' % value)
+                      _('"${val}" is not a valid credit card number',
+                        mapping={'val': value}))
 
 def _luhnok(value):
     sum = 0
