@@ -7,6 +7,12 @@ Bug Fixes
 - Un-break wrapping of callable instances as ``colander.deferred``.
   See https://github.com/Pylons/colander/issues/141.
 
+Features
+~~~~~~~~
+
+- Add `Any` validator which succeeds if at least one of its subvalidators
+  succeeded.
+
 1.0b1 (2013-09-01)
 ------------------
 

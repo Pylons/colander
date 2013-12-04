@@ -219,6 +219,35 @@ class TestAll(unittest.TestCase):
         exc = invalid_exc(validator, node, None)
         self.assertEqual(exc.children, [exc1, exc2])
 
+class TestAny(unittest.TestCase):
+    def _makeOne(self, validators):
+        from colander import Any
+        return Any(*validators)
+
+    def test_success(self):
+        validator1 = DummyValidator('msg1')
+        validator2 = DummyValidator()
+        validator = self._makeOne([validator1, validator2])
+        self.assertEqual(validator(None, None), None)
+
+    def test_failure(self):
+        validator1 = DummyValidator('msg1')
+        validator2 = DummyValidator('msg2')
+        validator = self._makeOne([validator1, validator2])
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg, ['msg1', 'msg2'])
+
+    def test_Invalid_children(self):
+        from colander import Invalid
+        node1 = DummySchemaNode(None, 'node1')
+        node = DummySchemaNode(None, 'node')
+        node.children = [node1]
+        exc1 = Invalid(node1, 'exc1')
+        validator1 = DummyValidator('validator1', [exc1])
+        validator2 = DummyValidator()
+        validator = self._makeOne([validator1, validator2])
+        self.assertEqual(validator(None, None), None)
+
 class TestFunction(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Function
