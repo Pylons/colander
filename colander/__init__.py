@@ -205,6 +205,18 @@ class All(object):
                 exc.children.extend(e.children)
             raise exc
 
+class Any(All):
+    """ Composite validator which succeeds if at least one of its
+    subvalidators does not raise an :class:`colander.Invalid` exception."""
+    def __call__(self, node, value):
+        try:
+            return super(Any, self).__call__(node, value)
+        except Invalid as e:
+            if len(e.msg) < len(self.validators):
+                # At least one validator did not fail:
+                return
+            raise
+
 class Function(object):
     """ Validator which accepts a function and an optional message;
     the function is called with the ``value`` during validation.
