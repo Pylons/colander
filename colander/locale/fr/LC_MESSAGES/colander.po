@@ -51,11 +51,11 @@ msgstr "\"${val}\" ne fait pas partie des choix suivants ${choices}"
 
 #: colander/__init__.py:377
 msgid "One or more of the choices you made was not acceptable"
-msgstr ""
+msgstr "Un ou plusieurs choix invalides"
 
 #: colander/__init__.py:423
 msgid "Must be a URL"
-msgstr ""
+msgstr "Doit être une URL valide"
 
 #: colander/__init__.py:519
 msgid "\"${val}\" is not a mapping type: ${err}"
@@ -101,7 +101,7 @@ msgstr "${val} n'est pas une chaîne de carctères"
 
 #: colander/__init__.py:1279
 msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
-msgstr ""
+msgstr "\"${val}\" ne fait partie ni de (${false_choices}) ni de (${true_choices})"
 
 #: colander/__init__.py:1339 colander/__init__.py:1356
 #: colander/__init__.py:1366
