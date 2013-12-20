@@ -3427,6 +3427,39 @@ class TestFunctional(object):
         errors = e.asdict()
         self.assertEqual(errors, expected)
 
+    def test_invalid_asdict_translation_callback(self):
+        from translationstring import TranslationString
+
+        expected = {
+            'schema.int': 'translated',
+            'schema.ob': 'translated',
+            'schema.seq.0.0': 'translated',
+            'schema.seq.1.0': 'translated',
+            'schema.seq.2.0': 'translated',
+            'schema.seq.3.0': 'translated',
+            'schema.seq2.0.key': 'translated',
+            'schema.seq2.0.key2': 'translated',
+            'schema.seq2.1.key': 'translated',
+            'schema.seq2.1.key2': 'translated',
+            'schema.tup.0': 'translated',
+        }
+        data = {
+            'int': '20',
+            'ob': 'no.way.this.exists',
+            'seq': [('q', 's'), ('w', 's'), ('e', 's'), ('r', 's')],
+            'seq2': [{'key': 't', 'key2': 'y'}, {'key':'u', 'key2':'i'}],
+            'tup': ('s', 's'),
+        }
+        schema = self._makeSchema()
+        e = invalid_exc(schema.deserialize, data)
+
+        def translation_function(string):
+            return TranslationString('translated')
+
+        errors = e.asdict(translate=translation_function)
+        self.assertEqual(errors, expected)
+
+
 class TestImperative(unittest.TestCase, TestFunctional):
 
     def _makeSchema(self, name='schema'):
