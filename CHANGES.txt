@@ -7,6 +7,12 @@ Bug Fixes
 - Un-break wrapping of callable instances as ``colander.deferred``.
   See https://github.com/Pylons/colander/issues/141.
 
+Features
+~~~~~~~~
+
+- Allow localization of error messages returned by ``colander.Invalid.asdict``
+  by adding an optional ``translate`` callable argument.
+
 1.0b1 (2013-09-01)
 ------------------
 

@@ -167,7 +167,12 @@ class Invalid(Exception):
 
     def asdict(self, translate=None):
         """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
+        (non-language-translated) error report for this exception.
+
+        If ``translate`` is supplied, it must be a callable taking a
+        translation string as its sole argument and returning a localized,
+        interpolated string.
+        """
         paths = self.paths()
         errors = {}
         for path in paths:
