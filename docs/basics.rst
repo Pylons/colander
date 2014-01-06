@@ -1076,22 +1076,22 @@ We can imperatively construct a completely equivalent schema like so:
 
    import colander
 
-   friend = colander.SchemaNode(Tuple())
+   friend = colander.SchemaNode(colander.Tuple())
    friend.add(colander.SchemaNode(colander.Int(),
                                  validator=colander.Range(0, 9999),
               name='rank'))
-   friend.add(colander.SchemaNode(colander.String(), name='name')
+   friend.add(colander.SchemaNode(colander.String(), name='name'))
 
-   phone = colander.SchemaNode(Mapping())
+   phone = colander.SchemaNode(colander.Mapping())
    phone.add(colander.SchemaNode(colander.String(),
                                 validator=colander.OneOf(['home', 'work']),
                                 name='location'))
    phone.add(colander.SchemaNode(colander.String(), name='number'))
 
-   schema = colander.SchemaNode(Mapping())
+   schema = colander.SchemaNode(colander.Mapping())
    schema.add(colander.SchemaNode(colander.String(), name='name'))
-   schema.add(colander.SchemaNode(colander.Int(), name='age'),
-                                 validator=colander.Range(0, 200))
+   schema.add(colander.SchemaNode(colander.Int(), name='age',
+                                 validator=colander.Range(0, 200)))
    schema.add(colander.SchemaNode(colander.Sequence(), friend, name='friends'))
    schema.add(colander.SchemaNode(colander.Sequence(), phone, name='phones'))
 
@@ -1129,7 +1129,7 @@ For example, in a Python module, you might have code that looks like this:
 
 .. code-block:: python
 
-   from colander import MappingSchema
+   from colander import SchemaNode, MappingSchema
    from colander import Int
 
    class MySchema1(MappingSchema):
