@@ -171,7 +171,7 @@ The imperative style that looks like this still works, of course:
 .. code-block:: python
 
      ranged_int = colander.SchemaNode(
-         typ=colander.Int(),
+         schema_type=colander.Int,
          validator=colander.Range(0, 10),
          default=10,
          title='Ranged Int'
@@ -182,7 +182,7 @@ But in 1.0a1+, you can alternately now do something like this:
 .. code-block:: python
 
      class RangedInt(colander.SchemaNode):
-         typ = colander.Int()
+         schema_type = colander.Int
          validator = colander.Range(0, 10)
          default = 10
          title = 'Ranged Int'
@@ -195,7 +195,7 @@ the schemanode subclass instead of plain attributes:
 .. code-block:: python
 
      class RangedInt(colander.SchemaNode):
-         typ = colander.Int()
+         schema_type = colander.Int
          default = 10
          title = 'Ranged Int'
 
@@ -220,7 +220,7 @@ example this will *not* work:
 .. code-block:: python
 
      class RangedInt(colander.SchemaNode):
-         typ = colander.Int()
+         schema_type = colander.Int
          default = 10
          title = 'Ranged Int'
 
@@ -247,7 +247,7 @@ indeed work):
 .. code-block:: python
 
      class RangedInt(colander.SchemaNode):
-         typ = colander.Int()
+         schema_type = colander.Int
          default = 10
          title = 'Ranged Int'
 
@@ -271,7 +271,7 @@ the bind parameters within values that are plain old methods:
 .. code-block:: python
 
      class RangedInt(colander.SchemaNode):
-         typ = colander.Int()
+         schema_type = colander.Int
          default = 10
          title = 'Ranged Int'
 
@@ -292,7 +292,7 @@ attributes of the schemanode that rely on binding variables:
 .. code-block:: python
 
      class UserIdSchemaNode(colander.SchemaNode):
-         typ = colander.String()
+         schema_type = colander.String
          title = 'User Id'
 
          def after_bind(self, node, kw):
@@ -304,7 +304,7 @@ constructor:
 .. code-block:: python
 
      class RangedInt(colander.SchemaNode):
-         typ = colander.Int()
+         schema_type = colander.Int
          default = 10
          title = 'Ranged Int'
          validator = colander.Range(0, 10)
@@ -999,7 +999,7 @@ schema, then the schema definition can be made more succinct using the
 
            @colander.instantiate()
            class friend(colander.TupleSchema):
-               rank = colander.SchemaNode(colander.Int(), 
+               rank = colander.SchemaNode(colander.Int(),
                                           validator=colander.Range(0, 9999))
                name = colander.SchemaNode(colander.String())
 
@@ -1008,7 +1008,7 @@ schema, then the schema definition can be made more succinct using the
 
            @colander.instantiate()
            class phone(colander.MappingSchema):
-               location = colander.SchemaNode(colander.String(), 
+               location = colander.SchemaNode(colander.String(),
                                               validator=colander.OneOf(['home', 'work']))
                number = colander.SchemaNode(colander.String())
 
