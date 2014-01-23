@@ -1671,13 +1671,12 @@ class Time(SchemaType):
     err_template =  _('Invalid time')
 
     def serialize(self, node, appstruct):
-        if not appstruct:
-            return null
-
         if isinstance(appstruct, datetime.datetime):
             appstruct = appstruct.time()
 
         if not isinstance(appstruct, datetime.time):
+            if not appstruct:
+                return null
             raise Invalid(node,
                           _('"${val}" is not a time object',
                             mapping={'val':appstruct})
