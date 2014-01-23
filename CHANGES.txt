@@ -4,6 +4,21 @@ Unreleased
 Bug Fixes
 ~~~~~~~~~
 
+- Un-break wrapping of callable instances as ``colander.deferred``.
+  See https://github.com/Pylons/colander/issues/141.
+
+Features
+~~~~~~~~
+
+- Add `Any` validator which succeeds if at least one of its subvalidators
+  succeeded.
+
+1.0b1 (2013-09-01)
+------------------
+
+Bug Fixes
+~~~~~~~~~
+
 - In 1.0a1, there was a change merged from
   https://github.com/Pylons/colander/pull/73 which made it possible to supply
   ``None`` as the ``default`` value for a String type, and upon serialization,
@@ -52,6 +67,9 @@ Features
 
 - The ``typ`` of a ``SchemaNode`` can optionally be pased in as a keyword
   argument. See https://github.com/Pylons/colander/issues/90
+
+- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
+  message to be used when the node is required and missing
 
 1.0a5 (2013-05-31)
 ------------------

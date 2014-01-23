@@ -19,9 +19,13 @@ from setuptools import find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+def read(fname):
+    with open(fname) as fp:
+        return fp.read()
+
 try:
-    README = open(os.path.join(here, 'README.txt')).read()
-    CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+    README = read(os.path.join(here, 'README.txt'))
+    CHANGES = read(os.path.join(here, 'CHANGES.txt'))
 except:
     README = ''
     CHANGES = ''
@@ -32,7 +36,7 @@ testing_extras = ['nose', 'coverage']
 docs_extras = ['Sphinx']
 
 setup(name='colander',
-      version='1.0a5',
+      version='1.0b1',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,

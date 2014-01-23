@@ -219,6 +219,35 @@ class TestAll(unittest.TestCase):
         exc = invalid_exc(validator, node, None)
         self.assertEqual(exc.children, [exc1, exc2])
 
+class TestAny(unittest.TestCase):
+    def _makeOne(self, validators):
+        from colander import Any
+        return Any(*validators)
+
+    def test_success(self):
+        validator1 = DummyValidator('msg1')
+        validator2 = DummyValidator()
+        validator = self._makeOne([validator1, validator2])
+        self.assertEqual(validator(None, None), None)
+
+    def test_failure(self):
+        validator1 = DummyValidator('msg1')
+        validator2 = DummyValidator('msg2')
+        validator = self._makeOne([validator1, validator2])
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg, ['msg1', 'msg2'])
+
+    def test_Invalid_children(self):
+        from colander import Invalid
+        node1 = DummySchemaNode(None, 'node1')
+        node = DummySchemaNode(None, 'node')
+        node.children = [node1]
+        exc1 = Invalid(node1, 'exc1')
+        validator1 = DummyValidator('validator1', [exc1])
+        validator2 = DummyValidator()
+        validator = self._makeOne([validator1, validator2])
+        self.assertEqual(validator(None, None), None)
+
 class TestFunction(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Function
@@ -2438,6 +2467,13 @@ class TestSchemaNode(unittest.TestCase):
         node.missing = 'abc'
         self.assertEqual(node.deserialize(null), 'abc')
 
+    def test_deserialize_value_is_null_with_missing_msg(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ, missing_msg='Missing')
+        e = invalid_exc(node.deserialize, null)
+        self.assertEqual(e.msg, 'Missing')
+
     def test_deserialize_noargs_uses_default(self):
         typ = DummyType()
         node = self._makeOne(typ)
@@ -3045,12 +3081,34 @@ class TestDeferred(unittest.TestCase):
         self.assertEqual(result, 'abc')
 
     def test_retain_func_details(self):
-        def wrapper_func(node, kw):
+        def wrapped_func(node, kw):
             """Can you hear me now?"""
             pass  # pragma: no cover
-        inst = self._makeOne(wrapper_func)
+        inst = self._makeOne(wrapped_func)
         self.assertEqual(inst.__doc__, 'Can you hear me now?')
-        self.assertEqual(inst.__name__, 'wrapper_func')
+        self.assertEqual(inst.__name__, 'wrapped_func')
+
+    def test_w_callable_instance_no_name(self):
+        from colander import deferred
+        class Wrapped(object):
+            """CLASS"""
+            def __call__(self, node, kw):
+                """METHOD"""
+                pass # pragma: no cover
+        wrapped = Wrapped()
+        inst = self._makeOne(wrapped)
+        self.assertEqual(inst.__doc__, wrapped.__doc__)
+        self.assertFalse('__name__' in inst.__dict__)
+
+    def test_w_callable_instance_no_name_or_doc(self):
+        from colander import deferred
+        class Wrapped(object):
+            def __call__(self, node, kw):
+                pass # pragma: no cover
+        wrapped = Wrapped()
+        inst = self._makeOne(wrapped)
+        self.assertEqual(inst.__doc__, None)
+        self.assertFalse('__name__' in inst.__dict__)
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):
