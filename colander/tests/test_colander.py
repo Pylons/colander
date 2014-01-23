@@ -2228,6 +2228,15 @@ class TestTime(unittest.TestCase):
         expected = time.isoformat().split('.')[0]
         self.assertEqual(result, expected)
 
+    def test_serialize_with_zero_time(self):
+        import datetime
+        typ = self._makeOne()
+        time = datetime.time(0)
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, time)
+        expected = time.isoformat().split('.')[0]
+        self.assertEqual(result, expected)
+
     def test_serialize_with_datetime(self):
         typ = self._makeOne()
         dt = self._dt()
