@@ -396,7 +396,7 @@ class TestEmail(unittest.TestCase):
         validator = self._makeOne()
         from colander import Invalid
         self.assertRaises(Invalid, validator, None, 'me@here.')
-        self.assertRaises(Invalid, validator, None, 'name@here.tldiswaytoolong')
+        self.assertRaises(Invalid, validator, None, 'name@here.tldiswaytoolooooooooong')
         self.assertRaises(Invalid, validator, None, '@here.us')
         self.assertRaises(Invalid, validator, None, 'me@here..com')
         self.assertRaises(Invalid, validator, None, 'me@we-here-.com')
