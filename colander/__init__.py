@@ -572,16 +572,18 @@ class Mapping(SchemaType):
         for num, subnode in enumerate(node.children):
             name = subnode.name
             subval = value.pop(name, null)
-            if subval is not drop:
-                try:
-                    sub_result = callback(subnode, subval)
-                except Invalid as e:
-                    if error is None:
-                        error = Invalid(node)
-                    error.add(e, num)
-                else:
-                    if sub_result is not drop:
-                        result[name] = sub_result
+            if subval is drop or (subval is null and subnode.default is drop):
+                continue
+            try:
+                sub_result = callback(subnode, subval)
+            except Invalid as e:
+                if error is None:
+                    error = Invalid(node)
+                error.add(e, num)
+            else:
+                if sub_result is drop:
+                    continue
+                result[name] = sub_result
 
         if self.unknown == 'raise':
             if value:
