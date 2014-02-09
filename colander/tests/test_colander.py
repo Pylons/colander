@@ -3153,6 +3153,16 @@ class TestSchema(unittest.TestCase):
         result = node.deserialize(expected)
         self.assertEqual(result, expected)
 
+    def test_serialize_drop_default(self):
+        import colander
+        class MySchema(colander.Schema):
+            a = colander.SchemaNode(colander.String())
+            b = colander.SchemaNode(colander.String(), default=colander.drop)
+        node = MySchema()
+        expected = {'a': 'foo'}
+        result = node.serialize(expected)
+        self.assertEqual(result, expected)
+
 class TestSequenceSchema(unittest.TestCase):
     def test_succeed(self):
         import colander
