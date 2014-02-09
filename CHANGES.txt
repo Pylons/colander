@@ -6,6 +6,9 @@ Bug Fixes
 
 - Un-break wrapping of callable instances as ``colander.deferred``.
   See https://github.com/Pylons/colander/issues/141.
+- Set the max length TLD to 22 in ``Email`` validator based on the
+  current list of valid TLDs.
+  See https://github.com/Pylons/colander/issues/159
 
 Features
 ~~~~~~~~
