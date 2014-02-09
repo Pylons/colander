@@ -3163,6 +3163,13 @@ class TestSchema(unittest.TestCase):
         result = node.serialize(expected)
         self.assertEqual(result, expected)
 
+    def test_imperative_with_implicit_schema_type(self):
+        import colander
+        node = colander.SchemaNode(colander.String())
+        schema = colander.Schema(node)
+        self.assertEqual(schema.schema_type, colander.Mapping)
+        self.assertEqual(schema.children[0], node)
+
 class TestSequenceSchema(unittest.TestCase):
     def test_succeed(self):
         import colander
@@ -3196,6 +3203,13 @@ class TestSequenceSchema(unittest.TestCase):
             e.msg,
             'Sequence schemas must have exactly one child node')
 
+    def test_imperative_with_implicit_schema_type(self):
+        import colander
+        node = colander.SchemaNode(colander.String())
+        schema = colander.SequenceSchema(node)
+        self.assertEqual(schema.schema_type, colander.Sequence)
+        self.assertEqual(schema.children[0], node)
+
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
         import colander
@@ -3206,6 +3220,13 @@ class TestTupleSchema(unittest.TestCase):
         self.assertTrue(isinstance(node, colander.SchemaNode))
         self.assertEqual(node.typ.__class__, colander.Tuple)
         self.assertEqual(node.children[0].typ.__class__, colander.String)
+
+    def test_imperative_with_implicit_schema_type(self):
+        import colander
+        node = colander.SchemaNode(colander.String())
+        schema = colander.TupleSchema(node)
+        self.assertEqual(schema.schema_type, colander.Tuple)
+        self.assertEqual(schema.children[0], node)
 
 class TestFunctional(object):
     def test_deserialize_ok(self):
