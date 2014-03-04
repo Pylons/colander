@@ -4,11 +4,15 @@ Unreleased
 Bug Fixes
 ~~~~~~~~~
 
+- Time of "00:00" no longer gives ``colander.Invalid``.
+
 - Un-break wrapping of callable instances as ``colander.deferred``.
   See https://github.com/Pylons/colander/issues/141.
+
 - Set the max length TLD to 22 in ``Email`` validator based on the
   current list of valid TLDs.
   See https://github.com/Pylons/colander/issues/159
+
 - Fix an issue where ``drop`` was not recognized as a default and was
   returning the ``drop`` instance instead of omitting the value.
   https://github.com/Pylons/colander/issues/139

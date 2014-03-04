@@ -1635,7 +1635,7 @@ class Time(SchemaType):
 
     This type serializes python ``datetime.time`` objects to a
     `ISO8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ string format.
-    The format includes the date only.
+    The format includes the time only.
 
     The constructor accepts no arguments.
 
@@ -1673,13 +1673,12 @@ class Time(SchemaType):
     err_template =  _('Invalid time')
 
     def serialize(self, node, appstruct):
-        if not appstruct:
-            return null
-
         if isinstance(appstruct, datetime.datetime):
             appstruct = appstruct.time()
 
         if not isinstance(appstruct, datetime.time):
+            if not appstruct:
+                return null
             raise Invalid(node,
                           _('"${val}" is not a time object',
                             mapping={'val':appstruct})
