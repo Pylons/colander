@@ -23,6 +23,9 @@ Features
 - Add `Any` validator which succeeds if at least one of its subvalidators
   succeeded.
 
+- Allow localization of error messages returned by ``colander.Invalid.asdict``
+  by adding an optional ``translate`` callable argument.
+
 1.0b1 (2013-09-01)
 ------------------
 

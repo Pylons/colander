@@ -165,9 +165,14 @@ class Invalid(Exception):
             return str(self.pos)
         return str(self.node.name)
 
-    def asdict(self):
+    def asdict(self, translate=None):
         """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
+        (non-language-translated) error report for this exception.
+
+        If ``translate`` is supplied, it must be a callable taking a
+        translation string as its sole argument and returning a localized,
+        interpolated string.
+        """
         paths = self.paths()
         errors = {}
         for path in paths:
@@ -177,6 +182,8 @@ class Invalid(Exception):
                 exc.msg and msgs.extend(exc.messages())
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
+            if translate:
+                msgs = [translate(msg) for msg in msgs]
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
         return errors
 
