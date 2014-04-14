@@ -48,6 +48,9 @@ Exceptions
        from a widget as the value which should be redisplayed when an
        error is shown.
 
+  .. autoclass:: UnboundDeferredError
+
+
 Validators
 ~~~~~~~~~~
 
