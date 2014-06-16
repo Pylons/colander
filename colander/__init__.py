@@ -1812,7 +1812,7 @@ class _SchemaNode(object):
     validator = None
     default = null
     missing = required
-    missing_msg = _('Required')
+    missing_msg = 'Required'
     name = ''
     raw_title = _marker
     title = _marker
@@ -1955,7 +1955,10 @@ class _SchemaNode(object):
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
-                raise Invalid(self, self.missing_msg)
+                raise Invalid(self, _(self.missing_msg,
+                                      mapping={'title': self.title,
+                                               'name':self.name}))
+
             if isinstance(appstruct, deferred): # unbound schema with deferreds
                 raise Invalid(self, self.missing_msg)
             # We never deserialize or validate the missing value

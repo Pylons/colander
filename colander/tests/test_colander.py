@@ -2483,6 +2483,14 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, null)
         self.assertEqual(e.msg, 'Missing')
 
+    def test_deserialize_value_is_null_with_interpolated_missing_msg(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ, missing_msg='Missing attribute ${title}',
+                             name='name_a')
+        e = invalid_exc(node.deserialize, null)
+        self.assertEqual(e.msg.interpolate(), 'Missing attribute Name A')
+
     def test_deserialize_noargs_uses_default(self):
         typ = DummyType()
         node = self._makeOne(typ)
