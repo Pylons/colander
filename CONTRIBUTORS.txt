@@ -113,3 +113,6 @@ Contributors
 - Clayton Parker, 2013/08/15
 - Brian Sutherland, 2013/08/16
 - Peter Lamut, 2013/08/16
+- Cédric Messiant, 2014/06/27
+- Gouji Ochiai, 2014/08/21
+- Tim Tisdall, 2014/09/10
