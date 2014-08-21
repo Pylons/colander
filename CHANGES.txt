@@ -17,6 +17,11 @@ Bug Fixes
   returning the ``drop`` instance instead of omitting the value.
   https://github.com/Pylons/colander/issues/139
 
+- Fix an issue where the ``SchemaNode.title`` was clobbered by the ``name``
+  when defined as a class attribute.
+  See https://github.com/Pylons/colander/pull/183 and
+  https://github.com/Pylons/colander/pull/185
+
 Features
 ~~~~~~~~
 
