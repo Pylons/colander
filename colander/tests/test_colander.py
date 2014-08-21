@@ -2726,6 +2726,22 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
         result = node.deserialize(colander.null)
         self.assertEqual(result, 10)
 
+    def test_subclass_uses_title(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            schema_type = colander.Int
+            title = 'some title'
+        node = MyNode(name='my')
+        self.assertEqual(node.title, 'some title')
+
+    def test_subclass_title_overwritten_by_constructor(self):
+        import colander
+        class MyNode(colander.SchemaNode):
+            schema_type = colander.Int
+            title = 'some title'
+        node = MyNode(name='my', title='other title')
+        self.assertEqual(node.title, 'other title')
+
     def test_subclass_value_overridden_by_constructor(self):
         import colander
         class MyNode(colander.SchemaNode):
