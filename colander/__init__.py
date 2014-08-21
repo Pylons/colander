@@ -1815,7 +1815,7 @@ class _SchemaNode(object):
     missing_msg = _('Required')
     name = ''
     raw_title = _marker
-    title = ''
+    title = _marker
     description = ''
     widget = None
     after_bind = None
@@ -1842,8 +1842,9 @@ class _SchemaNode(object):
         # bw compat forces us to manufacture a title if one is not supplied
         title = kw.get('title', _marker)
         if title is _marker:
-            name = kw.get('name', self.name)
-            kw['title'] = name.replace('_', ' ').title()
+            if self.title is _marker:
+                name = kw.get('name', self.name)
+                kw['title'] = name.replace('_', ' ').title()
         else:
             kw['raw_title'] = title
 
