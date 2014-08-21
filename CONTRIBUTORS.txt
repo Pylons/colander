@@ -117,3 +117,4 @@ Contributors
 - Michael Howitz, 2013/12/05
 - Alex Marandon, 2013/12/21
 - Cédric Messiant, 2014/06/27
+- Gouji Ochiai, 2014/08/21
