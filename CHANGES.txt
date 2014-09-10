@@ -4,6 +4,10 @@ Unreleased
 Bug Fixes
 ~~~~~~~~~
 
+- removed forked iso8601 and changed to dependency on pypi iso8601
+  (due to float rounding bug on microsecond portion when parsing
+  iso8601 datetime string)
+
 - Time of "00:00" no longer gives ``colander.Invalid``.
 
 - Un-break wrapping of callable instances as ``colander.deferred``.
