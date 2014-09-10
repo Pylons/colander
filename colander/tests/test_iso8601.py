@@ -77,7 +77,7 @@ class Test_parse_timezone(unittest.TestCase):
         from ..iso8601 import (parse_date, FixedOffset)
         if tzstring is None:
             tzstring = ''
-        dt = parse_date("2006-10-11T00:14:33{}".format(tzstring), **kw)
+        dt = parse_date("2006-10-11T00:14:33{0}".format(tzstring), **kw)
         return dt.tzinfo
 
     def test_default_Z(self):
