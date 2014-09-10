@@ -68,12 +68,17 @@ class Test_FixedOffset(unittest.TestCase):
     def test___repr__(self):
         inst = self._makeOne()
         result = inst.__repr__()
-        self.assertEqual(result, "<FixedOffset 'oneandahalf'>")
+        self.assertEqual(result, "<FixedOffset 'oneandahalf' datetime.timedelta(0, 5400)>")
 
 class Test_parse_timezone(unittest.TestCase):
     def _callFUT(self, tzstring, **kw):
-        from ..iso8601 import parse_timezone
-        return parse_timezone(tzstring, **kw)
+        # mimic old parse_timezone() by returning a FixedOffset
+        from datetime import tzinfo
+        from ..iso8601 import (parse_date, FixedOffset)
+        if tzstring is None:
+            tzstring = ''
+        dt = parse_date("2006-10-11T00:14:33{}".format(tzstring), **kw)
+        return dt.tzinfo
 
     def test_default_Z(self):
         from ..iso8601 import UTC
