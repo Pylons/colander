@@ -39,6 +39,3 @@ License
     THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
 
-This package uses code from the "pyiso8601" package by Michael Twomey,
-licensed under the MIT license.  See the source file named "iso8601.py" for
-copyright information and license text.
