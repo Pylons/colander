@@ -1978,17 +1978,17 @@ class TestDateTime(unittest.TestCase):
         return datetime.date.today()
 
     def test_ctor_default_tzinfo_not_specified(self):
-        from .. import iso8601
+        import iso8601
         typ = self._makeOne()
-        self.assertEqual(typ.default_tzinfo.__class__, iso8601.Utc)
+        self.assertEqual(typ.default_tzinfo.__class__, iso8601.iso8601.Utc)
 
     def test_ctor_default_tzinfo_None(self):
         typ = self._makeOne(default_tzinfo=None)
         self.assertEqual(typ.default_tzinfo, None)
 
     def test_ctor_default_tzinfo_non_None(self):
-        from .. import iso8601
-        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        import iso8601
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         typ = self._makeOne(default_tzinfo=tzinfo)
         self.assertEqual(typ.default_tzinfo, tzinfo)
 
@@ -2041,10 +2041,10 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result, dt.isoformat())
 
     def test_serialize_with_tzware_datetime(self):
-        from .. import iso8601
+        import iso8601
         typ = self._makeOne()
         dt = self._dt()
-        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         dt = dt.replace(tzinfo=tzinfo)
         node = DummySchemaNode(None)
         result = typ.serialize(node, dt)
@@ -2053,14 +2053,14 @@ class TestDateTime(unittest.TestCase):
 
     def test_deserialize_date(self):
         import datetime
-        from .. import iso8601
+        import iso8601
         date = self._today()
         typ = self._makeOne()
         formatted = date.isoformat()
         node = DummySchemaNode(None)
         result = typ.deserialize(node, formatted)
         expected = datetime.datetime.combine(result, datetime.time())
-        tzinfo = iso8601.Utc()
+        tzinfo = iso8601.iso8601.Utc()
         expected = expected.replace(tzinfo=tzinfo)
         self.assertEqual(result.isoformat(), expected.isoformat())
 
@@ -2091,10 +2091,10 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result, colander.null)
 
     def test_deserialize_success(self):
-        from .. import iso8601
+        import iso8601
         typ = self._makeOne()
         dt = self._dt()
-        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         dt = dt.replace(tzinfo=tzinfo)
         iso = dt.isoformat()
         node = DummySchemaNode(None)
@@ -2102,8 +2102,8 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result.isoformat(), iso)
 
     def test_deserialize_naive_with_default_tzinfo(self):
-        from .. import iso8601
-        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        import iso8601
+        tzinfo = iso8601.iso8601.FixedOffset(1, 0, 'myname')
         typ = self._makeOne(default_tzinfo=tzinfo)
         dt = self._dt()
         dt_with_tz = dt.replace(tzinfo=tzinfo)
