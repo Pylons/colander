@@ -3188,6 +3188,32 @@ class TestSchema(unittest.TestCase):
         result = node.serialize(expected)
         self.assertEqual(result, expected)
 
+    def test_serialize_callable_default(self):
+        import colander
+
+        def func():
+            return 'returned_value'
+
+        class MySchema(colander.Schema):
+            a = colander.SchemaNode(colander.String(), default=func)
+        node = MySchema()
+        expected = {'a': 'returned_value'}
+        result = node.serialize(expected)
+        self.assertEqual(result, expected)
+
+    def test_deserialize_callble_missing(self):
+        import colander
+
+        def func():
+            return 'returned_value'
+
+        class MySchema(colander.Schema):
+            a = colander.SchemaNode(colander.String(), missing=func)
+        node = MySchema()
+        expected = {'a': 'returned_value'}
+        result = node.deserialize(expected)
+        self.assertEqual(result, expected)
+
 class TestSequenceSchema(unittest.TestCase):
     def test_succeed(self):
         import colander
