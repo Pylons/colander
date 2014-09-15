@@ -25,6 +25,17 @@ _ = translationstring.TranslationStringFactory('colander')
 required = object()
 _marker = required # bw compat
 
+
+def _evaulate_callable(value):
+    """If the given value is a function, call it and return the return value.
+    Otherwise, value is returned directly.
+
+    """
+    if callable(value):
+        return value()
+    return value
+
+
 class _null(object):
     """ Represents a null value in colander-related operations. """
     def __nonzero__(self):
@@ -1886,6 +1897,7 @@ class _SchemaNode(object):
             appstruct = self.default
         if isinstance(appstruct, deferred): # unbound schema with deferreds
             appstruct = null
+        appstruct = _evaulate_callable(appstruct)
         cstruct = self.typ.serialize(self, appstruct)
         return cstruct
 
@@ -1959,7 +1971,7 @@ class _SchemaNode(object):
             if isinstance(appstruct, deferred): # unbound schema with deferreds
                 raise Invalid(self, self.missing_msg)
             # We never deserialize or validate the missing value
-            return appstruct
+            return _evaulate_callable(appstruct)
 
         if self.validator is not None:
             if not isinstance(self.validator, deferred): # unbound
