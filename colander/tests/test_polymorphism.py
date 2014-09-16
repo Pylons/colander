@@ -162,3 +162,20 @@ class TestPolymorphism(unittest.TestCase):
                     'severity': 'info',
                 }
             })
+
+    def test_duplicate_polymorphic_id(self):
+        import colander
+        from colander.polymorphism import AbstractSchema
+
+        class Payload(AbstractSchema):
+            cls_type = colander.SchemaNode(colander.String())
+            __mapper_args__ = {
+                'polymorphic_on': 'cls_type',
+            }
+
+        class Log(Payload):
+            cls_type = 'log'
+
+        with self.assertRaises(KeyError):
+            class AnotherLog(Log):
+                cls_type = 'log'

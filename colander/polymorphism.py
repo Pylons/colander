@@ -51,6 +51,8 @@ class _AbstractMeta(_SchemaMeta):
             # register this class to root class
             polymorphic_on = root_cls.__mapper_args__['polymorphic_on']
             polymorphic_id = clsattrs[polymorphic_on]
+            if polymorphic_id in root_cls.__polymorphic_mapping__:
+                raise KeyError('%s already exists' % polymorphic_id)
             root_cls.__polymorphic_mapping__[polymorphic_id] = cls
 
             logger.info(
