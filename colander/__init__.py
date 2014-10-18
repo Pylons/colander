@@ -1887,6 +1887,8 @@ class _SchemaNode(object):
         if isinstance(appstruct, deferred): # unbound schema with deferreds
             appstruct = null
         cstruct = self.typ.serialize(self, appstruct)
+        if self.missing is drop and cstruct is null:
+            cstuct = drop
         return cstruct
 
     def flatten(self, appstruct):
