@@ -27,6 +27,8 @@ Bug Fixes
   See https://github.com/Pylons/colander/pull/183 and
   https://github.com/Pylons/colander/pull/185
 
+- Updated translations: ``fr``, ``de``, ``ja``
+
 1.0b1 (2013-09-01)
 ------------------
 
