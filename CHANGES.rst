@@ -6,12 +6,27 @@ Platform
 
 - Addd explicit support for Python 3.4 and PyPy3.
 
+Features
+~~~~~~~~
+
+- Add `Any` validator which succeeds if at least one of its subvalidators
+  succeeded.
+
+- Allow localization of error messages returned by ``colander.Invalid.asdict``
+  by adding an optional ``translate`` callable argument.
+
+- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
+  message to be used when the node is required and missing
+
+1.0 (2014-11-26)
+----------------
+
 Bug Fixes
 ~~~~~~~~~
 
-- Removed forked iso8601 and change to dependency on pypi iso8601
+- Removed forked ``iso8601`` and change to dependency on PyPI ``iso8601``
   (due to float rounding bug on microsecond portion when parsing
-  iso8601 datetime string).  Left an iso8601.py stub for backwards
+  iso8601 datetime string).  Left an ``iso8601.py`` stub for backwards
   compatibility.
 
 - Time of "00:00" no longer gives ``colander.Invalid``.
@@ -32,17 +47,8 @@ Bug Fixes
   See https://github.com/Pylons/colander/pull/183 and
   https://github.com/Pylons/colander/pull/185
 
-Features
-~~~~~~~~
+- Updated translations: ``fr``, ``de``, ``ja``
 
-- Add `Any` validator which succeeds if at least one of its subvalidators
-  succeeded.
-
-- Allow localization of error messages returned by ``colander.Invalid.asdict``
-  by adding an optional ``translate`` callable argument.
-
-- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
-  message to be used when the node is required and missing
 
 1.0b1 (2013-09-01)
 ------------------
