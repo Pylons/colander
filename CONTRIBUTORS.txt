@@ -101,7 +101,8 @@ and agrees to the terms above in the section within this document entitled
 Contributors
 ------------
 
-- Chris McDonough, 2011/02/16
+- Chris McDonough, 2010/03/11
+- Tres Seaver, 2010/04/05
 - Chris Withers, 2011/05/45
 - Mathieu Le Marec - Pasquet (kiorky), 2011/07/11
 - Atsushi Odagiri, 2012/02/04
