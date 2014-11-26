@@ -1,23 +1,27 @@
-Unreleased
-----------
+1.0.0 (unreleased)
+------------------
 
 Bug Fixes
 ~~~~~~~~~
 
-- Removed forked iso8601 and change to dependency on pypi iso8601
+- Removed forked ``iso8601`` and change to dependency on PyPI ``iso8601``
   (due to float rounding bug on microsecond portion when parsing
-  iso8601 datetime string).  Left an iso8601.py stub for backwards
+  iso8601 datetime string).  Left an ``iso8601.py`` stub for backwards
   compatibility.
 
 - Time of "00:00" no longer gives ``colander.Invalid``.
+
 - Un-break wrapping of callable instances as ``colander.deferred``.
   See https://github.com/Pylons/colander/issues/141.
+
 - Set the max length TLD to 22 in ``Email`` validator based on the
   current list of valid TLDs.
   See https://github.com/Pylons/colander/issues/159
+
 - Fix an issue where ``drop`` was not recognized as a default and was
   returning the ``drop`` instance instead of omitting the value.
   https://github.com/Pylons/colander/issues/139
+
 - Fix an issue where the ``SchemaNode.title`` was clobbered by the ``name``
   when defined as a class attribute.
   See https://github.com/Pylons/colander/pull/183 and
