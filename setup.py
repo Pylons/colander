@@ -24,8 +24,8 @@ def read(fname):
         return fp.read()
 
 try:
-    README = read(os.path.join(here, 'README.txt'))
-    CHANGES = read(os.path.join(here, 'CHANGES.txt'))
+    README = read(os.path.join(here, 'README.rst'))
+    CHANGES = read(os.path.join(here, 'CHANGES.rst'))
 except:
     README = ''
     CHANGES = ''
