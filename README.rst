@@ -5,8 +5,8 @@ Colander
 .. image:: https://travis-ci.org/Pylons/colander.svg?branch=1.0-branch
         :target: https://travis-ci.org/Pylons/colander
 
-.. image:: https://readthedocs.org/projects/pyramid/badge/?version=1.0-branch
-        :target: http://docs.pylonsproject.org/projects/pyramid/en/1.0-branch/
+.. image:: https://readthedocs.org/projects/colander/badge/?version=1.0-branch
+        :target: http://docs.pylonsproject.org/projects/colander/en/1.0-branch/
         :alt: Documentation Status
 
 
