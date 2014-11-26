@@ -1,6 +1,15 @@
 Colander
 ========
 
+
+.. image:: https://travis-ci.org/Pylons/colander.svg?branch=master
+        :target: https://travis-ci.org/Pylons/colander
+
+.. image:: https://readthedocs.org/projects/pyramid/badge/?version=master
+        :target: http://docs.pylonsproject.org/projects/pyramid/en/master/
+        :alt: Documentation Status
+
+
 An extensible package which can be used to:
 
 - deserialize and validate a data structure composed of strings,
