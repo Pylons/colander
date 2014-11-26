@@ -317,26 +317,34 @@ class Range(object):
                 max_err = _(self.max_err, mapping={'val':value, 'max':self.max})
                 raise Invalid(node, max_err)
 
+
 class Length(object):
-    """ Validator which succeeds if the value passed to it has a
+    """Validator which succeeds if the value passed to it has a
     length between a minimum and maximum.  The value is most often a
-    string."""
-    def __init__(self, min=None, max=None):
+    string. The error message(s) may be customized.
+    """
+
+    def __init__(self, min=None, max=None, min_msg=None, max_msg=None):
         self.min = min
         self.max = max
+        self.min_msg = min_msg
+        self.max_msg = max_msg
 
     def __call__(self, node, value):
         if self.min is not None:
             if len(value) < self.min:
-                min_err = _('Shorter than minimum length ${min}',
-                            mapping={'min':self.min})
+                min_err = self.min_msg or _(
+                    'Shorter than minimum length ${min}',
+                    mapping={'min': self.min})
                 raise Invalid(node, min_err)
 
         if self.max is not None:
             if len(value) > self.max:
-                max_err = _('Longer than maximum length ${max}',
-                            mapping={'max':self.max})
+                max_err = self.max_msg or _(
+                    'Longer than maximum length ${max}',
+                    mapping={'max': self.max})
                 raise Invalid(node, max_err)
+
 
 class OneOf(object):
     """ Validator which succeeds if the value passed to it is one of
@@ -1719,7 +1727,7 @@ def _Schema__new__(cls, *args, **kw):
         node.add(n)
     return node
 
-Schema = _SchemaMeta('Schema', (object,), 
+Schema = _SchemaMeta('Schema', (object,),
     dict(schema_type=Mapping,
         node_type=SchemaNode,
         __new__=_Schema__new__))
