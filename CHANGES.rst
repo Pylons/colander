@@ -41,6 +41,9 @@ Features
 - Allow localization of error messages returned by ``colander.Invalid.asdict``
   by adding an optional ``translate`` callable argument.
 
+- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
+  message to be used when the node is required and missing
+
 1.0b1 (2013-09-01)
 ------------------
 
@@ -95,9 +98,6 @@ Features
 
 - The ``typ`` of a ``SchemaNode`` can optionally be pased in as a keyword
   argument. See https://github.com/Pylons/colander/issues/90
-
-- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
-  message to be used when the node is required and missing
 
 1.0a5 (2013-05-31)
 ------------------
