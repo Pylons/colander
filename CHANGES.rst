@@ -21,6 +21,14 @@ Features
 - Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
   message to be used when the node is required and missing
 
+- ``colander.String`` schema type now supports an optional keyword argument
+  ``allow_empty`` which, when True, deserializes an empty string to an
+  empty string. When False (default), an empty string deserializes to
+  ``colander.null``. This allows for a node to be explicitly required, but
+  allow an empty ('') value to be provided.
+  https://github.com/Pylons/colander/issues/199
+
+
 Bug Fixes
 ---------
 

@@ -1439,9 +1439,9 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(result, SequenceItems(['a']))
 
 class TestString(unittest.TestCase):
-    def _makeOne(self, encoding=None):
+    def _makeOne(self, encoding=None, allow_empty=False):
         from colander import String
-        return String(encoding)
+        return String(encoding, allow_empty)
 
     def test_alias(self):
         from colander import Str
@@ -1454,6 +1454,9 @@ class TestString(unittest.TestCase):
         typ = self._makeOne(None)
         result = typ.deserialize(node, '')
         self.assertEqual(result, null)
+        typ = self._makeOne(None, allow_empty=True)
+        result = typ.deserialize(node, '')
+        self.assertEqual(result, '')
 
     def test_deserialize_uncooperative(self):
         val = Uncooperative()
