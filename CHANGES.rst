@@ -4,7 +4,7 @@ Unreleased
 Platform
 --------
 
-- Addd explicit support for Python 3.4 and PyPy3.
+- Add explicit support for Python 3.4 and PyPy3.
 
 Features
 ~~~~~~~~
@@ -17,6 +17,10 @@ Features
 
 - Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
   message to be used when the node is required and missing
+
+- Add ``min_err`` and ``max_err`` arguments to ``Length``, thus allowing
+  customization of its error messages.
+
 
 1.0 (2014-11-26)
 ----------------
@@ -414,7 +418,7 @@ Features
               id='a2',
               )
           c = colander.SchemaNode(
-              colander.String(), 
+              colander.String(),
               id='c2',
               )
           e = colander.SchemaNode(
@@ -470,7 +474,7 @@ Features
               id='a2',
               )
           c = colander.SchemaNode(
-              colander.String(), 
+              colander.String(),
               id='c2',
               )
           e = colander.SchemaNode(
