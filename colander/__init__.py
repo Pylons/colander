@@ -1,10 +1,14 @@
+# coding=utf-8
+
 import datetime
 import decimal
+import functools
 import time
 import itertools
 import pprint
 import re
 import translationstring
+import warnings
 
 from .compat import (
     text_,
@@ -36,6 +40,15 @@ class _null(object):
         return 'null' # when unpickled, refers to "null" below (singleton)
 
 null = _null()
+
+class _drop(object):
+    """
+    Represents a value that should be dropped if it is missing during
+    deserialization.
+    """
+    pass
+
+drop = _drop()
 
 def interpolate(msgs):
     for s in msgs:
@@ -152,9 +165,14 @@ class Invalid(Exception):
             return str(self.pos)
         return str(self.node.name)
 
-    def asdict(self):
+    def asdict(self, translate=None):
         """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
+        (non-language-translated) error report for this exception.
+
+        If ``translate`` is supplied, it must be a callable taking a
+        translation string as its sole argument and returning a localized,
+        interpolated string.
+        """
         paths = self.paths()
         errors = {}
         for path in paths:
@@ -164,6 +182,8 @@ class Invalid(Exception):
                 exc.msg and msgs.extend(exc.messages())
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
+            if translate:
+                msgs = [translate(msg) for msg in msgs]
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
         return errors
 
@@ -192,6 +212,18 @@ class All(object):
                 exc.children.extend(e.children)
             raise exc
 
+class Any(All):
+    """ Composite validator which succeeds if at least one of its
+    subvalidators does not raise an :class:`colander.Invalid` exception."""
+    def __call__(self, node, value):
+        try:
+            return super(Any, self).__call__(node, value)
+        except Invalid as e:
+            if len(e.msg) < len(self.validators):
+                # At least one validator did not fail:
+                return
+            raise
+
 class Function(object):
     """ Validator which accepts a function and an optional message;
     the function is called with the ``value`` during validation.
@@ -200,8 +232,8 @@ class Function(object):
     empty string, ``0``, an object with a ``__nonzero__`` that returns
     ``False``, etc) when called during validation, an
     :exc:`colander.Invalid` exception is raised (validation fails);
-    its msg will be the value of the ``message`` argument passed to
-    this class' constructor.
+    its msg will be the value of the ``msg`` argument passed to this
+    class' constructor.
 
     If the function returns a stringlike object (a ``str`` or
     ``unicode`` object) that is *not* the empty string , a
@@ -215,19 +247,35 @@ class Function(object):
     :exc:`colander.Invalid` exception is *not* raised (validation
     succeeds).
 
-    The default value for the ``message`` when not provided via the
+    The default value for the ``msg`` when not provided via the
     constructor is ``Invalid value``.
     """
-    def __init__(self, function, message=_('Invalid value')):
+    def __init__(self, function, msg=None, message=None):
         self.function = function
-        self.message = message
+        if msg is not None and message is not None:
+            raise ValueError('Only one of msg and message can be passed')
+        # Handle bw compat
+        if msg is None and message is None:
+            msg = _('Invalid value')
+        elif message is not None:
+            warnings.warn(
+                'The "message" argument has been deprecated, use "msg" '
+                'instead.',
+                DeprecationWarning
+                )
+            msg = message
+        self.msg = msg
 
     def __call__(self, node, value):
         result = self.function(value)
         if not result:
-            raise Invalid(node, translationstring.TranslationString(self.message, mapping={'val':value}))
+            raise Invalid(
+                node, translationstring.TranslationString(
+                    self.msg, mapping={'val':value}))
         if isinstance(result, string_types):
-            raise Invalid(node, translationstring.TranslationString(result, mapping={'val':value}))
+            raise Invalid(
+                node, translationstring.TranslationString(
+                    result, mapping={'val':value}))
 
 class Regex(object):
     """ Regular expression validator.
@@ -259,16 +307,19 @@ class Regex(object):
         if self.match_object.match(value) is None:
             raise Invalid(node, self.msg)
 
+EMAIL_RE = "(?i)^[A-Z0-9._%!#$%&'*+-/=?^_`{|}~()]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,22}$"
+
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be
         the error message to be used when raising :exc:`colander.Invalid`;
         otherwise, defaults to 'Invalid email address'.
     """
+
     def __init__(self, msg=None):
+        email_regex = text_(EMAIL_RE)
         if msg is None:
             msg = _("Invalid email address")
-        super(Email, self).__init__(
-            text_('(?i)^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$'), msg=msg)
+        super(Email, self).__init__(email_regex, msg=msg)
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
@@ -359,6 +410,62 @@ class OneOf(object):
                     mapping={'val':value, 'choices':choices})
             raise Invalid(node, err)
 
+class ContainsOnly(object):
+    """ Validator which succeeds if the value passed to is a sequence and each
+    element in the sequence is also in the sequence passed as ``choices``.
+    This validator is useful when attached to a schemanode with, e.g. a
+    :class:`colander.Set` or another sequencetype.
+    """
+    err_template = _(
+        'One or more of the choices you made was not acceptable'
+        )
+    def __init__(self, choices):
+        self.choices = choices
+
+    def __call__(self, node, value):
+        if not set(value).issubset(self.choices):
+            err = _(
+                self.err_template,
+                mapping = {'val':value, 'choices':self.choices}
+                )
+            raise Invalid(node, err)
+
+def luhnok(node, value):
+    """ Validator which checks to make sure that the value passes a luhn
+    mod-10 checksum (credit cards).  ``value`` must be a string, not an
+    integer."""
+    try:
+        sum = _luhnok(value)
+    except:
+        raise Invalid(node,
+                      _('"${val}" is not a valid credit card number',
+                        mapping={'val': value}))
+
+    if not (sum % 10) == 0:
+        raise Invalid(node,
+                      _('"${val}" is not a valid credit card number',
+                        mapping={'val': value}))
+
+def _luhnok(value):
+    sum = 0
+    num_digits = len(value)
+    oddeven = num_digits & 1
+
+    for count in range(0, num_digits):
+        digit = int(value[count])
+
+        if not (( count & 1 ) ^ oddeven ):
+            digit = digit * 2
+        if digit > 9:
+            digit = digit - 9
+
+        sum = sum + digit
+    return sum
+
+URL_REGEX = r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))""" # "emacs!
+
+url = Regex(URL_REGEX, _('Must be a URL'))
+
 class SchemaType(object):
     """ Base class for all schema types """
     def flatten(self, node, appstruct, prefix='', listitem=False):
@@ -379,7 +486,10 @@ class SchemaType(object):
         raise AssertionError("Can't call 'set_value' on a leaf node.")
 
     def get_value(self, node, appstruct, path):
-        raise AssertionError("Can't call 'set_value' on a leaf node.")
+        raise AssertionError("Can't call 'get_value' on a leaf node.")
+
+    def cstruct_children(self, node, cstruct):
+        return []
 
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
@@ -444,12 +554,29 @@ class Mapping(SchemaType):
 
     def _validate(self, node, value):
         try:
-            return dict(value)
+            if hasattr(value, 'items'):
+                return dict(value)
+            else:
+                raise TypeError('Does not implement dict-like functionality.')
         except Exception as e:
             raise Invalid(node,
                           _('"${val}" is not a mapping type: ${err}',
                           mapping = {'val':value, 'err':e})
                           )
+
+    def cstruct_children(self, node, cstruct):
+        if cstruct is null:
+            value = {}
+        else:
+            value = self._validate(node, cstruct)
+        children = []
+        for subnode in node.children:
+            name = subnode.name
+            subval = value.get(name, _marker)
+            if subval is _marker:
+                subval = subnode.serialize(null)
+            children.append(subval)
+        return children
 
     def _impl(self, node, value, callback):
         value = self._validate(node, value)
@@ -460,12 +587,18 @@ class Mapping(SchemaType):
         for num, subnode in enumerate(node.children):
             name = subnode.name
             subval = value.pop(name, null)
+            if subval is drop or (subval is null and subnode.default is drop):
+                continue
             try:
-                result[name] = callback(subnode, subval)
+                sub_result = callback(subnode, subval)
             except Invalid as e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
+            else:
+                if sub_result is drop:
+                    continue
+                result[name] = sub_result
 
         if self.unknown == 'raise':
             if value:
@@ -582,6 +715,22 @@ class Tuple(Positional, SchemaType):
 
         return list(value)
 
+    def cstruct_children(self, node, cstruct):
+        childlen = len(node.children)
+        if cstruct is null:
+            cstruct = []
+        structlen = len(cstruct)
+        if structlen < childlen:
+            missing_children = node.children[structlen:]
+            cstruct = list(cstruct)
+            for child in missing_children:
+                cstruct.append(child.serialize(null))
+        elif structlen > childlen:
+            cstruct = cstruct[:childlen]
+        else:
+            cstruct = list(cstruct)
+        return cstruct
+
     def _impl(self, node, value, callback):
         value = self._validate(node, value)
         error = None
@@ -673,6 +822,76 @@ class Tuple(Positional, SchemaType):
         return appstruct[index]
 
 
+class Set(SchemaType):
+    """ A type representing a non-overlapping set of items.
+    Deserializes an iterable to a ``set`` object.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    .. versionadded: 1.0a1
+
+    """
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        return appstruct
+
+    def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+
+        if not is_nonstr_iter(cstruct):
+            raise Invalid(
+                node,
+                _('${cstruct} is not iterable', mapping={'cstruct': cstruct})
+            )
+
+        return set(cstruct)
+
+
+class List(SchemaType):
+    """ Type representing an ordered sequence of items.
+
+    Desrializes an iterable to a ``list`` object.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    .. versionadded: 1.0a6
+    """
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        return appstruct
+
+    def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
+
+        if not is_nonstr_iter(cstruct):
+            raise Invalid(
+                node,
+                _('${cstruct} is not iterable', mapping={'cstruct': cstruct})
+            )
+
+        return list(cstruct)
+
+
+class SequenceItems(list):
+    """
+    List marker subclass for use by Sequence.cstruct_children, which indicates
+    to a caller of that method that the result is from a sequence type.
+    Usually these values need to be treated specially, because all of the
+    children of a Sequence are not present in a schema.
+    """
+
 class Sequence(Positional, SchemaType):
     """
     A type which represents a variable-length sequence of nodes,
@@ -705,14 +924,21 @@ class Sequence(Positional, SchemaType):
         self.accept_scalar = accept_scalar
 
     def _validate(self, node, value, accept_scalar):
-        if hasattr(value, '__iter__') and not hasattr(value, 'get'):
+        if (hasattr(value, '__iter__') and
+            not hasattr(value, 'get') and
+            not isinstance(value, string_types)):
             return list(value)
         if accept_scalar:
             return [value]
         else:
             raise Invalid(node, _('"${val}" is not iterable',
                                   mapping={'val':value})
-                          )
+                         )
+
+    def cstruct_children(self, node, cstruct):
+        if cstruct is null:
+            return SequenceItems([])
+        return SequenceItems(cstruct)
 
     def _impl(self, node, value, callback, accept_scalar):
         if accept_scalar is None:
@@ -909,7 +1135,7 @@ class String(SchemaType):
         self.encoding = encoding
 
     def serialize(self, node, appstruct):
-        if not appstruct:
+        if appstruct is null:
             return null
 
         try:
@@ -939,7 +1165,7 @@ class String(SchemaType):
                 else:
                     result = text_type(cstruct)
             else:
-                result = text_type(cstruct)
+                raise Invalid(node)
         except Exception as e:
             raise Invalid(node,
                           _('${val} is not a string: ${err}',
@@ -1004,8 +1230,46 @@ class Float(Number):
     num = float
 
 class Decimal(Number):
-    """ A type representing a decimal floating point.  Deserialization
-    returns an instance of the Python ``decimal.Decimal`` type.
+    """
+    A type representing a decimal floating point.  Deserialization returns an
+    instance of the Python ``decimal.Decimal`` type.
+
+    If the :attr:`colander.null` value is passed to the serialize
+    method of this class, the :attr:`colander.null` value will be
+    returned.
+
+    The Decimal constructor takes two optional arguments, ``quant`` and
+    ``rounding``.  If supplied, ``quant`` should be a string,
+    (e.g. ``1.00``).  If supplied, ``rounding`` should be one of the Python
+    ``decimal`` module rounding options (e.g. ``decimal.ROUND_UP``,
+    ``decimal.ROUND_DOWN``, etc).  The serialized and deserialized result
+    will be quantized and rounded via
+    ``result.quantize(decimal.Decimal(quant), rounding)``.  ``rounding`` is
+    ignored if ``quant`` is not supplied.
+
+    The subnodes of the :class:`colander.SchemaNode` that wraps
+    this type are ignored.
+    """
+    def __init__(self, quant=None, rounding=None):
+        if quant is None:
+            self.quant = None
+        else:
+            self.quant = decimal.Decimal(quant)
+        self.rounding = rounding
+
+    def num(self, val):
+        result = decimal.Decimal(str(val))
+        if self.quant is not None:
+            if self.rounding is None:
+                result = result.quantize(self.quant)
+            else:
+                result = result.quantize(self.quant, self.rounding)
+        return result
+
+class Money(Decimal):
+    """ A type representing a money value with two digit precision.
+    Deserialization returns an instance of the Python ``decimal.Decimal``
+    type (quantized to two decimal places, rounded up).
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1014,18 +1278,38 @@ class Decimal(Number):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def num(self, val):
-        return decimal.Decimal(str(val))
+    def __init__(self):
+        self.quant = decimal.Decimal('.01')
+        self.rounding = decimal.ROUND_UP
 
 class Boolean(SchemaType):
     """ A type representing a boolean object.
 
-    During deserialization, a value in the set (``false``, ``0``) will
-    be considered ``False``.  Anything else is considered
-    ``True``. Case is ignored.
+    The constructor accepts these keyword arguments:
 
-    Serialization will produce ``true`` or ``false`` based on the
-    value.
+    - ``false_choices``: The set of strings representing a ``False``
+      value on deserialization.
+
+    - ``true_choices``:  The set of strings representing a ``True``
+      value on deserialization.
+
+    - ``false_val``: The value returned on serialization of a False
+      value.
+
+    - ``true_val``: The value returned on serialization of a True
+      value.
+
+    During deserialization, a value contained in :attr:`false_choices`,
+    will be considered ``False``.
+
+    The behaviour for values not contained in :attr:`false_choices`
+    depends on :attr:`true_choices`: if it's empty, any value is considered
+    ``True``; otherwise, only values contained in :attr:`true_choices`
+    are considered ``True``, and an Invalid exception would be raised
+    for values outside of both :attr:`false_choices` and :attr:`true_choices`.
+
+    Serialization will produce :attr:`true_val` or :attr:`false_val`
+    based on the value.
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1034,12 +1318,22 @@ class Boolean(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+    def __init__(self, false_choices=('false', '0'), true_choices=(),
+                 false_val='false', true_val='true'):
+
+        self.false_choices = false_choices
+        self.true_choices = true_choices
+        self.false_val = false_val
+        self.true_val = true_val
+
+        self.true_reprs = ', '.join([repr(c) for c in self.true_choices])
+        self.false_reprs = ', '.join([repr(c) for c in self.false_choices])
 
     def serialize(self, node, appstruct):
         if appstruct is null:
             return null
 
-        return appstruct and 'true' or 'false'
+        return appstruct and self.true_val or self.false_val
 
     def deserialize(self, node, cstruct):
         if cstruct is null:
@@ -1053,8 +1347,19 @@ class Boolean(SchemaType):
                           )
         result = result.lower()
 
-        if result in ('false', '0'):
+        if result in self.false_choices:
             return False
+        elif self.true_choices:
+            if result in self.true_choices:
+                return True
+            else:
+                raise Invalid(node,
+                              _('"${val}" is neither in (${false_choices}) '
+                                'nor in (${true_choices})',
+                                mapping={'val':cstruct,
+                                         'false_choices': self.false_reprs,
+                                         'true_choices': self.true_reprs })
+                              )
 
         return True
 
@@ -1196,11 +1501,12 @@ class DateTime(SchemaType):
     datetime.
 
     The constructor accepts an argument named ``default_tzinfo`` which
-    should be a Python ``tzinfo`` object; by default it is None,
-    meaning that the default tzinfo will be equivalent to UTC (Zulu
-    time).  The ``default_tzinfo`` tzinfo object is used to convert
-    'naive' datetimes to a timezone-aware representation during
-    serialization.
+    should be a Python ``tzinfo`` object. If ``default_tzinfo`` is not
+    specified the default tzinfo will be equivalent to UTC (Zulu time).
+    The ``default_tzinfo`` tzinfo object is used to convert 'naive'
+    datetimes to a timezone-aware representation during serialization.
+    If ``default_tzinfo`` is explicitly set to ``None`` then no default
+    tzinfo will be applied to naive datetimes.
 
     You can adjust the error message reported by this class by
     changing its ``err_template`` attribute in a subclass on an
@@ -1262,14 +1568,9 @@ class DateTime(SchemaType):
         try:
             result = iso8601.parse_date(
                 cstruct, default_timezone=self.default_tzinfo)
-        except (iso8601.ParseError, TypeError) as e:
-            try:
-                year, month, day = map(int, cstruct.split('-', 2))
-                result = datetime.datetime(year, month, day,
-                                           tzinfo=self.default_tzinfo)
-            except Exception as e:
-                raise Invalid(node, _(self.err_template,
-                                      mapping={'val':cstruct, 'err':e}))
+        except iso8601.ParseError as e:
+            raise Invalid(node, _(self.err_template,
+                                  mapping={'val':cstruct, 'err':e}))
         return result
 
 class Date(SchemaType):
@@ -1335,15 +1636,11 @@ class Date(SchemaType):
         try:
             result = iso8601.parse_date(cstruct)
             result = result.date()
-        except (iso8601.ParseError, TypeError):
-            try:
-                year, month, day = map(int, cstruct.split('-', 2))
-                result = datetime.date(year, month, day)
-            except Exception as e:
-                raise Invalid(node,
-                              _(self.err_template,
-                                mapping={'val':cstruct, 'err':e})
-                              )
+        except iso8601.ParseError as e:
+            raise Invalid(node,
+                          _(self.err_template,
+                            mapping={'val':cstruct, 'err':e})
+                          )
         return result
 
 class Time(SchemaType):
@@ -1353,7 +1650,7 @@ class Time(SchemaType):
 
     This type serializes python ``datetime.time`` objects to a
     `ISO8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ string format.
-    The format includes the date only.
+    The format includes the time only.
 
     The constructor accepts no arguments.
 
@@ -1391,13 +1688,12 @@ class Time(SchemaType):
     err_template =  _('Invalid time')
 
     def serialize(self, node, appstruct):
-        if not appstruct:
-            return null
-
         if isinstance(appstruct, datetime.datetime):
             appstruct = appstruct.time()
 
         if not isinstance(appstruct, datetime.time):
+            if not appstruct:
+                return null
             raise Invalid(node,
                           _('"${val}" is not a time object',
                             mapping={'val':appstruct})
@@ -1427,23 +1723,44 @@ class Time(SchemaType):
 def timeparse(t, format):
     return datetime.datetime(*time.strptime(t, format)[0:6]).time()
 
-class SchemaNode(object):
+def _add_node_children(node, children):
+    for n in children:
+        insert_before = getattr(n, 'insert_before', None)
+        exists = node.get(n.name, _marker) is not _marker
+        # use exists for microspeed; we could just call __setitem__
+        # exclusively, but it does an enumeration that's unnecessary in the
+        # common (nonexisting) case (.add is faster)
+        if insert_before is None:
+            if exists:
+                node[n.name] = n
+            else:
+                node.add(n)
+        else:
+            if exists:
+                del node[n.name]
+            node.add_before(insert_before, n)
+
+class _SchemaNode(object):
     """
     Fundamental building block of schemas.
 
     The constructor accepts these positional arguments:
 
-    - ``typ`` (required): The 'type' for this node.  It should be an
+    - ``typ``: The 'type' for this node.  It should be an
       instance of a class that implements the
-      :class:`colander.interfaces.Type` interface.
+      :class:`colander.interfaces.Type` interface.  If ``typ`` is not passed,
+      it defaults to ``colander.Mapping()``.
 
-    - ``children``: a sequence of subnodes.  If the subnodes of this
+    - ``*children``: a sequence of subnodes.  If the subnodes of this
       node are not known at construction time, they can later be added
       via the ``add`` method.
 
     The constructor accepts these keyword arguments:
 
     - ``name``: The name of this node.
+
+    - ``typ``: The 'type' for this node can optionally be passed in as a
+      keyword argument. See the documentation for the positional arg above.
 
     - ``default``: The default serialization value for this node.
       Default: :attr:`colander.null`.
@@ -1452,7 +1769,12 @@ class SchemaNode(object):
       not provided, the missing value of this node will be the special marker
       value :attr:`colander.required`, indicating that it is considered
       'required'.  When ``missing`` is :attr:`colander.required`, the
-      ``required`` computed attribute will be ``True``.
+      ``required`` computed attribute will be ``True``.  When ``missing`` is
+      :attr:`colander.drop`, the node is dropped from the schema if it isn't
+      set during serialization/deserialization.
+
+    - ``missing_msg``: Optional error message to be used if the value is
+      required and missing.
 
     - ``preparer``: Optional preparer for this node.  It should be
       an object that implements the
@@ -1471,7 +1793,7 @@ class SchemaNode(object):
       or one of the parents of the clone's prototype nodes.  The
       deepest nodes in the node tree are bound first, so the
       ``after_bind`` methods of the deepest nodes are called before
-      the shallowest.  The ``after_bind`` callback should should
+      the shallowest.  The ``after_bind`` callback should
       accept two values: ``node`` and ``kw``.  ``node`` will be a
       clone of the bound node object, ``kw`` will be the set of
       keywords passed to the ``bind`` method.
@@ -1494,29 +1816,54 @@ class SchemaNode(object):
     """
 
     _counter = itertools.count()
+    preparer = None
+    validator = None
+    default = null
+    missing = required
+    missing_msg = _('Required')
+    name = ''
+    raw_title = _marker
+    title = _marker
+    description = ''
+    widget = None
+    after_bind = None
+    bindings = None
 
-    def __new__(cls, *arg, **kw):
-        inst = object.__new__(cls)
-        inst._order = next(cls._counter)
-        return inst
+    def __new__(cls, *args, **kw):
+        node = object.__new__(cls)
+        node._order = next(cls._counter)
+        node.children = []
+        _add_node_children(node, cls.__all_schema_nodes__)
+        return node
 
-    def __init__(self, typ, *children, **kw):
-        self.typ = typ
-        self.preparer = kw.pop('preparer', None)
-        self.validator = kw.pop('validator', None)
-        self.default = kw.pop('default', null)
-        self.missing = kw.pop('missing', required)
-        self.name = kw.pop('name', '')
-        self.raw_title = kw.pop('title', _marker)
-        if self.raw_title is _marker:
-            self.title = self.name.replace('_', ' ').title()
+    def __init__(self, *arg, **kw):
+        # bw compat forces us to treat first arg as type always
+        if 'typ' in kw:
+            self.typ = kw.pop('typ')
+            _add_node_children(self, arg)
+        elif arg:
+            self.typ = arg[0]
+            _add_node_children(self, arg[1:])
         else:
-            self.title = self.raw_title
-        self.description = kw.pop('description', '')
-        self.widget = kw.pop('widget', None)
-        self.after_bind = kw.pop('after_bind', None)
+            self.typ = self.schema_type()
+
+        # bw compat forces us to manufacture a title if one is not supplied
+        title = kw.get('title', _marker)
+        if title is _marker:
+            if self.title is _marker:
+                name = kw.get('name', self.name)
+                kw['title'] = name.replace('_', ' ').title()
+        else:
+            kw['raw_title'] = title
+
         self.__dict__.update(kw)
-        self.children = list(children)
+
+    @staticmethod
+    def schema_type():
+        raise NotImplementedError(
+            'Schema node construction without a typ argument or '
+            'a schema_type() callable present on the node class '
+            )
 
     @property
     def required(self):
@@ -1605,14 +1952,20 @@ class SchemaNode(object):
         appstruct = self.typ.deserialize(self, cstruct)
 
         if self.preparer is not None:
-            appstruct = self.preparer(appstruct)
+            # if the preparer is a function, call a single preparer
+            if hasattr(self.preparer, '__call__'):
+                appstruct = self.preparer(appstruct)
+            # if the preparer is a list, call each separate preparer
+            elif is_nonstr_iter(self.preparer):
+                for preparer in self.preparer:
+                    appstruct = preparer(appstruct)
 
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
-                raise Invalid(self, _('Required'))
+                raise Invalid(self, self.missing_msg)
             if isinstance(appstruct, deferred): # unbound schema with deferreds
-                raise Invalid(self, _('Required'))
+                raise Invalid(self, self.missing_msg)
             # We never deserialize or validate the missing value
             return appstruct
 
@@ -1622,8 +1975,30 @@ class SchemaNode(object):
         return appstruct
 
     def add(self, node):
-        """ Add a subnode to this node. """
+        """ Append a subnode to this node. ``node`` must be a SchemaNode."""
         self.children.append(node)
+
+    def insert(self, index, node):
+        """ Insert a subnode into the position ``index``.  ``node`` must be
+        a SchemaNode."""
+        self.children.insert(index, node)
+
+    def add_before(self, name, node):
+        """ Insert a subnode into the position before the node named ``name``
+        """
+        for pos, sub in enumerate(self.children[:]):
+            if sub.name == name:
+                self.insert(pos, node)
+                return
+        raise KeyError('No such node named %s' % name)
+
+    def get(self, name, default=None):
+        """ Return the subnode associated with ``name`` or ``default`` if no
+        such node exists."""
+        for node in self.children:
+            if node.name == name:
+                return node
+        return default
 
     def clone(self):
         """ Clone the schema node and return the clone.  All subnodes
@@ -1646,14 +2021,35 @@ class SchemaNode(object):
         return cloned
 
     def _bind(self, kw):
+        self.bindings = kw
         for child in self.children:
             child._bind(kw)
-        for k, v in self.__dict__.items():
+        names = dir(self)
+        for k in names:
+            v = getattr(self, k)
             if isinstance(v, deferred):
                 v = v(self, kw)
                 setattr(self, k, v)
         if getattr(self, 'after_bind', None):
             self.after_bind(self, kw)
+
+    def cstruct_children(self, cstruct):
+        """ Will call the node's type's ``cstruct_children`` method with this
+        node as a first argument, and ``cstruct`` as a second argument."""
+        cstruct_children = getattr(self.typ, 'cstruct_children', None)
+        if cstruct_children is None:
+            warnings.warn(
+                'The node type %s has no cstruct_children method.'
+                'This method is required to be implemented by schema types for '
+                'compatibility with Colander 0.9.9+.  In a future Colander '
+                'version, the absence of this method will cause an '
+                'exception.  Returning [] for compatibility although it '
+                'may not be the right value.' % self.typ.__class__,
+                DeprecationWarning,
+                stacklevel=2
+                )
+            return []
+        return cstruct_children(self, cstruct)
 
     def __delitem__(self, name):
         """ Remove a subnode by name """
@@ -1664,30 +2060,31 @@ class SchemaNode(object):
 
     def __getitem__(self, name):
         """ Get a subnode by name. """
-        for node in self.children:
-            if node.name == name:
-                return node
-        raise KeyError(name)
+        val = self.get(name, _marker)
+        if val is _marker:
+            raise KeyError(name)
+        return val
 
     def __setitem__(self, name, newnode):
-        """ Replace a subnode by name """
+        """ Replace a subnode by name.  ``newnode`` must be a SchemaNode.  If
+        a subnode named ``name`` doesn't already exist, calling this method
+        is the same as setting the node's name to ``name`` and calling the
+        ``add`` method with the node (it will be appended to the children
+        list)."""
+        newnode.name = name
         for idx, node in enumerate(self.children[:]):
             if node.name == name:
                 self.children[idx] = newnode
-                newnode.name = name
                 return node
-        raise KeyError(name)
+        self.add(newnode)
 
     def __iter__(self):
         """ Iterate over the children nodes of this schema node """
         return iter(self.children)
 
     def __contains__(self, name):
-        try:
-            self[name]
-        except KeyError:
-            return False
-        return True
+        """ Return True if subnode named ``name`` exists in this node """
+        return self.get(name, _marker) is not _marker
 
     def __repr__(self):
         return '<%s.%s object at %d (named %s)>' % (
@@ -1697,69 +2094,76 @@ class SchemaNode(object):
             self.name,
             )
 
+    def raise_invalid(self, msg, node=None):
+        """ Raise a :exc:`colander.Invalid` exception with the message
+        ``msg``.  ``node``, if supplied, should be an instance of a
+        :class:`colander.SchemaNode`.  If it is not supplied, ``node`` will
+        be this node.  Example usage::
+
+            class CustomSchemaNode(SchemaNode):
+                def validator(self, node, cstruct):
+                    if cstruct != 'the_right_thing':
+                        self.raise_invalid('Not the right thing')
+
+        """
+        if node is None:
+            node = self
+        raise Invalid(node, msg)
+
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []
+
         for name, value in clsattrs.items():
-            if isinstance(value, SchemaNode):
+            if isinstance(value, _SchemaNode):
+                delattr(cls, name)
                 if not value.name:
                     value.name = name
                 if value.raw_title is _marker:
                     value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))
-        cls.__schema_nodes__ = nodes
-        # Combine all attrs from this class and its subclasses.
-        extended = []
-        for c in cls.__mro__:
-            extended.extend(getattr(c, '__schema_nodes__', []))
-        # Sort the attrs to maintain the order as defined, and assign to the
-        # class.
-        extended.sort()
-        cls.nodes = [x[1] for x in extended]
 
-def _Schema__new__(cls, *args, **kw):
-    node = object.__new__(cls.node_type)
-    node.name = None
-    node._order = next(SchemaNode._counter)
-    typ = cls.schema_type()
-    node.__init__(typ, *args, **kw)
-    for n in cls.nodes:
-        node.add(n)
-    return node
+        nodes.sort()
+        cls.__class_schema_nodes__ = [ n[1] for n in nodes ]
 
-Schema = _SchemaMeta('Schema', (object,),
-    dict(schema_type=Mapping,
-        node_type=SchemaNode,
-        __new__=_Schema__new__))
+        # Combine all attrs from this class and its _SchemaNode superclasses.
+        cls.__all_schema_nodes__ = []
+        for c in reversed(cls.__mro__):
+            csn = getattr(c, '__class_schema_nodes__', [])
+            cls.__all_schema_nodes__.extend(csn)
+
+# metaclass spelling compatibility across Python 2 and Python 3
+SchemaNode = _SchemaMeta(
+    'SchemaNode',
+    (_SchemaNode,),
+    {'__doc__': _SchemaNode.__doc__}
+    )
+
+class Schema(SchemaNode):
+    schema_type = Mapping
 
 MappingSchema = Schema
 
-
-def _SequanceSchema__new__(cls, *args, **kw):
-    node = object.__new__(cls.node_type)
-    node.name = None
-    node._order = next(SchemaNode._counter)
-    typ = cls.schema_type()
-    node.__init__(typ, *args, **kw)
-    if not len(cls.nodes) == 1:
-        raise Invalid(node,
-                      'Sequence schemas must have exactly one child node')
-    for n in cls.nodes:
-        node.add(n)
-    return node
-
-SequenceSchema = _SchemaMeta('SequenceSchema', (object,),
-    dict(schema_type=Sequence,
-        node_type=SchemaNode,
-        __new__=_SequanceSchema__new__))
-
-class TupleSchema(Schema):
+class TupleSchema(SchemaNode):
     schema_type = Tuple
+
+class SequenceSchema(SchemaNode):
+    schema_type = Sequence
+
+    def __init__(self, *args, **kw):
+        SchemaNode.__init__(self, *args, **kw)
+        if len(self.children) != 1:
+            raise Invalid(self,
+                          'Sequence schemas must have exactly one child node')
 
 class deferred(object):
     """ A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
     def __init__(self, wrapped):
+        try:
+            functools.update_wrapper(self, wrapped)
+        except AttributeError: #non-function
+            self.__doc__ = getattr(wrapped, '__doc__', None)
         self.wrapped = wrapped
 
     def __call__(self, node, kw):
@@ -1810,3 +2214,18 @@ def _unflatten_mapping(node, paths, fstruct,
         appstruct[curname] = subnode.typ.unflatten(
             subnode, subpaths, subfstruct)
     return appstruct
+
+class instantiate(object):
+    """
+    A decorator which can be used to instantiate :class:`SchemaNode`
+    elements inline within a class definition.
+
+    All parameters passed to the decorator and passed along to the
+    :class:`SchemaNode` during instantiation.
+    """
+
+    def __init__(self,*args,**kw):
+        self.args,self.kw = args,kw
+
+    def __call__(self,class_):
+        return class_(*self.args,**self.kw)

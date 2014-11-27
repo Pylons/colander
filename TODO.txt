@@ -1,0 +1,3 @@
+- Try using https://gist.github.com/DasIch/5562625 to preserve ordering of
+  schemanode attributes within a schema/schemanode subclass.
+

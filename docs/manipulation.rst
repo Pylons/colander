@@ -4,9 +4,9 @@ Manipulating Data Structures
 ============================
 
 Colander schemas have some utility functions which can be used to manipulate
-an :term:`appstruct` or a :term:`cstruct`.  Nested data structures can be 
-flattened into a single dictionary or a single flattened dictionary can be used 
-to produce a nested data structure.  Values of particular nodes can also be set 
+an :term:`appstruct` or a :term:`cstruct`.  Nested data structures can be
+flattened into a single dictionary or a single flattened dictionary can be used
+to produce a nested data structure.  Values of particular nodes can also be set
 or retrieved based on a flattened path spec.
 
 Flattening a Data Structure
@@ -24,12 +24,12 @@ Consider the following schema:
    import colander
 
    class Friend(colander.TupleSchema):
-       rank = colander.SchemaNode(colander.Int(), 
+       rank = colander.SchemaNode(colander.Int(),
                                   validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(), 
+       location = colander.SchemaNode(colander.String(),
                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
@@ -63,7 +63,7 @@ This data can be flattened:
 
 .. code-block:: python
    :linenos:
-     
+
      schema = Person()
      fstruct = schema.flatten(appstruct)
 
@@ -78,11 +78,11 @@ The resulting flattened structure would look like this:
      'friends.0.rank': 1,
      'friends.0.name': 'jim',
      'friends.1.rank': 2,
-     'friends.1.rank': 'bob',
+     'friends.1.name': 'bob',
      'friends.2.rank': 3,
-     'friends.2.rank': 'joe',
+     'friends.2.name': 'joe',
      'friends.3.rank': 4,
-     'friends.3.rank': 'fred',
+     'friends.3.name': 'fred',
      'phones.0.location': 'home',
      'phones.0.number': '555-1212',
      'phones.1.location': 'work',
@@ -103,7 +103,7 @@ Accessing and Mutating Nodes in a Data Structure
 ------------------------------------------------
 
 :attr:`colander.SchemaNode.get_value` and :attr:`colander.SchemaNode.set_value`
-can be used to access and mutate nodes in an :term:`appstruct` or 
+can be used to access and mutate nodes in an :term:`appstruct` or
 :term:`cstruct`. Using the example from above:
 
 .. code-block:: python

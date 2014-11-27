@@ -53,11 +53,15 @@ Validators
 
   .. autoclass:: All
 
+  .. autoclass:: Any
+
   .. autoclass:: Range
 
   .. autoclass:: Length
 
   .. autoclass:: OneOf
+
+  .. autoclass:: ContainsOnly
 
   .. autoclass:: Function
 
@@ -65,12 +69,22 @@ Validators
 
   .. autoclass:: Email
 
+  .. autofunction:: luhnok
+
+  .. attribute:: url
+ 
+     A validator which ensures the value is a URL (via regex).
+
 Types
 ~~~~~
 
   .. autoclass:: Mapping
 
   .. autoclass:: Tuple
+
+  .. autoclass:: Set
+
+  .. autoclass:: List
 
   .. autoclass:: Sequence
 
@@ -105,6 +119,7 @@ Schema-Related
 
   .. autoclass:: SchemaNode
      :members:
+     :inherited-members:
 
      .. automethod:: __delitem__
 
@@ -122,6 +137,8 @@ Schema-Related
 
   .. autoclass:: deferred
 
+  .. autoclass:: instantiate
+
   .. attribute:: null
 
      Represents a null value in colander-related operations.
@@ -129,3 +146,9 @@ Schema-Related
   .. attribute:: required
 
      Represents a required value in colander-related operations.
+
+  .. attribute:: drop
+
+     Represents a value that will be dropped from the schema if it is missing
+     during *deserialization*.  Passed as a value to the `missing` keyword
+     argument of :class:`SchemaNode`.

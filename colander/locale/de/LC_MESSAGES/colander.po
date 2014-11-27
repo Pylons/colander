@@ -1,18 +1,17 @@
-# Portuguese (Brazil) translations for colander.
+# German (Germany) translations for colander.
 # Copyright (C) 2010 ORGANIZATION
 # This file is distributed under the same license as the colander project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
-# Nando Florestan <nandoflorestan@gmail.com>, 2012.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: colander 0.5.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-05-19 13:15+0200\n"
-"PO-Revision-Date: 2012-03-20 23:28-0300\n"
-"Last-Translator: Nando Florestan <nandoflorestan@gmail.com>\n"
-"Language-Team: Portuguese <>\n"
-"Plural-Forms: nplurals=2; plural=(n!=1)\n"
+"PO-Revision-Date: 2010-10-01 09:52+0100\n"
+"Last-Translator: Charlie Clark <charlie@begeistert.org>\n"
+"Language-Team: repoze developers <repoze-dev@lists.repoze.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,132 +19,138 @@ msgstr ""
 
 #: colander/__init__.py:233
 msgid "Invalid value"
-msgstr "Valor inválido"
+msgstr "Ungültiger Wert"
 
 #: colander/__init__.py:270
 msgid "String does not match expected pattern"
-msgstr "Não corresponde ao padrão esperado"
+msgstr "Die Zeichenkette entspricht nicht dem erwarteten Muster"
 
 #: colander/__init__.py:287
 msgid "Invalid email address"
-msgstr "Endereço de email inválido"
+msgstr "Ungültige E-Mail-Adresse"
 
 #: colander/__init__.py:315
 msgid "${val} is less than minimum value ${min}"
-msgstr "${val} é menor do que o mínimo ${min}"
+msgstr "${val} ist kleiner als der erlaubte Mindestwert (${min})"
 
 #: colander/__init__.py:316
 msgid "${val} is greater than maximum value ${max}"
-msgstr "${val} é maior do que o máximo ${max}"
+msgstr "${val} ist größer als der erlaubte Höchstwert (${max})"
 
 #: colander/__init__.py:348
 msgid "Shorter than minimum length ${min}"
-msgstr "Mais curto do que o comprimento mínimo ${min}"
+msgstr "Kürzer als erlaubt, die Mindestlänge beträgt ${min}"
 
 #: colander/__init__.py:354
 msgid "Longer than maximum length ${max}"
-msgstr "Mais longo do que o comprimento máximo ${max}"
+msgstr "Länger als erlaubt, die Maximallänge beträgt ${max}"
 
 #: colander/__init__.py:367
 msgid "\"${val}\" is not one of ${choices}"
-msgstr "\"${val}\" não está entre ${choices}"
+msgstr "\"${val}\" ist nicht in der Auswahl ${choices}"
 
 #: colander/__init__.py:377
 msgid "One or more of the choices you made was not acceptable"
-msgstr ""
+msgstr "Mindestens eine Auswahl war nicht akzeptabel"
 
 #: colander/__init__.py:423
 msgid "Must be a URL"
-msgstr ""
+msgstr "Muss eine URL sein"
 
 #: colander/__init__.py:519
 msgid "\"${val}\" is not a mapping type: ${err}"
-msgstr "\"${val}\" não é um tipo de mapeamento: ${err}"
+msgstr "\"${val}\" ist kein Mapping: ${err}"
 
 #: colander/__init__.py:560
 msgid "Unrecognized keys in mapping: \"${val}\""
-msgstr "Chaves desconhecidas no mapeamento: \"${val}\""
+msgstr "Unbekannte Schlüssel im Mapping: ${val}"
 
 #: colander/__init__.py:656 colander/__init__.py:856
 msgid "\"${val}\" is not iterable"
-msgstr "Iterações não podem ser feitas em \"${val}\""
+msgstr "\"${val}\" ist nicht iterierbar"
 
 #: colander/__init__.py:664
 msgid ""
 "\"${val}\" has an incorrect number of elements (expected ${exp}, was "
 "${was})"
-msgstr ""
-"\"${val}\" tem um número incorreto de elementos (${exp} esperados, ${was}"
-" obtidos)"
+msgstr "Ungültige Anzahl von Elementen (${exp} erwartet, ${was} gegeben)"
 
 #: colander/__init__.py:803
 msgid "${cstruct} is not iterable"
-msgstr "Iterações não podem ser feitas em ${cstruct}"
+msgstr "${cstruct} ist nicht iterierbar"
 
 #: colander/__init__.py:1075
+#, fuzzy
+#| msgid "\"${val} cannot be serialized to str: ${err}"
 msgid "${val} cannot be serialized: ${err}"
-msgstr "\"${val} não pode ser serializado: ${err}"
+msgstr "${val} kann nicht in eine Zeichenkette umgewandelt werden: ${err}"
 
 #: colander/__init__.py:1093
 msgid "${val} is not a string: ${err}"
-msgstr "${val} não é uma string: %{err}"
+msgstr "${val} ist keine Zeichenkette: ${err}"
 
 #: colander/__init__.py:1113 colander/__init__.py:1124
 msgid "\"${val}\" is not a number"
-msgstr "\"${val}\" não é um número"
+msgstr "\"${val}\" ist keine Zahl"
 
 #: colander/__init__.py:1268
 msgid "${val} is not a string"
-msgstr "${val} não é uma string"
+msgstr "${val} ist keine Zeichenkette"
 
 #: colander/__init__.py:1279
 msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
-msgstr ""
+msgstr "\"${val}\" ist weder in (${false_choices}) noch in (${true_choices}) enthalten"
 
 #: colander/__init__.py:1339 colander/__init__.py:1356
 #: colander/__init__.py:1366
 msgid "relative name \"${val}\" irresolveable without package"
-msgstr "O nome relativo \"${val}\" não pode ser resolvido sem o pacote"
+msgstr "relativer Name \"${val}\" ist ohne Paket nicht auflösbar"
 
 #: colander/__init__.py:1396
 msgid "\"${val}\" has no __name__"
-msgstr "\"${val}\" não tem __name__"
+msgstr "\"${val}\" hat kein __name__ Attribut"
 
 #: colander/__init__.py:1405
 msgid "\"${val}\" is not a string"
-msgstr "\"${val}\" não é uma string"
+msgstr "${val} ist keine Zeichenkette"
 
 #: colander/__init__.py:1414
 msgid "The dotted name \"${name}\" cannot be imported"
-msgstr "O pacote \"${name}\" não pode ser importado"
+msgstr "Der Dotted-Name \"${name}\" kann nicht importiert werden"
 
 #: colander/__init__.py:1462 colander/__init__.py:1538
+#, fuzzy
+#| msgid "Invalid value"
 msgid "Invalid date"
-msgstr "Data inválida"
+msgstr "Ungültiger Wert"
 
 #: colander/__init__.py:1478
 msgid "\"${val}\" is not a datetime object"
-msgstr "\"${val}\" não é um objeto datetime"
+msgstr "\"${val}\" ist kein Datetime-Object"
 
 #: colander/__init__.py:1549
 msgid "\"${val}\" is not a date object"
-msgstr "\"${val}\" não é um objeto date"
+msgstr "\"${val}\" ist kein Date-Object"
 
 #: colander/__init__.py:1610
+#, fuzzy
+#| msgid "Invalid value"
 msgid "Invalid time"
-msgstr "Hora inválida"
+msgstr "Ungültiger Wert"
 
 #: colander/__init__.py:1621
+#, fuzzy
+#| msgid "\"${val}\" is not a datetime object"
 msgid "\"${val}\" is not a time object"
-msgstr "\"${val}\" não é um objeto time"
+msgstr "\"${val}\" ist kein Datetime-Object"
 
 #: colander/__init__.py:1878 colander/__init__.py:1880
 msgid "Required"
-msgstr "Obrigatório"
+msgstr "Pflichtangabe"
 
 #~ msgid "\"${val}\" is required but missing"
-#~ msgstr "\"${val}\" é obrigatório, mas está vazio"
+#~ msgstr "\"${val}\" ist eine Pflichtangabe"
 
 #~ msgid "${val} cannot be parsed as an iso8601 date: ${err}"
-#~ msgstr "${val} não pode ser entendido como uma data iso8601: ${err}"
+#~ msgstr "${val} ist keine gültige Zeitangabe nach ISO8601: ${err}"
 

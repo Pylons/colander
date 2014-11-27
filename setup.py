@@ -19,28 +19,37 @@ from setuptools import find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+def read(fname):
+    with open(fname) as fp:
+        return fp.read()
+
 try:
-    README = open(os.path.join(here, 'README.txt')).read()
-    CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+    README = read(os.path.join(here, 'README.rst'))
+    CHANGES = read(os.path.join(here, 'CHANGES.rst'))
 except:
     README = ''
     CHANGES = ''
 
-requires = ['translationstring']
+requires = ['translationstring', 'iso8601']
+
+testing_extras = ['nose', 'coverage']
+docs_extras = ['Sphinx']
 
 setup(name='colander',
-      version='0.9.7',
+      version='1.1dev',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         ],
@@ -52,8 +61,11 @@ setup(name='colander',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      tests_require = requires,
       install_requires = requires,
       test_suite="colander",
+      extras_require = {
+          'testing':testing_extras,
+          'docs':docs_extras,
+          },
       )
 
