@@ -375,23 +375,23 @@ class Length(object):
     string. The error message(s) may be customized.
     """
 
-    def __init__(self, min=None, max=None, min_msg=None, max_msg=None):
+    def __init__(self, min=None, max=None, min_err=None, max_err=None):
         self.min = min
         self.max = max
-        self.min_msg = min_msg
-        self.max_msg = max_msg
+        self.min_err = min_err
+        self.max_err = max_err
 
     def __call__(self, node, value):
         if self.min is not None:
             if len(value) < self.min:
-                min_err = self.min_msg or _(
+                min_err = self.min_err or _(
                     'Shorter than minimum length ${min}',
                     mapping={'min': self.min})
                 raise Invalid(node, min_err)
 
         if self.max is not None:
             if len(value) > self.max:
-                max_err = self.max_msg or _(
+                max_err = self.max_err or _(
                     'Longer than maximum length ${max}',
                     mapping={'max': self.max})
                 raise Invalid(node, max_err)
