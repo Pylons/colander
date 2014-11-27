@@ -371,29 +371,46 @@ class Range(object):
 
 class Length(object):
     """Validator which succeeds if the value passed to it has a
-    length between a minimum and maximum.  The value is most often a
-    string. The error message(s) may be customized.
-    """
+        length between a minimum and maximum, expressed in the
+        optional ``min`` and ``max`` arguments.
+        The value can be any sequence, most often a string.
+
+        If ``min`` is not specified, or is specified as ``None``,
+        no lower bound exists.  If ``max`` is not specified, or
+        is specified as ``None``, no upper bound exists.
+
+        The default error messages are "Shorter than minimum length ${min}"
+        and "Longer than maximum length ${max}". These can be customized:
+
+        ``min_err`` is used to form the ``msg`` of the
+        :exc:`colander.Invalid` error when reporting a validation failure
+        caused by a value not meeting the minimum length.  If ``min_err`` is
+        specified, it must be a string.  The string may contain the
+        replacement target ``${min}``.
+
+        ``max_err`` is used to form the ``msg`` of the
+        :exc:`colander.Invalid` error when reporting a validation failure
+        caused by a value exceeding the maximum length.  If ``max_err`` is
+        specified, it must be a string.  The string may contain the
+        replacement target ``${max}``.
+        """
+    min_err = _('Shorter than minimum length ${min}')
+    max_err = _('Longer than maximum length ${max}')
 
     def __init__(self, min=None, max=None, min_err=None, max_err=None):
         self.min = min
         self.max = max
-        self.min_err = min_err
-        self.max_err = max_err
+        self.min_err = self.min_err if min_err is None else min_err
+        self.max_err = self.max_err if max_err is None else max_err
 
     def __call__(self, node, value):
         if self.min is not None:
             if len(value) < self.min:
-                min_err = self.min_err or _(
-                    'Shorter than minimum length ${min}',
-                    mapping={'min': self.min})
+                min_err = _(self.min_err, mapping={'min': self.min})
                 raise Invalid(node, min_err)
-
         if self.max is not None:
             if len(value) > self.max:
-                max_err = self.max_err or _(
-                    'Longer than maximum length ${max}',
-                    mapping={'max': self.max})
+                max_err = _(self.max_err, mapping={'max': self.max})
                 raise Invalid(node, max_err)
 
 

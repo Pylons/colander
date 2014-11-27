@@ -430,10 +430,11 @@ class TestEmail(unittest.TestCase):
         self.assertRaises(Invalid, validator, None, 'me@here..com')
         self.assertRaises(Invalid, validator, None, 'me@we-here-.com')
 
+
 class TestLength(unittest.TestCase):
-    def _makeOne(self, min=None, max=None):
+    def _makeOne(self, **kw):
         from colander import Length
-        return Length(min=min, max=max)
+        return Length(**kw)
 
     def test_success_no_bounds(self):
         validator = self._makeOne()
@@ -460,6 +461,17 @@ class TestLength(unittest.TestCase):
         validator = self._makeOne(max=1)
         e = invalid_exc(validator, None, 'ab')
         self.assertEqual(e.msg.interpolate(), 'Longer than maximum length 1')
+
+    def test_min_failure_msg_override(self):
+        validator = self._makeOne(min=1, min_err='Need at least ${min}, mate')
+        e = invalid_exc(validator, None, [])
+        self.assertEqual(e.msg.interpolate(), 'Need at least 1, mate')
+
+    def test_max_failure_msg_override(self):
+        validator = self._makeOne(max=1, max_err='No more than ${max}, mate')
+        e = invalid_exc(validator, None, [1, 2])
+        self.assertEqual(e.msg.interpolate(), 'No more than 1, mate')
+
 
 class TestOneOf(unittest.TestCase):
     def _makeOne(self, values):
@@ -725,7 +737,7 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne()
         result = typ.serialize(node, {'a':drop})
         self.assertEqual(result, {})
-        
+
     def test_flatten(self):
         node = DummySchemaNode(None, name='node')
         int1 = DummyType()
@@ -3635,7 +3647,7 @@ class TestUltraDeclarative(unittest.TestCase, TestFunctional):
         return schema
 
 class TestDeclarativeWithInstantiate(unittest.TestCase, TestFunctional):
-    
+
     def _makeSchema(self, name='schema'):
 
         import colander
@@ -3649,20 +3661,20 @@ class TestDeclarativeWithInstantiate(unittest.TestCase, TestFunctional):
             ob = colander.SchemaNode(colander.GlobalObject(package=colander))
             @colander.instantiate()
             class seq(colander.SequenceSchema):
-                
+
                 @colander.instantiate()
                 class tup(colander.TupleSchema):
                     tupint = colander.SchemaNode(colander.Int())
                     tupstring = colander.SchemaNode(colander.String())
-                    
+
             @colander.instantiate()
             class tup(colander.TupleSchema):
                 tupint = colander.SchemaNode(colander.Int())
                 tupstring = colander.SchemaNode(colander.String())
-                
+
             @colander.instantiate()
             class seq2(colander.SequenceSchema):
-                
+
                 @colander.instantiate()
                 class mapping(colander.MappingSchema):
                     key = colander.SchemaNode(colander.Int())
