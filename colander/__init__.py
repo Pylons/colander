@@ -57,6 +57,13 @@ def interpolate(msgs):
         else:
             yield s
 
+class UnboundDeferredError(Exception):
+    """
+    An exception raised by :meth:`SchemaNode.deserialize` when an attempt
+    is made to deserialize a node which has an unbound :class:`deferred`
+    validator.
+    """
+
 class Invalid(Exception):
     """
     An exception raised by data types and validators indicating that
@@ -1962,8 +1969,11 @@ class _SchemaNode(object):
             return appstruct
 
         if self.validator is not None:
-            if not isinstance(self.validator, deferred): # unbound
-                self.validator(self, appstruct)
+            if isinstance(self.validator, deferred): # unbound
+                raise UnboundDeferredError(
+                    "Schema node {node} has an unbound deferred validator"
+                    .format(node=self))
+            self.validator(self, appstruct)
         return appstruct
 
     def add(self, node):

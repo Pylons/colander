@@ -50,6 +50,15 @@ Bug Fixes
 - Updated translations: ``fr``, ``de``, ``ja``
 
 
+Backwards Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``SchemaNode.deserialize`` will now raise an
+  ``UnboundDeferredError`` if the node has an unbound deferred
+  validator.  Previously, deferred validators were silently ignored.
+  See https://github.com/Pylons/colander/issues/47
+
+
 1.0b1 (2013-09-01)
 ------------------
 

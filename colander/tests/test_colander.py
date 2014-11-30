@@ -2462,6 +2462,19 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
+    def test_deserialize_with_unbound_validator(self):
+        from colander import Invalid
+        from colander import deferred
+        from colander import UnboundDeferredError
+        typ = DummyType()
+        def validator(node, kw):
+            def _validate(node, value):
+                node.raise_invalid('Invalid')
+            return _validate
+        node = self._makeOne(typ, validator=deferred(validator))
+        self.assertRaises(UnboundDeferredError, node.deserialize, None)
+        self.assertRaises(Invalid, node.bind(foo='foo').deserialize, None)
+
     def test_deserialize_value_is_null_no_missing(self):
         from colander import null
         from colander import Invalid
