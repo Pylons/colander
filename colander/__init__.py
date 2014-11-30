@@ -1973,8 +1973,7 @@ class _SchemaNode(object):
                 raise UnboundDeferredError(
                     "Schema node {node} has an unbound deferred validator"
                     .format(node=self))
-            else:
-                self.validator(self, appstruct)
+            self.validator(self, appstruct)
         return appstruct
 
     def add(self, node):
