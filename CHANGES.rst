@@ -114,6 +114,8 @@ Features
 - The ``typ`` of a ``SchemaNode`` can optionally be pased in as a keyword
   argument. See https://github.com/Pylons/colander/issues/90
 
+- Allow interpolation of `missing_msg` with properties `title` and `name`
+
 1.0a5 (2013-05-31)
 ------------------
 

@@ -117,6 +117,7 @@ Contributors
 - Veeti Paananen, 2013/08/20
 - Michael Howitz, 2013/12/05
 - Alex Marandon, 2013/12/21
+- Jaseem Abid, 2014/06/16
 - Cédric Messiant, 2014/06/27
 - Gouji Ochiai, 2014/08/21
 - Tim Tisdall, 2014/09/10
