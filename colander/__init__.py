@@ -300,9 +300,9 @@ class Regex(object):
         validation succeeds; otherwise, :exc:`colander.Invalid` is
         raised with the ``msg`` error message.
     """
-    def __init__(self, regex, msg=None):
+    def __init__(self, regex, msg=None, flags=0):
         if isinstance(regex, string_types):
-            self.match_object = re.compile(regex)
+            self.match_object = re.compile(regex, flags)
         else:
             self.match_object = regex
         if msg is None:
@@ -464,6 +464,11 @@ def _luhnok(value):
 URL_REGEX = r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))""" # "emacs!
 
 url = Regex(URL_REGEX, _('Must be a URL'))
+
+
+UUID_REGEX = r"""^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$"""
+uuid = Regex(UUID_REGEX, _('Invalid UUID string'), 2) # 2 = re.IGNORECASE
+
 
 class SchemaType(object):
     """ Base class for all schema types """
