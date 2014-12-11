@@ -122,3 +122,4 @@ Contributors
 - Gouji Ochiai, 2014/08/21
 - Tim Tisdall, 2014/09/10
 - Amos Latteier, 2014/11/30
+- Jimmy Thrasibule, 2014/12/11
