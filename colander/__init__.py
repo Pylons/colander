@@ -293,6 +293,9 @@ class Regex(object):
         error message to be used; otherwise, defaults to 'String does
         not match expected pattern'.
 
+        The ``regex`` expression behaviour can be modified by specifying
+        any ``flags`` value taken by ``re.compile``.
+
         The ``regex`` argument may also be a pattern object (the
         result of ``re.compile``) instead of a string.
 
@@ -467,7 +470,7 @@ url = Regex(URL_REGEX, _('Must be a URL'))
 
 
 UUID_REGEX = r"""^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$"""
-uuid = Regex(UUID_REGEX, _('Invalid UUID string'), 2) # 2 = re.IGNORECASE
+uuid = Regex(UUID_REGEX, _('Invalid UUID string'), re.IGNORECASE)
 
 
 class SchemaType(object):
