@@ -538,6 +538,57 @@ class Test_url_validator(unittest.TestCase):
         from colander import Invalid
         self.assertRaises(Invalid, self._callFUT, val)
 
+class TestUUID(unittest.TestCase):
+    def _callFUT(self, val):
+        from colander import uuid
+        return uuid(None, val)
+
+    def test_success_hexadecimal(self):
+        val = '123e4567e89b12d3a456426655440000'
+        result = self._callFUT(val)
+        self.assertIsNone(result)
+
+    def test_success_with_dashes(self):
+        val = '123e4567-e89b-12d3-a456-426655440000'
+        result = self._callFUT(val)
+        self.assertIsNone(result)
+
+    def test_success_upper_case(self):
+        val = '123E4567-E89B-12D3-A456-426655440000'
+        result = self._callFUT(val)
+        self.assertIsNone(result)
+
+    def test_success_with_braces(self):
+        val = '{123e4567-e89b-12d3-a456-426655440000}'
+        result = self._callFUT(val)
+        self.assertIsNone(result)
+
+    def test_success_with_urn_ns(self):
+        val = 'urn:uuid:{123e4567-e89b-12d3-a456-426655440000}'
+        result = self._callFUT(val)
+        self.assertIsNone(result)
+
+    def test_failure_random_string(self):
+        val = 'not-a-uuid'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_failure_not_hexadecimal(self):
+        val = '123zzzzz-uuuu-zzzz-uuuu-42665544zzzz'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_failure_invalid_length(self):
+        # Correct UUID: 8-4-4-4-12
+        val = '88888888-333-4444-333-cccccccccccc'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_failure_with_invalid_urn_ns(self):
+        val = 'urn:abcd:{123e4567-e89b-12d3-a456-426655440000}'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
 class TestSchemaType(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import SchemaType
