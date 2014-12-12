@@ -78,6 +78,11 @@ Validators
  
      A validator which ensures the value is a URL (via regex).
 
+  .. attribute:: uuid
+
+     A UUID hexadecimal string validator via regular expression
+     using :class:`colander.Regex`.
+
 Types
 ~~~~~
 
