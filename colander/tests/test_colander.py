@@ -546,27 +546,27 @@ class TestUUID(unittest.TestCase):
     def test_success_hexadecimal(self):
         val = '123e4567e89b12d3a456426655440000'
         result = self._callFUT(val)
-        self.assertIsNone(result)
+        self.assertEqual(result, None)
 
     def test_success_with_dashes(self):
         val = '123e4567-e89b-12d3-a456-426655440000'
         result = self._callFUT(val)
-        self.assertIsNone(result)
+        self.assertEqual(result, None)
 
     def test_success_upper_case(self):
         val = '123E4567-E89B-12D3-A456-426655440000'
         result = self._callFUT(val)
-        self.assertIsNone(result)
+        self.assertEqual(result, None)
 
     def test_success_with_braces(self):
         val = '{123e4567-e89b-12d3-a456-426655440000}'
         result = self._callFUT(val)
-        self.assertIsNone(result)
+        self.assertEqual(result, None)
 
     def test_success_with_urn_ns(self):
         val = 'urn:uuid:{123e4567-e89b-12d3-a456-426655440000}'
         result = self._callFUT(val)
-        self.assertIsNone(result)
+        self.assertEqual(result, None)
 
     def test_failure_random_string(self):
         val = 'not-a-uuid'
