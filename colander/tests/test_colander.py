@@ -1375,6 +1375,16 @@ class TestSequence(unittest.TestCase):
         result = typ.flatten(node, [1, 2])
         self.assertEqual(result, {'node.0': 1, 'node.1': 2})
 
+    def test_flatten_with_integer(self):
+        from colander import Integer
+        node = DummySchemaNode(None, name='node')
+        node.children = [
+            DummySchemaNode(Integer(), name='foo'),
+        ]
+        typ = self._makeOne()
+        result = typ.flatten(node, [1, 2])
+        self.assertEqual(result, {'node.0': 1, 'node.1': 2})
+
     def test_flatten_listitem(self):
         node = DummySchemaNode(None, name='node')
         node.children = [

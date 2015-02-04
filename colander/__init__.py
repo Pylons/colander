@@ -506,7 +506,7 @@ class SchemaType(object):
             selfname = prefix
         else:
             selfname = '%s%s' % (prefix, node.name)
-        result[selfname] = appstruct
+        result[selfname.rstrip('.')] = appstruct
         return result
 
     def unflatten(self, node, paths, fstruct):
