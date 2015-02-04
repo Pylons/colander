@@ -9,6 +9,9 @@ Platform
 Features
 ~~~~~~~~
 
+- Add ``min_err`` and ``max_err`` arguments to ``Length``, thus allowing
+  customization of its error messages.
+
 - Add `Any` validator which succeeds if at least one of its subvalidators
   succeeded.
 
@@ -17,9 +20,6 @@ Features
 
 - Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
   message to be used when the node is required and missing
-
-- Add ``min_err`` and ``max_err`` arguments to ``Length``, thus allowing
-  customization of its error messages.
 
 
 1.0 (2014-11-26)
