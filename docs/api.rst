@@ -48,6 +48,9 @@ Exceptions
        from a widget as the value which should be redisplayed when an
        error is shown.
 
+  .. autoclass:: UnboundDeferredError
+
+
 Validators
 ~~~~~~~~~~
 
@@ -74,6 +77,11 @@ Validators
   .. attribute:: url
  
      A validator which ensures the value is a URL (via regex).
+
+  .. attribute:: uuid
+
+     A UUID hexadecimal string validator via regular expression
+     using :class:`colander.Regex`.
 
 Types
 ~~~~~

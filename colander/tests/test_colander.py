@@ -550,6 +550,57 @@ class Test_url_validator(unittest.TestCase):
         from colander import Invalid
         self.assertRaises(Invalid, self._callFUT, val)
 
+class TestUUID(unittest.TestCase):
+    def _callFUT(self, val):
+        from colander import uuid
+        return uuid(None, val)
+
+    def test_success_hexadecimal(self):
+        val = '123e4567e89b12d3a456426655440000'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_success_with_dashes(self):
+        val = '123e4567-e89b-12d3-a456-426655440000'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_success_upper_case(self):
+        val = '123E4567-E89B-12D3-A456-426655440000'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_success_with_braces(self):
+        val = '{123e4567-e89b-12d3-a456-426655440000}'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_success_with_urn_ns(self):
+        val = 'urn:uuid:{123e4567-e89b-12d3-a456-426655440000}'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_failure_random_string(self):
+        val = 'not-a-uuid'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_failure_not_hexadecimal(self):
+        val = '123zzzzz-uuuu-zzzz-uuuu-42665544zzzz'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_failure_invalid_length(self):
+        # Correct UUID: 8-4-4-4-12
+        val = '88888888-333-4444-333-cccccccccccc'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_failure_with_invalid_urn_ns(self):
+        val = 'urn:abcd:{123e4567-e89b-12d3-a456-426655440000}'
+        from colander import Invalid
+        self.assertRaises(Invalid, self._callFUT, val)
+
 class TestSchemaType(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import SchemaType
@@ -1511,7 +1562,7 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
-    def test_serialize_emptystring(self):
+    def test_deserialize_emptystring(self):
         import colander
         val = ''
         node = DummySchemaNode(None)
@@ -2474,6 +2525,19 @@ class TestSchemaNode(unittest.TestCase):
         e = invalid_exc(node.deserialize, 1)
         self.assertEqual(e.msg, 'Wrong')
 
+    def test_deserialize_with_unbound_validator(self):
+        from colander import Invalid
+        from colander import deferred
+        from colander import UnboundDeferredError
+        typ = DummyType()
+        def validator(node, kw):
+            def _validate(node, value):
+                node.raise_invalid('Invalid')
+            return _validate
+        node = self._makeOne(typ, validator=deferred(validator))
+        self.assertRaises(UnboundDeferredError, node.deserialize, None)
+        self.assertRaises(Invalid, node.bind(foo='foo').deserialize, None)
+
     def test_deserialize_value_is_null_no_missing(self):
         from colander import null
         from colander import Invalid
@@ -2494,6 +2558,14 @@ class TestSchemaNode(unittest.TestCase):
         node = self._makeOne(typ, missing_msg='Missing')
         e = invalid_exc(node.deserialize, null)
         self.assertEqual(e.msg, 'Missing')
+
+    def test_deserialize_value_with_interpolated_missing_msg(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ, missing_msg='Missing attribute ${title}',
+                             name='name_a')
+        e = invalid_exc(node.deserialize, null)
+        self.assertEqual(e.msg.interpolate(), 'Missing attribute Name A')
 
     def test_deserialize_noargs_uses_default(self):
         typ = DummyType()

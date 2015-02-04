@@ -57,6 +57,13 @@ def interpolate(msgs):
         else:
             yield s
 
+class UnboundDeferredError(Exception):
+    """
+    An exception raised by :meth:`SchemaNode.deserialize` when an attempt
+    is made to deserialize a node which has an unbound :class:`deferred`
+    validator.
+    """
+
 class Invalid(Exception):
     """
     An exception raised by data types and validators indicating that
@@ -286,6 +293,9 @@ class Regex(object):
         error message to be used; otherwise, defaults to 'String does
         not match expected pattern'.
 
+        The ``regex`` expression behaviour can be modified by specifying
+        any ``flags`` value taken by ``re.compile``.
+
         The ``regex`` argument may also be a pattern object (the
         result of ``re.compile``) instead of a string.
 
@@ -293,9 +303,9 @@ class Regex(object):
         validation succeeds; otherwise, :exc:`colander.Invalid` is
         raised with the ``msg`` error message.
     """
-    def __init__(self, regex, msg=None):
+    def __init__(self, regex, msg=None, flags=0):
         if isinstance(regex, string_types):
-            self.match_object = re.compile(regex)
+            self.match_object = re.compile(regex, flags)
         else:
             self.match_object = regex
         if msg is None:
@@ -482,6 +492,11 @@ def _luhnok(value):
 URL_REGEX = r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))""" # "emacs!
 
 url = Regex(URL_REGEX, _('Must be a URL'))
+
+
+UUID_REGEX = r"""^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$"""
+uuid = Regex(UUID_REGEX, _('Invalid UUID string'), re.IGNORECASE)
+
 
 class SchemaType(object):
     """ Base class for all schema types """
@@ -1837,7 +1852,7 @@ class _SchemaNode(object):
     validator = None
     default = null
     missing = required
-    missing_msg = _('Required')
+    missing_msg = 'Required'
     name = ''
     raw_title = _marker
     title = _marker
@@ -1980,15 +1995,21 @@ class _SchemaNode(object):
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
-                raise Invalid(self, self.missing_msg)
+                raise Invalid(self, _(self.missing_msg,
+                                      mapping={'title': self.title,
+                                               'name':self.name}))
+
             if isinstance(appstruct, deferred): # unbound schema with deferreds
                 raise Invalid(self, self.missing_msg)
             # We never deserialize or validate the missing value
             return appstruct
 
         if self.validator is not None:
-            if not isinstance(self.validator, deferred): # unbound
-                self.validator(self, appstruct)
+            if isinstance(self.validator, deferred): # unbound
+                raise UnboundDeferredError(
+                    "Schema node {node} has an unbound deferred validator"
+                    .format(node=self))
+            self.validator(self, appstruct)
         return appstruct
 
     def add(self, node):

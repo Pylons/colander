@@ -54,6 +54,15 @@ Bug Fixes
 - Updated translations: ``fr``, ``de``, ``ja``
 
 
+Backwards Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``SchemaNode.deserialize`` will now raise an
+  ``UnboundDeferredError`` if the node has an unbound deferred
+  validator.  Previously, deferred validators were silently ignored.
+  See https://github.com/Pylons/colander/issues/47
+
+
 1.0b1 (2013-09-01)
 ------------------
 
@@ -108,6 +117,8 @@ Features
 
 - The ``typ`` of a ``SchemaNode`` can optionally be pased in as a keyword
   argument. See https://github.com/Pylons/colander/issues/90
+
+- Allow interpolation of `missing_msg` with properties `title` and `name`
 
 1.0a5 (2013-05-31)
 ------------------
