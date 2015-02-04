@@ -1,3 +1,13 @@
+1.0.1 (unreleased)
+------------------
+
+Bug Fixes
+---------
+
+- Fix an issue where the ``flatten()`` method produces an invalid name
+  (ex: "answer.0.") for the type "Sequence".  See:
+  https://github.com/Pylons/colander/issues/179
+
 1.0 (2014-11-26)
 ----------------
 
@@ -83,6 +93,9 @@ Features
 
 - The ``typ`` of a ``SchemaNode`` can optionally be pased in as a keyword
   argument. See https://github.com/Pylons/colander/issues/90
+
+- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
+  message to be used when the node is required and missing
 
 1.0a5 (2013-05-31)
 ------------------

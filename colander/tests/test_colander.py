@@ -219,6 +219,35 @@ class TestAll(unittest.TestCase):
         exc = invalid_exc(validator, node, None)
         self.assertEqual(exc.children, [exc1, exc2])
 
+class TestAny(unittest.TestCase):
+    def _makeOne(self, validators):
+        from colander import Any
+        return Any(*validators)
+
+    def test_success(self):
+        validator1 = DummyValidator('msg1')
+        validator2 = DummyValidator()
+        validator = self._makeOne([validator1, validator2])
+        self.assertEqual(validator(None, None), None)
+
+    def test_failure(self):
+        validator1 = DummyValidator('msg1')
+        validator2 = DummyValidator('msg2')
+        validator = self._makeOne([validator1, validator2])
+        e = invalid_exc(validator, None, None)
+        self.assertEqual(e.msg, ['msg1', 'msg2'])
+
+    def test_Invalid_children(self):
+        from colander import Invalid
+        node1 = DummySchemaNode(None, 'node1')
+        node = DummySchemaNode(None, 'node')
+        node.children = [node1]
+        exc1 = Invalid(node1, 'exc1')
+        validator1 = DummyValidator('validator1', [exc1])
+        validator2 = DummyValidator()
+        validator = self._makeOne([validator1, validator2])
+        self.assertEqual(validator(None, None), None)
+
 class TestFunction(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import Function
@@ -1275,6 +1304,16 @@ class TestSequence(unittest.TestCase):
         node = DummySchemaNode(None, name='node')
         node.children = [
             DummySchemaNode(DummyType(), name='foo'),
+        ]
+        typ = self._makeOne()
+        result = typ.flatten(node, [1, 2])
+        self.assertEqual(result, {'node.0': 1, 'node.1': 2})
+
+    def test_flatten_with_integer(self):
+        from colander import Integer
+        node = DummySchemaNode(None, name='node')
+        node.children = [
+            DummySchemaNode(Integer(), name='foo'),
         ]
         typ = self._makeOne()
         result = typ.flatten(node, [1, 2])
@@ -2447,6 +2486,13 @@ class TestSchemaNode(unittest.TestCase):
         node.missing = 'abc'
         self.assertEqual(node.deserialize(null), 'abc')
 
+    def test_deserialize_value_is_null_with_missing_msg(self):
+        from colander import null
+        typ = DummyType()
+        node = self._makeOne(typ, missing_msg='Missing')
+        e = invalid_exc(node.deserialize, null)
+        self.assertEqual(e.msg, 'Missing')
+
     def test_deserialize_noargs_uses_default(self):
         typ = DummyType()
         node = self._makeOne(typ)
@@ -3425,6 +3471,39 @@ class TestFunctional(object):
         e = invalid_exc(schema.deserialize, data)
         errors = e.asdict()
         self.assertEqual(errors, expected)
+
+    def test_invalid_asdict_translation_callback(self):
+        from translationstring import TranslationString
+
+        expected = {
+            'schema.int': 'translated',
+            'schema.ob': 'translated',
+            'schema.seq.0.0': 'translated',
+            'schema.seq.1.0': 'translated',
+            'schema.seq.2.0': 'translated',
+            'schema.seq.3.0': 'translated',
+            'schema.seq2.0.key': 'translated',
+            'schema.seq2.0.key2': 'translated',
+            'schema.seq2.1.key': 'translated',
+            'schema.seq2.1.key2': 'translated',
+            'schema.tup.0': 'translated',
+        }
+        data = {
+            'int': '20',
+            'ob': 'no.way.this.exists',
+            'seq': [('q', 's'), ('w', 's'), ('e', 's'), ('r', 's')],
+            'seq2': [{'key': 't', 'key2': 'y'}, {'key':'u', 'key2':'i'}],
+            'tup': ('s', 's'),
+        }
+        schema = self._makeSchema()
+        e = invalid_exc(schema.deserialize, data)
+
+        def translation_function(string):
+            return TranslationString('translated')
+
+        errors = e.asdict(translate=translation_function)
+        self.assertEqual(errors, expected)
+
 
 class TestImperative(unittest.TestCase, TestFunctional):
 

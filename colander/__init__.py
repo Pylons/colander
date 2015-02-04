@@ -165,9 +165,14 @@ class Invalid(Exception):
             return str(self.pos)
         return str(self.node.name)
 
-    def asdict(self):
+    def asdict(self, translate=None):
         """ Return a dictionary containing a basic
-        (non-language-translated) error report for this exception"""
+        (non-language-translated) error report for this exception.
+
+        If ``translate`` is supplied, it must be a callable taking a
+        translation string as its sole argument and returning a localized,
+        interpolated string.
+        """
         paths = self.paths()
         errors = {}
         for path in paths:
@@ -177,6 +182,8 @@ class Invalid(Exception):
                 exc.msg and msgs.extend(exc.messages())
                 keyname = exc._keyname()
                 keyname and keyparts.append(keyname)
+            if translate:
+                msgs = [translate(msg) for msg in msgs]
             errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
         return errors
 
@@ -204,6 +211,18 @@ class All(object):
             for e in excs:
                 exc.children.extend(e.children)
             raise exc
+
+class Any(All):
+    """ Composite validator which succeeds if at least one of its
+    subvalidators does not raise an :class:`colander.Invalid` exception."""
+    def __call__(self, node, value):
+        try:
+            return super(Any, self).__call__(node, value)
+        except Invalid as e:
+            if len(e.msg) < len(self.validators):
+                # At least one validator did not fail:
+                return
+            raise
 
 class Function(object):
     """ Validator which accepts a function and an optional message;
@@ -447,7 +466,7 @@ class SchemaType(object):
             selfname = prefix
         else:
             selfname = '%s%s' % (prefix, node.name)
-        result[selfname] = appstruct
+        result[selfname.rstrip('.')] = appstruct
         return result
 
     def unflatten(self, node, paths, fstruct):
@@ -1746,6 +1765,9 @@ class _SchemaNode(object):
       :attr:`colander.drop`, the node is dropped from the schema if it isn't
       set during serialization/deserialization.
 
+    - ``missing_msg``: Optional error message to be used if the value is
+      required and missing.
+
     - ``preparer``: Optional preparer for this node.  It should be
       an object that implements the
       :class:`colander.interfaces.Preparer` interface.
@@ -1790,6 +1812,7 @@ class _SchemaNode(object):
     validator = None
     default = null
     missing = required
+    missing_msg = _('Required')
     name = ''
     raw_title = _marker
     title = _marker
@@ -1932,9 +1955,9 @@ class _SchemaNode(object):
         if appstruct is null:
             appstruct = self.missing
             if appstruct is required:
-                raise Invalid(self, _('Required'))
+                raise Invalid(self, self.missing_msg)
             if isinstance(appstruct, deferred): # unbound schema with deferreds
-                raise Invalid(self, _('Required'))
+                raise Invalid(self, self.missing_msg)
             # We never deserialize or validate the missing value
             return appstruct
 

@@ -53,6 +53,8 @@ Validators
 
   .. autoclass:: All
 
+  .. autoclass:: Any
+
   .. autoclass:: Range
 
   .. autoclass:: Length
