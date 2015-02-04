@@ -356,26 +356,26 @@ class Range(object):
     provided, it defaults to ``'${val} is greater than maximum value
     ${max}'``.
     """
-    min_err = _('${val} is less than minimum value ${min}')
-    max_err = _('${val} is greater than maximum value ${max}')
+    _MIN_ERR = _('${val} is less than minimum value ${min}')
+    _MAX_ERR = _('${val} is greater than maximum value ${max}')
 
-    def __init__(self, min=None, max=None, min_err=None, max_err=None):
+    def __init__(self, min=None, max=None, min_err=_MIN_ERR, max_err=_MAX_ERR):
         self.min = min
         self.max = max
-        if min_err is not None:
-            self.min_err = min_err
-        if max_err is not None:
-            self.max_err = max_err
+        self.min_err = min_err
+        self.max_err = max_err
 
     def __call__(self, node, value):
         if self.min is not None:
             if value < self.min:
-                min_err = _(self.min_err, mapping={'val':value, 'min':self.min})
+                min_err = _(
+                    self.min_err, mapping={'val':value, 'min':self.min})
                 raise Invalid(node, min_err)
 
         if self.max is not None:
             if value > self.max:
-                max_err = _(self.max_err, mapping={'val':value, 'max':self.max})
+                max_err = _(
+                    self.max_err, mapping={'val':value, 'max':self.max})
                 raise Invalid(node, max_err)
 
 
@@ -404,14 +404,14 @@ class Length(object):
         specified, it must be a string.  The string may contain the
         replacement target ``${max}``.
         """
-    min_err = _('Shorter than minimum length ${min}')
-    max_err = _('Longer than maximum length ${max}')
+    _MIN_ERR = _('Shorter than minimum length ${min}')
+    _MAX_ERR = _('Longer than maximum length ${max}')
 
-    def __init__(self, min=None, max=None, min_err=None, max_err=None):
+    def __init__(self, min=None, max=None, min_err=_MIN_ERR, max_err=_MAX_ERR):
         self.min = min
         self.max = max
-        self.min_err = self.min_err if min_err is None else min_err
-        self.max_err = self.max_err if max_err is None else max_err
+        self.min_err = min_err
+        self.max_err = max_err
 
     def __call__(self, node, value):
         if self.min is not None:
