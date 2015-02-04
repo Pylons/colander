@@ -110,9 +110,10 @@ class TestInvalid(unittest.TestCase):
         exc1.add(exc2, 2)
         exc2.add(exc3, 3)
         d = exc1.asdict()
-        self.assertEqual(d,
-                         {'node1.node2.3': 'exc1; exc2; validator1; validator2',
-                          'node1.node3': 'exc1; message1'})
+        self.assertEqual(
+            d,
+            {'node1.node2.3': 'exc1; exc2; validator1; validator2',
+             'node1.node3': 'exc1; message1'})
 
     def test_asdict_with_all_validator_functional(self):
         # see https://github.com/Pylons/colander/issues/2
@@ -153,7 +154,8 @@ class TestInvalid(unittest.TestCase):
         result = str(exc1)
         self.assertEqual(
             result,
-            "{'node1.node2.3': 'exc1; exc2; exc3', 'node1.node4': 'exc1; exc4'}"
+            "{'node1.node2.3': 'exc1; exc2; exc3', "
+            "'node1.node4': 'exc1; exc4'}"
             )
 
     def test___setitem__fails(self):
@@ -425,7 +427,8 @@ class TestEmail(unittest.TestCase):
         validator = self._makeOne()
         from colander import Invalid
         self.assertRaises(Invalid, validator, None, 'me@here.')
-        self.assertRaises(Invalid, validator, None, 'name@here.tldiswaytoolooooooooong')
+        self.assertRaises(Invalid,
+                          validator, None, 'name@here.tldiswaytoolooooooooong')
         self.assertRaises(Invalid, validator, None, '@here.us')
         self.assertRaises(Invalid, validator, None, 'me@here..com')
         self.assertRaises(Invalid, validator, None, 'me@we-here-.com')
@@ -2405,8 +2408,9 @@ class TestSchemaNode(unittest.TestCase):
 
     def test_ctor_no_title(self):
         child = DummySchemaNode(None, name='fred')
-        node = self._makeOne(None, child, validator=1, default=2, name='name_a',
-                             missing='missing')
+        node = self._makeOne(
+            None, child, validator=1, default=2,
+            name='name_a', missing='missing')
         self.assertEqual(node.typ, None)
         self.assertEqual(node.children, [child])
         self.assertEqual(node.validator, 1)
@@ -3524,7 +3528,8 @@ class TestFunctional(object):
     def test_invalid_asdict(self):
         expected = {
             'schema.int': '20 is greater than maximum value 10',
-            'schema.ob': 'The dotted name "no.way.this.exists" cannot be imported',
+            'schema.ob': 'The dotted name "no.way.this.exists" '
+                         'cannot be imported',
             'schema.seq.0.0': '"q" is not a number',
             'schema.seq.1.0': '"w" is not a number',
             'schema.seq.2.0': '"e" is not a number',
