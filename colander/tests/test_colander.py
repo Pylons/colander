@@ -380,6 +380,22 @@ class TestRange(unittest.TestCase):
         e = invalid_exc(validator, None, 2)
         self.assertEqual(e.msg, 'wrong')
 
+    def test_min_function_failure(self):
+        import datetime
+        validator = self._makeOne(min=datetime.date.today)
+        before_today = datetime.date.today() - datetime.timedelta(days=1)
+        e = invalid_exc(validator, None, before_today)
+        msg = '%s is less than minimum value %s' % (before_today, datetime.date.today())
+        self.assertEqual(e.msg.interpolate(), msg)
+
+    def test_max_function_failure(self):
+        import datetime
+        validator = self._makeOne(max=datetime.date.today)
+        after_today = datetime.date.today() + datetime.timedelta(days=1)
+        e = invalid_exc(validator, None, after_today)
+        msg = '%s is greater than maximum value %s' % (after_today, datetime.date.today())
+        self.assertEqual(e.msg.interpolate(), msg)
+
 class TestRegex(unittest.TestCase):
     def _makeOne(self, pattern):
         from colander import Regex

@@ -367,15 +367,23 @@ class Range(object):
 
     def __call__(self, node, value):
         if self.min is not None:
-            if value < self.min:
+            min_value = self.min
+            if hasattr(min_value, '__call__'):
+                min_value = min_value()
+
+            if value < min_value:
                 min_err = _(
-                    self.min_err, mapping={'val':value, 'min':self.min})
+                    self.min_err, mapping={'val':value, 'min':min_value})
                 raise Invalid(node, min_err)
 
         if self.max is not None:
-            if value > self.max:
+            max_value = self.max
+            if hasattr(max_value, '__call__'):
+                max_value = max_value()
+
+            if value > max_value:
                 max_err = _(
-                    self.max_err, mapping={'val':value, 'max':self.max})
+                    self.max_err, mapping={'val':value, 'max':max_value})
                 raise Invalid(node, max_err)
 
 
