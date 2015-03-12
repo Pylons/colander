@@ -368,7 +368,7 @@ class Range(object):
     def __call__(self, node, value):
         if self.min is not None:
             min_value = self.min
-            if hasattr(min_value, '__call__'):
+            if callable(min_value):
                 min_value = min_value()
 
             if value < min_value:
@@ -378,7 +378,7 @@ class Range(object):
 
         if self.max is not None:
             max_value = self.max
-            if hasattr(max_value, '__call__'):
+            if callable(max_value):
                 max_value = max_value()
 
             if value > max_value:
