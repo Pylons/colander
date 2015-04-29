@@ -1893,7 +1893,7 @@ class _SchemaNode(object):
     @staticmethod
     def schema_type():
         raise NotImplementedError(
-            'Schema node construction without a type argument or '
+            'Schema node construction without a typ argument or '
             'a schema_type() callable present on the node class '
             )
 
