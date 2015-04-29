@@ -3783,6 +3783,16 @@ class Test_null(unittest.TestCase):
         import pickle
         self.assertTrue(pickle.loads(pickle.dumps(null)) is null)
 
+class Test_required(unittest.TestCase):
+    def test___repr__(self):
+        from colander import required
+        self.assertEqual(repr(required), '<colander.required>')
+
+class Test_drop(unittest.TestCase):
+    def test___repr__(self):
+        from colander import drop
+        self.assertEqual(repr(drop), '<colander.drop>')
+
 class Dummy(object):
     pass
 
