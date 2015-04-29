@@ -22,7 +22,12 @@ from . import iso8601
 
 _ = translationstring.TranslationStringFactory('colander')
 
-required = object()
+class _required(object):
+    """ Represents a required value in colander-related operations. """
+    def __repr__(self):
+        return '<colander.required>'
+
+required = _required()
 _marker = required # bw compat
 
 class _null(object):
@@ -46,7 +51,8 @@ class _drop(object):
     Represents a value that should be dropped if it is missing during
     deserialization.
     """
-    pass
+    def __repr__(self):
+        return '<colander.drop>'
 
 drop = _drop()
 
