@@ -1577,9 +1577,7 @@ class DateTime(SchemaType):
     """
     err_template =  _('Invalid date')
 
-    def __init__(self, default_tzinfo=_marker):
-        if default_tzinfo is _marker:
-            default_tzinfo = iso8601.Utc()
+    def __init__(self, default_tzinfo=iso8601.UTC):
         self.default_tzinfo = default_tzinfo
 
     def serialize(self, node, appstruct):
