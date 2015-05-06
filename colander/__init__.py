@@ -47,9 +47,9 @@ class _null(object):
 null = _null()
 
 class _drop(object):
-    """
-    Represents a value that should be dropped if it is missing during
-    deserialization.
+    """ Represents a value that will be dropped from the schema if it
+    is missing during *deserialization*.  Passed as a value to the
+    `missing` keyword argument of :class:`SchemaNode`.
     """
     def __repr__(self):
         return '<colander.drop>'

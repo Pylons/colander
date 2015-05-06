@@ -147,16 +147,12 @@ Schema-Related
 
   .. autoclass:: instantiate
 
-  .. attribute:: null
+  .. autodata:: null
+     :annotation:
 
-     Represents a null value in colander-related operations.
+  .. autodata:: required
+     :annotation:
 
-  .. attribute:: required
+  .. autodata:: drop
+     :annotation:
 
-     Represents a required value in colander-related operations.
-
-  .. attribute:: drop
-
-     Represents a value that will be dropped from the schema if it is missing
-     during *deserialization*.  Passed as a value to the `missing` keyword
-     argument of :class:`SchemaNode`.
