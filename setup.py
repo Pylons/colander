@@ -33,7 +33,11 @@ except:
 requires = ['translationstring', 'iso8601']
 
 testing_extras = ['nose', 'coverage']
-docs_extras = ['Sphinx']
+docs_extras = [
+    'Sphinx >= 1.3.1',
+    'docutils',
+    'pylons-sphinx-themes',
+]
 
 setup(name='colander',
       version='1.1.dev0',
