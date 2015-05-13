@@ -1320,6 +1320,14 @@ class TestSequence(unittest.TestCase):
         result = typ.serialize(node, colander.null)
         self.assertEqual(result, colander.null)
 
+    def test_serialize_drop(self):
+        from colander import drop
+        node = DummySchemaNode(None)
+        node.children = [DummySchemaNode(None, name='a')]
+        typ = self._makeOne()
+        result = typ.serialize(node, (drop,))
+        self.assertEqual(result, [])
+
     def test_serialize_not_iterable(self):
         node = DummySchemaNode(None)
         typ = self._makeOne()
@@ -3318,6 +3326,24 @@ class TestSequenceSchema(unittest.TestCase):
         self.assertEqual(
             e.msg,
             'Sequence schemas must have exactly one child node')
+
+    def test_deserialize_drop(self):
+        import colander
+        class MySchema(colander.SequenceSchema):
+            a = colander.SchemaNode(colander.String(), missing=colander.drop)
+        node = MySchema()
+        result = node.deserialize([None])
+        self.assertEqual(result, [])
+        result = node.deserialize([colander.null])
+        self.assertEqual(result, [])
+
+    def test_serialize_drop_default(self):
+        import colander
+        class MySchema(colander.SequenceSchema):
+            a = colander.SchemaNode(colander.String(), default=colander.drop)
+        node = MySchema()
+        result = node.serialize([colander.null])
+        self.assertEqual(result, [])
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):

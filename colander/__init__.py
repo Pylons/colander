@@ -987,11 +987,12 @@ class Sequence(Positional, SchemaType):
         error = None
         result = []
 
+        subnode = node.children[0]
         for num, subval in enumerate(value):
             if subval is drop or (subval is null and subnode.default is drop):
                 continue
             try:
-                sub_result = callback(node.children[0], subval)
+                sub_result = callback(subnode, subval)
             except Invalid as e:
                 if error is None:
                     error = Invalid(node)
