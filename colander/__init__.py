@@ -988,12 +988,18 @@ class Sequence(Positional, SchemaType):
         result = []
 
         for num, subval in enumerate(value):
+            if subval is drop or (subval is null and subnode.default is drop):
+                continue
             try:
-                result.append(callback(node.children[0], subval))
+                sub_result = callback(node.children[0], subval)
             except Invalid as e:
                 if error is None:
                     error = Invalid(node)
                 error.add(e, num)
+            else:
+                if sub_result is drop:
+                    continue
+                result.append(sub_result)
 
         if error is not None:
             raise error
