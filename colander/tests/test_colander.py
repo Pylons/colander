@@ -490,6 +490,22 @@ class TestOneOf(unittest.TestCase):
         e = invalid_exc(validator, None, None)
         self.assertEqual(e.msg.interpolate(), '"None" is not one of 1, 2')
 
+
+class TestNoneOf(unittest.TestCase):
+    def _makeOne(self, values):
+        from colander import NoneOf
+        return NoneOf(values)
+
+    def test_success(self):
+        validator = self._makeOne([1, 2])
+        self.assertEqual(validator(None, 3), None)
+
+    def test_failure(self):
+        validator = self._makeOne([1, 2])
+        e = invalid_exc(validator, None, 2)
+        self.assertEqual(e.msg.interpolate(), '"2" must not be one of 1, 2')
+
+
 class TestContainsOnly(unittest.TestCase):
     def _makeOne(self, values):
         from colander import ContainsOnly

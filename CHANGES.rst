@@ -21,6 +21,8 @@ Features
 - Add a ``missing_msg`` argument to ``SchemaNode``, allowing customization
   of the error message used when the node is required and missing.
 
+- Add `NoneOf` validator wich succeeds if the value is none of the choices.
+
 Bug Fixes
 ---------
 

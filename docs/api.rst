@@ -64,6 +64,8 @@ Validators
 
   .. autoclass:: OneOf
 
+  .. autoclass:: NoneOf
+
   .. autoclass:: ContainsOnly
 
   .. autoclass:: Function

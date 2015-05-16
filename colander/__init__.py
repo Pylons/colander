@@ -443,6 +443,33 @@ class OneOf(object):
                     mapping={'val':value, 'choices':choices})
             raise Invalid(node, err)
 
+
+class NoneOf(object):
+    """ Validator which succeeds if the value passed to it is none of a
+    fixed set of values.
+
+    ``msg_err`` is used to form the ``msg`` of the :exc:`colander.Invalid`
+    error when reporting a validation failure.  If ``msg_err`` is specified,
+    it must be a string.  The string may contain the replacement targets
+    ``${choices}`` and ``${val}``, representing the set of forbidden values
+    and the provided value respectively.
+    """
+    _MSG_ERR = _('"${val}" must not be one of ${choices}')
+
+    def __init__(self, choices, msg_err=_MSG_ERR):
+        self.forbidden = choices
+        self.msg_err = msg_err
+
+    def __call__(self, node, value):
+        if value not in self.forbidden:
+            return
+
+        choices = ', '.join(['%s' % x for x in self.forbidden])
+        err = _(self.msg_err, mapping={'val': value, 'choices': choices})
+
+        raise Invalid(node, err)
+
+
 class ContainsOnly(object):
     """ Validator which succeeds if the value passed to is a sequence and each
     element in the sequence is also in the sequence passed as ``choices``.
