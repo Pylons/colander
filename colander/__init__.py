@@ -1785,7 +1785,9 @@ class _SchemaNode(object):
     - ``typ``: The 'type' for this node.  It should be an
       instance of a class that implements the
       :class:`colander.interfaces.Type` interface.  If ``typ`` is not passed,
-      it defaults to ``colander.Mapping()``.
+      a call to the ``schema_type()`` method on this class is made to
+      get a default type.  (When subclassing, ``schema_type()`` should
+      be overridden to provide a reasonable default type).
 
     - ``*children``: a sequence of subnodes.  If the subnodes of this
       node are not known at construction time, they can later be added
