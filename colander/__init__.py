@@ -1148,7 +1148,7 @@ class String(SchemaType):
 
        - A non-Unicode input value to ``serialize`` is converted to a
          Unicode using the encoding (``unicode(value, encoding)``);
-         subsequently the Unicode object is reeencoded to a ``str``
+         subsequently the Unicode object is re-encoded to a ``str``
          object using the encoding and returned.
 
        - A Unicode input value to ``deserialize`` is returned
