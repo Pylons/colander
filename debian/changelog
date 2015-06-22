@@ -1,3 +1,9 @@
+colander (1.0b1-2) unstable; urgency=medium
+
+  * Add debian rules for squeeze.
+
+ -- Olivier Roussy <olivier@gandi.net>  Mon, 22 Jun 2015 10:41:12 +0200
+
 colander (1.0b1-1) unstable; urgency=low
 
   * Initial release.
