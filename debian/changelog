@@ -1,3 +1,9 @@
+colander (1.0b1-3) unstable; urgency=medium
+
+  * Push a new clean version in our repo.
+
+ -- Olivier Roussy <olivier@gandi.net>  Mon, 22 Jun 2015 11:37:23 +0200
+
 colander (1.0b1-2) unstable; urgency=medium
 
   * Add debian rules for squeeze.
