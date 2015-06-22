@@ -1,3 +1,9 @@
+colander (1.0b1-4) unstable; urgency=medium
+
+  * Add missing dep.
+
+ -- Olivier Roussy <olivier@gandi.net>  Mon, 22 Jun 2015 14:12:35 +0200
+
 colander (1.0b1-3) unstable; urgency=medium
 
   * Push a new clean version in our repo.
