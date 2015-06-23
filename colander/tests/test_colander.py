@@ -1558,7 +1558,7 @@ class TestString(unittest.TestCase):
         self.assertTrue('cannot be serialized' in e.msg)
 
     def test_serialize_encoding_with_non_string_type(self):
-        utf8 = '123'.encode('utf-8')
+        utf8 = text_type('123').encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
         result = typ.serialize(node, 123)
