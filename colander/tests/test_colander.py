@@ -1557,6 +1557,13 @@ class TestString(unittest.TestCase):
         e = invalid_exc(typ.serialize, node, not_utf8)
         self.assertTrue('cannot be serialized' in e.msg)
 
+    def test_serialize_encoding_with_non_string_type(self):
+        utf8 = text_type('123').encode('utf-8')
+        node = DummySchemaNode(None)
+        typ = self._makeOne('utf-8')
+        result = typ.serialize(node, 123)
+        self.assertEqual(result, utf8)
+
 class TestInteger(unittest.TestCase):
     def _makeOne(self):
         from colander import Integer

@@ -27,6 +27,9 @@ Bug Fixes
 - Fix an issue where the ``flatten()`` method produces an invalid name
   (ex: "answer.0.") for the type "Sequence".  See
   https://github.com/Pylons/colander/issues/179
+- Fixed issue with ``String`` not being properly encoded when non-string
+  values were passed into ``serialize()``
+  See `#235 <https://github.com/Pylons/colander/pull/235>`_
 
 
 1.0 (2014-11-26)

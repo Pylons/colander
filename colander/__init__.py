@@ -1185,6 +1185,8 @@ class String(SchemaType):
                     result = text_type(appstruct)
             else:
                 result = text_type(appstruct)
+                if self.encoding:
+                    result = result.encode(self.encoding)
             return result
         except Exception as e:
             raise Invalid(node,
