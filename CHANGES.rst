@@ -21,6 +21,8 @@ Features
 - Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
   message to be used when the node is required and missing
 
+- Add ``drop`` functionality to ``Sequence`` type.
+
 Bug Fixes
 ---------
 
