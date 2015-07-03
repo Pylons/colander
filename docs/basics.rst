@@ -1,5 +1,9 @@
 .. _basics:
 
+.. testsetup::
+
+     import colander
+
 Colander Basics
 ===============
 
@@ -168,10 +172,10 @@ behavior.  The subclass can define the following methods and attributes:
 
 The imperative style that looks like this still works, of course:
 
-.. code-block:: python
+.. testcode::
 
      ranged_int = colander.SchemaNode(
-         schema_type=colander.Int,
+         typ=colander.Int(),
          validator=colander.Range(0, 10),
          default=10,
          title='Ranged Int'
@@ -179,7 +183,7 @@ The imperative style that looks like this still works, of course:
 
 But in 1.0a1+, you can alternately now do something like this:
 
-.. code-block:: python
+.. testcode::
 
      class RangedInt(colander.SchemaNode):
          schema_type = colander.Int
@@ -192,7 +196,7 @@ But in 1.0a1+, you can alternately now do something like this:
 Values that are expected to be callables can now alternately be methods of
 the schemanode subclass instead of plain attributes:
 
-.. code-block:: python
+.. testcode::
 
      class RangedInt(colander.SchemaNode):
          schema_type = colander.Int
