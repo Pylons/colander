@@ -2847,6 +2847,16 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
         node = MyNode(name='my', title='other title')
         self.assertEqual(node.title, 'other title')
 
+    def test_subelement_title_not_overwritten(self):
+        import colander
+        class SampleNode(colander.SchemaNode):
+            schema_type = colander.String
+            title = 'Some Title'
+        class SampleSchema(colander.Schema):
+            node = SampleNode()
+        schema = SampleSchema()
+        self.assertEqual('Some Title', schema.children[0].title)
+
     def test_subclass_value_overridden_by_constructor(self):
         import colander
         class MyNode(colander.SchemaNode):
