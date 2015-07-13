@@ -30,6 +30,8 @@ Bug Fixes
 - Fixed issue with ``String`` not being properly encoded when non-string
   values were passed into ``serialize()``
   See `#235 <https://github.com/Pylons/colander/pull/235>`_
+- ``title`` was being overwritten when made a child through defining a schema
+  as a class.  See `#239 <https://github.com/Pylons/colander/pull/239>`_
 
 
 1.0 (2014-11-26)
