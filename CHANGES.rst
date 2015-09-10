@@ -9,6 +9,9 @@ Platform
 Features
 ~~~~~~~~
 
+- Add new exception ExtraItemsError. Used to pass to the caller a list of extra
+  field detected in cstruct.
+
 - Add ``min_err`` and ``max_err`` arguments to ``Length``, thus allowing
   customization of its error messages.
 

@@ -48,6 +48,15 @@ Exceptions
        from a widget as the value which should be redisplayed when an
        error is shown.
 
+  .. autoclass:: ExtraItemsError
+
+     .. attribute:: extras
+
+        The ``dict`` with all detected extra field and their values.
+
+        Node that contain extra fields can be located by position of
+        this exception into exception tree hierarchy.
+
   .. autoclass:: UnboundDeferredError
 
 

@@ -205,6 +205,18 @@ class Invalid(Exception):
         result of an execution of this exception's ``asdict`` method"""
         return pprint.pformat(self.asdict())
 
+
+class ExtraItemsError(Invalid):
+    """
+    Exception used when schema object detect "extra" fields in cstruct during
+    deserialize.
+    """
+
+    def __init__(self, node, extras, msg=_('Unrecognized items')):
+        super(ExtraItemsError, self).__init__(node, msg)
+        self.extras = extras
+
+
 class All(object):
     """ Composite validator which succeeds if none of its
     subvalidators raises an :class:`colander.Invalid` exception"""
@@ -640,11 +652,10 @@ class Mapping(SchemaType):
 
         if self.unknown == 'raise':
             if value:
-                raise Invalid(
-                    node,
-                    _('Unrecognized keys in mapping: "${val}"',
-                      mapping={'val':value})
-                    )
+                raise ExtraItemsError(
+                    node, value,
+                    msg=_('Unrecognized keys in mapping: "${val}"',
+                          mapping={'val': value}))
 
         elif self.unknown == 'preserve':
             result.update(value)
