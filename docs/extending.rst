@@ -144,7 +144,7 @@ Null Values
 Both the ``serialize`` and ``deserialize`` methods must be able to
 receive :attr:`colander.null` values and handle them intelligently. This
 will happen whenever the data structure being serialized or deserialized
-does not provide a value for this node. In most cases, ``serialize`` or
+does not provide a value for this node. In many cases, ``serialize`` or
 ``deserialize`` should just return :attr:`colander.null` when passed
 :attr:`colander.null`.
 
