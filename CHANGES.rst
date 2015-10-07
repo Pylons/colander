@@ -9,27 +9,31 @@ Platform
 Features
 ~~~~~~~~
 
-- Add ``min_err`` and ``max_err`` arguments to ``Length``, thus allowing
+- Add ``min_err`` and ``max_err`` arguments to ``Length``, allowing
   customization of its error messages.
 
-- Add `Any` validator which succeeds if at least one of its subvalidators
-  succeeded.
+- Add ``colander.Any`` validator: succeeds if at least one of its
+  subvalidators succeeded.
 
 - Allow localization of error messages returned by ``colander.Invalid.asdict``
   by adding an optional ``translate`` callable argument.
 
-- Add a ``missing_msg`` argument to ``SchemaNode`` that specifies the error
-  message to be used when the node is required and missing
+- Add a ``missing_msg`` argument to ``SchemaNode``, allowing customization
+  of the error message used when the node is required and missing.
 
 Bug Fixes
 ---------
 
+- Update translations: ``de``, ``ja``, ``fr``.
+
 - Fix an issue where the ``flatten()`` method produces an invalid name
-  (ex: "answer.0.") for the type "Sequence".  See
+  (ex: "answer.0.") for the type ``Sequence``.  See
   https://github.com/Pylons/colander/issues/179
+
 - Fixed issue with ``String`` not being properly encoded when non-string
   values were passed into ``serialize()``
   See `#235 <https://github.com/Pylons/colander/pull/235>`_
+
 - ``title`` was being overwritten when made a child through defining a schema
   as a class.  See `#239 <https://github.com/Pylons/colander/pull/239>`_
 
