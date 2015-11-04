@@ -23,6 +23,9 @@ Features
 
 - Add `NoneOf` validator wich succeeds if the value is none of the choices.
 
+- Add ``normalize`` option to ``Decimal``, stripping the rightmost
+  trailing zeros.
+
 Bug Fixes
 ---------
 
