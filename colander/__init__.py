@@ -1305,24 +1305,27 @@ class Decimal(Number):
     method of this class, the :attr:`colander.null` value will be
     returned.
 
-    The Decimal constructor takes two optional arguments, ``quant`` and
-    ``rounding``.  If supplied, ``quant`` should be a string,
+    The Decimal constructor takes three optional arguments, ``quant``,
+    ``rounding`` and ``normalize``.  If supplied, ``quant`` should be a string,
     (e.g. ``1.00``).  If supplied, ``rounding`` should be one of the Python
     ``decimal`` module rounding options (e.g. ``decimal.ROUND_UP``,
     ``decimal.ROUND_DOWN``, etc).  The serialized and deserialized result
     will be quantized and rounded via
     ``result.quantize(decimal.Decimal(quant), rounding)``.  ``rounding`` is
-    ignored if ``quant`` is not supplied.
+    ignored if ``quant`` is not supplied.  If ``normalize`` is ``True``,
+    the serialized and deserialized result will be normalized by stripping
+    the rightmost trailing zeros.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def __init__(self, quant=None, rounding=None):
+    def __init__(self, quant=None, rounding=None, normalize=False):
         if quant is None:
             self.quant = None
         else:
             self.quant = decimal.Decimal(quant)
         self.rounding = rounding
+        self.normalize = normalize
 
     def num(self, val):
         result = decimal.Decimal(str(val))
@@ -1331,6 +1334,8 @@ class Decimal(Number):
                 result = result.quantize(self.quant)
             else:
                 result = result.quantize(self.quant, self.rounding)
+        if self.normalize:
+            result = result.normalize()
         return result
 
 class Money(Decimal):
@@ -1346,8 +1351,7 @@ class Money(Decimal):
     this type are ignored.
     """
     def __init__(self):
-        self.quant = decimal.Decimal('.01')
-        self.rounding = decimal.ROUND_UP
+        super(Money, self).__init__(decimal.Decimal('.01'), decimal.ROUND_UP)
 
 class Boolean(SchemaType):
     """ A type representing a boolean object.

@@ -1691,9 +1691,9 @@ class TestFloat(unittest.TestCase):
         self.assertEqual(result, '1.0')
 
 class TestDecimal(unittest.TestCase):
-    def _makeOne(self, quant=None, rounding=None):
+    def _makeOne(self, quant=None, rounding=None, normalize=False):
         from colander import Decimal
-        return Decimal(quant, rounding)
+        return Decimal(quant, rounding, normalize)
 
     def test_serialize_null(self):
         import colander
@@ -1725,6 +1725,14 @@ class TestDecimal(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, '0.01')
 
+    def test_serialize_normalize(self):
+        from decimal import Decimal
+        val = Decimal('1.00')
+        node = DummySchemaNode(None)
+        typ = self._makeOne(normalize=True)
+        result = typ.serialize(node, val)
+        self.assertEqual(result, '1')
+
     def test_deserialize_fails(self):
         val = 'P'
         node = DummySchemaNode(None)
@@ -1747,6 +1755,15 @@ class TestDecimal(unittest.TestCase):
         typ = self._makeOne('.01', decimal.ROUND_UP)
         result = typ.deserialize(node, val)
         self.assertEqual(result, decimal.Decimal('1.01'))
+
+    def test_deserialize_with_normalize(self):
+        from decimal import Decimal
+        val = '1.00'
+        node = DummySchemaNode(None)
+        typ = self._makeOne(normalize=True)
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, Decimal('1'))
+        self.assertEqual(str(result), '1')
 
     def test_serialize_fails(self):
         val = 'P'
