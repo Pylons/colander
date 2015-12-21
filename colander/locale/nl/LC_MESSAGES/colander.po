@@ -103,7 +103,7 @@ msgstr "${val} is geen tekst"
 
 #: colander/__init__.py:1328
 msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
-msgstr "\"${val}\" is noch aanwezig in (${false_choices}) is noch aanwezig in (${true_choices})"
+msgstr "\"${val}\" is niet aanwezig in (${false_choices}) noch aanwezig in (${true_choices})"
 
 #: colander/__init__.py:1388 colander/__init__.py:1405
 #: colander/__init__.py:1415
