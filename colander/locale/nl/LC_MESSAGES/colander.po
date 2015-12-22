@@ -57,7 +57,7 @@ msgstr "Één of meer van de keuzes die je maakte zijn niet aanvaardbaar"
 #: colander/__init__.py:414 colander/__init__.py:419
 #, fuzzy
 msgid "\"${val}\" is not a valid credit card number"
-msgstr "\"${val}\" is geen geldige kredietkaarnummer"
+msgstr "\"${val}\" is geen geldige kredietkaartnummer"
 
 #: colander/__init__.py:440
 msgid "Must be a URL"
