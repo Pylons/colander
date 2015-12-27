@@ -11,6 +11,7 @@ env:
   - TOXENV=pypy
   - TOXENV=pypy3
   - TOXENV=cover
+  - TOXENV=docs
 
 install:
   - travis_retry pip install tox
