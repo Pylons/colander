@@ -2076,13 +2076,17 @@ class _SchemaNode(object):
                 return node
         return default
 
-    def clone(self):
+    def clone(self, subnodes=None):
         """ Clone the schema node and return the clone.  All subnodes
         are also cloned recursively.  Attributes present in node
-        dictionaries are preserved."""
+        dictionaries are preserved.
+
+        `subnodes` can be given as argument and must contain a list of
+        strings. If present, only the subnodes with the given names
+        will be cloned"""
         cloned = self.__class__(self.typ)
         cloned.__dict__.update(self.__dict__)
-        cloned.children = [ node.clone() for node in self.children ]
+        cloned.children = [ node.clone() for node in self.children if subnodes is None or node.name in subnodes]
         return cloned
 
     def bind(self, **kw):

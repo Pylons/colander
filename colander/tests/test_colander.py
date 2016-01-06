@@ -2765,6 +2765,19 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(inner_clone.name, 'inner')
         self.assertEqual(inner_clone.foo, 2)
 
+    def test_clone_part(self):
+        import colander as c
+        class MySchema(c.MappingSchema):
+            number1 = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+            number2 = c.SchemaNode(c.Int(), validator=c.Range(min=1))
+        mySchema = MySchema()
+        whole_clone = mySchema.clone()
+        part_clone = mySchema.clone(['number1'])
+
+        self.assertEqual(len(whole_clone.children), 2)
+        self.assertEqual(len(part_clone.children), 1)
+
+
     def test_bind(self):
         from colander import deferred
         inner_typ = DummyType()
