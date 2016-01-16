@@ -7,7 +7,7 @@ Platform
 - Add explicit support for Python 3.4, Python 3.5 and PyPy3.
 
 Features
-~~~~~~~~
+--------
 
 - Add ``min_err`` and ``max_err`` arguments to ``Length``, allowing
   customization of its error messages.
@@ -47,7 +47,7 @@ Bug Fixes
 ================
 
 Bug Fixes
-~~~~~~~~~
+---------
 
 - Removed forked ``iso8601`` and change to dependency on PyPI ``iso8601``
   (due to float rounding bug on microsecond portion when parsing
@@ -76,7 +76,7 @@ Bug Fixes
 
 
 Backwards Incompatibilities
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 - ``SchemaNode.deserialize`` will now raise an
   ``UnboundDeferredError`` if the node has an unbound deferred
@@ -88,7 +88,7 @@ Backwards Incompatibilities
 ==================
 
 Bug Fixes
-~~~~~~~~~
+---------
 
 - In 1.0a1, there was a change merged from
   https://github.com/Pylons/colander/pull/73 which made it possible to supply
@@ -118,7 +118,7 @@ Bug Fixes
   See https://github.com/Pylons/colander/issues/100
 
 Features
-~~~~~~~~
+--------
 
 - Add ``colander.List`` type, modeled on ``deform.List``:  this type
   preserves ordering, and allows duplicates.
@@ -161,7 +161,7 @@ Features
 ==================
 
 Features
-~~~~~~~~
+--------
 
 - Support spec-mandated truncations of ISO-8601 timezones.
 
@@ -170,7 +170,7 @@ Features
 - Allow specifying custom representations of values for boolean fields.
 
 Bug Fixes
-~~~~~~~~~
+---------
 
 - Ensure that ``colander.iso8601.FixedOffset`` instances can be unpickled.
 
@@ -184,7 +184,7 @@ Bug Fixes
 ==================
 
 Features
-~~~~~~~~
+--------
 
 - Add ``colander.ContainsOnly`` and ``colander.url`` validators.
 
@@ -195,7 +195,7 @@ Features
 ==================
 
 Bug Fixes
-~~~~~~~~~
+---------
 
 - Work around a regression in Python 3.3 for ``colander.Decimal`` when it's
   used with a ``quant`` argument but without a ``rounding`` argument.
@@ -211,7 +211,7 @@ Bug Fixes
   https://github.com/Pylons/colander/pull/96).
 
 Features
-~~~~~~~~
+--------
 
 - Add ``colander.Set`` type, ported from ``deform.Set``
 
@@ -535,7 +535,7 @@ Features
   MRO deepest-first ordering (``One``, then ``Two``, then ``Three``).
 
 Backwards Incompatibilities
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 - Passing non-SchemaNode derivative instances as ``*children`` into a
   SchemaNode constructor is no longer supported.  Symptom: ``AttributeError:
@@ -545,7 +545,7 @@ Backwards Incompatibilities
 ==================
 
 Features
-~~~~~~~~
+--------
 
 - Allow the use of ``missing=None`` for Number.  See
   https://github.com/Pylons/colander/pull/59 .
@@ -584,7 +584,7 @@ Features
   custom type).
 
 Backwards Incompatibilities
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 - The inheritance changes required a minor backwards incompatibility: calling
   ``__setitem__`` on a SchemaNode will no longer raise ``KeyError`` when
@@ -593,7 +593,7 @@ Backwards Incompatibilities
   the child list.
 
 Documentation
-~~~~~~~~~~~~~
+-------------
 
 - A "Schema Inheritance" section was added to the Basics chapter
   documentation.
@@ -816,13 +816,13 @@ Documentation
 - Make it possible to pickle ``colander.null``.
 
 0.7.0
------
+=====
 
 A release centered around normalizing the treatment of default and
 missing values.
 
 Bug Fixes
-~~~~~~~~~
+---------
 
 - Allow ``colander.Regex`` validator to accept a pattern object
   instead of just a string.
@@ -838,7 +838,7 @@ Bug Fixes
   ``colander.SchemaNode``.
 
 Backwards Incompatiblities / New Features
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------
 
 - ``missing`` constructor arg to SchemaNode: signifies
   *deserialization* default, disambiguated from ``default`` which acted
