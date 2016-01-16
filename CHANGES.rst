@@ -4,9 +4,14 @@ unreleased
 Bug Fixes
 ---------
 
+- ``SchemaNode`` will no longer assume the first argument to the constructor
+  is the schema type. This allows it to properly fallback to using the
+  ``schema_type`` class attribute on subclasses even when using the
+  imperative API to pass options to the constructor.
+
 - Fix a bug in which ``MappingSchema``, ``SequenceSchema`` and
   ``TupleSchema`` would always treat the first arg as the schema type. This
-  meant that it would fail if passed any nodes to the constructor despite
+  meant that it would fail if passed only nodes to the constructor despite
   the default type being implied by the name. It is now possible to do
   ``MappingSchema(child1, child2, ...)`` instead of
   ``MappingSchema(Mapping(), child1, child2)``.
