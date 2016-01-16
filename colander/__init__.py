@@ -205,6 +205,18 @@ class Invalid(Exception):
         result of an execution of this exception's ``asdict`` method"""
         return pprint.pformat(self.asdict())
 
+
+class UnsupportedFields(Invalid):
+    """
+    Exception used when schema object detect unknown fields in the
+    cstruct during deserialize.
+    """
+
+    def __init__(self, node, items, msg=None):
+        super(UnsupportedFields, self).__init__(node, msg)
+        self.items = items
+
+
 class All(object):
     """ Composite validator which succeeds if none of its
     subvalidators raises an :class:`colander.Invalid` exception"""
@@ -667,11 +679,10 @@ class Mapping(SchemaType):
 
         if self.unknown == 'raise':
             if value:
-                raise Invalid(
-                    node,
-                    _('Unrecognized keys in mapping: "${val}"',
-                      mapping={'val':value})
-                    )
+                raise UnsupportedFields(
+                    node, value,
+                    msg=_('Unrecognized keys in mapping: "${val}"',
+                          mapping={'val': value}))
 
         elif self.unknown == 'preserve':
             result.update(value)

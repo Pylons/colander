@@ -4,6 +4,9 @@ unreleased
 Features
 --------
 
+- Add new exception ExtraItemsError. Used to pass to the caller a list of extra
+  field detected in cstruct.
+
 - Add ``drop`` functionality to ``Sequence`` type.
 
 Bug Fixes

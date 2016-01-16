@@ -718,10 +718,12 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(result, {'a':1})
 
     def test_deserialize_unknown_raise(self):
+        import colander
         node = DummySchemaNode(None)
         node.children = [DummySchemaNode(None, name='a')]
         typ = self._makeOne(unknown='raise')
         e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
+        self.assertTrue(isinstance(e, colander.UnsupportedFields))
         self.assertEqual(e.msg.interpolate(),
                          "Unrecognized keys in mapping: \"{'b': 2}\"")
 
