@@ -212,9 +212,9 @@ class UnsupportedFields(Invalid):
     cstruct during deserialize.
     """
 
-    def __init__(self, node, items, msg=None):
+    def __init__(self, node, fields, msg=None):
         super(UnsupportedFields, self).__init__(node, msg)
-        self.items = items
+        self.fields = fields
 
 
 class All(object):

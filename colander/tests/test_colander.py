@@ -724,6 +724,7 @@ class TestMapping(unittest.TestCase):
         typ = self._makeOne(unknown='raise')
         e = invalid_exc(typ.deserialize, node, {'a':1, 'b':2})
         self.assertTrue(isinstance(e, colander.UnsupportedFields))
+        self.assertEqual(e.fields, {'b': 2})
         self.assertEqual(e.msg.interpolate(),
                          "Unrecognized keys in mapping: \"{'b': 2}\"")
 
