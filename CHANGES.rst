@@ -4,8 +4,8 @@ unreleased
 Features
 --------
 
-- Add new exception ExtraItemsError. Used to pass to the caller a list of extra
-  field detected in cstruct.
+- Add new exception `UnsupportedFields`. Used to pass to the caller a list
+  of extra fields detected in a cstruct during deserialize.
 
 - Add ``drop`` functionality to ``Sequence`` type.
 
