@@ -1908,15 +1908,14 @@ class _SchemaNode(object):
         return node
 
     def __init__(self, *arg, **kw):
-        # bw compat forces us to treat first arg as type always
+        # bw compat forces us to treat first arg as type if not a _SchemaNode
         if 'typ' in kw:
             self.typ = kw.pop('typ')
-            _add_node_children(self, arg)
-        elif arg:
-            self.typ = arg[0]
-            _add_node_children(self, arg[1:])
+        elif arg and not isinstance(arg[0], _SchemaNode):
+            self.typ, arg = arg[0], arg[1:]
         else:
             self.typ = self.schema_type()
+        _add_node_children(self, arg)
 
         # bw compat forces us to manufacture a title if one is not supplied
         title = kw.get('title', self.title)
@@ -2218,22 +2217,16 @@ SchemaNode = _SchemaMeta(
 class Schema(SchemaNode):
     schema_type = Mapping
 
-    def __init__(self, *args, **kw):
-        SchemaNode.__init__(self, Mapping(), *args, **kw)
-
 MappingSchema = Schema
 
 class TupleSchema(SchemaNode):
     schema_type = Tuple
 
-    def __init__(self, *args, **kw):
-        SchemaNode.__init__(self, Tuple(), *args, **kw)
-
 class SequenceSchema(SchemaNode):
     schema_type = Sequence
 
     def __init__(self, *args, **kw):
-        SchemaNode.__init__(self, Sequence(), *args, **kw)
+        SchemaNode.__init__(self, *args, **kw)
         if len(self.children) != 1:
             raise Invalid(self,
                           'Sequence schemas must have exactly one child node')
