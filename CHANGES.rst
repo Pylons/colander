@@ -1,3 +1,16 @@
+unreleased
+==========
+
+Bug Fixes
+---------
+
+- Fix a bug in which ``MappingSchema``, ``SequenceSchema`` and
+  ``TupleSchema`` would always treat the first arg as the schema type. This
+  meant that it would fail if passed any nodes to the constructor despite
+  the default type being implied by the name. It is now possible to do
+  ``MappingSchema(child1, child2, ...)`` instead of
+  ``MappingSchema(Mapping(), child1, child2)``.
+
 1.1 (2016-01-15)
 ================
 
