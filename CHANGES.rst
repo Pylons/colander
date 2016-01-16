@@ -1,6 +1,11 @@
 unreleased
 ==========
 
+Features
+--------
+
+- Add ``drop`` functionality to ``Sequence`` type.
+
 Bug Fixes
 ---------
 
