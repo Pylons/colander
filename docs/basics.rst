@@ -171,7 +171,7 @@ The imperative style that looks like this still works, of course:
 .. code-block:: python
 
      ranged_int = colander.SchemaNode(
-         schema_type=colander.Int,
+         typ=colander.Int(),
          validator=colander.Range(0, 10),
          default=10,
          title='Ranged Int'
@@ -351,8 +351,9 @@ its class attribute name.  For example:
    import colander
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
+       location = colander.SchemaNode(
+           colander.String(),
+           validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
 The name of the schema node defined via ``location =
@@ -375,8 +376,9 @@ Earlier we defined a schema:
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
+       location = colander.SchemaNode(
+           colander.String(),
+           validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
@@ -388,7 +390,7 @@ Earlier we defined a schema:
    class Person(colander.MappingSchema):
        name = colander.SchemaNode(colander.String())
        age = colander.SchemaNode(colander.Int(),
-                                validator=colander.Range(0, 200))
+                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
 
@@ -619,9 +621,10 @@ a list of functions to the `preparer` kwarg, like so:
 
    class Page(colander.MappingSchema):
        title = colander.SchemaNode(colander.String())
-       content = colander.SchemaNode(colander.String(),
-                                     preparer=[strip_whitespace, remove_multiple_spaces],
-                                     validator=colander.Length(1))
+       content = colander.SchemaNode(
+           colander.String(),
+           preparer=[strip_whitespace, remove_multiple_spaces],
+           validator=colander.Length(1))
 
 Serialization
 -------------
@@ -751,28 +754,16 @@ Multiple inheritance also works:
    import pprint
 
    class One(colander.MappingSchema):
-       a = colander.SchemaNode(
-           colander.Int(),
-           )
-       b = colander.SchemaNode(
-           colander.Int(),
-           )
+       a = colander.SchemaNode(colander.Int())
+       b = colander.SchemaNode(colander.Int())
 
    class Two(colander.MappingSchema):
-       a = colander.SchemaNode(
-           colander.String(),
-           )
-       c = colander.SchemaNode(
-           colander.String(),
-           )
+       a = colander.SchemaNode(colander.String())
+       c = colander.SchemaNode(colander.String())
 
    class Three(One, Two):
-       b = colander.SchemaNode(
-           colander.Bool(),
-           )
-       d = colander.SchemaNode(
-           colander.Bool(),
-           )
+       b = colander.SchemaNode(colander.Bool())
+       d = colander.SchemaNode(colander.Bool())
 
    s = Three()
    pprint.pprint([(x, x.typ) for x in s.children])
@@ -803,46 +794,19 @@ then the next deepest, and so on.  For example:
 .. code-block:: python
 
       class One(colander.MappingSchema):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a1',
-              )
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b1',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d1',
-              )
+          a = colander.SchemaNode(colander.String(), id='a1')
+          b = colander.SchemaNode(colander.String(), id='b1')
+          d = colander.SchemaNode(colander.String(), id='d1')
 
       class Two(One):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a2',
-              )
-          c = colander.SchemaNode(
-              colander.String(),
-              id='c2',
-              )
-          e = colander.SchemaNode(
-              colander.String(),
-              id='e2',
-              )
+          a = colander.SchemaNode(colander.String(), id='a2')
+          c = colander.SchemaNode(colander.String(), id='c2')
+          e = colander.SchemaNode(colander.String(), id='e2')
 
       class Three(Two):
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b3',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d3',
-              )
-          f = colander.SchemaNode(
-              colander.String(),
-              id='f3',
-              )
+          b = colander.SchemaNode(colander.String(), id='b3')
+          d = colander.SchemaNode(colander.String(), id='d3')
+          f = colander.SchemaNode(colander.String(), id='f3')
 
       three = Three()
 
@@ -861,46 +825,19 @@ Multiple inheritance works the same way:
 .. code-block:: python
 
       class One(colander.MappingSchema):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a1',
-              )
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b1',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d1',
-              )
+          a = colander.SchemaNode(colander.String(), id='a1')
+          b = colander.SchemaNode(colander.String(), id='b1')
+          d = colander.SchemaNode(colander.String(), id='d1')
 
       class Two(colander.MappingSchema):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a2',
-              )
-          c = colander.SchemaNode(
-              colander.String(),
-              id='c2',
-              )
-          e = colander.SchemaNode(
-              colander.String(),
-              id='e2',
-              )
+          a = colander.SchemaNode(colander.String(), id='a2')
+          c = colander.SchemaNode(colander.String(), id='c2')
+          e = colander.SchemaNode(colander.String(), id='e2')
 
       class Three(Two, One):
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b3',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d3',
-              )
-          f = colander.SchemaNode(
-              colander.String(),
-              id='f3',
-              )
+          b = colander.SchemaNode(colander.String(), id='b3')
+          d = colander.SchemaNode(colander.String(), id='d3')
+          f = colander.SchemaNode(colander.String(), id='f3')
 
       three = Three()
 
@@ -947,9 +884,8 @@ constructor:
      class SomeSchema(MappingSchema):
          title = 'Some Schema'
          thisnamewillbeignored = colander.SchemaNode(
-                                             colander.String(),
-                                             name='title'
-                                             )
+             colander.String(),
+             name='title')
 
 Note that such a workaround is only required if the conflicting names are
 attached to the *exact same* class definition.  Colander scrapes off schema
@@ -1008,8 +944,9 @@ schema, then the schema definition can be made more succinct using the
 
            @colander.instantiate()
            class phone(colander.MappingSchema):
-               location = colander.SchemaNode(colander.String(),
-                                              validator=colander.OneOf(['home', 'work']))
+               location = colander.SchemaNode(
+                   colander.String(),
+                   validator=colander.OneOf(['home', 'work']))
                number = colander.SchemaNode(colander.String())
 
 If you need to pass parameters when using this style of schema
@@ -1082,18 +1019,20 @@ We can imperatively construct a completely equivalent schema like so:
               name='rank'))
    friend.add(colander.SchemaNode(colander.String(), name='name'))
 
-   phone = colander.SchemaNode(colander.Mapping())
-   phone.add(colander.SchemaNode(colander.String(),
-                                validator=colander.OneOf(['home', 'work']),
-                                name='location'))
+   phone = colander.SchemaNode(
+       colander.Mapping(),
+       colander.SchemaNode(
+           colander.String(),
+           validator=colander.OneOf(['home', 'work']),
+           name='location'))
    phone.add(colander.SchemaNode(colander.String(), name='number'))
 
    schema = colander.SchemaNode(colander.Mapping())
    schema.add(colander.SchemaNode(colander.String(), name='name'))
    schema.add(colander.SchemaNode(colander.Int(), name='age',
                                  validator=colander.Range(0, 200)))
-   schema.add(colander.SchemaNode(colander.Sequence(), friend, name='friends'))
-   schema.add(colander.SchemaNode(colander.Sequence(), phone, name='phones'))
+   schema.add(colander.SequenceSchema(friend, name='friends'))
+   schema.add(colander.SequenceSchema(phone, name='phones'))
 
 Defining a schema imperatively is a lot uglier than defining a schema
 declaratively, but it's often more useful when you need to define a
