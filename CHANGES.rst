@@ -1,5 +1,5 @@
-Unreleased
-----------
+unreleased
+===========
 
 Platform
 --------
@@ -44,7 +44,7 @@ Bug Fixes
 
 
 1.0 (2014-11-26)
-----------------
+================
 
 Bug Fixes
 ~~~~~~~~~
@@ -85,7 +85,7 @@ Backwards Incompatibilities
 
 
 1.0b1 (2013-09-01)
-------------------
+==================
 
 Bug Fixes
 ~~~~~~~~~
@@ -142,14 +142,14 @@ Features
 - Allow interpolation of `missing_msg` with properties `title` and `name`
 
 1.0a5 (2013-05-31)
-------------------
+==================
 
 - Fix bug introduced by supporting spec-mandated truncations of ISO-8601
   timezones.  A TypeError would be raised instead of Invalid.  See
   https://github.com/Pylons/colander/issues/111.
 
 1.0a4 (2013-05-21)
-------------------
+==================
 
 - Loosen Email validator regex (permit apostrophes, bang, etc in localpart).
 
@@ -158,7 +158,7 @@ Features
   https://github.com/Pylons/colander/pull/108.
 
 1.0a3 (2013-05-16)
-------------------
+==================
 
 Features
 ~~~~~~~~
@@ -181,7 +181,7 @@ Bug Fixes
 
 
 1.0a2 (2013-01-30)
-------------------
+==================
 
 Features
 ~~~~~~~~
@@ -192,7 +192,7 @@ Features
   mappings and sequences more succinctly.
 
 1.0a1 (2013-01-10)
-------------------
+==================
 
 Bug Fixes
 ~~~~~~~~~
@@ -542,7 +542,7 @@ Backwards Incompatibilities
   name`` when constructing a SchemaNode.
 
 0.9.9 (2012-09-24)
-------------------
+==================
 
 Features
 ~~~~~~~~
@@ -599,7 +599,7 @@ Documentation
   documentation.
 
 0.9.8 (2012-04-27)
-------------------
+==================
 
 - False evaluating values are now serialized to colander.null for
   String, Date, and Time.  This resolves the issue where a None value
@@ -619,7 +619,7 @@ Documentation
 - Add ``dev`` and ``docs`` setup.py aliases (e.g. ``python setup.py dev``).
 
 0.9.7 (2012-03-20)
-------------------
+==================
 
 - Using ``schema.flatten(...)`` against a mapping schema node without a name
   produced incorrectly dot-prefixed keys.  See
@@ -646,7 +646,7 @@ Documentation
   error message.  See https://github.com/Pylons/colander/pull/41
 
 0.9.6 (2012-02-14)
-------------------
+==================
 
 - No longer runs on Python 2.4 or 2.5.  Python 2.6+ is now required.
 
@@ -659,7 +659,7 @@ Documentation
   LICENSE.txt.
 
 0.9.5 (2012-01-13)
-------------------
+==================
 
 - Added Czech translation.
 
@@ -670,7 +670,7 @@ Documentation
 - Documentation added about flatten and unflatten.
 
 0.9.4 (2011-10-14)
-------------------
+==================
 
 - ``flatten`` now only includes leaf nodes in the flattened dict.
 
@@ -688,7 +688,7 @@ Documentation
 - Add Swedish, French, Chinese translations.
 
 0.9.3 (2011-06-23)
-------------------
+==================
 
 - Add ``Time`` type.
 
@@ -709,7 +709,7 @@ Documentation
   documentation.
 
 0.9.2 (2011-03-28)
-------------------
+==================
 
 - Added Polish translation, thanks to Jedrzej Nowak.
 
@@ -733,7 +733,7 @@ Documentation
   cstruct during ``deserialize``.
 
 0.9.1 (2010-12-02)
-------------------
+==================
 
 - When ``colander.null`` was unpickled, the reference created during
   unpickling was *not* a reference to the singleton but rather a new instance
@@ -743,7 +743,7 @@ Documentation
   pickled is unpickled as the singleton itself.
 
 0.9  (2010-11-28)
------------------
+=================
 
 - SchemaNode constructor now accepts arbitrary keyword arguments.  It
   sets any unknown values within the ``**kw`` sequence as attributes
@@ -767,7 +767,7 @@ Documentation
   ``colander.SchemaType`` to get a default implementation.
 
 0.8  (2010/09/08)
------------------
+=================
 
 - Docstring fixes to ``colander.SchemaNode`` (``missing`` is not the
   ``null`` value when required, it's a special marker value).
@@ -783,7 +783,7 @@ Documentation
   been properly documented.
 
 0.7.3 (2010/09/02)
-------------------
+==================
 
 - The title of a schema node now defaults to a titleization of the
   ``name``.  Underscores in the ``name`` are replaced with empty
@@ -798,7 +798,7 @@ Documentation
   single-element list containing the ``msg`` value is returned.
 
 0.7.2 (2010/08/30)
-------------------
+==================
 
 - Add an ``colander.SchemaNode.__iter__`` method, which iterates over
   the children nodes of a schema node.
@@ -808,7 +808,7 @@ Documentation
   internally).
 
 0.7.1 (2010/06/12)
-------------------
+==================
 
 - Make it possible to use ``colander.null`` as a ``missing`` argument
   to ``colander.SchemaNode`` for roundtripping purposes.
@@ -904,7 +904,7 @@ Backwards Incompatiblities / New Features
   no longer a keyword argument that has a default.
 
 0.6.2 (2010-05-08)
-------------------
+==================
 
 - The default ``encoding`` parameter value to the ``colander.String``
   type is still ``None``, however its meaning has changed.  An
@@ -923,13 +923,13 @@ Backwards Incompatiblities / New Features
   a bool value when a default value was found for the schema node.
 
 0.6.1 (2010-05-04)
-------------------
+==================
 
 - Add a Decimal type (number type which uses ``decimal.Decimal`` as a
   deserialization target).
 
 0.6.0 (2010-05-02)
-------------------
+==================
 
 - (Hopefully) fix intermittent datetime-granularity-related test
   failures.
@@ -952,7 +952,7 @@ Backwards Incompatiblities / New Features
   to its interface within the API documentation.
 
 0.5.2 (2010-04-09)
-------------------
+==================
 
 - Add Email and Regex validators (courtesy Steve Howe).
 
@@ -970,7 +970,7 @@ Backwards Incompatiblities / New Features
   add something like it back later if we need it.
 
 0.5.1 (2010-04-02)
-------------------
+==================
 
 - The constructor arguments to a the ``colander.Schema`` class are now
   sent to the constructed SchemaNode rather than to the type it represents.
@@ -994,20 +994,20 @@ Backwards Incompatiblities / New Features
   the type).
 
 0.5 (2010-03-31)
-----------------
+================
 
 - 0.4 was mispackaged (CHANGES.txt missing); no code changes from 0.4
   however.
 
 0.4 (2010-03-30)
-----------------
+================
 
 - Add ``colander.DateTime`` and ``colander.Date`` data types.
 
 - Depend on the ``iso8601`` package for date support.
 
 0.3 (2010-03-29)
-----------------
+================
 
 - Subnodes of a schema node are now kept in the ``children`` attribute
   rather than the ``nodes`` attribute.
@@ -1024,7 +1024,7 @@ Backwards Incompatiblities / New Features
 - Add ``colander.Length`` validator class.
 
 0.2 (2010-03-23)
-----------------
+================
 
 - Make nodetype overrideable.
 
@@ -1054,6 +1054,6 @@ Backwards Incompatiblities / New Features
 
 
 0.1 (2010-03-14)
-----------------
+================
 
 - Initial release.
