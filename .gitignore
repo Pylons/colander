@@ -8,7 +8,8 @@
 *.swp
 .coverage
 .tox/
-nosetests.xml
+coverage-*.xml
+nosetests*.xml
 env26/
 env25/
 env24/
