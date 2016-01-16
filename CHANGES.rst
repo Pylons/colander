@@ -1,10 +1,10 @@
 unreleased
-===========
+==========
 
 Platform
 --------
 
-- Add explicit support for Python 3.4 and PyPy3.
+- Add explicit support for Python 3.4, Python 3.5 and PyPy3.
 
 Features
 ~~~~~~~~
