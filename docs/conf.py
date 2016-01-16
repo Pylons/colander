@@ -12,7 +12,9 @@
 # All configuration values have a default value; values that are commented
 # out serve to show the default value.
 
-import sys, os
+import sys, os, datetime
+import pkg_resources
+import pylons_sphinx_themes
 
 # General configuration
 # ---------------------
@@ -32,13 +34,14 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'colander'
-copyright = '2012, Agendaless Consulting <pylons-discuss@googlegroups.com>'
+thisyear = datetime.datetime.now().year
+copyright = '2012-%s, Agendaless Consulting <pylons-discuss@googlegroups.com>' % thisyear
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '1.0b1'
+version = pkg_resources.get_distribution('colander').version
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -49,7 +52,7 @@ release = version
 today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['_themes/README']
+#unused_docs = ['_themes/README']
 
 # List of directories, relative to source directories, that shouldn't be
 # searched for source files.
@@ -73,43 +76,11 @@ unused_docs = ['_themes/README']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
-# Add and use Pylons theme
-if 'sphinx-build' in ' '.join(sys.argv): # protect against dumb importers
-    from subprocess import call, Popen, PIPE
-
-    p = Popen('which git', shell=True, stdout=PIPE)
-    git = p.stdout.read().strip()
-    cwd = os.getcwd()
-    _themes = os.path.join(cwd, '_themes')
-
-    if not os.path.isdir(_themes):
-        call([git, 'clone', 'git://github.com/Pylons/pylons_sphinx_theme.git',
-                '_themes'])
-    else:
-        os.chdir(_themes)
-        call([git, 'checkout', 'master'])
-        call([git, 'pull'])
-        os.chdir(cwd)
-
-    sys.path.append(os.path.abspath('_themes'))
-
-    parent = os.path.dirname(os.path.dirname(__file__))
-    sys.path.append(os.path.abspath(parent))
-    wd = os.getcwd()
-    os.chdir(parent)
-    os.system('%s setup.py test -q' % sys.executable)
-    os.chdir(wd)
-
-    for item in os.listdir(parent):
-        if item.endswith('.egg'):
-            sys.path.append(os.path.join(parent, item))
-
 # Options for HTML output
 # -----------------------
-
-sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'pylons'
+# sys.path.append(os.path.abspath('_themes'))
+html_theme = 'pyramid'
+html_theme_path = pylons_sphinx_themes.get_html_themes_path()
 html_theme_options = dict(github_url='https://github.com/Pylons/colander')
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
@@ -146,7 +117,7 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = False
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -177,7 +148,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'atemplatedoc'
+htmlhelp_basename = 'colanderdoc'
 
 
 # Options for LaTeX output
@@ -193,13 +164,13 @@ htmlhelp_basename = 'atemplatedoc'
 # (source start file, target name, title,
 #  author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'atemplate.tex', 'colander Documentation',
+  ('index', 'colander.tex', 'colander Documentation',
    'Pylons Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the
 # top of the title page.
-latex_logo = '.static/logo_hi.gif'
+#latex_logo = '.static/logo_hi.gif'
 
 # For "manual" documents, if this is true, then toplevel headings are
 # parts, not chapters.

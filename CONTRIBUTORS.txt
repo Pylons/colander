@@ -101,7 +101,8 @@ and agrees to the terms above in the section within this document entitled
 Contributors
 ------------
 
-- Chris McDonough, 2011/02/16
+- Chris McDonough, 2010/03/11
+- Tres Seaver, 2010/04/05
 - Chris Withers, 2011/05/45
 - Mathieu Le Marec - Pasquet (kiorky), 2011/07/11
 - Atsushi Odagiri, 2012/02/04
@@ -115,4 +116,14 @@ Contributors
 - Peter Lamut, 2013/08/16
 - Veeti Paananen, 2013/08/20
 - Michael Howitz, 2013/12/05
+- Alex Marandon, 2013/12/21
 - Joe Dallago, 2014/2/10
+- Jaseem Abid, 2014/06/16
+- Cédric Messiant, 2014/06/27
+- Gouji Ochiai, 2014/08/21
+- Tim Tisdall, 2014/09/10
+- Romain Commandé, 2014/10/11
+- Nando Florestan, 2014/11/27
+- Amos Latteier, 2014/11/30
+- Jimmy Thrasibule, 2014/12/11
+- Tinne Cahy, 2015/12/22

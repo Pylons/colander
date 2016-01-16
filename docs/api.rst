@@ -48,6 +48,9 @@ Exceptions
        from a widget as the value which should be redisplayed when an
        error is shown.
 
+  .. autoclass:: UnboundDeferredError
+
+
 Validators
 ~~~~~~~~~~
 
@@ -60,6 +63,8 @@ Validators
   .. autoclass:: Length
 
   .. autoclass:: OneOf
+
+  .. autoclass:: NoneOf
 
   .. autoclass:: ContainsOnly
 
@@ -74,6 +79,11 @@ Validators
   .. attribute:: url
  
      A validator which ensures the value is a URL (via regex).
+
+  .. attribute:: uuid
+
+     A UUID hexadecimal string validator via regular expression
+     using :class:`colander.Regex`.
 
 Types
 ~~~~~
@@ -139,16 +149,12 @@ Schema-Related
 
   .. autoclass:: instantiate
 
-  .. attribute:: null
+  .. autodata:: null
+     :annotation:
 
-     Represents a null value in colander-related operations.
+  .. autodata:: required
+     :annotation:
 
-  .. attribute:: required
+  .. autodata:: drop
+     :annotation:
 
-     Represents a required value in colander-related operations.
-
-  .. attribute:: drop
-
-     Represents a value that will be dropped from the schema if it is missing
-     during *deserialization*.  Passed as a value to the `missing` keyword
-     argument of :class:`SchemaNode`.

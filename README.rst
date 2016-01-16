@@ -1,6 +1,15 @@
 Colander
 ========
 
+
+.. image:: https://travis-ci.org/Pylons/colander.svg?branch=master
+        :target: https://travis-ci.org/Pylons/colander
+
+.. image:: https://readthedocs.org/projects/colander/badge/?version=master
+        :target: http://docs.pylonsproject.org/projects/colander/en/master/
+        :alt: Documentation Status
+
+
 An extensible package which can be used to:
 
 - deserialize and validate a data structure composed of strings,
@@ -9,7 +18,8 @@ An extensible package which can be used to:
 - serialize an arbitrary data structure to a data structure composed
   of strings, mappings, and lists.
 
-It runs on Python 2.6, 2.7, 3.2, and 3.3.
+It runs on Python 2.6, 2.7, 3.2, 3.3, 3.4, and 3.5, and on current PyPy
+and PyPy3 versions.
 
 Please see http://docs.pylonsproject.org/projects/colander/en/latest/
 for further documentation.

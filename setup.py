@@ -24,31 +24,37 @@ def read(fname):
         return fp.read()
 
 try:
-    README = read(os.path.join(here, 'README.txt'))
-    CHANGES = read(os.path.join(here, 'CHANGES.txt'))
+    README = read(os.path.join(here, 'README.rst'))
+    CHANGES = read(os.path.join(here, 'CHANGES.rst'))
 except:
     README = ''
     CHANGES = ''
 
-requires = ['translationstring']
+requires = ['translationstring', 'iso8601']
 
 testing_extras = ['nose', 'coverage']
-docs_extras = ['Sphinx']
+docs_extras = [
+    'Sphinx >= 1.3.1',
+    'docutils',
+    'pylons-sphinx-themes',
+]
 
 setup(name='colander',
-      version='1.0b1',
+      version='1.1',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         ],

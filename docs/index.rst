@@ -6,7 +6,8 @@ Colander
 
 Colander is useful as a system for validating and deserializing data obtained
 via XML, JSON, an HTML form post or any other equally simple data
-serialization.  It runs on Python 2.6, 2.7 and 3.2.  Colander can be used to:
+serialization.  It runs on Python 2.6, 2.7, 3.2, 3.3, 3.4, pypy and pypy3.
+Colander can be used to:
 
 - Define a data schema.
 
