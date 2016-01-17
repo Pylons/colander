@@ -125,3 +125,4 @@ Contributors
 - Nando Florestan, 2014/11/27
 - Amos Latteier, 2014/11/30
 - Jimmy Thrasibule, 2014/12/11
+- Antti Haapala, 2016/01/17
