@@ -1,14 +1,12 @@
 Colander
 ========
 
-
 .. image:: https://travis-ci.org/Pylons/colander.svg?branch=master
         :target: https://travis-ci.org/Pylons/colander
 
 .. image:: https://readthedocs.org/projects/colander/badge/?version=master
         :target: http://docs.pylonsproject.org/projects/colander/en/master/
         :alt: Documentation Status
-
 
 An extensible package which can be used to:
 

@@ -55,8 +55,6 @@ Features
 Bug Fixes
 ---------
 
-- Update translations: ``de``, ``ja``, ``fr``.
-
 - Fix an issue where the ``flatten()`` method produces an invalid name
   (ex: "answer.0.") for the type ``Sequence``.  See
   https://github.com/Pylons/colander/issues/179
@@ -66,11 +64,25 @@ Bug Fixes
   See `#235 <https://github.com/Pylons/colander/pull/235>`_
 
 - ``title`` was being overwritten when made a child through defining a schema
-  as a class.  See `#239 <https://github.com/Pylons/colander/pull/239>`_
+  as a class. See https://github.com/Pylons/colander/pull/239
 
+Translations
+------------
+
+- Added new translations: ``el``
+
+- Updated translations: ``fr``, ``de``, ``ja``
 
 1.0 (2014-11-26)
 ================
+
+Backwards Incompatibilities
+---------------------------
+
+- ``SchemaNode.deserialize`` will now raise an
+  ``UnboundDeferredError`` if the node has an unbound deferred
+  validator.  Previously, deferred validators were silently ignored.
+  See https://github.com/Pylons/colander/issues/47
 
 Bug Fixes
 ---------
@@ -98,16 +110,10 @@ Bug Fixes
   See https://github.com/Pylons/colander/pull/183 and
   https://github.com/Pylons/colander/pull/185
 
+Translations
+------------
+
 - Updated translations: ``fr``, ``de``, ``ja``
-
-
-Backwards Incompatibilities
----------------------------
-
-- ``SchemaNode.deserialize`` will now raise an
-  ``UnboundDeferredError`` if the node has an unbound deferred
-  validator.  Previously, deferred validators were silently ignored.
-  See https://github.com/Pylons/colander/issues/47
 
 
 1.0b1 (2013-09-01)
