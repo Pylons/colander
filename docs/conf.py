@@ -32,13 +32,13 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'colander'
-copyright = '2012, Agendaless Consulting <pylons-discuss@googlegroups.com>'
+copyright = '2012-2015, Agendaless Consulting <pylons-discuss@googlegroups.com>'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '1.0b1'
+version = '1.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 
