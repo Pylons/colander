@@ -1,21 +1,26 @@
-.. _null:
+.. _null_and_drop:
 
-The Null Value
-==============
+The Null and Drop Values
+========================
 
 :attr:`colander.null` is a sentinel value which may be passed to
 :meth:`colander.SchemaNode.serialize` during serialization or to
 :meth:`colander.SchemaNode.deserialize` during deserialization.
 
+:attr:`colander.drop` is a sentinel value which controls the
+behavior of collection-like :class:`colander.SchemaNode` subclasses.
+
 During serialization, the use of :attr:`colander.null` indicates that
 the :term:`appstruct` value corresponding to the node it's passed to
 is missing and the value of the ``default`` attribute of the
-corresponding node should be used instead.
+corresponding node should be used instead.  If the node's ``default``
+attribute is :attr:`colander.drop`, the serializer will skip the node.
 
 During deserialization, the use of :attr:`colander.null` indicates
 that the :term:`cstruct` value corresponding to the node it's passed
 to is missing, and if possible, the value of the ``missing`` attribute
-of the corresponding node should be used instead.
+of the corresponding node should be used instead. If the node's ``missing``
+attribute is :attr:`colander.drop`, the deserializer will skip the node.
 
 Note that :attr:`colander.null` has no relationship to the built-in Python
 ``None`` value.  ``colander.null`` is used instead of ``None`` because

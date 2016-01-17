@@ -48,8 +48,9 @@ null = _null()
 
 class _drop(object):
     """ Represents a value that will be dropped from the schema if it
-    is missing during *deserialization*.  Passed as a value to the
-    `missing` keyword argument of :class:`SchemaNode`.
+    is missing during *serialization* or *deserialization*.  Passed as
+    a value to the `missing` or `default` keyword argument
+    of :class:`SchemaNode`.
     """
     def __repr__(self):
         return '<colander.drop>'
@@ -1851,8 +1852,10 @@ class _SchemaNode(object):
     - ``typ``: The 'type' for this node can optionally be passed in as a
       keyword argument. See the documentation for the positional arg above.
 
-    - ``default``: The default serialization value for this node.
-      Default: :attr:`colander.null`.
+    - ``default``: The default serialization value for this node when
+      not set.  If ``default`` is :attr:`colander.drop`, the node
+      will be dropped from schema serialization.  If not provided,
+      the node will be serialized to :attr:`colander.null`.
 
     - ``missing``: The default deserialization value for this node.  If it is
       not provided, the missing value of this node will be the special marker
@@ -1860,7 +1863,7 @@ class _SchemaNode(object):
       'required'.  When ``missing`` is :attr:`colander.required`, the
       ``required`` computed attribute will be ``True``.  When ``missing`` is
       :attr:`colander.drop`, the node is dropped from the schema if it isn't
-      set during serialization/deserialization.
+      set during deserialization.
 
     - ``missing_msg``: Optional error message to be used if the value is
       required and missing.
