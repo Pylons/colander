@@ -6,6 +6,7 @@ Features
 
 - Add new exception `UnsupportedFields`. Used to pass to the caller a list
   of extra fields detected in a cstruct during deserialize.
+  See https://github.com/Pylons/colander/pull/241
 
 - Add ``drop`` functionality to ``Sequence`` type.
 
