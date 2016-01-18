@@ -128,3 +128,4 @@ Contributors
 - Jimmy Thrasibule, 2014/12/11
 - Dmitry Bogun, 2015/09/10
 - Tinne Cahy, 2015/12/22
+- Antti Haapala, 2016/01/17
