@@ -24,6 +24,12 @@ Bug Fixes
   ``MappingSchema(child1, child2, ...)`` instead of
   ``MappingSchema(Mapping(), child1, child2)``.
 
+Translations
+------------
+
+- Added Finnish translations: ``fi``
+  See https://github.com/Pylons/colander/pull/243
+
 1.1 (2016-01-15)
 ================
 
