@@ -9,6 +9,7 @@ Features
   See https://github.com/Pylons/colander/pull/241
 
 - Add ``drop`` functionality to ``Sequence`` type.
+  See https://github.com/Pylons/colander/pull/225
 
 Bug Fixes
 ---------
