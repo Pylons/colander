@@ -1475,11 +1475,24 @@ class TestString(unittest.TestCase):
         from colander import String
         self.assertEqual(Str, String)
 
-    def test_deserialize_emptystring(self):
-        from colander import null
+    def test_deserialize_empty_string(self):
         node = DummySchemaNode(None)
         typ = self._makeOne(None)
         result = typ.deserialize(node, '')
+        self.assertEqual(result, '')
+
+    def test_deserialize_null(self):
+        from colander import null
+        node = DummySchemaNode(None)
+        typ = self._makeOne(None)
+        result = typ.deserialize(node, null)
+        self.assertEqual(result, null)
+
+    def test_deserialize_none(self):
+        from colander import null
+        node = DummySchemaNode(None)
+        typ = self._makeOne(None)
+        result = typ.deserialize(node, None)
         self.assertEqual(result, null)
 
     def test_deserialize_uncooperative(self):

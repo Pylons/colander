@@ -1240,7 +1240,7 @@ class String(SchemaType):
                             mapping={'val':appstruct, 'err':e})
                           )
     def deserialize(self, node, cstruct):
-        if not cstruct:
+        if not cstruct and cstruct != '':
             return null
 
         try:
