@@ -150,7 +150,7 @@ does not provide a value for this node. In many cases, ``serialize`` or
 
 A type might also choose to return :attr:`colander.null` if the value it
 receives is *logically* (but not literally) null.  For example,
-:class:`colander.String` type converts the empty string to ``colander.null``
+:class:`colander.Time` type converts the empty string to ``colander.null``
 within its ``deserialize`` method.
 
 .. code-block:: python
