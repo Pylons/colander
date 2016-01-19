@@ -1,3 +1,13 @@
+unreleased
+==========
+
+- ``colander.String`` schema type now supports an optional keyword argument
+  ``allow_empty`` which, when True, deserializes an empty string to an
+  empty string. When False (default), an empty string deserializes to
+  ``colander.null``. This allows for a node to be explicitly required, but
+  allow an empty ('') value to be provided.
+  https://github.com/Pylons/colander/issues/199
+
 1.2 (2016-01-18)
 ================
 

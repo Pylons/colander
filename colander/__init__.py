@@ -1159,7 +1159,7 @@ Seq = Sequence
 class String(SchemaType):
     """ A type representing a Unicode string.
 
-    This type constructor accepts one argument:
+    This type constructor accepts two arguments:
 
     ``encoding``
        Represents the encoding which should be applied to value
@@ -1212,11 +1212,17 @@ class String(SchemaType):
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
 
+    ``allow_empty``
+       Boolean, if True allows deserialization of an empty string. If
+       False (default), empty strings will deserialize to
+       :attr:`colander.null`
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    def __init__(self, encoding=None):
+    def __init__(self, encoding=None, allow_empty=False):
         self.encoding = encoding
+        self.allow_empty = allow_empty
 
     def serialize(self, node, appstruct):
         if appstruct is null:
@@ -1240,6 +1246,9 @@ class String(SchemaType):
                             mapping={'val':appstruct, 'err':e})
                           )
     def deserialize(self, node, cstruct):
+        if cstruct == '' and self.allow_empty:
+            return text_type('')
+
         if not cstruct:
             return null
 
