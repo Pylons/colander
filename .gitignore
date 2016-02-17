@@ -8,6 +8,7 @@
 *.swp
 .coverage
 .tox/
+py*-cover.xml
 coverage-*.xml
 nosetests*.xml
 env26/
