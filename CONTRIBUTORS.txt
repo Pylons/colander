@@ -132,3 +132,4 @@ Contributors
 - Dmitry Bogun, 2015/09/10
 - Tinne Cahy, 2015/12/22
 - Antti Haapala, 2016/01/17
+- Bert JW Regeer, 2016/02/16
