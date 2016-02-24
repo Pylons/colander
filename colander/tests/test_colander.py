@@ -136,6 +136,14 @@ class TestInvalid(unittest.TestCase):
                 result,
                 {'': ("Number 1 must be lower than number 2; "
                       "They can't be the same, either")})
+        try:
+            schema.deserialize(dict(number1=2, number2=2))
+        except c.Invalid as e:
+            result = e.asdict(separator=None)
+            self.assertEqual(
+                result,
+                {'': ["Number 1 must be lower than number 2",
+                      "They can't be the same, either"]})
 
     def test___str__(self):
         from colander import Positional

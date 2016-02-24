@@ -179,13 +179,15 @@ class Invalid(Exception):
             return str(self.pos)
         return str(self.node.name)
 
-    def asdict(self, translate=None):
+    def asdict(self, translate=None, separator='; '):
         """ Return a dictionary containing a basic
         (non-language-translated) error report for this exception.
 
         If ``translate`` is supplied, it must be a callable taking a
         translation string as its sole argument and returning a localized,
         interpolated string.
+
+        If ``separator`` is supplied, error messages are joined with that.
         """
         paths = self.paths()
         errors = {}
@@ -198,7 +200,12 @@ class Invalid(Exception):
                 keyname and keyparts.append(keyname)
             if translate:
                 msgs = [translate(msg) for msg in msgs]
-            errors['.'.join(keyparts)] = '; '.join(interpolate(msgs))
+            msgs = interpolate(msgs)
+            if separator:
+                msgs = separator.join(msgs)
+            else:
+                msgs = list(msgs)
+            errors['.'.join(keyparts)] = msgs
         return errors
 
     def __str__(self):
