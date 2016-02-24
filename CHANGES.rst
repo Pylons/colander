@@ -8,6 +8,10 @@ unreleased
   allow an empty ('') value to be provided.
   https://github.com/Pylons/colander/issues/199
 
+- Add ``separator`` parameter to ``colander.Invalid.asdict``
+  (for backward compatibility, default is '; ').
+  See https://github.com/Pylons/colander/pull/253
+
 1.2 (2016-01-18)
 ================
 
