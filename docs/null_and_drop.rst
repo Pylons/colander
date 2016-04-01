@@ -325,3 +325,42 @@ value_a               value_b               value_a used
    equivalent of ``mapping.get(keyname, colander.null)`` to find a subvalue
    during deserialization.
 
+
+The None Value
+==============
+
+Every colander SchemaType will only (de)serialize a value which belongs to its type.
+A `colander.Boolean` will always deserialized to `True` or `False` and never to a value
+of which is not a boolean.
+
+I some use cases, you need to have a schema which can also deserialize to `None`. For example
+in the previous schema in this chapter, you can add a `colander.NoneType`
+as a wrapper around `colander.Int` in order to deserialize an empty string to `None`.
+
+.. code-block:: python
+
+   import colander
+
+   class Person(colander.MappingSchema):
+       name = colander.SchemaNode(colander.String())
+       age = colander.SchemaNode(colander.NoneType(colander.Int()))
+
+   schema = Person()
+   deserialized = schema.deserialize({'name':'Fred', 'age': ''})
+   assert deserialized['age'] == None
+
+   deserialized = schema.deserialize({'name':'Fred', 'age': '19'})
+   assert deserialized['age'] == 19
+
+   serialized = schema.serialize({'name':'Fred', 'age': None})
+   assert serialized['age'] == ''
+
+   serialized = schema.serialize({'name':'Fred', 'age': 19})
+   assert serialized['age'] == '19'
+
+When you use `colander.NoneType` you can pass the results of the deserialization directly to a database,
+without converting `colander.null` to None outside the schema. In other words, you have defined in the
+schema that the node can have None as value. 
+
+Note: NoneType can NOT be used for strings, because the machinery does not known whether a serialization of `""` is 
+an empty string or None.

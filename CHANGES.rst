@@ -1,6 +1,10 @@
 unreleased
 ==========
 
+- ``colnader.NoneType`` in order to deserialize an empty string to
+  ``None``.
+  http://github.com/Pylons/colander/pull/121
+
 - ``colander.String`` schema type now supports an optional keyword argument
   ``allow_empty`` which, when True, deserializes an empty string to an
   empty string. When False (default), an empty string deserializes to
