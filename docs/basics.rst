@@ -607,7 +607,7 @@ __ http://pypi.python.org/pypi/htmllaundry/
                                      preparer=htmllaundry.sanitize,
                                      validator=colander.Length(1))
 
-If you want to create a subclass of :class:`~colander.SchemaNode` and define
+If you want to create a subclass of :class:`colander.SchemaNode` and define
 ``preparer`` as its class variable, you'll need to wrap your preparer in
 ``staticmethod``:
 
