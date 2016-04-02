@@ -135,4 +135,3 @@ Contributors
 - Bert JW Regeer, 2016/02/16
 - Steve Piercy, 2016/02/26
 - Josip Delic, 2016/04/01
-- Marc Rijken, 2016/04/01  
