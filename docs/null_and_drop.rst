@@ -333,7 +333,7 @@ Every colander SchemaType will only (de)serialize a value which belongs to its t
 A `colander.Boolean` will always deserialized to `True` or `False` and never to a value
 of which is not a boolean.
 
-I some use cases, you need to have a schema which can also deserialize to `None`. For example
+In some use cases, you need to have a schema which can also deserialize to `None`. For example
 in the previous schema in this chapter, you can add a `colander.NoneType`
 as a wrapper around `colander.Int` in order to deserialize an empty string to `None`.
 

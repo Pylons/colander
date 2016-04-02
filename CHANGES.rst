@@ -1,7 +1,7 @@
 unreleased
 ==========
 
-- ``colnader.NoneType`` in order to deserialize an empty string to
+- ``colander.NoneType`` in order to deserialize an empty string to
   ``None``.
   http://github.com/Pylons/colander/pull/121
 
