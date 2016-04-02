@@ -134,3 +134,4 @@ Contributors
 - Antti Haapala, 2016/01/17
 - Bert JW Regeer, 2016/02/16
 - Steve Piercy, 2016/02/26
+- Josip Delic, 2016/04/01

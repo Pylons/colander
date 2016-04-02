@@ -1827,6 +1827,37 @@ class Time(SchemaType):
 def timeparse(t, format):
     return datetime.datetime(*time.strptime(t, format)[0:6]).time()
 
+
+class NoneType(SchemaType):
+    """A type which accept serialize None to '' and deserialize '' to None.
+    When the value is not equal to None/'', it will use (de)serialization of
+    the given type. This can be used to make nodes optional.
+
+    Example:
+
+        date = colander.SchemaNode(
+            colander.NoneType(colander.DateTime()),
+            default=None,
+            missing=None,
+        )
+    """
+
+    def __init__(self, typ):
+        self.typ = typ
+
+    def serialize(self, node, appstruct):
+        if appstruct is None:
+            return ''
+
+        return self.typ.serialize(node, appstruct)
+
+    def deserialize(self, node, cstruct):
+        if cstruct == '' or cstruct is None:
+            return None
+
+        return self.typ.deserialize(node, cstruct)
+
+
 def _add_node_children(node, children):
     for n in children:
         insert_before = getattr(n, 'insert_before', None)

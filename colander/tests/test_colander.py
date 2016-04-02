@@ -1915,6 +1915,30 @@ class TestBooleanCustomSerializations(unittest.TestCase):
         self.assertEqual(typ.serialize(node, None), 'no')
         self.assertEqual(typ.serialize(node, False), 'no')
 
+class TestNoneTypeWithBoolean(TestBoolean):
+    def _makeOne(self):
+        from colander import Boolean, NoneType
+        return NoneType(Boolean())
+
+    def test_serialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.serialize(node, 1), 'true')
+        self.assertEqual(typ.serialize(node, True), 'true')
+        self.assertEqual(typ.serialize(node, None), '')
+        self.assertEqual(typ.serialize(node, False), 'false')
+
+    def test_deserialize(self):
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        self.assertEqual(typ.deserialize(node, 'false'), False)
+        self.assertEqual(typ.deserialize(node, 'FALSE'), False)
+        self.assertEqual(typ.deserialize(node, '0'), False)
+        self.assertEqual(typ.deserialize(node, 'true'), True)
+        self.assertEqual(typ.deserialize(node, 'other'), True)
+        self.assertEqual(typ.deserialize(node, ''), None)
+        self.assertEqual(typ.deserialize(node, None), None)
+
 class TestGlobalObject(unittest.TestCase):
     def _makeOne(self, package=None):
         from colander import GlobalObject
