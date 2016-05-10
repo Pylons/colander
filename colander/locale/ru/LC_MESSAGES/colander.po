@@ -44,7 +44,7 @@ msgstr "Меньше, чем минимальная длина {$min}"
 
 #: colander/__init__.py:354
 msgid "Longer than maximum length ${max}"
-msgstr "Больше, чем максимальная длина {$min}"
+msgstr "Больше, чем максимальная длина {$max}"
 
 #: colander/__init__.py:367
 msgid "\"${val}\" is not one of ${choices}"
