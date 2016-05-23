@@ -15,6 +15,11 @@ unreleased
   (for backward compatibility, default is '; ').
   See https://github.com/Pylons/colander/pull/253
 
+- Fixed an issue with ``SchemaNode.clone`` where it would fail when
+  cloning an instance of ``colander.SequenceSchema`` due to initializing
+  the schema without any children, violating some checks.
+  See https://github.com/Pylons/colander/pull/212
+
 1.2 (2016-01-18)
 ================
 
