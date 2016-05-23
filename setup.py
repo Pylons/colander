@@ -40,7 +40,7 @@ docs_extras = [
 ]
 
 setup(name='colander',
-      version='1.2',
+      version='1.3',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' + CHANGES,
@@ -48,7 +48,6 @@ setup(name='colander',
           "Intended Audience :: Developers",
           "Programming Language :: Python",
           "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.6",
           "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.3",
