@@ -1,6 +1,9 @@
 unreleased
 ==========
 
+- Drop Python 2.6 and PyPy3 from the test suite. They are no longer
+  supported. See https://github.com/Pylons/colander/pull/263
+
 - ``colander.String`` schema type now supports an optional keyword argument
   ``allow_empty`` which, when True, deserializes an empty string to an
   empty string. When False (default), an empty string deserializes to
