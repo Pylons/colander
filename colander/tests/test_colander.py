@@ -3423,6 +3423,13 @@ class TestSequenceSchema(unittest.TestCase):
         result = node.serialize([colander.null])
         self.assertEqual(result, [])
 
+    def test_clone_with_sequence_schema(self):
+        import colander
+        thingnode = colander.SchemaNode(colander.String(), name='foo')
+        schema = colander.SequenceSchema(colander.Sequence(), thingnode)
+        result = schema.clone()
+        self.assertEqual(result.children[0].name, 'foo')
+
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
         import colander

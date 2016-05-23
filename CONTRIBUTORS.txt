@@ -128,6 +128,7 @@ Contributors
 - Nando Florestan, 2014/11/27
 - Amos Latteier, 2014/11/30
 - Jimmy Thrasibule, 2014/12/11
+- Hugo Branquinho, 2015/01/21
 - Daniel Dourvaris, 2015/03/04
 - Dmitry Bogun, 2015/09/10
 - Tinne Cahy, 2015/12/22
