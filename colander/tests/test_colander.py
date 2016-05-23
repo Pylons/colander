@@ -3425,10 +3425,10 @@ class TestSequenceSchema(unittest.TestCase):
 
     def test_clone_with_sequence_schema(self):
         import colander
-        thingnode = colander.SchemaNode(colander.String())
-        thingnode2 = colander.SchemaNode(colander.String())
-        schema = colander.SequenceSchema(colander.Sequence(), thingnode, thingnode2)
-        schema.clone()
+        thingnode = colander.SchemaNode(colander.String(), name='foo')
+        schema = colander.SequenceSchema(colander.Sequence(), thingnode)
+        result = schema.clone()
+        self.assertEqual(result.children[0].name, 'foo')
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
