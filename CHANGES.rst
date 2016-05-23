@@ -1,5 +1,10 @@
-unreleased
-==========
+1.3.1 (2016-05-23)
+==================
+
+- 1.3 was released without updating the changelog. This release fixes that.
+
+1.3 (2016-05-23)
+================
 
 - Drop Python 2.6 and PyPy3 from the test suite. They are no longer
   supported. See https://github.com/Pylons/colander/pull/263
