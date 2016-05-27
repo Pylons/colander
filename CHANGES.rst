@@ -1,3 +1,12 @@
+unreleased
+==========
+
+- Fixed an issue with ``colander.Mapping`` and ``colander.Sequence``
+  where a ``default`` value of ``drop`` caused missing values to be dropped
+  during *de*serialization. (Only ``missing`` values should affect
+  deserialization, and only ``default`` values should affect serialization.)
+  Added many new test cases for ``MappingSchema`` and ``SequenceSchema``.
+
 1.3.1 (2016-05-23)
 ==================
 
