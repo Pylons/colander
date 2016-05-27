@@ -3394,6 +3394,8 @@ class TestMappingSchema(unittest.TestCase):
         self.assertEqual(result, {})
         result = node.deserialize({'a':colander.null})
         self.assertEqual(result, {})
+        result = node.deserialize({'a':''})
+        self.assertEqual(result, {})
 
     def test_deserialize_missing_value(self):
         import colander
@@ -3497,6 +3499,8 @@ class TestSequenceSchema(unittest.TestCase):
         result = node.deserialize([None])
         self.assertEqual(result, [])
         result = node.deserialize([colander.null])
+        self.assertEqual(result, [])
+        result = node.deserialize([''])
         self.assertEqual(result, [])
 
     def test_deserialize_missing_value(self):
