@@ -282,6 +282,8 @@ class Function(object):
 
     The default value for the ``msg`` when not provided via the
     constructor is ``Invalid value``.
+
+    The ``message`` parameter has been deprecated, use ``msg`` instead.
     """
     def __init__(self, function, msg=None, message=None):
         self.function = function
