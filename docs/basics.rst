@@ -238,7 +238,7 @@ example this will *not* work:
 
 This will result in::
 
-        TypeError: avalidator() takes exactly 3 arguments (2 given)
+        TypeError: validator() takes exactly 3 arguments (2 given)
 
 However, if you treat the thing being decorated as a function instead of a
 method (remove the ``self`` argument from the argument list), it will
