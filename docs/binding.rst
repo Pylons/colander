@@ -29,7 +29,7 @@ scope.
 What Is Schema Binding?
 -----------------------
 
-- Any values passed as a keyword argument to a SchemaNode
+- Any value passed as a keyword argument to a SchemaNode
   (e.g. ``description``, ``missing``, etc.)  may be an instance of the
   ``colander.deferred`` class.  Instances of the ``colander.deferred`` class
   are callables which accept two positional arguments: a ``node`` and a
