@@ -2120,6 +2120,8 @@ class _SchemaNode(object):
         dictionaries are preserved."""
         children = [node.clone() for node in self.children]
         cloned = self.__class__(self.typ, *children)
+        cloned.children = []
+        _add_node_children(cloned, children)
 
         attributes = self.__dict__.copy()
         attributes.pop('children', None)
