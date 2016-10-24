@@ -137,3 +137,4 @@ Contributors
 - Steve Piercy, 2016/02/26
 - Sergiu Bivol, 2016/04/23
 - Denis Nasyrov, 2016/08/23
+- Andreas Kaiser, 2016/09/16

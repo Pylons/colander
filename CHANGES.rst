@@ -1,3 +1,11 @@
+1.3.2 (unreleased)
+==================
+
+- Fixed a regression that was introduced in 1.3 causing ``SchemaNode.clone`` to
+  to return a clone with non matching children when the cloned instance's
+  children were modified after instantiation.
+  See https://github.com/Pylons/colander/pull/272
+
 1.3.1 (2016-05-23)
 ==================
 
