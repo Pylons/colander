@@ -2120,6 +2120,10 @@ class _SchemaNode(object):
         dictionaries are preserved."""
         children = [node.clone() for node in self.children]
         cloned = self.__class__(self.typ, *children)
+        # Children must be reset and added again to prevent "faulty" children
+        # on the clone when the instance's children were modified before
+        # cloning (for example an item was deleted from children or the
+        # children were reordered, see #272 for details).
         cloned.children = []
         _add_node_children(cloned, children)
 
