@@ -2118,12 +2118,9 @@ class _SchemaNode(object):
         """ Clone the schema node and return the clone.  All subnodes
         are also cloned recursively.  Attributes present in node
         dictionaries are preserved."""
-        children = [node.clone() for node in self.children]
-        cloned = self.__class__(self.typ, *children)
-
-        attributes = self.__dict__.copy()
-        attributes.pop('children', None)
-        cloned.__dict__.update(attributes)
+        cloned = self.__class__(self.typ)
+        cloned.__dict__.update(self.__dict__)
+        cloned.children = [node.clone() for node in self.children]
         return cloned
 
     def bind(self, **kw):
@@ -2272,6 +2269,21 @@ class SequenceSchema(SchemaNode):
         if len(self.children) != 1:
             raise Invalid(self,
                           'Sequence schemas must have exactly one child node')
+
+    def clone(self):
+        """ Clone the schema node and return the clone.  All subnodes
+        are also cloned recursively.  Attributes present in node
+        dictionaries are preserved."""
+
+        # Cloning a ``SequenceSchema`` doesn't work with ``_SchemaNode.clone``.
+
+        children = [node.clone() for node in self.children]
+        cloned = self.__class__(self.typ, *children)
+
+        attributes = self.__dict__.copy()
+        attributes.pop('children', None)
+        cloned.__dict__.update(attributes)
+        return cloned
 
 class deferred(object):
     """ A decorator which can be used to define deferred schema values

@@ -2787,6 +2787,33 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(inner_clone.name, 'inner')
         self.assertEqual(inner_clone.foo, 2)
 
+    def test_clone_with_modified_schema_instance(self):
+        import colander
+        class Schema(colander.MappingSchema):
+            n1 = colander.SchemaNode(colander.String())
+            n2 = colander.SchemaNode(colander.String())
+        def compare_children(schema, cloned):
+            # children of the clone must match the cloned node's children and
+            # have to be clones themselves.
+            self.assertEqual(len(schema.children), len(cloned.children))
+            for child, child_clone in zip(schema.children, cloned.children):
+                self.assertIsNot(child, child_clone)
+                for name in child.__dict__.keys():
+                    self.assertEqual(getattr(child, name),
+                                     getattr(child_clone, name))
+        # add a child node before cloning
+        schema = Schema()
+        schema.add(colander.SchemaNode(colander.String(), name='n3'))
+        compare_children(schema, schema.clone())
+        # remove a child node before cloning
+        schema = Schema()
+        del schema['n1']
+        compare_children(schema, schema.clone())
+        # reorder children before cloning
+        schema = Schema()
+        schema.children = list(reversed(schema.children))
+        compare_children(schema, schema.clone())
+
     def test_bind(self):
         from colander import deferred
         inner_typ = DummyType()
@@ -3427,8 +3454,12 @@ class TestSequenceSchema(unittest.TestCase):
         import colander
         thingnode = colander.SchemaNode(colander.String(), name='foo')
         schema = colander.SequenceSchema(colander.Sequence(), thingnode)
-        result = schema.clone()
-        self.assertEqual(result.children[0].name, 'foo')
+        clone = schema.clone()
+        self.assertIsNot(schema, clone)
+        self.assertEqual(schema.name, clone.name)
+        self.assertEqual(len(schema.children), len(clone.children))
+        self.assertIsNot(schema.children[0], clone.children[0])
+        self.assertEqual(schema.children[0].name, clone.children[0].name)
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
