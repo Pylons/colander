@@ -3454,8 +3454,12 @@ class TestSequenceSchema(unittest.TestCase):
         import colander
         thingnode = colander.SchemaNode(colander.String(), name='foo')
         schema = colander.SequenceSchema(colander.Sequence(), thingnode)
-        result = schema.clone()
-        self.assertEqual(result.children[0].name, 'foo')
+        clone = schema.clone()
+        self.assertIsNot(schema, clone)
+        self.assertEqual(schema.name, clone.name)
+        self.assertEqual(len(schema.children), len(clone.children))
+        self.assertIsNot(schema.children[0], clone.children[0])
+        self.assertEqual(schema.children[0].name, clone.children[0].name)
 
 class TestTupleSchema(unittest.TestCase):
     def test_it(self):
