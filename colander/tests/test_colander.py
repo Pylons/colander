@@ -2795,6 +2795,7 @@ class TestSchemaNode(unittest.TestCase):
         def compare_children(schema, cloned):
             # children of the clone must match the cloned node's children and
             # have to be clones themselves.
+            self.assertEqual(len(schema.children), len(cloned.children))
             for child, child_clone in zip(schema.children, cloned.children):
                 self.assertIsNot(child, child_clone)
                 for name in child.__dict__.keys():
