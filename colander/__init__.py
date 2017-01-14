@@ -315,11 +315,11 @@ class Function(object):
 class Regex(object):
     """ Regular expression validator.
 
-        Initialize it with the string regular expression ``regex``
-        that will be compiled and matched against ``value`` when
-        validator is called. If ``msg`` is supplied, it will be the
-        error message to be used; otherwise, defaults to 'String does
-        not match expected pattern'.
+        Initialize it with the string regular expression ``regex`` that will
+        be compiled and matched against ``value`` when validator is called. It
+        uses Python's :py:func:`re.match`, which only matches at the beginning
+        of the string and not at the beginning of each line. To match the
+        entire string, enclose the regular expression with ``^`` and ``$``.
 
         The ``regex`` expression behaviour can be modified by specifying
         any ``flags`` value taken by ``re.compile``.
