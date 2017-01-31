@@ -2145,7 +2145,10 @@ class _SchemaNode(object):
             v = getattr(self, k)
             if isinstance(v, deferred):
                 v = v(self, kw)
-                setattr(self, k, v)
+                if isinstance(v, SchemaNode):
+                    self[k] = v
+                else:
+                    setattr(self, k, v)
         if getattr(self, 'after_bind', None):
             self.after_bind(self, kw)
 
