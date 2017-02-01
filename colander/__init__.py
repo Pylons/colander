@@ -2242,7 +2242,7 @@ class _SchemaMeta(type):
                     value.title = name.replace('_', ' ').title()
                 nodes.append((value._order, value))
 
-        nodes.sort()
+        nodes.sort(key=lambda n: n[0])
         cls.__class_schema_nodes__ = [ n[1] for n in nodes ]
 
         # Combine all attrs from this class and its _SchemaNode superclasses.

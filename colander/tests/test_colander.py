@@ -3403,6 +3403,17 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(schema.schema_type, colander.Mapping)
         self.assertEqual(schema.children[0], node)
 
+    def test_schema_with_cloned_nodes(self):
+        import colander
+        test_node = colander.SchemaNode(colander.String())
+        class TestSchema(colander.Schema):
+            a = test_node.clone()
+            b = test_node.clone()
+        node = TestSchema()
+        expected = {'a': 'foo', 'b': 'bar'}
+        result = node.serialize(expected)
+        self.assertEqual(result, expected)
+
 class TestSequenceSchema(unittest.TestCase):
     def test_succeed(self):
         import colander
