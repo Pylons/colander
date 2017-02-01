@@ -3008,6 +3008,17 @@ class TestSchemaNodeSubclassing(unittest.TestCase):
         bound_node = node.bind()
         self.assertEqual(bound_node.deserialize(colander.null), 10)
 
+    def test_nodes_can_be_deffered(self):
+        import colander
+        class MySchema(colander.MappingSchema):
+            @colander.deferred
+            def child(node, kw):
+                return colander.SchemaNode(colander.String(), missing='foo')
+
+        node = MySchema()
+        bound_node = node.bind()
+        self.assertEqual(bound_node.deserialize({}), {'child': 'foo'})
+
     def test_schema_child_names_conflict_with_value_names_notused(self):
         import colander
         class MyNode(colander.SchemaNode):
