@@ -1,6 +1,8 @@
 unreleased
 ==========
 
+- Python 3.6 support.
+
 - Allow deferred schema nodes.
   See https://github.com/Pylons/colander/pull/280
 
