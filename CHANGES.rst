@@ -1,5 +1,5 @@
-unreleased
-==========
+1.3.2 (2017-01-31)
+==================
 
 - Python 3.6 support.
 
@@ -8,6 +8,15 @@ unreleased
 
 - Fix an issue when using a node multiple times in a schema by cloning it.
   See https://github.com/Pylons/colander/issues/279
+
+- Fix a regression that broke ``SequenceSchema.clone``.
+  See https://github.com/Pylons/colander/pull/275
+
+- Update german translations.
+  See https://github.com/Pylons/colander/pull/273
+
+- Recompile language files.
+  See https://github.com/Pylons/colander/pull/270
 
 1.3.1 (2016-05-23)
 ==================
