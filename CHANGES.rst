@@ -1,3 +1,9 @@
+unreleased
+==========
+
+- Allow deferred schema nodes.
+  See https://github.com/Pylons/colander/pull/280
+
 1.3.1 (2016-05-23)
 ==================
 
