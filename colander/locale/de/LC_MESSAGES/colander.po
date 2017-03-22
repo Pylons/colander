@@ -160,11 +160,5 @@ msgstr "fehlgeschlagen"
 msgid "${val}: ${choices}"
 msgstr "\"${val}”: ${choices}"
 
-#~ msgid "\"${val}\" is required but missing"
-#~ msgstr "\"${val}\" ist eine Pflichtangabe"
-
-#~ msgid "${val} cannot be parsed as an iso8601 date: ${err}"
-#~ msgstr "${val} ist keine gültige Zeitangabe nach ISO8601: ${err}"
-
-#~ msgid "Required"
-#~ msgstr "Pflichtangabe"
+msgid "Required"
+msgstr "Pflichtangabe"
