@@ -1291,7 +1291,7 @@ class Number(SchemaType):
             return null
 
         try:
-            return str(self.num(appstruct))
+            return (self.num(appstruct))
         except Exception:
             raise Invalid(node,
                           _('"${val}" is not a number',
