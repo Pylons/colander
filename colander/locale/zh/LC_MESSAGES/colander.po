@@ -1,7 +1,5 @@
-# Chinese translations for colander.
-# Copyright (C) 2010 ORGANIZATION
+# Simplified Chinese translations for colander.
 # This file is distributed under the same license as the colander project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
 msgid ""
 msgstr ""
