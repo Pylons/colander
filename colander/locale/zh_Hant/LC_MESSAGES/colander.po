@@ -1,4 +1,4 @@
-# Chinese (Traditional) translations for deform.
+# Chinese (Traditional) translations for colander.
 # While this is meant to be a traditional chinese translation, since it was done
 # By someone from Taiwan, it might have regional specialites.
 # This file is distributed under the same license as the colander project.
