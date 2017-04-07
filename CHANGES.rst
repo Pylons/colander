@@ -1,3 +1,10 @@
+unreleased
+==========
+
+- Add "zh_Hant", traditional chinese translations, and rename simplified
+  chinese from "zh" to "zh_Hans".
+  See https://github.com/Pylons/colander/pull/285
+
 1.3.2 (2017-01-31)
 ==================
 
