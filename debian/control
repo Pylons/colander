@@ -1,0 +1,16 @@
+Source: colander
+Priority: optional
+Section: python
+Maintainer: Olivier Roussy <olivier@gandi.net>
+Build-Depends: debhelper (>= 8),
+ python (>= 2.6)
+Build-Depends-Indep: python-setuptools
+Standards-Version: 3.9.1
+X-Python-Version: >= 2.7
+
+Package: python-colander
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-translationstring
+Provides: ${python:Provides}
+Description: a library that permit easy parameter validation in pyramid/cornice
+ See https://github.com/Pylons/colander

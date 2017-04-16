@@ -1,0 +1,13 @@
+DEB = $(shell cat /etc/debian_version | cut -c1)
+SHELL = /bin/bash
+
+setup:
+	@source="rules.python2"; \
+	if [ "$(DEBIAN_RELEASE)" == "squeeze" ]; then \
+	    source="rules.pysupport" ; \
+	elif [ $(DEB) -lt 7 ]; then \
+	    source="rules.pysupport" ; \
+	fi ; \
+	ln -sf $$source ./debian/rules
+
+.PHONY: setup

@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# we choose pysupport
+DEB_PYTHON_SYSTEM=pysupport
+
+# Debhelper must be included before python-distutils to use
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/python-distutils.mk

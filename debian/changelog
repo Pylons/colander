@@ -1,0 +1,23 @@
+colander (1.0b1-4) unstable; urgency=medium
+
+  * Add missing dep.
+
+ -- Olivier Roussy <olivier@gandi.net>  Mon, 22 Jun 2015 14:12:35 +0200
+
+colander (1.0b1-3) unstable; urgency=medium
+
+  * Push a new clean version in our repo.
+
+ -- Olivier Roussy <olivier@gandi.net>  Mon, 22 Jun 2015 11:37:23 +0200
+
+colander (1.0b1-2) unstable; urgency=medium
+
+  * Add debian rules for squeeze.
+
+ -- Olivier Roussy <olivier@gandi.net>  Mon, 22 Jun 2015 10:41:12 +0200
+
+colander (1.0b1-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Olivier Roussy <olivier@gandi.net>  Wed, 16 Apr 2014 18:19:15 +0200
