@@ -714,7 +714,7 @@ class Mapping(SchemaType):
         return self._impl(node, appstruct, callback)
 
     def deserialize(self, node, cstruct):
-        if cstruct is null:
+        if cstruct in (null, None):
             return null
 
         def callback(subnode, subcstruct):
