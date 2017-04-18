@@ -2095,6 +2095,12 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
+        
+        from colander import tests
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, tests)
+        self.assertEqual(result, 'colander.tests')
 
     def test_serialize_class(self):
         cls = self.__class__
