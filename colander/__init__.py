@@ -9,6 +9,7 @@ import pprint
 import re
 import translationstring
 import warnings
+import types
 
 from .compat import (
     text_,
@@ -1578,7 +1579,11 @@ class GlobalObject(SchemaType):
             return null
 
         try:
-            return appstruct.__name__
+            if isinstance(appstruct, types.ModuleType):
+                return appstruct.__name__
+            else:
+                return '{0.__module__}.{0.__name__}'.format(appstruct)
+            
         except AttributeError:
             raise Invalid(node,
                           _('"${val}" has no __name__',
