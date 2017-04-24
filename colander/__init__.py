@@ -1922,7 +1922,13 @@ class _SchemaNode(object):
     - ``widget``: The 'widget' for this node.  Defaults to ``None``.
       The widget attribute is not interpreted by Colander itself, it
       is only meaningful to higher-level systems such as Deform.
-
+    
+    - ``insert_before``: if supplied, it names a sibling defined by a 
+      superclass for its parent node; the current node will be inserted 
+      before the named node. It is not useful unless a mapping schema is 
+      inherited from another mapping schema, and you need to control 
+      the ordering of the resulting nodes.
+      
     Arbitrary keyword arguments remaining will be attached to the node
     object unmolested.
     """
