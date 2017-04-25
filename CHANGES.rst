@@ -1,9 +1,12 @@
-unreleased
-==========
+1.3.3 (2017-04-25)
+==================
 
 - Add "zh_Hant", traditional chinese translations, and rename simplified
   chinese from "zh" to "zh_Hans".
   See https://github.com/Pylons/colander/pull/285
+
+- Improve serialization of class objects using ``colander.GlobalObject``.
+  See https://github.com/Pylons/colander/pull/288
 
 1.3.2 (2017-01-31)
 ==================
