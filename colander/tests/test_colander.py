@@ -2095,7 +2095,50 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
+        
+        from colander import tests
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, tests)
+        self.assertEqual(result, 'colander.tests')
 
+    def test_serialize_class(self):
+        cls = self.__class__
+        typ = self._makeOne()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, cls)
+        self.assertEqual(result, 'colander.tests.test_colander.TestGlobalObject')
+
+    def test_deserialize_class_ok(self):
+        import colander
+        names = (
+                 'colander.tests.test_colander.TestGlobalObject',
+                 '.tests.test_colander.TestGlobalObject',
+                 )
+        typ = self._makeOne(colander)
+        node = DummySchemaNode(None)
+        for name in names:
+            result = typ.deserialize(node, name)
+            self.assertEqual(result, self.__class__)
+
+        names = ('.TestGlobalObject',)
+        typ = self._makeOne(colander.tests.test_colander)
+        node = DummySchemaNode(None)
+        for name in names:
+            result = typ.deserialize(node, name)
+            self.assertEqual(result, self.__class__)         
+
+    def test_deserialize_class_fail(self):
+        import colander
+        names = ('.test_colander.TestGlobalObject',
+                 '.TestGlobalObject')
+        typ = self._makeOne(colander)
+        node = DummySchemaNode(None)
+        for name in names:
+           e = invalid_exc(typ.deserialize, node, name)
+           self.assertEqual(e.msg.interpolate(),
+                            'The dotted name "{0}" cannot be imported'.format(name))
+           
     def test_serialize_fail(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
