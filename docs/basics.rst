@@ -607,8 +607,27 @@ __ http://pypi.python.org/pypi/htmllaundry/
                                      preparer=htmllaundry.sanitize,
                                      validator=colander.Length(1))
 
+If you want to create a subclass of :class:`colander.SchemaNode` and define
+``preparer`` as its class variable, you'll need to wrap your preparer in
+``staticmethod``:
+
+.. code-block:: python
+   :linenos:
+
+   import colander
+   import htmllaundry
+
+   class Content(colander.SchemaNode):
+       schema_type = colander.String
+       praparer = staticmethod(htmllaundry.sanitize)
+       validator = colander.Length(1)
+
+   class Page(colander.MappingSchema):
+       title = colander.SchemaNode(colander.String())
+       content = Content()
+
 You can even specify multiple preparers to be run in order, by passing
-a list of functions to the `preparer` kwarg, like so:
+a list of functions to the ``preparer`` kwarg, like so:
 
 .. code-block:: python
    :linenos:
