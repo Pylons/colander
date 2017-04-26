@@ -1,0 +1,2 @@
+graft colander/locale
+include *.rst LICENSE.txt COPYRIGHT.txt CONTRIBUTORS.txt
