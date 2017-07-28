@@ -33,6 +33,10 @@ class Test_Utc(unittest.TestCase):
             self.assertEqual(inst2.tzname(None), 'UTC')
             self.assertEqual(inst2.dst(None), ZERO)
 
+    def test__repr(self):
+        from ..iso8601 import Utc
+        self.assertEqual(Utc().__repr__(), '<iso8601.Utc>')
+
 class Test_FixedOffset(unittest.TestCase):
     def _makeOne(self):
         from ..iso8601 import FixedOffset
