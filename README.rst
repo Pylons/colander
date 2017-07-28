@@ -5,7 +5,7 @@ Colander
         :target: https://travis-ci.org/Pylons/colander
 
 .. image:: https://readthedocs.org/projects/colander/badge/?version=master
-        :target: http://docs.pylonsproject.org/projects/colander/en/master/
+        :target: https://docs.pylonsproject.org/projects/colander/en/master/
         :alt: Documentation Status
 
 An extensible package which can be used to:
@@ -16,9 +16,9 @@ An extensible package which can be used to:
 - serialize an arbitrary data structure to a data structure composed
   of strings, mappings, and lists.
 
-It is tested on Python 2.7, 3.3, 3.4, and 3.5, and PyPy.
+It is tested on Python 2.7, 3.3, 3.4, 3.5, and 3.6, and PyPy.
 
-Please see http://docs.pylonsproject.org/projects/colander/en/latest/
+Please see https://docs.pylonsproject.org/projects/colander/en/latest/
 for documentation.
 
 See https://github.com/Pylons/colander for in-development version.
