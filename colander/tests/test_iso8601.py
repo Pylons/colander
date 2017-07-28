@@ -1,3 +1,4 @@
+import sys
 import unittest
 import datetime
 
@@ -68,6 +69,11 @@ class Test_FixedOffset(unittest.TestCase):
                             datetime.timedelta(hours=1, minutes=30))
             self.assertEqual(inst2.tzname(None), 'oneandahalf')
             self.assertEqual(inst2.dst(None), ZERO)
+
+    def test__eq(self):
+        self.assertEqual(
+            NotImplemented,
+            self._makeOne().__eq__(datetime.tzinfo()))
 
     def test___repr__(self):
         inst = self._makeOne()
