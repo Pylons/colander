@@ -1,3 +1,12 @@
+1.4.0 (unreleased)
+==================
+
+- Remove the ``colander.iso8601`` bacward-compatibility module, broken
+  by recent updates to the actual ``iso8601`` package which backed it.
+  Downstream libraries can just mechanically adjust imports to use
+  ``iso8601.iso8601`` instead of ``colander.iso8601``.
+  See https://github.com/Pylons/colander/pull/296
+
 1.3.3 (2017-04-25)
 ==================
 
