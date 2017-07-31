@@ -11,6 +11,8 @@ import translationstring
 import warnings
 import types
 
+from iso8601 import iso8601
+
 from .compat import (
     text_,
     text_type,
@@ -18,8 +20,6 @@ from .compat import (
     xrange,
     is_nonstr_iter,
     )
-
-from . import iso8601
 
 _ = translationstring.TranslationStringFactory('colander')
 
