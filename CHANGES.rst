@@ -1,4 +1,4 @@
-1.4.0 (unreleased)
+1.4.0 (2017-07-31)
 ==================
 
 - Remove the ``colander.iso8601`` bacward-compatibility module, broken
