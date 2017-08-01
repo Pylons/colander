@@ -1,7 +1,7 @@
 1.4.0 (2017-07-31)
 ==================
 
-- Remove the ``colander.iso8601`` bacward-compatibility module, broken
+- Remove the ``colander.iso8601`` backward-compatibility module, broken
   by recent updates to the actual ``iso8601`` package which backed it.
   Downstream libraries can just mechanically adjust imports to use
   ``iso8601.iso8601`` instead of ``colander.iso8601``.
