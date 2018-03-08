@@ -2856,6 +2856,21 @@ class TestSchemaNode(unittest.TestCase):
         schema.children = list(reversed(schema.children))
         compare_children(schema, schema.clone())
 
+    def test_clone_mapping_references(self):
+        import colander
+        class Schema(colander.MappingSchema):
+            n1 = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+        foo = {
+            "n1": {
+                "bar": {
+                    "baz": "qux",
+                },
+            },
+        }
+        bar = Schema().serialize(foo)
+        bar["n1"]["bar"]["baz"] = "foobar"
+        self.assertEqual(foo["n1"]["bar"]["baz"], "qux")
+
     def test_bind(self):
         from colander import deferred
         inner_typ = DummyType()

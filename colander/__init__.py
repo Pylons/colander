@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import copy
 import datetime
 import decimal
 import functools
@@ -698,7 +699,7 @@ class Mapping(SchemaType):
                           mapping={'val': value}))
 
         elif self.unknown == 'preserve':
-            result.update(value)
+            result.update(copy.deepcopy(value))
 
         if error is not None:
             raise error
