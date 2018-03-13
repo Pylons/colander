@@ -4021,6 +4021,12 @@ class Test_drop(unittest.TestCase):
         from colander import drop
         self.assertEqual(repr(drop), '<colander.drop>')
 
+    def test_pickling(self):
+        from colander import drop
+        import pickle
+        self.assertTrue(pickle.loads(pickle.dumps(drop)) is drop)
+
+
 class Dummy(object):
     pass
 
