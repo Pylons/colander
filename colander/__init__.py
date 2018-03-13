@@ -57,6 +57,9 @@ class _drop(object):
     def __repr__(self):
         return '<colander.drop>'
 
+    def __reduce__(self):
+        return 'drop' # when unpickled, refers to "drop" below (singleton)
+
 drop = _drop()
 
 def interpolate(msgs):
