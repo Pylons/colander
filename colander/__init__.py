@@ -29,6 +29,9 @@ class _required(object):
     def __repr__(self):
         return '<colander.required>'
 
+    def __reduce__(self):
+        return 'required' # when unpickled, refers to "required" below (singleton)
+
 required = _required()
 _marker = required # bw compat
 
