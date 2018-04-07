@@ -30,7 +30,7 @@ except:
     README = ''
     CHANGES = ''
 
-requires = ['translationstring', 'iso8601', 'enum34;python_version<"3.4"']
+requires = ['translationstring', 'iso8601']
 
 testing_extras = ['nose', 'coverage']
 docs_extras = [
@@ -68,6 +68,7 @@ setup(name='colander',
       install_requires=requires,
       test_suite="colander",
       extras_require={
+          ':python_version in "2.7,3.3"': ['enum34'],
           'testing': testing_extras,
           'docs': docs_extras,
           },
