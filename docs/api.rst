@@ -133,6 +133,8 @@ Types
 
   .. autoclass:: Time
 
+  .. autoclass:: Enum
+
 Schema-Related
 ~~~~~~~~~~~~~~
 

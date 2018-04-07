@@ -30,7 +30,7 @@ except:
     README = ''
     CHANGES = ''
 
-requires = ['translationstring', 'iso8601']
+requires = ['translationstring', 'iso8601', 'enum34;python_version<"3.4"']
 
 testing_extras = ['nose', 'coverage']
 docs_extras = [

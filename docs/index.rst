@@ -48,6 +48,8 @@ of objects, including:
 
 - A Python ``datetime.date`` object.
 
+- A Python ``enum.Enum`` object.
+
 Colander allows additional data structures to be serialized and
 deserialized by allowing a developer to define new "types".
 

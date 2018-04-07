@@ -3,6 +3,7 @@
 import copy
 import datetime
 import decimal
+import enum
 import functools
 import time
 import itertools
@@ -1836,6 +1837,60 @@ class Time(SchemaType):
 
 def timeparse(t, format):
     return datetime.datetime(*time.strptime(t, format)[0:6]).time()
+
+class Enum(SchemaType):
+    """A type representing a Python ``enum.Enum`` object.
+
+    The constructor accepts three arguments named ``enum_cls``, ``attr``
+    and ``typ``.
+
+    ``enum_cls`` is a mandatory argument and it should be a subclass of
+    ``enum.Enum``.  This argument represents appstruct's type.
+
+    ``attr`` is a optional argument.  default is ``name``.
+    It is used to pick a serialized value from a enum instance.
+    A serialized value must be unique.
+
+    ``typ`` is a optional argument and it shoud be a instance of
+    ``colander.SchemaType``.  This argument represents cstruct's type.
+    If ``typ`` is not specified, a plain ``colander.String`` is used.
+    """
+
+    def __init__(self, enum_cls, attr=None, typ=None):
+        self.enum_cls = enum_cls
+        self.attr = 'name' if attr is None else attr
+        self.typ = String() if typ is None else typ
+        if self.attr == 'name':
+            self.values = enum_cls.__members__.copy()
+        else:
+            self.values = {}
+            for e in self.enum_cls.__members__.values():
+                v = getattr(e, self.attr)
+                if v in self.values:
+                    raise ValueError('%r is not unique in %r', v, self.enum_cls)
+                self.values[v] = e
+
+    def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
+
+        if not isinstance(appstruct, self.enum_cls):
+            raise Invalid(node, _('"${val}" is not a valid "${cls}"',
+                                  mapping={'val': appstruct,
+                                           'cls': self.enum_cls.__name__}))
+
+        return self.typ.serialize(node, getattr(appstruct, self.attr))
+
+    def deserialize(self, node, cstruct):
+        result = self.typ.deserialize(node, cstruct)
+        if result is null:
+            return null
+
+        if result not in self.values:
+            raise Invalid(node, _('"${val}" is not a valid "${cls}"',
+                                  mapping={'val': cstruct,
+                                           'cls': self.enum_cls.__name__}))
+        return self.values[result]
 
 def _add_node_children(node, children):
     for n in children:
