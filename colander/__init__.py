@@ -1841,18 +1841,18 @@ def timeparse(t, format):
 class Enum(SchemaType):
     """A type representing a Python ``enum.Enum`` object.
 
-    The constructor accepts three arguments named ``enum_cls``, ``attr``
+    The constructor accepts three arguments named ``enum_cls``, ``attr``,
     and ``typ``.
 
     ``enum_cls`` is a mandatory argument and it should be a subclass of
-    ``enum.Enum``.  This argument represents appstruct's type.
+    ``enum.Enum``.  This argument represents the appstruct's type.
 
-    ``attr`` is a optional argument.  default is ``name``.
-    It is used to pick a serialized value from a enum instance.
+    ``attr`` is an optional argument.  Its default is ``name``.
+    It is used to pick a serialized value from an enum instance.
     A serialized value must be unique.
 
-    ``typ`` is a optional argument and it shoud be a instance of
-    ``colander.SchemaType``.  This argument represents cstruct's type.
+    ``typ`` is an optional argument, and it should be an instance of
+    ``colander.SchemaType``.  This argument represents the cstruct's type.
     If ``typ`` is not specified, a plain ``colander.String`` is used.
     """
 
