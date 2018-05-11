@@ -690,7 +690,7 @@ string, and the missing ``name`` attribute has been replaced with
 is *not* raised.  For more information about :attr:`colander.null`
 substitution during serialization, see :ref:`serializing_null`.
 
-The corollary: it is the responsibility of the developer to ensure he
+The corollary: it is the responsibility of the developer to ensure s/he
 serializes "the right" data; :mod:`colander` will not raise an error
 when asked to serialize something that is partially nonsense.
 
