@@ -763,6 +763,27 @@ class Mapping(SchemaType):
         return appstruct[path]
 
 
+class ObjectType(colander.Mapping):
+    """ A type which represents a generic python object.
+
+    This type will serialize and deserialize instances by treating
+    them as dictionaries, allowing the use of the parent `Mapping` type
+    for this purpose. Note that inherited class attributes will not be
+    handled unless they are explicitly set on the instance (e.g.
+    via self.).
+    """
+
+    def serialize(self, node, appstruct):
+        appstruct = appstruct.__dict__
+        return super(ObjectType, self).serialize(node, appstruct)
+
+    def deserialize(self, node, cstruct):
+        data = super(ObjectType, self).deserialize(node, cstruct)
+        appstruct = node.instance.__class__()
+        appstruct.__dict__.update(data)
+        return appstruct
+
+
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
