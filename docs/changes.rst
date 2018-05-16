@@ -1,1 +1,4 @@
+Releases
+~~~~~~~~
+
 .. include:: ../CHANGES.rst
