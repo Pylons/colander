@@ -1,4 +1,4 @@
-Releases
-~~~~~~~~
+Change History
+~~~~~~~~~~~~~~
 
 .. include:: ../CHANGES.rst
