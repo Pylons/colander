@@ -60,7 +60,7 @@ unreleased
   empty string. When False (default), an empty string deserializes to
   ``colander.null``. This allows for a node to be explicitly required, but
   allow an empty ('') value to be provided.
-  https://github.com/Pylons/colander/issues/199
+  https://github.com/Pylons/colander/pull/199
 
 - Add ``separator`` parameter to ``colander.Invalid.asdict``
   (for backward compatibility, default is '; ').
@@ -811,11 +811,11 @@ Documentation
   deal with the potential to receive ``colander.null``.
 
 - Use ``default_tzinfo`` when deserializing naive datetimes.  See
-  https://github.com/Pylons/colander/issues#issue/5.
+  https://github.com/Pylons/colander/pull/5
 
 - Allow ``default_tzinfo`` to be ``None`` when creating a
   ``colander.DateTime``.  See
-  https://github.com/Pylons/colander/issues#issue/6.
+  https://github.com/Pylons/colander/pull/6
 
 - Add the ability to insert a ``colander.interfaces.Preparer`` between
   deserialization and validation. See the Preparing section in the
