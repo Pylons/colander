@@ -1,3 +1,10 @@
+unreleased
+==========
+
+- Drop Python 3.3 support. Add PyPy3 and Python 3.7 as allowed failures.
+  See https://github.com/Pylons/colander/pull/309
+
+
 1.4.0 (2017-07-31)
 ==================
 
