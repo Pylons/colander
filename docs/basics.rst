@@ -154,8 +154,8 @@ value ``1``).
    which are passed during schema node construction by someone constructing a
    schema for a particular purpose are not used internally by Colander; they
    are instead only meaningful to higher-level systems which consume Colander
-   schemas.  Abitrary keyword arguments are allowed to a schema node
-   constructor in Colander 0.9+.  Prior version disallow them.
+   schemas.  Arbitrary keyword arguments are allowed to a schema node
+   constructor in Colander 0.9+.  Prior versions disallow them.
 
 Subclassing SchemaNode
 ++++++++++++++++++++++

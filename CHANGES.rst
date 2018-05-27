@@ -993,7 +993,7 @@ Backwards Incompatiblities / New Features
 - Updated and expanded documentation, particularly with respect to new
   ``colander.null`` handling.
 
-- The ``value`` argument`` to the ``serialize`` method of a SchemaNode
+- The ``value`` argument to the ``serialize`` method of a SchemaNode
   is now named ``appstruct``.  It is no longer a required argument; it
   defaults to ``colander.null`` now.
 
