@@ -34,7 +34,7 @@ requires = ['translationstring', 'iso8601']
 
 testing_extras = ['nose', 'coverage']
 docs_extras = [
-    'Sphinx >= 1.3.1',
+    'Sphinx >= 1.7.4',
     'docutils',
     'pylons-sphinx-themes',
 ]
@@ -50,7 +50,6 @@ setup(name='colander',
           "Programming Language :: Python :: 2",
           "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.3",
           "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
@@ -60,7 +59,7 @@ setup(name='colander',
       keywords='serialize deserialize validate schema validation',
       author="Agendaless Consulting",
       author_email="pylons-discuss@googlegroups.com",
-      url="http://docs.pylonsproject.org/projects/colander/en/latest/",
+      url="https://docs.pylonsproject.org/projects/colander/en/latest/",
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
       packages=find_packages(),
       include_package_data=True,
