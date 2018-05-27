@@ -564,8 +564,8 @@ which the exception is related.
 
   Translation strings are objects which behave like Unicode objects but have
   extra metadata associated with them for use in translation systems.  See
-  `http://docs.repoze.org/projects/translationstring/dev/
-  <http://docs.pylonsproject.org/projects/translationstring/dev/>`_ for
+  `https://docs.pylonsproject.org/projects/translationstring/en/latest/
+  <https://docs.pylonsproject.org/projects/translationstring/en/latest/>`_ for
   documentation about translation strings.  All error messages used by
   Colander internally are translation strings, which means they can be
   translated to other languages.  In particular, they are suitable for use as
@@ -593,7 +593,7 @@ The following schema uses `htmllaundry`__ and a
 :class:`~colander.interfaces.Preparer` to do the correct thing in both
 cases:
 
-__ http://pypi.python.org/pypi/htmllaundry/
+__ https://pypi.org/project/htmllaundry/
 
 .. code-block:: python
    :linenos:
