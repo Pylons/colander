@@ -5,6 +5,8 @@ unreleased
   See https://github.com/Pylons/colander/pull/309
 
 
+.. _release-1.4.0:
+
 1.4.0 (2017-07-31)
 ==================
 
