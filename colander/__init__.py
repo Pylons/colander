@@ -2323,6 +2323,21 @@ class SequenceSchema(SchemaNode):
         cloned.__dict__.update(attributes)
         return cloned
 
+class ObjectSchema(colander.SchemaNode):
+    schema_type = ObjectType
+    instance = None
+
+    def serialize(self, appstruct):
+        if not self.instance:
+            self.instance = appstruct
+        return super(ObjectSchema, self).serialize(appstruct)
+
+    def deserialize(self, cstruct):
+        appstruct = super(ObjectSchema, self).deserialize(cstruct)
+        if not self.instance:
+            self.instance = appstruct
+        return appstruct
+
 class deferred(object):
     """ A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
