@@ -2323,7 +2323,7 @@ class SequenceSchema(SchemaNode):
         cloned.__dict__.update(attributes)
         return cloned
 
-class ObjectSchema(colander.SchemaNode):
+class ObjectSchema(SchemaNode):
     """ A schema describing a python object.
     """
     schema_type = Object
