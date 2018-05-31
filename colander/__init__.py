@@ -763,7 +763,7 @@ class Mapping(SchemaType):
         return appstruct[path]
 
 
-class Object(colander.Mapping):
+class Object(Mapping):
     """ A type which represents a generic python object,
     i.e. specifically one that inherits, either directly or indirectly,
     from `__builtin__.object`.
