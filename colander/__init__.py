@@ -776,10 +776,14 @@ class Object(Mapping):
     """
 
     def serialize(self, node, appstruct):
+        if appstruct is null:
+            return null
         appstruct = appstruct.__dict__
         return super(Object, self).serialize(node, appstruct)
 
     def deserialize(self, node, cstruct):
+        if cstruct is null:
+            return null
         data = super(Object, self).deserialize(node, cstruct)
         appstruct = node.instance.__class__()
         appstruct.__dict__.update(data)
