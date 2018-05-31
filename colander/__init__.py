@@ -764,7 +764,9 @@ class Mapping(SchemaType):
 
 
 class Object(colander.Mapping):
-    """ A type which represents a generic python object.
+    """ A type which represents a generic python object,
+    i.e. specifically one that inherits, either directly or indirectly,
+    from `__builtin__.object`.
 
     This type will serialize and deserialize instances by treating
     them as dictionaries, allowing the use of the parent `Mapping` type
