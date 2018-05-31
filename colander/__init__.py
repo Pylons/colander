@@ -784,23 +784,6 @@ class ObjectType(colander.Mapping):
         return appstruct
 
 
-class PickleType(colander.SchemaType):
-    """ A type representing a generic python object.
-
-    This uses the pickle standard library to serialize/deserialize
-    an arbitrary python object using a binary (rather than text) format.
-    If a text format is desired consider using ``ObjectType`` instead.
-    """
-
-    def serialize(self, node, appstruct):
-        cstruct = pickle.dumps(appstruct)
-        return cstruct
-
-    def deserialize(self, node, cstruct):
-        appstruct = pickle.loads(cstruct)
-        return appstruct
-
-
 class Positional(object):
     """
     Marker abstract base class meaning 'this type has children which
