@@ -763,7 +763,7 @@ class Mapping(SchemaType):
         return appstruct[path]
 
 
-class ObjectType(colander.Mapping):
+class Object(colander.Mapping):
     """ A type which represents a generic python object.
 
     This type will serialize and deserialize instances by treating
@@ -775,10 +775,10 @@ class ObjectType(colander.Mapping):
 
     def serialize(self, node, appstruct):
         appstruct = appstruct.__dict__
-        return super(ObjectType, self).serialize(node, appstruct)
+        return super(Object, self).serialize(node, appstruct)
 
     def deserialize(self, node, cstruct):
-        data = super(ObjectType, self).deserialize(node, cstruct)
+        data = super(Object, self).deserialize(node, cstruct)
         appstruct = node.instance.__class__()
         appstruct.__dict__.update(data)
         return appstruct
@@ -2324,7 +2324,7 @@ class SequenceSchema(SchemaNode):
         return cloned
 
 class ObjectSchema(colander.SchemaNode):
-    schema_type = ObjectType
+    schema_type = Object
     instance = None
 
     def serialize(self, appstruct):
