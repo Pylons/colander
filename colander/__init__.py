@@ -2324,6 +2324,8 @@ class SequenceSchema(SchemaNode):
         return cloned
 
 class ObjectSchema(colander.SchemaNode):
+    """ A schema describing a python object.
+    """
     schema_type = Object
     instance = None
 
