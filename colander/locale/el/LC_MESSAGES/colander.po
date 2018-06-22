@@ -55,7 +55,7 @@ msgstr "Ενα η παραπάνω απο τις επιλογές δέν ήτα�
 
 #: colander/__init__.py:414 colander/__init__.py:419
 msgid "\"${val}\" is not a valid credit card number"
-msgstr "\"${val}'" δέν είναι έγκυρη πιστοτική κάρτα"
+msgstr "\"${val}\" δέν είναι έγκυρη πιστοτική κάρτα"
 
 #: colander/__init__.py:440
 msgid "Must be a URL"
