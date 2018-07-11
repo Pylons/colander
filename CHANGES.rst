@@ -4,6 +4,10 @@ unreleased
 - Drop Python 3.3 support. Add PyPy3 and Python 3.7 as allowed failures.
   See https://github.com/Pylons/colander/pull/309
 
+- Fix email validation to not allow all ascii characterst between + and /.
+  This prevents email addresses like 'foo1,foo2@bar.baz' from being validated,
+  which would be handled as multiple email addresses by subsequent tools.
+  See https://github.com/Pylons/colander/pull/315
 
 .. _release-1.4.0:
 
