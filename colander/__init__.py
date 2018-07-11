@@ -349,7 +349,7 @@ class Regex(object):
         if self.match_object.match(value) is None:
             raise Invalid(node, self.msg)
 
-EMAIL_RE = "(?i)^[A-Z0-9._%!#$%&'*+-/=?^_`{|}~()]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,22}$"
+EMAIL_RE = r"(?i)^[A-Z0-9._%!#$%&'*+\-/=?^_`{|}~()]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,22}$"
 
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be
