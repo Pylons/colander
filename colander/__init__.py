@@ -349,7 +349,15 @@ class Regex(object):
         if self.match_object.match(value) is None:
             raise Invalid(node, self.msg)
 
-EMAIL_RE = r"(?i)^[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+@[A-Z0-9]+([.-][A-Z0-9]+)*\.[A-Z]{2,22}$"
+EMAIL_RE = r"""(?ix) # matches case invariant with spaces and comments ignored
+^ # matches the start of string
+[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+ # matches multiples of the characters: A-Z0-9._!#$%&'*+\-/=?^_`{|}~()
+@ # matches the @ sign
+[A-Z0-9]+ # matches multiple of the characters A-Z0-9
+([.-][A-Z0-9]+)* # matches .- followed by at least one of A-Z0-9 - multiple times
+\.[A-Z]{2,22} # matches two to twenty two of A-Z
+$ # matches the end of the string
+"""
 
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be
