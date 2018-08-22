@@ -440,6 +440,7 @@ class TestEmail(unittest.TestCase):
         self.assertRaises(Invalid, validator, None, '@here.us')
         self.assertRaises(Invalid, validator, None, 'me@here..com')
         self.assertRaises(Invalid, validator, None, 'me@we-here-.com')
+        self.assertRaises(Invalid, validator, None, 'name1,name2@here.info')
 
 
 class TestLength(unittest.TestCase):
