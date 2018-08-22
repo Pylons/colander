@@ -349,12 +349,13 @@ class Regex(object):
         if self.match_object.match(value) is None:
             raise Invalid(node, self.msg)
 
-EMAIL_RE = r"""(?ix) # matches case insensitive with spaces and comments ignored for the entire expression
+EMAIL_RE = r"""(?ix) # matches case insensitive with spaces and comments 
+                     # ignored for the entire expression
 ^ # matches the start of string
-[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+ # matches multiples of the characters: A-Z0-9._!#$%&'*+-/=?^_`{|}~()
+[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+ # matches multiples of the characters: A-Z0-9._!#$%&'*+-/=?^_`{|}~() one or more times
 @ # matches the @ sign
 [A-Z0-9]+ # matches multiples of the characters A-Z0-9
-([.-][A-Z0-9]+)* # matches one of . or - followed by at least one of A-Z0-9, zero to unlimited
+([.-][A-Z0-9]+)* # matches one of . or - followed by at least one of A-Z0-9, zero to unlimited times
 \.[A-Z]{2,22} # matches a period, followed by two to twenty-two of A-Z
 $ # matches the end of the string
 """
