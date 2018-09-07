@@ -9,6 +9,9 @@ unreleased
   which would be handled as multiple email addresses by subsequent tools.
   See https://github.com/Pylons/colander/pull/315
 
+- Add support for ``enum.Enum`` objects.
+  See https://github.com/Pylons/colander/pull/305
+
 .. _release-1.4.0:
 
 1.4.0 (2017-07-31)
