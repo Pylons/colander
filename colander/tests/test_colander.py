@@ -2512,6 +2512,129 @@ class TestTime(unittest.TestCase):
         self.assertEqual(result.isoformat(),
                 dt.time().isoformat().split('.')[0])
 
+class TestEnum(unittest.TestCase):
+    def _makeOne(self):
+        import colander, enum
+        class DummyEnum(enum.Enum):
+            red = 0
+            green = 1
+            blue = 2
+        typ = colander.Enum(DummyEnum)
+        return DummyEnum, typ
+
+    def _makeOneIntVal(self):
+        import colander, enum
+        class DummyEnum(enum.Enum):
+            red = 0
+            green = 1
+            blue = 2
+        typ = colander.Enum(DummyEnum, attr='value', typ=colander.Integer())
+        return DummyEnum, typ
+
+    def _makeOneStrVal(self):
+        import colander, enum
+        class DummyEnum(enum.Enum):
+            red = 'RED'
+            green = 'GREEN'
+            blue = 'BLUE'
+        typ = colander.Enum(DummyEnum, attr='value', typ=colander.String())
+        return DummyEnum, typ
+
+    def test_non_unique_failure(self):
+        import colander, enum
+        class NonUniqueEnum(enum.Enum):
+            one = 1
+            other = 1
+        self.assertRaises(ValueError, colander.Enum, NonUniqueEnum,
+                          attr='value', typ=colander.Integer())
+
+    def test_non_unique_failure2(self):
+        import colander, enum
+        class NonUniqueEnum(enum.Enum):
+            some = (1, 1)
+            other = (1, 2)
+            def __init__(self, val0, val1):
+                self.val0 = val0
+                self.val1 = val1
+        self.assertRaises(ValueError, colander.Enum, NonUniqueEnum,
+                          attr='val0', typ=colander.Integer())
+
+    def test_serialize_null(self):
+        import colander
+        e, typ = self._makeOne()
+        val = colander.null
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, val)
+        self.assertIs(result, colander.null)
+
+    def test_serialize_name(self):
+        e, typ = self._makeOne()
+        val = e.red
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, val)
+        self.assertEqual(result, 'red')
+
+    def test_serialize_value_int(self):
+        e, typ = self._makeOneIntVal()
+        val = e.green
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, val)
+        self.assertEqual(result, '1')
+
+    def test_serialize_value_str(self):
+        e, typ = self._makeOneStrVal()
+        val = e.blue
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, val)
+        self.assertEqual(result, 'BLUE')
+
+    def test_serialize_failure(self):
+        e, typ = self._makeOne()
+        val = 'not a enum'
+        node = DummySchemaNode(None)
+        invalid_exc(typ.serialize, node, val)
+
+    def test_deserialize_null(self):
+        import colander
+        e, typ = self._makeOne()
+        val = ''
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, val)
+        self.assertIs(result, colander.null)
+
+    def test_deserialize_name(self):
+        e, typ = self._makeOne()
+        val = 'green'
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, val)
+        self.assertIs(result, e.green)
+
+    def test_deserialize_value_int(self):
+        e, typ = self._makeOneIntVal()
+        val = '2'
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, val)
+        self.assertIs(result, e.blue)
+
+    def test_deserialize_value_str(self):
+        e, typ = self._makeOneStrVal()
+        val = 'BLUE'
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, val)
+        self.assertIs(result, e.blue)
+
+    def test_deserialize_failure(self):
+        e, typ = self._makeOne()
+        val = 'not a enum'
+        node = DummySchemaNode(None)
+        invalid_exc(typ.deserialize, node, val)
+
+    def test_deserialize_failure_typ(self):
+        e, typ = self._makeOneIntVal()
+        val = 'not a int'
+        node = DummySchemaNode(None)
+        invalid_exc(typ.deserialize, node, val)
+
 class TestSchemaNode(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
         from colander import SchemaNode

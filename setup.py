@@ -67,6 +67,7 @@ setup(name='colander',
       install_requires=requires,
       test_suite="colander",
       extras_require={
+          ':python_version in "2.7,3.3"': ['enum34'],
           'testing': testing_extras,
           'docs': docs_extras,
           },
