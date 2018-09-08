@@ -1,5 +1,5 @@
-unreleased
-==========
+1.5.0 (2018-09-07)
+==================
 
 - Drop Python 3.3 support. Add PyPy3 and Python 3.7 as allowed failures.
   See https://github.com/Pylons/colander/pull/309
@@ -12,7 +12,9 @@ unreleased
 - Add support for ``enum.Enum`` objects.
   See https://github.com/Pylons/colander/pull/305
 
-.. _release-1.4.0:
+- Recompiled language translations and updated ``de`` and ``el`` locales.
+  See https://github.com/Pylons/colander/pull/284 and
+  https://github.com/Pylons/colander/pull/314
 
 1.4.0 (2017-07-31)
 ==================
