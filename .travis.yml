@@ -27,6 +27,10 @@ matrix:
     allow_failures:
         - env: TOXENV=py38
 
+cache:
+  directories:
+    - $HOME/.cache/pip
+
 install:
   - travis_retry pip install tox
 
