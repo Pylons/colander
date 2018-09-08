@@ -146,9 +146,3 @@ msgstr "\"${val}\" no es un objeto datetime"
 msgid "Required"
 msgstr "Requerido"
 
-#~ msgid "\"${val}\" is required but missing"
-#~ msgstr "\"${val}\" es requerido pero falta"
-
-#~ msgid "${val} cannot be parsed as an iso8601 date: ${err}"
-#~ msgstr "${val} no puede parsearse como una fecha iso8601: ${err}"
-
