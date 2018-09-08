@@ -148,12 +148,3 @@ msgstr "\"${val}\" не является объектом datetime"
 #: colander/__init__.py:1878 colander/__init__.py:1880
 msgid "Required"
 msgstr "Требуется"
-
-#~ msgid "\"${val}\" is required but missing"
-#~ msgstr "\"${val}\" является обязательным для заполнения"
-
-#~ msgid "${val} cannot be parsed as an iso8601 date: ${err}"
-#~ msgstr ""
-#~ "Значение ${val} не может быть распознано"
-#~ " как дата в формате iso8601: ${err}"
-

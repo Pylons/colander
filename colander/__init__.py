@@ -2008,7 +2008,7 @@ class _SchemaNode(object):
     validator = None
     default = null
     missing = required
-    missing_msg = 'Required'
+    missing_msg = _('Required')
     name = ''
     raw_title = _marker  # only changes if title is explicitly set
     title = _marker
