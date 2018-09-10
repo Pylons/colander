@@ -30,6 +30,9 @@ class _required(object):
     def __repr__(self):
         return '<colander.required>'
 
+    def __reduce__(self):
+        return 'required' # when unpickled, refers to "required" below (singleton)
+
 required = _required()
 _marker = required # bw compat
 
@@ -57,6 +60,9 @@ class _drop(object):
     """
     def __repr__(self):
         return '<colander.drop>'
+
+    def __reduce__(self):
+        return 'drop' # when unpickled, refers to "drop" below (singleton)
 
 drop = _drop()
 
