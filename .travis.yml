@@ -12,12 +12,6 @@ matrix:
           env: TOXENV=py35
         - python: 3.6
           env: TOXENV=py36
-        - python: pypy
-          env: TOXENV=pypy
-        - python: 3.5
-          env: TOXENV=py2-cover,py3-cover,coverage
-        - python: 3.5
-          env: TOXENV=docs
         - python: 3.7
           env: TOXENV=py37
           dist: xenial
@@ -26,6 +20,14 @@ matrix:
           env: TOXENV=py38
           dist: xenial
           sudo: true
+        - python: pypy
+          env: TOXENV=pypy
+        - python: pypy3
+          env: TOXENV=pypy3
+        - python: 3.5
+          env: TOXENV=py2-cover,py3-cover,coverage
+        - python: 3.5
+          env: TOXENV=docs
     allow_failures:
         - env: TOXENV=py38
 
