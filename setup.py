@@ -40,7 +40,7 @@ docs_extras = [
 ]
 
 setup(name='colander',
-      version='1.5',
+      version='1.5.1',
       description=('A simple schema-based serialization and deserialization '
                    'library'),
       long_description=README + '\n\n' + CHANGES,
