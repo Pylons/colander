@@ -1,3 +1,9 @@
+unreleased
+==========
+
+- Support deserializing ``colander.drop`` and ``colander.required``.
+  See https://github.com/Pylons/colander/pull/304
+
 1.5.0 (2018-09-07)
 ==================
 
