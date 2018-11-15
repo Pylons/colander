@@ -2207,6 +2207,17 @@ class TestDateTime(unittest.TestCase):
         expected = expected.replace(tzinfo=typ.default_tzinfo).isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_date_with_custom_format(self):
+        import datetime
+        fmt = '%m,%Y,%d'
+        typ = self._makeOne(format=fmt)
+        date = self._today()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, date)
+        expected = datetime.datetime.combine(date, datetime.time())
+        expected = expected.replace(tzinfo=typ.default_tzinfo).strftime(fmt)
+        self.assertEqual(result, expected)
+
     def test_serialize_with_naive_datetime(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2215,12 +2226,29 @@ class TestDateTime(unittest.TestCase):
         expected = dt.replace(tzinfo=typ.default_tzinfo).isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_with_naive_datetime_and_custom_format(self):
+        fmt = '%Y%m%d!%H%M%S'
+        typ = self._makeOne(format=fmt)
+        node = DummySchemaNode(None)
+        dt = self._dt()
+        result = typ.serialize(node, dt)
+        expected = dt.replace(tzinfo=typ.default_tzinfo).strftime(fmt)
+        self.assertEqual(result, expected)
+
     def test_serialize_with_none_tzinfo_naive_datetime(self):
         typ = self._makeOne(default_tzinfo=None)
         node = DummySchemaNode(None)
         dt = self._dt()
         result = typ.serialize(node, dt)
         self.assertEqual(result, dt.isoformat())
+
+    def test_serialize_with_none_tzinfo_naive_datetime_custom_format(self):
+        fmt = '%Y%m%d!%H%M%S'
+        typ = self._makeOne(default_tzinfo=None, format=fmt)
+        node = DummySchemaNode(None)
+        dt = self._dt()
+        result = typ.serialize(node, dt)
+        self.assertEqual(result, dt.strftime(fmt))
 
     def test_serialize_with_tzware_datetime(self):
         from iso8601 import iso8601
@@ -2233,12 +2261,37 @@ class TestDateTime(unittest.TestCase):
         expected = dt.isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_with_tzware_datetime_custom_format(self):
+        from iso8601 import iso8601
+        fmt = '%Y%m%d.%H%M%S%z'
+        typ = self._makeOne(format=fmt)
+        dt = self._dt()
+        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        dt = dt.replace(tzinfo=tzinfo)
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, dt)
+        expected = dt.strftime(fmt)
+        self.assertEqual(result, expected)
+
     def test_deserialize_date(self):
         import datetime
         from iso8601 import iso8601
         date = self._today()
         typ = self._makeOne()
         formatted = date.isoformat()
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, formatted)
+        expected = datetime.datetime.combine(result, datetime.time())
+        expected = expected.replace(tzinfo=iso8601.UTC)
+        self.assertEqual(result.isoformat(), expected.isoformat())
+
+    def test_deserialize_date_with_custom_format(self):
+        import datetime
+        from iso8601 import iso8601
+        date = self._today()
+        fmt = '%d/%m/%Y'
+        typ = self._makeOne(format=fmt)
+        formatted = date.strftime(fmt)
         node = DummySchemaNode(None)
         result = typ.deserialize(node, formatted)
         expected = datetime.datetime.combine(result, datetime.time())
@@ -2281,6 +2334,18 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), iso)
+
+    def test_deserialize_datetime_with_custom_format(self):
+        from iso8601 import iso8601
+        fmt = '%Y%m%d.%z.%H%M%S'
+        typ = self._makeOne(format=fmt)
+        dt = self._dt()
+        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        dt = dt.replace(tzinfo=tzinfo)
+        expected = dt.strftime(fmt)
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, expected)
+        self.assertEqual(result.strftime(fmt), expected)
 
     def test_deserialize_naive_with_default_tzinfo(self):
         from iso8601 import iso8601

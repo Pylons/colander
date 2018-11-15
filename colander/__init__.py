@@ -1671,8 +1671,9 @@ class DateTime(SchemaType):
     """
     err_template =  _('Invalid date')
 
-    def __init__(self, default_tzinfo=iso8601.UTC):
+    def __init__(self, default_tzinfo=iso8601.UTC, format=None):
         self.default_tzinfo = default_tzinfo
+        self.format = format
 
     def serialize(self, node, appstruct):
         if not appstruct:
@@ -1689,16 +1690,24 @@ class DateTime(SchemaType):
 
         if appstruct.tzinfo is None:
             appstruct = appstruct.replace(tzinfo=self.default_tzinfo)
-        return appstruct.isoformat()
+        if not self.format:
+            return appstruct.isoformat()
+        else:
+            return appstruct.strftime(self.format)
 
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
 
         try:
-            result = iso8601.parse_date(
-                cstruct, default_timezone=self.default_tzinfo)
-        except iso8601.ParseError as e:
+            if self.format:
+                result = datetime.datetime.strptime(cstruct, self.format)
+                if not result.tzinfo and self.default_tzinfo:
+                    result = result.replace(tzinfo=self.default_tzinfo)
+            else:
+                result = iso8601.parse_date(
+                    cstruct, default_timezone=self.default_tzinfo)
+        except (ValueError, iso8601.ParseError) as e:
             raise Invalid(node, _(self.err_template,
                                   mapping={'val':cstruct, 'err':e}))
         return result
@@ -1745,6 +1754,9 @@ class Date(SchemaType):
 
     err_template =  _('Invalid date')
 
+    def __init__(self, format=None):
+        self.format = format
+
     def serialize(self, node, appstruct):
         if not appstruct:
             return null
@@ -1758,13 +1770,18 @@ class Date(SchemaType):
                             mapping={'val':appstruct})
                           )
 
+        if self.format:
+            return appstruct.strftime(self.format)
         return appstruct.isoformat()
 
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
         try:
-            result = iso8601.parse_date(cstruct)
+            if self.format:
+                result = datetime.datetime.strptime(cstruct, self.format)
+            else:
+                result = iso8601.parse_date(cstruct)
             result = result.date()
         except iso8601.ParseError as e:
             raise Invalid(node,
