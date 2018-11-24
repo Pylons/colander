@@ -2207,17 +2207,6 @@ class TestDateTime(unittest.TestCase):
         expected = expected.replace(tzinfo=typ.default_tzinfo).isoformat()
         self.assertEqual(result, expected)
 
-    def test_serialize_date_with_custom_format(self):
-        import datetime
-        fmt = '%m,%Y,%d'
-        typ = self._makeOne(format=fmt)
-        date = self._today()
-        node = DummySchemaNode(None)
-        result = typ.serialize(node, date)
-        expected = datetime.datetime.combine(date, datetime.time())
-        expected = expected.replace(tzinfo=typ.default_tzinfo).strftime(fmt)
-        self.assertEqual(result, expected)
-
     def test_serialize_with_naive_datetime(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2267,19 +2256,6 @@ class TestDateTime(unittest.TestCase):
         date = self._today()
         typ = self._makeOne()
         formatted = date.isoformat()
-        node = DummySchemaNode(None)
-        result = typ.deserialize(node, formatted)
-        expected = datetime.datetime.combine(result, datetime.time())
-        expected = expected.replace(tzinfo=iso8601.UTC)
-        self.assertEqual(result.isoformat(), expected.isoformat())
-
-    def test_deserialize_date_with_custom_format(self):
-        import datetime
-        from iso8601 import iso8601
-        date = self._today()
-        fmt = '%d/%m/%Y'
-        typ = self._makeOne(format=fmt)
-        formatted = date.strftime(fmt)
         node = DummySchemaNode(None)
         result = typ.deserialize(node, formatted)
         expected = datetime.datetime.combine(result, datetime.time())
@@ -2447,6 +2423,23 @@ class TestDate(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), dt.date().isoformat())
+
+    def test_serialize_date_with_custom_format(self):
+        fmt = '%m,%Y,%d'
+        typ = self._makeOne(format=fmt)
+        date = self._today()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, date)
+        self.assertEqual(result, date.strftime(fmt))
+
+    def test_deserialize_date_with_custom_format(self):
+        date = self._today()
+        fmt = '%d/%m/%Y'
+        typ = self._makeOne(format=fmt)
+        formatted = date.strftime(fmt)
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, formatted)
+        self.assertEqual(result, date)
 
 class TestTime(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
