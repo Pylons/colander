@@ -2096,7 +2096,7 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
-        
+
         from colander import tests
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2127,7 +2127,7 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         for name in names:
             result = typ.deserialize(node, name)
-            self.assertEqual(result, self.__class__)         
+            self.assertEqual(result, self.__class__)
 
     def test_deserialize_class_fail(self):
         import colander
@@ -2139,7 +2139,7 @@ class TestGlobalObject(unittest.TestCase):
            e = invalid_exc(typ.deserialize, node, name)
            self.assertEqual(e.msg.interpolate(),
                             'The dotted name "{0}" cannot be imported'.format(name))
-           
+
     def test_serialize_fail(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2261,18 +2261,6 @@ class TestDateTime(unittest.TestCase):
         expected = dt.isoformat()
         self.assertEqual(result, expected)
 
-    def test_serialize_with_tzware_datetime_custom_format(self):
-        from iso8601 import iso8601
-        fmt = '%Y%m%d.%H%M%S%z'
-        typ = self._makeOne(format=fmt)
-        dt = self._dt()
-        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
-        dt = dt.replace(tzinfo=tzinfo)
-        node = DummySchemaNode(None)
-        result = typ.serialize(node, dt)
-        expected = dt.strftime(fmt)
-        self.assertEqual(result, expected)
-
     def test_deserialize_date(self):
         import datetime
         from iso8601 import iso8601
@@ -2337,7 +2325,7 @@ class TestDateTime(unittest.TestCase):
 
     def test_deserialize_datetime_with_custom_format(self):
         from iso8601 import iso8601
-        fmt = '%Y%m%d.%z.%H%M%S'
+        fmt = '%Y%m%d.%H%M%S'
         typ = self._makeOne(format=fmt)
         dt = self._dt()
         tzinfo = iso8601.FixedOffset(1, 0, 'myname')
