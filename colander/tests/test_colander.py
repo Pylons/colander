@@ -2402,7 +2402,7 @@ class TestTime(unittest.TestCase):
 
     def _dt(self):
         import datetime
-        return datetime.datetime(2010, 4, 26, 10, 48)
+        return datetime.datetime(2010, 4, 26, 10, 48, 0, 424242)
 
     def _now(self):
         import datetime
@@ -2435,7 +2435,7 @@ class TestTime(unittest.TestCase):
         time = self._now()
         node = DummySchemaNode(None)
         result = typ.serialize(node, time)
-        expected = time.isoformat().split('.')[0]
+        expected = time.isoformat()
         self.assertEqual(result, expected)
 
     def test_serialize_with_zero_time(self):
@@ -2444,7 +2444,7 @@ class TestTime(unittest.TestCase):
         time = datetime.time(0)
         node = DummySchemaNode(None)
         result = typ.serialize(node, time)
-        expected = time.isoformat().split('.')[0]
+        expected = time.isoformat()
         self.assertEqual(result, expected)
 
     def test_serialize_with_datetime(self):
@@ -2452,7 +2452,7 @@ class TestTime(unittest.TestCase):
         dt = self._dt()
         node = DummySchemaNode(None)
         result = typ.serialize(node, dt)
-        expected = dt.time().isoformat().split('.')[0]
+        expected = dt.time().isoformat()
         self.assertEqual(result, expected)
 
     def test_deserialize_invalid_ParseError(self):
@@ -2467,6 +2467,13 @@ class TestTime(unittest.TestCase):
         typ = self._makeOne()
         result = typ.deserialize(node, '11:00:11')
         self.assertEqual(result, datetime.time(11, 0, 11))
+
+    def test_deserialize_four_digit_string(self):
+        import datetime
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.deserialize(node, '11:00:11.424242')
+        self.assertEqual(result, datetime.time(11, 0, 11, 424242))
 
     def test_deserialize_two_digit_string(self):
         import datetime
@@ -2510,7 +2517,7 @@ class TestTime(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(),
-                dt.time().isoformat().split('.')[0])
+                dt.time().isoformat())
 
 class TestEnum(unittest.TestCase):
     def _makeOne(self):

@@ -1829,7 +1829,7 @@ class Time(SchemaType):
                             mapping={'val':appstruct})
                           )
 
-        return appstruct.isoformat().split('.')[0]
+        return appstruct.isoformat()
 
     def deserialize(self, node, cstruct):
         if not cstruct:
@@ -1838,20 +1838,19 @@ class Time(SchemaType):
             result = iso8601.parse_date(cstruct)
             result = result.time()
         except (iso8601.ParseError, TypeError):
+            fmt = {
+                8:'%H:%M:%S',
+                5:'%H:%M'
+            }.get(len(cstruct), '%H:%M:%S.%f')
             try:
-                result = timeparse(cstruct, '%H:%M:%S')
-            except ValueError:
-                try:
-                    result = timeparse(cstruct, '%H:%M')
-                except Exception as e:
-                    raise Invalid(node,
-                                  _(self.err_template,
-                                    mapping={'val':cstruct, 'err':e})
-                                  )
+                result = datetime.datetime.strptime(cstruct, fmt).time()
+            except Exception as e:
+                raise Invalid(
+                    node, _(self.err_template,
+                            mapping={'val':cstruct, 'err':e})
+                )
         return result
 
-def timeparse(t, format):
-    return datetime.datetime(*time.strptime(t, format)[0:6]).time()
 
 class Enum(SchemaType):
     """A type representing a Python ``enum.Enum`` object.
