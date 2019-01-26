@@ -23,3 +23,6 @@ coverage.xml
 distribute*.gz
 venv/
 env*/
+.*
+!/.gitignore
+!/.flake8

@@ -1,3 +1,9 @@
+unreleased
+==========
+
+- Format Python code of ``colander`` to conform to the PEP 8 style guide.
+  Add some linters (``flake8`` and ``setup.py check``) into ``tox.ini``.
+
 1.5.1 (2018-09-10)
 ==================
 

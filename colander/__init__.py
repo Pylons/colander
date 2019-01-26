@@ -1,9 +1,7 @@
 # coding=utf-8
-
 import copy
 import datetime
 import decimal
-import enum
 import functools
 import time
 import itertools
@@ -21,23 +19,30 @@ from .compat import (
     string_types,
     xrange,
     is_nonstr_iter,
-    )
+)
+
 
 _ = translationstring.TranslationStringFactory('colander')
 
+
 class _required(object):
     """ Represents a required value in colander-related operations. """
+
     def __repr__(self):
         return '<colander.required>'
 
     def __reduce__(self):
-        return 'required' # when unpickled, refers to "required" below (singleton)
+        # when unpickled, refers to "required" below (singleton)
+        return 'required'
+
 
 required = _required()
-_marker = required # bw compat
+_marker = required  # bw compat
+
 
 class _null(object):
     """ Represents a null value in colander-related operations. """
+
     def __nonzero__(self):
         return False
 
@@ -48,9 +53,11 @@ class _null(object):
         return '<colander.null>'
 
     def __reduce__(self):
-        return 'null' # when unpickled, refers to "null" below (singleton)
+        return 'null'  # when unpickled, refers to "null" below (singleton)
+
 
 null = _null()
+
 
 class _drop(object):
     """ Represents a value that will be dropped from the schema if it
@@ -58,13 +65,16 @@ class _drop(object):
     a value to the `missing` or `default` keyword argument
     of :class:`SchemaNode`.
     """
+
     def __repr__(self):
         return '<colander.drop>'
 
     def __reduce__(self):
-        return 'drop' # when unpickled, refers to "drop" below (singleton)
+        return 'drop'  # when unpickled, refers to "drop" below (singleton)
+
 
 drop = _drop()
+
 
 def interpolate(msgs):
     for s in msgs:
@@ -73,12 +83,14 @@ def interpolate(msgs):
         else:
             yield s
 
+
 class UnboundDeferredError(Exception):
     """
     An exception raised by :meth:`SchemaNode.deserialize` when an attempt
     is made to deserialize a node which has an unbound :class:`deferred`
     validator.
     """
+
 
 class Invalid(Exception):
     """
@@ -169,6 +181,7 @@ class Invalid(Exception):
         nodes.  Within each tuple, the leftmost item will represent
         the root schema node, the rightmost item will represent the
         leaf schema node."""
+
         def traverse(node, stack):
             stack.append(node)
 
@@ -237,6 +250,7 @@ class UnsupportedFields(Invalid):
 class All(object):
     """ Composite validator which succeeds if none of its
     subvalidators raises an :class:`colander.Invalid` exception"""
+
     def __init__(self, *validators):
         self.validators = validators
 
@@ -254,9 +268,11 @@ class All(object):
                 exc.children.extend(e.children)
             raise exc
 
+
 class Any(All):
     """ Composite validator which succeeds if at least one of its
     subvalidators does not raise an :class:`colander.Invalid` exception."""
+
     def __call__(self, node, value):
         try:
             return super(Any, self).__call__(node, value)
@@ -265,6 +281,7 @@ class Any(All):
                 # At least one validator did not fail:
                 return
             raise
+
 
 class Function(object):
     """ Validator which accepts a function and an optional message;
@@ -294,6 +311,7 @@ class Function(object):
 
     The ``message`` parameter has been deprecated, use ``msg`` instead.
     """
+
     def __init__(self, function, msg=None, message=None):
         self.function = function
         if msg is not None and message is not None:
@@ -306,7 +324,7 @@ class Function(object):
                 'The "message" argument has been deprecated, use "msg" '
                 'instead.',
                 DeprecationWarning
-                )
+            )
             msg = message
         self.msg = msg
 
@@ -315,11 +333,12 @@ class Function(object):
         if not result:
             raise Invalid(
                 node, translationstring.TranslationString(
-                    self.msg, mapping={'val':value}))
+                    self.msg, mapping={'val': value}))
         if isinstance(result, string_types):
             raise Invalid(
                 node, translationstring.TranslationString(
-                    result, mapping={'val':value}))
+                    result, mapping={'val': value}))
+
 
 class Regex(object):
     """ Regular expression validator.
@@ -342,6 +361,7 @@ class Regex(object):
         validation succeeds; otherwise, :exc:`colander.Invalid` is
         raised with the ``msg`` error message.
     """
+
     def __init__(self, regex, msg=None, flags=0):
         if isinstance(regex, string_types):
             self.match_object = re.compile(regex, flags)
@@ -356,16 +376,21 @@ class Regex(object):
         if self.match_object.match(value) is None:
             raise Invalid(node, self.msg)
 
-EMAIL_RE = r"""(?ix) # matches case insensitive with spaces and comments 
+
+EMAIL_RE = r"""(?ix) # matches case insensitive with spaces and comments
                      # ignored for the entire expression
 ^ # matches the start of string
-[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+ # matches multiples of the characters: A-Z0-9._!#$%&'*+-/=?^_`{|}~() one or more times
+[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+ # matches multiples of the characters:
+                                # A-Z0-9._!#$%&'*+-/=?^_`{|}~() one or
+                                # more times
 @ # matches the @ sign
 [A-Z0-9]+ # matches multiples of the characters A-Z0-9
-([.-][A-Z0-9]+)* # matches one of . or - followed by at least one of A-Z0-9, zero to unlimited times
+([.-][A-Z0-9]+)* # matches one of . or - followed by at least one of A-Z0-9,
+                 # zero to unlimited times
 \.[A-Z]{2,22} # matches a period, followed by two to twenty-two of A-Z
 $ # matches the end of the string
 """
+
 
 class Email(Regex):
     """ Email address validator. If ``msg`` is supplied, it will be
@@ -378,6 +403,7 @@ class Email(Regex):
         if msg is None:
             msg = _("Invalid email address")
         super(Email, self).__init__(email_regex, msg=msg)
+
 
 class Range(object):
     """ Validator which succeeds if the value it is passed is greater
@@ -417,13 +443,13 @@ class Range(object):
         if self.min is not None:
             if value < self.min:
                 min_err = _(
-                    self.min_err, mapping={'val':value, 'min':self.min})
+                    self.min_err, mapping={'val': value, 'min': self.min})
                 raise Invalid(node, min_err)
 
         if self.max is not None:
             if value > self.max:
                 max_err = _(
-                    self.max_err, mapping={'val':value, 'max':self.max})
+                    self.max_err, mapping={'val': value, 'max': self.max})
                 raise Invalid(node, max_err)
 
 
@@ -475,14 +501,15 @@ class Length(object):
 class OneOf(object):
     """ Validator which succeeds if the value passed to it is one of
     a fixed set of values """
+
     def __init__(self, choices):
         self.choices = choices
 
     def __call__(self, node, value):
-        if not value in self.choices:
+        if value not in self.choices:
             choices = ', '.join(['%s' % x for x in self.choices])
             err = _('"${val}" is not one of ${choices}',
-                    mapping={'val':value, 'choices':choices})
+                    mapping={'val': value, 'choices': choices})
             raise Invalid(node, err)
 
 
@@ -520,7 +547,8 @@ class ContainsOnly(object):
     """
     err_template = _(
         'One or more of the choices you made was not acceptable'
-        )
+    )
+
     def __init__(self, choices):
         self.choices = choices
 
@@ -528,53 +556,63 @@ class ContainsOnly(object):
         if not set(value).issubset(self.choices):
             err = _(
                 self.err_template,
-                mapping = {'val':value, 'choices':self.choices}
-                )
+                mapping={'val': value, 'choices': self.choices}
+            )
             raise Invalid(node, err)
+
 
 def luhnok(node, value):
     """ Validator which checks to make sure that the value passes a luhn
     mod-10 checksum (credit cards).  ``value`` must be a string, not an
     integer."""
     try:
-        sum = _luhnok(value)
-    except:
+        checksum = _luhnok(value)
+    except ValueError:
         raise Invalid(node,
                       _('"${val}" is not a valid credit card number',
                         mapping={'val': value}))
 
-    if not (sum % 10) == 0:
+    if (checksum % 10) != 0:
         raise Invalid(node,
                       _('"${val}" is not a valid credit card number',
                         mapping={'val': value}))
+
 
 def _luhnok(value):
-    sum = 0
+    checksum = 0
     num_digits = len(value)
     oddeven = num_digits & 1
 
     for count in range(0, num_digits):
         digit = int(value[count])
 
-        if not (( count & 1 ) ^ oddeven ):
-            digit = digit * 2
+        if not ((count & 1) ^ oddeven):
+            digit *= 2
         if digit > 9:
-            digit = digit - 9
+            digit -= 9
 
-        sum = sum + digit
-    return sum
+        checksum += digit
+    return checksum
 
-URL_REGEX = r"""(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))""" # "emacs!
+
+URL_REGEX = (
+    r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|'
+    r'[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|'
+    r'(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|'
+    r'[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))'  # "emacs!
+)
 
 url = Regex(URL_REGEX, _('Must be a URL'))
 
-
-UUID_REGEX = r"""^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$"""
+UUID_REGEX = (
+    r'^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$'
+)
 uuid = Regex(UUID_REGEX, _('Invalid UUID string'), re.IGNORECASE)
 
 
 class SchemaType(object):
     """ Base class for all schema types """
+
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}
         if listitem:
@@ -597,6 +635,7 @@ class SchemaType(object):
 
     def cstruct_children(self, node, cstruct):
         return []
+
 
 class Mapping(SchemaType):
     """ A type which represents a mapping of names to nodes.
@@ -644,11 +683,12 @@ class Mapping(SchemaType):
     the values in the returned dictionary is the serialized
     representation of the null value for its type.
     """
+
     def __init__(self, unknown='ignore'):
         self.unknown = unknown
 
     def _set_unknown(self, value):
-        if not value in ('ignore', 'raise', 'preserve'):
+        if value not in ('ignore', 'raise', 'preserve'):
             raise ValueError(
                 'unknown attribute must be one of "ignore", "raise", '
                 'or "preserve"')
@@ -666,10 +706,11 @@ class Mapping(SchemaType):
             else:
                 raise TypeError('Does not implement dict-like functionality.')
         except Exception as e:
-            raise Invalid(node,
-                          _('"${val}" is not a mapping type: ${err}',
-                          mapping = {'val':value, 'err':e})
-                          )
+            raise Invalid(
+                node,
+                _('"${val}" is not a mapping type: ${err}',
+                  mapping={'val': value, 'err': e})
+            )
 
     def cstruct_children(self, node, cstruct):
         if cstruct is null:
@@ -787,6 +828,7 @@ class Positional(object):
     creating a dictionary representation of an error tree.
     """
 
+
 class Tuple(Positional, SchemaType):
     """ A type which represents a fixed-length sequence of nodes.
 
@@ -802,12 +844,13 @@ class Tuple(Positional, SchemaType):
     method of this class, the :attr:`colander.null` value will be
     returned.
     """
+
     def _validate(self, node, value):
         if not hasattr(value, '__iter__'):
             raise Invalid(
                 node,
-                _('"${val}" is not iterable', mapping={'val':value})
-                )
+                _('"${val}" is not iterable', mapping={'val': value})
+            )
 
         valuelen, nodelen = len(value), len(node.children)
 
@@ -816,8 +859,8 @@ class Tuple(Positional, SchemaType):
                 node,
                 _('"${val}" has an incorrect number of elements '
                   '(expected ${exp}, was ${was})',
-                  mapping={'val':value, 'exp':nodelen, 'was':valuelen})
-                )
+                  mapping={'val': value, 'exp': nodelen, 'was': valuelen})
+            )
 
         return list(value)
 
@@ -998,6 +1041,7 @@ class SequenceItems(list):
     children of a Sequence are not present in a schema.
     """
 
+
 class Sequence(Positional, SchemaType):
     """
     A type which represents a variable-length sequence of nodes,
@@ -1026,20 +1070,21 @@ class Sequence(Positional, SchemaType):
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value is returned.
     """
+
     def __init__(self, accept_scalar=False):
         self.accept_scalar = accept_scalar
 
     def _validate(self, node, value, accept_scalar):
         if (hasattr(value, '__iter__') and
-            not hasattr(value, 'get') and
-            not isinstance(value, string_types)):
+                not hasattr(value, 'get') and
+                not isinstance(value, string_types)):
             return list(value)
         if accept_scalar:
             return [value]
         else:
             raise Invalid(node, _('"${val}" is not iterable',
-                                  mapping={'val':value})
-                         )
+                                  mapping={'val': value})
+                          )
 
     def cstruct_children(self, node, cstruct):
         if cstruct is null:
@@ -1151,13 +1196,16 @@ class Sequence(Positional, SchemaType):
     def unflatten(self, node, paths, fstruct):
         only_child = node.children[0]
         child_name = only_child.name
+
         def get_child(name):
             return only_child
+
         def rewrite_subpath(subpath):
             if '.' in subpath:
                 suffix = subpath.split('.', 1)[1]
                 return '%s.%s' % (child_name, suffix)
             return child_name
+
         mapstruct = _unflatten_mapping(node, paths, fstruct,
                                        get_child, rewrite_subpath)
         return [mapstruct[str(index)] for index in xrange(len(mapstruct))]
@@ -1183,7 +1231,9 @@ class Sequence(Positional, SchemaType):
             return next_node.typ.get_value(next_node, appstruct[index], rest)
         return appstruct[int(path)]
 
+
 Seq = Sequence
+
 
 class String(SchemaType):
     """ A type representing a Unicode string.
@@ -1249,6 +1299,7 @@ class String(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     def __init__(self, encoding=None, allow_empty=False):
         self.encoding = encoding
         self.allow_empty = allow_empty
@@ -1272,8 +1323,9 @@ class String(SchemaType):
         except Exception as e:
             raise Invalid(node,
                           _('${val} cannot be serialized: ${err}',
-                            mapping={'val':appstruct, 'err':e})
+                            mapping={'val': appstruct, 'err': e})
                           )
+
     def deserialize(self, node, cstruct):
         if cstruct == '' and self.allow_empty:
             return text_type('')
@@ -1293,11 +1345,13 @@ class String(SchemaType):
         except Exception as e:
             raise Invalid(node,
                           _('${val} is not a string: ${err}',
-                            mapping={'val':cstruct, 'err':e}))
+                            mapping={'val': cstruct, 'err': e}))
 
         return result
 
+
 Str = String
+
 
 class Number(SchemaType):
     """ Abstract base class for float, int, decimal """
@@ -1313,8 +1367,9 @@ class Number(SchemaType):
         except Exception:
             raise Invalid(node,
                           _('"${val}" is not a number',
-                            mapping={'val':appstruct}),
+                            mapping={'val': appstruct}),
                           )
+
     def deserialize(self, node, cstruct):
         if cstruct != 0 and not cstruct:
             return null
@@ -1324,8 +1379,9 @@ class Number(SchemaType):
         except Exception:
             raise Invalid(node,
                           _('"${val}" is not a number',
-                            mapping={'val':cstruct})
+                            mapping={'val': cstruct})
                           )
+
 
 class Integer(Number):
     """ A type representing an integer.
@@ -1339,7 +1395,9 @@ class Integer(Number):
     """
     num = int
 
+
 Int = Integer
+
 
 class Float(Number):
     """ A type representing a float.
@@ -1352,6 +1410,7 @@ class Float(Number):
     this type are ignored.
     """
     num = float
+
 
 class Decimal(Number):
     """
@@ -1376,6 +1435,7 @@ class Decimal(Number):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     def __init__(self, quant=None, rounding=None, normalize=False):
         if quant is None:
             self.quant = None
@@ -1395,6 +1455,7 @@ class Decimal(Number):
             result = result.normalize()
         return result
 
+
 class Money(Decimal):
     """ A type representing a money value with two digit precision.
     Deserialization returns an instance of the Python ``decimal.Decimal``
@@ -1407,8 +1468,10 @@ class Money(Decimal):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     def __init__(self):
         super(Money, self).__init__(decimal.Decimal('.01'), decimal.ROUND_UP)
+
 
 class Boolean(SchemaType):
     """ A type representing a boolean object.
@@ -1446,6 +1509,7 @@ class Boolean(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     def __init__(self, false_choices=('false', '0'), true_choices=(),
                  false_val='false', true_val='true'):
 
@@ -1469,9 +1533,9 @@ class Boolean(SchemaType):
 
         try:
             result = str(cstruct)
-        except:
+        except Exception:
             raise Invalid(node,
-                          _('${val} is not a string', mapping={'val':cstruct})
+                          _('${val} is not a string', mapping={'val': cstruct})
                           )
         result = result.lower()
 
@@ -1484,14 +1548,16 @@ class Boolean(SchemaType):
                 raise Invalid(node,
                               _('"${val}" is neither in (${false_choices}) '
                                 'nor in (${true_choices})',
-                                mapping={'val':cstruct,
+                                mapping={'val': cstruct,
                                          'false_choices': self.false_reprs,
-                                         'true_choices': self.true_reprs })
+                                         'true_choices': self.true_reprs})
                               )
 
         return True
 
+
 Bool = Boolean
+
 
 class GlobalObject(SchemaType):
     """ A type representing an importable Python object.  This type
@@ -1532,6 +1598,7 @@ class GlobalObject(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
+
     def __init__(self, package):
         self.package = package
 
@@ -1543,8 +1610,8 @@ class GlobalObject(SchemaType):
                 raise Invalid(
                     node,
                     _('relative name "${val}" irresolveable without package',
-                      mapping={'val':value})
-                    )
+                      mapping={'val': value})
+                )
             if value in ['.', ':']:
                 value = self.package.__name__
             else:
@@ -1560,8 +1627,8 @@ class GlobalObject(SchemaType):
                 raise Invalid(
                     node,
                     _('relative name "${val}" irresolveable without package',
-                      mapping={'val':value})
-                    )
+                      mapping={'val': value})
+                )
             name = module.split('.')
         else:
             name = value.split('.')
@@ -1570,8 +1637,8 @@ class GlobalObject(SchemaType):
                     raise Invalid(
                         node,
                         _('relative name "${val}" irresolveable without '
-                          'package', mapping={'val':value})
-                        )
+                          'package', mapping={'val': value})
+                    )
                 module = module.split('.')
                 name.pop(0)
                 while not name[0]:
@@ -1585,7 +1652,7 @@ class GlobalObject(SchemaType):
             used += '.' + n
             try:
                 found = getattr(found, n)
-            except AttributeError: # pragma: no cover
+            except AttributeError:  # pragma: no cover
                 __import__(used)
                 found = getattr(found, n)
 
@@ -1600,12 +1667,13 @@ class GlobalObject(SchemaType):
                 return appstruct.__name__
             else:
                 return '{0.__module__}.{0.__name__}'.format(appstruct)
-            
+
         except AttributeError:
             raise Invalid(node,
                           _('"${val}" has no __name__',
-                            mapping={'val':appstruct})
+                            mapping={'val': appstruct})
                           )
+
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
@@ -1613,7 +1681,7 @@ class GlobalObject(SchemaType):
         if not isinstance(cstruct, string_types):
             raise Invalid(node,
                           _('"${val}" is not a string',
-                            mapping={'val':cstruct}))
+                            mapping={'val': cstruct}))
         try:
             if ':' in cstruct:
                 return self._pkg_resources_style(node, cstruct)
@@ -1622,7 +1690,8 @@ class GlobalObject(SchemaType):
         except ImportError:
             raise Invalid(node,
                           _('The dotted name "${name}" cannot be imported',
-                            mapping={'name':cstruct}))
+                            mapping={'name': cstruct}))
+
 
 class DateTime(SchemaType):
     """ A type representing a Python ``datetime.datetime`` object.
@@ -1669,7 +1738,7 @@ class DateTime(SchemaType):
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
-    err_template =  _('Invalid date')
+    err_template = _('Invalid date')
 
     def __init__(self, default_tzinfo=iso8601.UTC):
         self.default_tzinfo = default_tzinfo
@@ -1678,13 +1747,14 @@ class DateTime(SchemaType):
         if not appstruct:
             return null
 
-        if type(appstruct) is datetime.date: # cant use isinstance; dt subs date
+        # cant use isinstance; dt subs date
+        if type(appstruct) is datetime.date:
             appstruct = datetime.datetime.combine(appstruct, datetime.time())
 
         if not isinstance(appstruct, datetime.datetime):
             raise Invalid(node,
                           _('"${val}" is not a datetime object',
-                            mapping={'val':appstruct})
+                            mapping={'val': appstruct})
                           )
 
         if appstruct.tzinfo is None:
@@ -1700,8 +1770,9 @@ class DateTime(SchemaType):
                 cstruct, default_timezone=self.default_tzinfo)
         except iso8601.ParseError as e:
             raise Invalid(node, _(self.err_template,
-                                  mapping={'val':cstruct, 'err':e}))
+                                  mapping={'val': cstruct, 'err': e}))
         return result
+
 
 class Date(SchemaType):
     """ A type representing a Python ``datetime.date`` object.
@@ -1743,7 +1814,7 @@ class Date(SchemaType):
     this type are ignored.
     """
 
-    err_template =  _('Invalid date')
+    err_template = _('Invalid date')
 
     def serialize(self, node, appstruct):
         if not appstruct:
@@ -1755,7 +1826,7 @@ class Date(SchemaType):
         if not isinstance(appstruct, datetime.date):
             raise Invalid(node,
                           _('"${val}" is not a date object',
-                            mapping={'val':appstruct})
+                            mapping={'val': appstruct})
                           )
 
         return appstruct.isoformat()
@@ -1769,9 +1840,10 @@ class Date(SchemaType):
         except iso8601.ParseError as e:
             raise Invalid(node,
                           _(self.err_template,
-                            mapping={'val':cstruct, 'err':e})
+                            mapping={'val': cstruct, 'err': e})
                           )
         return result
+
 
 class Time(SchemaType):
     """ A type representing a Python ``datetime.time`` object.
@@ -1815,7 +1887,7 @@ class Time(SchemaType):
     this type are ignored.
     """
 
-    err_template =  _('Invalid time')
+    err_template = _('Invalid time')
 
     def serialize(self, node, appstruct):
         if isinstance(appstruct, datetime.datetime):
@@ -1826,7 +1898,7 @@ class Time(SchemaType):
                 return null
             raise Invalid(node,
                           _('"${val}" is not a time object',
-                            mapping={'val':appstruct})
+                            mapping={'val': appstruct})
                           )
 
         return appstruct.isoformat().split('.')[0]
@@ -1846,12 +1918,14 @@ class Time(SchemaType):
                 except Exception as e:
                     raise Invalid(node,
                                   _(self.err_template,
-                                    mapping={'val':cstruct, 'err':e})
+                                    mapping={'val': cstruct, 'err': e})
                                   )
         return result
 
+
 def timeparse(t, format):
     return datetime.datetime(*time.strptime(t, format)[0:6]).time()
+
 
 class Enum(SchemaType):
     """A type representing a Python ``enum.Enum`` object.
@@ -1882,7 +1956,10 @@ class Enum(SchemaType):
             for e in self.enum_cls.__members__.values():
                 v = getattr(e, self.attr)
                 if v in self.values:
-                    raise ValueError('%r is not unique in %r', v, self.enum_cls)
+                    raise ValueError(
+                        '%r is not unique in %r',
+                        v, self.enum_cls
+                    )
                 self.values[v] = e
 
     def serialize(self, node, appstruct):
@@ -1907,6 +1984,7 @@ class Enum(SchemaType):
                                            'cls': self.enum_cls.__name__}))
         return self.values[result]
 
+
 def _add_node_children(node, children):
     for n in children:
         insert_before = getattr(n, 'insert_before', None)
@@ -1923,6 +2001,7 @@ def _add_node_children(node, children):
             if exists:
                 del node[n.name]
             node.add_before(insert_before, n)
+
 
 class _SchemaNode(object):
     """
@@ -1998,13 +2077,13 @@ class _SchemaNode(object):
     - ``widget``: The 'widget' for this node.  Defaults to ``None``.
       The widget attribute is not interpreted by Colander itself, it
       is only meaningful to higher-level systems such as Deform.
-    
-    - ``insert_before``: if supplied, it names a sibling defined by a 
-      superclass for its parent node; the current node will be inserted 
-      before the named node. It is not useful unless a mapping schema is 
-      inherited from another mapping schema, and you need to control 
+
+    - ``insert_before``: if supplied, it names a sibling defined by a
+      superclass for its parent node; the current node will be inserted
+      before the named node. It is not useful unless a mapping schema is
+      inherited from another mapping schema, and you need to control
       the ordering of the resulting nodes.
-      
+
     Arbitrary keyword arguments remaining will be attached to the node
     object unmolested.
     """
@@ -2055,7 +2134,7 @@ class _SchemaNode(object):
         raise NotImplementedError(
             'Schema node construction without a `typ` argument or '
             'a schema_type() callable present on the node class '
-            )
+        )
 
     @property
     def required(self):
@@ -2084,7 +2163,7 @@ class _SchemaNode(object):
         """
         if appstruct is null:
             appstruct = self.default
-        if isinstance(appstruct, deferred): # unbound schema with deferreds
+        if isinstance(appstruct, deferred):  # unbound schema with deferreds
             appstruct = null
         cstruct = self.typ.serialize(self, appstruct)
         return cstruct
@@ -2157,18 +2236,20 @@ class _SchemaNode(object):
             if appstruct is required:
                 raise Invalid(self, _(self.missing_msg,
                                       mapping={'title': self.title,
-                                               'name':self.name}))
+                                               'name': self.name}))
 
-            if isinstance(appstruct, deferred): # unbound schema with deferreds
+            if isinstance(appstruct, deferred):
+                # unbound schema with deferreds
                 raise Invalid(self, self.missing_msg)
             # We never deserialize or validate the missing value
             return appstruct
 
         if self.validator is not None:
-            if isinstance(self.validator, deferred): # unbound
+            if isinstance(self.validator, deferred):  # unbound
                 raise UnboundDeferredError(
-                    "Schema node {node} has an unbound deferred validator"
-                    .format(node=self))
+                    "Schema node {node} has an unbound "
+                    "deferred validator".format(node=self)
+                )
             self.validator(self, appstruct)
         return appstruct
 
@@ -2240,15 +2321,15 @@ class _SchemaNode(object):
         cstruct_children = getattr(self.typ, 'cstruct_children', None)
         if cstruct_children is None:
             warnings.warn(
-                'The node type %s has no cstruct_children method.'
-                'This method is required to be implemented by schema types for '
-                'compatibility with Colander 0.9.9+.  In a future Colander '
+                'The node type %s has no cstruct_children method. '
+                'This method is required to be implemented by schema types '
+                'for compatibility with Colander 0.9.9+. In a future Colander '
                 'version, the absence of this method will cause an '
                 'exception.  Returning [] for compatibility although it '
                 'may not be the right value.' % self.typ.__class__,
                 DeprecationWarning,
                 stacklevel=2
-                )
+            )
             return []
         return cstruct_children(self, cstruct)
 
@@ -2293,7 +2374,7 @@ class _SchemaNode(object):
             self.__class__.__name__,
             id(self),
             self.name,
-            )
+        )
 
     def raise_invalid(self, msg, node=None):
         """ Raise a :exc:`colander.Invalid` exception with the message
@@ -2311,6 +2392,7 @@ class _SchemaNode(object):
             node = self
         raise Invalid(node, msg)
 
+
 class _SchemaMeta(type):
     def __init__(cls, name, bases, clsattrs):
         nodes = []
@@ -2325,7 +2407,7 @@ class _SchemaMeta(type):
                 nodes.append((value._order, value))
 
         nodes.sort(key=lambda n: n[0])
-        cls.__class_schema_nodes__ = [ n[1] for n in nodes ]
+        cls.__class_schema_nodes__ = [n[1] for n in nodes]
 
         # Combine all attrs from this class and its _SchemaNode superclasses.
         cls.__all_schema_nodes__ = []
@@ -2333,20 +2415,25 @@ class _SchemaMeta(type):
             csn = getattr(c, '__class_schema_nodes__', [])
             cls.__all_schema_nodes__.extend(csn)
 
+
 # metaclass spelling compatibility across Python 2 and Python 3
 SchemaNode = _SchemaMeta(
     'SchemaNode',
     (_SchemaNode,),
     {'__doc__': _SchemaNode.__doc__}
-    )
+)
+
 
 class Schema(SchemaNode):
     schema_type = Mapping
 
+
 MappingSchema = Schema
+
 
 class TupleSchema(SchemaNode):
     schema_type = Tuple
+
 
 class SequenceSchema(SchemaNode):
     schema_type = Sequence
@@ -2372,18 +2459,21 @@ class SequenceSchema(SchemaNode):
         cloned.__dict__.update(attributes)
         return cloned
 
+
 class deferred(object):
     """ A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
+
     def __init__(self, wrapped):
         try:
             functools.update_wrapper(self, wrapped)
-        except AttributeError: #non-function
+        except AttributeError:  # non-function
             self.__doc__ = getattr(wrapped, '__doc__', None)
         self.wrapped = wrapped
 
     def __call__(self, node, kw):
         return self.wrapped(node, kw)
+
 
 def _unflatten_mapping(node, paths, fstruct,
                        get_child=None, rewrite_subpath=None):
@@ -2431,6 +2521,7 @@ def _unflatten_mapping(node, paths, fstruct,
             subnode, subpaths, subfstruct)
     return appstruct
 
+
 class instantiate(object):
     """
     A decorator which can be used to instantiate :class:`SchemaNode`
@@ -2440,8 +2531,8 @@ class instantiate(object):
     :class:`SchemaNode` during instantiation.
     """
 
-    def __init__(self,*args,**kw):
-        self.args,self.kw = args,kw
+    def __init__(self, *args, **kw):
+        self.args, self.kw = args, kw
 
-    def __call__(self,class_):
-        return class_(*self.args,**self.kw)
+    def __call__(self, class_):
+        return class_(*self.args, **self.kw)
