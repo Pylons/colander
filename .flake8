@@ -9,3 +9,4 @@ ignore =
 exclude =
     colander/compat.py
 show-source = True
+max-line-length = 79
