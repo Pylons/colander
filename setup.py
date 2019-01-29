@@ -35,17 +35,14 @@ except Exception:
 requires = ['translationstring', 'iso8601']
 
 testing_extras = ['nose', 'coverage']
-docs_extras = [
-    'Sphinx >= 1.7.4',
-    'docutils',
-    'pylons-sphinx-themes',
-]
+docs_extras = ['Sphinx >= 1.7.4', 'docutils', 'pylons-sphinx-themes']
 
 setup(
     name='colander',
     version='1.5.1',
-    description=('A simple schema-based serialization and deserialization '
-                 'library'),
+    description=(
+        'A simple schema-based serialization and deserialization ' 'library'
+    ),
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
         "Intended Audience :: Developers",
