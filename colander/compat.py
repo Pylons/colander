@@ -4,7 +4,7 @@ import sys
 PY2 = sys.version_info[0] == 2
 PY3 = not PY2
 
-if PY2:
+if PY2:  # pragma: no cover
     string_types = (basestring,)
     text_type = unicode
 else:
@@ -20,7 +20,7 @@ def text_(s, encoding='latin-1', errors='strict'):
     return s  # pragma: no cover
 
 
-if PY2:
+if PY2:  # pragma: no cover
 
     def is_nonstr_iter(v):
         return hasattr(v, '__iter__')
