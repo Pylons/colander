@@ -2096,7 +2096,7 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.serialize(node, colander.tests)
         self.assertEqual(result, 'colander.tests')
-        
+
         from colander import tests
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2127,7 +2127,7 @@ class TestGlobalObject(unittest.TestCase):
         node = DummySchemaNode(None)
         for name in names:
             result = typ.deserialize(node, name)
-            self.assertEqual(result, self.__class__)         
+            self.assertEqual(result, self.__class__)
 
     def test_deserialize_class_fail(self):
         import colander
@@ -2139,7 +2139,7 @@ class TestGlobalObject(unittest.TestCase):
            e = invalid_exc(typ.deserialize, node, name)
            self.assertEqual(e.msg.interpolate(),
                             'The dotted name "{0}" cannot be imported'.format(name))
-           
+
     def test_serialize_fail(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2215,12 +2215,29 @@ class TestDateTime(unittest.TestCase):
         expected = dt.replace(tzinfo=typ.default_tzinfo).isoformat()
         self.assertEqual(result, expected)
 
+    def test_serialize_with_naive_datetime_and_custom_format(self):
+        fmt = '%Y%m%d!%H%M%S'
+        typ = self._makeOne(format=fmt)
+        node = DummySchemaNode(None)
+        dt = self._dt()
+        result = typ.serialize(node, dt)
+        expected = dt.replace(tzinfo=typ.default_tzinfo).strftime(fmt)
+        self.assertEqual(result, expected)
+
     def test_serialize_with_none_tzinfo_naive_datetime(self):
         typ = self._makeOne(default_tzinfo=None)
         node = DummySchemaNode(None)
         dt = self._dt()
         result = typ.serialize(node, dt)
         self.assertEqual(result, dt.isoformat())
+
+    def test_serialize_with_none_tzinfo_naive_datetime_custom_format(self):
+        fmt = '%Y%m%d!%H%M%S'
+        typ = self._makeOne(default_tzinfo=None, format=fmt)
+        node = DummySchemaNode(None)
+        dt = self._dt()
+        result = typ.serialize(node, dt)
+        self.assertEqual(result, dt.strftime(fmt))
 
     def test_serialize_with_tzware_datetime(self):
         from iso8601 import iso8601
@@ -2281,6 +2298,18 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), iso)
+
+    def test_deserialize_datetime_with_custom_format(self):
+        from iso8601 import iso8601
+        fmt = '%Y%m%d.%H%M%S'
+        typ = self._makeOne(format=fmt)
+        dt = self._dt()
+        tzinfo = iso8601.FixedOffset(1, 0, 'myname')
+        dt = dt.replace(tzinfo=tzinfo)
+        expected = dt.strftime(fmt)
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, expected)
+        self.assertEqual(result.strftime(fmt), expected)
 
     def test_deserialize_naive_with_default_tzinfo(self):
         from iso8601 import iso8601
@@ -2394,6 +2423,23 @@ class TestDate(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, iso)
         self.assertEqual(result.isoformat(), dt.date().isoformat())
+
+    def test_serialize_date_with_custom_format(self):
+        fmt = '%m,%Y,%d'
+        typ = self._makeOne(format=fmt)
+        date = self._today()
+        node = DummySchemaNode(None)
+        result = typ.serialize(node, date)
+        self.assertEqual(result, date.strftime(fmt))
+
+    def test_deserialize_date_with_custom_format(self):
+        date = self._today()
+        fmt = '%d/%m/%Y'
+        typ = self._makeOne(format=fmt)
+        formatted = date.strftime(fmt)
+        node = DummySchemaNode(None)
+        result = typ.deserialize(node, formatted)
+        self.assertEqual(result, date)
 
 class TestTime(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
