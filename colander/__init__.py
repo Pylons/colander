@@ -1842,7 +1842,7 @@ class DateTime(SchemaType):
             else:
                 result = iso8601.parse_date(
                     cstruct, default_timezone=self.default_tzinfo
-            )
+                )
         except (ValueError, iso8601.ParseError) as e:
             raise Invalid(
                 node, _(self.err_template, mapping={'val': cstruct, 'err': e})

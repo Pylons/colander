@@ -2339,6 +2339,7 @@ class TestGlobalObject(unittest.TestCase):
                 e.msg.interpolate(),
                 'The dotted name "{0}" cannot be imported'.format(name),
             )
+
     def test_serialize_fail(self):
         typ = self._makeOne()
         node = DummySchemaNode(None)
@@ -2515,6 +2516,7 @@ class TestDateTime(unittest.TestCase):
 
     def test_deserialize_datetime_with_custom_format(self):
         from iso8601 import iso8601
+
         fmt = '%Y%m%d.%H%M%S'
         typ = self._makeOne(format=fmt)
         dt = self._dt()
