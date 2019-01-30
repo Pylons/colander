@@ -23,8 +23,5 @@ coverage.xml
 distribute*.gz
 venv/
 env*/
-.*
-!/.gitignore
-!/.hgignore
-!/.flake8
-!/.travis.yml
+.idea
+.venv
