@@ -2546,7 +2546,7 @@ class deferred(object):
     def __init__(self, wrapped):
         try:
             functools.update_wrapper(self, wrapped)
-        except AttributeError:  # pragma: no cover
+        except AttributeError:
             # non-function (raises in Python 2)
             self.__doc__ = getattr(wrapped, '__doc__', None)
         self.wrapped = wrapped
