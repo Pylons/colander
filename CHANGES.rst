@@ -1,6 +1,9 @@
 unreleased
 ==========
 
+- Support custom format strings on ``DateTime`` and ``Date`` fields.
+  see https://github.com/Pylons/colander/pull/318
+
 - Format Python code of ``colander`` to conform to the PEP 8 style guide.
   Add some linters (``flake8``, ``black`` and other) into ``tox.ini``.
 
