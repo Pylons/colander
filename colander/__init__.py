@@ -3,7 +3,6 @@ import copy
 import datetime
 import decimal
 import functools
-import time
 import itertools
 import pprint
 import re
@@ -1984,33 +1983,25 @@ class Time(SchemaType):
                 _('"${val}" is not a time object', mapping={'val': appstruct}),
             )
 
-        return appstruct.isoformat().split('.')[0]
+        return appstruct.isoformat()
 
     def deserialize(self, node, cstruct):
         if not cstruct:
             return null
         try:
             result = iso8601.parse_date(cstruct)
-            result = result.time()
-        except (iso8601.ParseError, TypeError):
+            return result.time()
+        except (iso8601.ParseError, TypeError) as e:
+            err = e
+        fmts = ['%H:%M:%S.%f', '%H:%M:%S', '%H:%M']
+        for fmt in fmts:
             try:
-                result = timeparse(cstruct, '%H:%M:%S')
-            except ValueError:
-                try:
-                    result = timeparse(cstruct, '%H:%M')
-                except Exception as e:
-                    raise Invalid(
-                        node,
-                        _(
-                            self.err_template,
-                            mapping={'val': cstruct, 'err': e},
-                        ),
-                    )
-        return result
-
-
-def timeparse(t, format):
-    return datetime.datetime(*time.strptime(t, format)[0:6]).time()
+                return datetime.datetime.strptime(cstruct, fmt).time()
+            except (ValueError, TypeError):
+                continue
+        raise Invalid(
+            node, _(self.err_template, mapping={'val': cstruct, 'err': err})
+        )
 
 
 class Enum(SchemaType):
