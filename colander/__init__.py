@@ -1832,22 +1832,23 @@ class Time(SchemaType):
         return appstruct.isoformat()
 
     def deserialize(self, node, cstruct):
+        result = None
         if not cstruct:
             return null
         try:
             result = iso8601.parse_date(cstruct)
             result = result.time()
         except (iso8601.ParseError, TypeError):
-            fmt = {
-                8:'%H:%M:%S',
-                5:'%H:%M'
-            }.get(len(cstruct), '%H:%M:%S.%f')
-            try:
-                result = datetime.datetime.strptime(cstruct, fmt).time()
-            except Exception as e:
+            fmts = ['%H:%M:%S.%f', '%H:%M:%S', '%H:%M']
+            for fmt in fmts:
+                try:
+                    result = datetime.datetime.strptime(cstruct, fmt).time()
+                except (ValueError, TypeError):
+                    continue
+            if result is None:
                 raise Invalid(
                     node, _(self.err_template,
-                            mapping={'val':cstruct, 'err':e})
+                            mapping={'val':cstruct})
                 )
         return result
 
