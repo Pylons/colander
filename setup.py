@@ -11,65 +11,65 @@
 # FITNESS FOR A PARTICULAR PURPOSE
 #
 ##############################################################################
-
 import os
 
 from setuptools import setup
 from setuptools import find_packages
 
+
 here = os.path.abspath(os.path.dirname(__file__))
+
 
 def read(fname):
     with open(fname) as fp:
         return fp.read()
 
+
 try:
     README = read(os.path.join(here, 'README.rst'))
     CHANGES = read(os.path.join(here, 'CHANGES.rst'))
-except:
+except Exception:
     README = ''
     CHANGES = ''
 
 requires = ['translationstring', 'iso8601']
 
 testing_extras = ['nose', 'coverage']
-docs_extras = [
-    'Sphinx >= 1.7.4',
-    'docutils',
-    'pylons-sphinx-themes',
-]
+docs_extras = ['Sphinx >= 1.7.4', 'docutils', 'pylons-sphinx-themes']
 
-setup(name='colander',
-      version='1.5.1',
-      description=('A simple schema-based serialization and deserialization '
-                   'library'),
-      long_description=README + '\n\n' + CHANGES,
-      classifiers=[
-          "Intended Audience :: Developers",
-          "Programming Language :: Python",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.4",
-          "Programming Language :: Python :: 3.5",
-          "Programming Language :: Python :: 3.6",
-          "Programming Language :: Python :: 3.7",
-          "Programming Language :: Python :: Implementation :: CPython",
-          "Programming Language :: Python :: Implementation :: PyPy",
-          ],
-      keywords='serialize deserialize validate schema validation',
-      author="Agendaless Consulting",
-      author_email="pylons-discuss@googlegroups.com",
-      url="https://docs.pylonsproject.org/projects/colander/en/latest/",
-      license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
-      packages=find_packages(),
-      include_package_data=True,
-      zip_safe=False,
-      install_requires=requires,
-      test_suite="colander",
-      extras_require={
-          ':python_version in "2.7,3.3"': ['enum34'],
-          'testing': testing_extras,
-          'docs': docs_extras,
-          },
-      )
+setup(
+    name='colander',
+    version='1.6.0',
+    description=(
+        'A simple schema-based serialization and deserialization ' 'library'
+    ),
+    long_description=README + '\n\n' + CHANGES,
+    classifiers=[
+        "Intended Audience :: Developers",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+    ],
+    keywords='serialize deserialize validate schema validation',
+    author="Agendaless Consulting",
+    author_email="pylons-discuss@googlegroups.com",
+    url="https://docs.pylonsproject.org/projects/colander/en/latest/",
+    license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
+    packages=find_packages(),
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=requires,
+    test_suite="colander",
+    extras_require={
+        ':python_version in "2.7,3.3"': ['enum34'],
+        'testing': testing_extras,
+        'docs': docs_extras,
+    },
+)
