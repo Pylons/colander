@@ -1,5 +1,5 @@
-unreleased
-==========
+1.6.0 (2019-01-30)
+==================
 
 - Support custom format strings on ``DateTime`` and ``Date`` fields.
   see https://github.com/Pylons/colander/pull/318

@@ -39,7 +39,7 @@ docs_extras = ['Sphinx >= 1.7.4', 'docutils', 'pylons-sphinx-themes']
 
 setup(
     name='colander',
-    version='1.5.1',
+    version='1.6.0',
     description=(
         'A simple schema-based serialization and deserialization ' 'library'
     ),
