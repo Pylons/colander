@@ -607,14 +607,28 @@ def _luhnok(value):
     return checksum
 
 
+# Gingerly lifted from Django 1.3.x:
+# https://github.com/django/django/blob/stable/1.3.x/django/core/validators.py#L45
+# <3 y'all!
 URL_REGEX = (
-    r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|'
-    r'[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|'
-    r'(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|'
-    r'[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))'  # "emacs!
+    # {http,ftp}s:// (not required)
+    r'^((?:http|ftp)s?://)?'
+    # Domain
+    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'
+    r'(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
+    # Localhost
+    r'localhost|'
+    # IPv6 address
+    r'\[[a-f0-9:]+\]|'
+    # IPv4 address
+    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+    # Optional port
+    r'(?::\d+)?'
+    # Path
+    r'(?:/?|[/?]\S+)$'
 )
 
-url = Regex(URL_REGEX, _('Must be a URL'))
+url = Regex(URL_REGEX, msg=_('Must be a URL'), flags=re.IGNORECASE)
 
 UUID_REGEX = (
     r'^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$'
