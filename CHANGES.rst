@@ -1,3 +1,12 @@
+Unreleased
+==========
+
+- The Email validator has been updated to use the same regular expression that
+  is used by the WhatWG HTML specification, thereby increasing the email
+  addresses that will validate correctly from web forms submitted. See
+  https://github.com/Pylons/colander/pull/324 and
+  https://github.com/Pylons/colander/issues/283
+
 1.6.0 (2019-01-31)
 ==================
 
