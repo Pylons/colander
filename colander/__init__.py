@@ -630,6 +630,18 @@ URL_REGEX = (
 
 url = Regex(URL_REGEX, msg=_('Must be a URL'), flags=re.IGNORECASE)
 
+
+URI_REGEX = (
+    # file:// (required)
+    r'^file://'
+    # Path
+    r'(?:/|[/?]\S+)$'
+)
+
+file_uri = Regex(
+    URI_REGEX, msg=_('Must be a file:// URI scheme'), flags=re.IGNORECASE
+)
+
 UUID_REGEX = (
     r'^(?:urn:uuid:)?\{?[a-f0-9]{8}(?:-?[a-f0-9]{4}){3}-?[a-f0-9]{12}\}?$'
 )
