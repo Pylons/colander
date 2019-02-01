@@ -661,6 +661,24 @@ class Test_url_validator(unittest.TestCase):
         result = self._callFUT(val)
         self.assertEqual(result, None)
 
+    def test_ipv6(self):
+        val = "http://[2001:db8::0]/"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_ipv4(self):
+        val = "http://192.0.2.1/"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_file_raises(self):
+        from colander import Invalid
+
+        val = "file:///this/is/a/file.jpg"
+
+        self.assertRaises(Invalid, self._callFUT, val)
 
 class TestUUID(unittest.TestCase):
     def _callFUT(self, val):
