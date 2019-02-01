@@ -1752,6 +1752,14 @@ class TestInteger(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
+    def test_serialize_none(self):
+        import colander
+
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, None)
+        self.assertEqual(result, colander.null)
+
     def test_deserialize_emptystring(self):
         import colander
 
@@ -1812,6 +1820,14 @@ class TestFloat(unittest.TestCase):
         result = typ.serialize(node, val)
         self.assertEqual(result, colander.null)
 
+    def test_serialize_none(self):
+        import colander
+
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, None)
+        self.assertEqual(result, colander.null)
+
     def test_serialize_emptystring(self):
         import colander
 
@@ -1863,6 +1879,14 @@ class TestDecimal(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, val)
+        self.assertEqual(result, colander.null)
+
+    def test_serialize_none(self):
+        import colander
+
+        node = DummySchemaNode(None)
+        typ = self._makeOne()
+        result = typ.serialize(node, None)
         self.assertEqual(result, colander.null)
 
     def test_serialize_emptystring(self):
