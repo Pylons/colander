@@ -1,6 +1,23 @@
 Unreleased
 ==========
 
+- The URL validator regex has been updated to no longer be vulnerable to a
+  catastrophic backtracking that would have led to an infinite loop. See
+  https://github.com/Pylons/colander/pull/323 and
+  https://github.com/Pylons/colander/issues/290. With thanks to Przemek
+  (https://github.com/p-m-k).
+  
+  This does change the behaviour of the URL validator and it no longer supports
+  ``file://`` URI scheme (https://tools.ietf.org/html/rfc8089). Users that
+  wish to validate ``file://`` URI's should change their validator to use
+  ``colander.file_uri`` instead.
+
+  It has also dropped support for alternate schemes outside of http/ftp (and
+  their secure equivelants). Please let us know if we need to relax this
+  requirement.
+
+  CVE-ID: CVE-2017-18361
+
 - The Email validator has been updated to use the same regular expression that
   is used by the WhatWG HTML specification, thereby increasing the email
   addresses that will validate correctly from web forms submitted. See
