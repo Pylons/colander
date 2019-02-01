@@ -377,19 +377,17 @@ class Regex(object):
             raise Invalid(node, self.msg)
 
 
-EMAIL_RE = r"""(?ix) # matches case insensitive with spaces and comments
-                     # ignored for the entire expression
-^ # matches the start of string
-[A-Z0-9._!#$%&'*+\-/=?^_`{|}~()]+ # matches multiples of the characters:
-                                # A-Z0-9._!#$%&'*+-/=?^_`{|}~() one or
-                                # more times
-@ # matches the @ sign
-[A-Z0-9]+ # matches multiples of the characters A-Z0-9
-([.-][A-Z0-9]+)* # matches one of . or - followed by at least one of A-Z0-9,
-                 # zero to unlimited times
-\.[A-Z]{2,22} # matches a period, followed by two to twenty-two of A-Z
-$ # matches the end of the string
-"""
+# Regex for email addresses.
+#
+# Stolen from the WhatWG HTML spec:
+# https://html.spec.whatwg.org/multipage/input.html#e-mail-state-(type=email)
+#
+# If it is good enough for browsers, it is good enough for us!
+EMAIL_RE = (
+    r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]"
+    r"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9]"
+    r"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+)
 
 
 class Email(Regex):
