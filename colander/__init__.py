@@ -1426,6 +1426,10 @@ class Integer(Number):
     method of this class, the :attr:`colander.null` value will be
     returned.
 
+    The Integer constructor takes an optional argument ``strict``, which if
+    enabled will verify that the number passed to serialize/deserialize is an
+    integer, and not a float that would get truncated.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
