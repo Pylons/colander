@@ -7,6 +7,10 @@ Unreleased
   https://github.com/Pylons/colander/pull/324 and
   https://github.com/Pylons/colander/issues/283
 
+- Number once again will allow you to serialize None to colander.null, this
+  reverts an accidental revert. See
+  https://github.com/Pylons/colander/issues/204#issuecomment-459556100
+
 1.6.0 (2019-01-31)
 ==================
 
