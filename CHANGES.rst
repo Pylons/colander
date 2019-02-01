@@ -28,6 +28,11 @@ Unreleased
   reverts an accidental revert. See
   https://github.com/Pylons/colander/issues/204#issuecomment-459556100
 
+- Integer SchemaType now supports an optional ``strict`` mode that will
+  validate that the number is an integer, rather than silently accepting floats
+  and truncating. See https://github.com/Pylons/colander/pull/322 and
+  https://github.com/Pylons/colander/issues/292
+
 1.6.0 (2019-01-31)
 ==================
 

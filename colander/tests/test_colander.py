@@ -1800,10 +1800,10 @@ class TestString(unittest.TestCase):
 
 
 class TestInteger(unittest.TestCase):
-    def _makeOne(self):
+    def _makeOne(self, strict=False):
         from colander import Integer
 
-        return Integer()
+        return Integer(strict=strict)
 
     def test_alias(self):
         from colander import Int
@@ -1871,6 +1871,34 @@ class TestInteger(unittest.TestCase):
         typ = self._makeOne()
         result = typ.serialize(node, val)
         self.assertEqual(result, '0')
+
+    def test_serialize_strict_float(self):
+        val = 1.2
+        node = DummySchemaNode(None)
+        typ = self._makeOne(strict=True)
+        e = invalid_exc(typ.serialize, node, val)
+        self.assertTrue(e.msg)
+
+    def test_serialize_strict_int(self):
+        val = 1
+        node = DummySchemaNode(None)
+        typ = self._makeOne(strict=True)
+        result = typ.serialize(node, val)
+        self.assertEqual(result, '1')
+
+    def test_deserialize_strict(self):
+        val = '58'
+        node = DummySchemaNode(None)
+        typ = self._makeOne(strict=True)
+        result = typ.deserialize(node, val)
+        self.assertEqual(result, 58)
+
+    def test_serialize_truncates(self):
+        val = 1.4
+        node = DummySchemaNode(None)
+        typ = self._makeOne(strict=False)
+        result = typ.serialize(node, val)
+        self.assertEqual(result, '1')
 
 
 class TestFloat(unittest.TestCase):

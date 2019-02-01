@@ -1452,11 +1452,27 @@ class Integer(Number):
     method of this class, the :attr:`colander.null` value will be
     returned.
 
+    The Integer constructor takes an optional argument ``strict``, which if
+    enabled will verify that the number passed to serialize/deserialize is an
+    integer, and not a float that would get truncated.
+
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type are ignored.
     """
 
     num = int
+
+    def __init__(self, strict=False):
+        if strict:
+
+            def _strict_int(val):
+                if not float(val).is_integer():
+                    raise ValueError("Value is not an Integer")
+                return int(val)
+
+            self.num = _strict_int
+
+        super(Integer, self).__init__()
 
 
 Int = Integer
