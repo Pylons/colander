@@ -680,6 +680,43 @@ class Test_url_validator(unittest.TestCase):
 
         self.assertRaises(Invalid, self._callFUT, val)
 
+
+class Test_file_uri_validator(unittest.TestCase):
+    def _callFUT(self, val):
+        from colander import file_uri
+
+        return file_uri(None, val)
+
+    def test_it_success(self):
+        val = 'file:///'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_it_failure(self):
+        val = 'not-a-uri'
+        from colander import Invalid
+
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_no_path_fails(self):
+        val = 'file://'
+        from colander import Invalid
+
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_file_with_path(self):
+        val = "file:///this/is/a/file.jpg"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_file_with_path_windows(self):
+        val = "file:///c:/is/a/file.jpg"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+
 class TestUUID(unittest.TestCase):
     def _callFUT(self, val):
         from colander import uuid
