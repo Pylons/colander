@@ -646,6 +646,76 @@ class Test_url_validator(unittest.TestCase):
 
         self.assertRaises(Invalid, self._callFUT, val)
 
+    def test_add_sample_dos(self):
+        # In the old regex (colander <=1.6) this would cause a catastrophic
+        # backtracking that would cause the regex engine to go into an infinite
+        # loop.
+        val = "http://www.mysite.com/(tttttttttttttttttttttt.jpg"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_website_no_scheme(self):
+        val = "www.mysite.com"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_ipv6(self):
+        val = "http://[2001:db8::0]/"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_ipv4(self):
+        val = "http://192.0.2.1/"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_file_raises(self):
+        from colander import Invalid
+
+        val = "file:///this/is/a/file.jpg"
+
+        self.assertRaises(Invalid, self._callFUT, val)
+
+
+class Test_file_uri_validator(unittest.TestCase):
+    def _callFUT(self, val):
+        from colander import file_uri
+
+        return file_uri(None, val)
+
+    def test_it_success(self):
+        val = 'file:///'
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_it_failure(self):
+        val = 'not-a-uri'
+        from colander import Invalid
+
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_no_path_fails(self):
+        val = 'file://'
+        from colander import Invalid
+
+        self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_file_with_path(self):
+        val = "file:///this/is/a/file.jpg"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_file_with_path_windows(self):
+        val = "file:///c:/is/a/file.jpg"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
 
 class TestUUID(unittest.TestCase):
     def _callFUT(self, val):
