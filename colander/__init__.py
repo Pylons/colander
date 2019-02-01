@@ -1432,6 +1432,18 @@ class Integer(Number):
 
     num = int
 
+    def __init__(self, strict=False):
+        if strict:
+
+            def _strict_int(val):
+                if not float(val).is_integer():
+                    raise ValueError("Value is not an Integer")
+                return int(val)
+
+            self.num = _strict_int
+
+        super(Integer, self).__init__()
+
 
 Int = Integer
 
