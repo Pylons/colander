@@ -480,6 +480,7 @@ class TestEmail(unittest.TestCase):
         self.assertEqual(validator(None, 'name@here1.info'), None)
         self.assertEqual(validator(None, 'foo@bar.baz.biz'), None)
         self.assertEqual(validator(None, "tip'oneill@house.gov"), None)
+        self.assertEqual(validator(None, "lorem@i--ipsum.com"), None)
 
     def test_empty_email(self):
         validator = self._makeOne()
