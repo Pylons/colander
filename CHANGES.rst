@@ -1,12 +1,12 @@
-Unreleased
-==========
+1.7.0 (2019-02-01)
+==================
 
 - The URL validator regex has been updated to no longer be vulnerable to a
   catastrophic backtracking that would have led to an infinite loop. See
   https://github.com/Pylons/colander/pull/323 and
   https://github.com/Pylons/colander/issues/290. With thanks to Przemek
   (https://github.com/p-m-k).
-  
+
   This does change the behaviour of the URL validator and it no longer supports
   ``file://`` URI scheme (https://tools.ietf.org/html/rfc8089). Users that
   wish to validate ``file://`` URI's should change their validator to use
