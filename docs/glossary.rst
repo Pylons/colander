@@ -39,7 +39,7 @@ Glossary
 
    validator
      A Colander validator callable.  Accepts a ``node`` object and a
-     ``value`` and either raises an :exc:`colander.Invalid` exception
+     ``value`` and either raises a :exc:`colander.Invalid` exception
      or returns ``None``.  Used as the ``validator=`` argument to a
      schema node, ensuring that the input meets the requirements of
      the schema.  Built-in validators exist in Colander
