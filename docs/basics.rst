@@ -12,7 +12,7 @@ Defining A Colander Schema
 --------------------------
 
 Imagine you want to deserialize and validate a serialization of data
-you've obtained by reading a YAML document.  An example of such a data
+you've obtained by reading a JSON document.  An example of such a data
 serialization might look something like this:
 
 .. code-block:: python
@@ -27,8 +27,8 @@ serialization might look something like this:
    }
 
 Let's further imagine you'd like to make sure, on demand, that a
-particular serialization of this type read from this YAML document or
-another YAML document is "valid".
+particular serialization of this type read from this JSON document or
+another JSON document is "valid".
 
 Notice that all the innermost values in the serialization are strings,
 even though some of them (such as age and the position of each friend)
