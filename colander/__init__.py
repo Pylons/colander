@@ -1055,7 +1055,7 @@ class Set(SchemaType):
 class List(SchemaType):
     """ Type representing an ordered sequence of items.
 
-    Desrializes an iterable to a ``list`` object.
+    Deserializes an iterable to a ``list`` object.
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
