@@ -257,9 +257,18 @@ class All(object):
                 excs.append(e)
 
         if excs:
-            exc = Invalid(node, [exc.msg for exc in excs])
-            for e in excs:
-                exc.children.extend(e.children)
+            children = []
+            messages = []
+            for exception in excs:
+                if exception.msg is not None:
+                    if is_nonstr_iter(exception.msg):
+                        messages.extend(exception.msg)
+                    else:
+                        messages.append(exception.msg)
+                children.extend(exception.children)
+
+            exc = Invalid(node, messages)
+            exc.children.extend(children)
             raise exc
 
 
