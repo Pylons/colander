@@ -140,3 +140,4 @@ Contributors
 - Gabriela Surita, 2017/01/31
 - Manuel Vázquez, 2018/11/22
 - Kirill Kuzminykh, 2019/01/27
+- Rangel Reale, 2020/01/09

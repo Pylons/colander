@@ -1,3 +1,12 @@
+Unreleased
+==================
+
+- colander.All now supports Invalid.msg being None or a list, otherwise
+  Invalid.asdict() crashes with 'TypeError: sequence item 1: expected
+  str instance, NoneType found'.
+  See https://github.com/Pylons/colander/pull/333 and
+  https://github.com/Pylons/colander/issues/194
+
 1.7.0 (2019-02-01)
 ==================
 
