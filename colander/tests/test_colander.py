@@ -181,7 +181,7 @@ class TestInvalid(unittest.TestCase):
         validator = All(validator1, validator2)
         exc = invalid_exc(validator, node1, None)
         try:
-            d = exc.asdict()
+            exc.asdict()
         except TypeError as error:
             # TypeError: sequence item 1: expected str instance, NoneType found
             self.fail(str(error))
