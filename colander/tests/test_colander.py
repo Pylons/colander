@@ -180,11 +180,8 @@ class TestInvalid(unittest.TestCase):
         validator2 = DummyValidatorWithMsgNone()
         validator = All(validator1, validator2)
         exc = invalid_exc(validator, node1, None)
-        try:
-            exc.asdict()
-        except TypeError as error:
-            # TypeError: sequence item 1: expected str instance, NoneType found
-            self.fail(str(error))
+        # TypeError: sequence item 1: expected str instance, NoneType found
+        exc.asdict()
 
     def test___str__(self):
         from colander import Positional
