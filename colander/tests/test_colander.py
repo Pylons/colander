@@ -4551,7 +4551,7 @@ class TestDeclarativeWithInstantiate(unittest.TestCase, TestFunctional):
     def _makeSchema(self, name='schema'):
         import colander
 
-        # an unlikely usage, but goos to test passing
+        # an unlikely usage, but goes to test passing
         # parameters to instantiation works
         @colander.instantiate(name=name)
         class schema(colander.MappingSchema):
