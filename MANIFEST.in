@@ -15,7 +15,7 @@ include CHANGES.rst
 
 include setup.cfg pyproject.toml
 include .coveragerc .flake8
-include tox.ini .travis.yml rtd.txt
+include tox.ini rtd.txt
 
 exclude TODO.txt
 
