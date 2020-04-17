@@ -1,8 +1,14 @@
 Colander
 ========
 
-.. image:: https://travis-ci.org/Pylons/colander.svg?branch=master
-        :target: https://travis-ci.org/Pylons/colander
+.. image:: https://github.com/Pylons/colander/workflows/Build/test%20on%20Linux/badge.svg?branch=master
+    :target: https://github.com/Pylons/colander/actions?query=workflow%3A%22Build%2Ftest+on+Linux%22
+
+.. image:: https://github.com/Pylons/colander/workflows/Build/test%20on%20MacOS/badge.svg?branch=master
+    :target: https://github.com/Pylons/colander/actions?query=workflow%3A%22Build%2Ftest+on+MacOS%22
+
+.. image:: https://github.com/Pylons/colander/workflows/Build/test%20on%20Windows/badge.svg?branch=master
+    :target: https://github.com/Pylons/colander/actions?query=workflow%3A%22Build%2Ftest+on+Windows%22
 
 .. image:: https://readthedocs.org/projects/colander/badge/?version=master
         :target: https://docs.pylonsproject.org/projects/colander/en/master/
