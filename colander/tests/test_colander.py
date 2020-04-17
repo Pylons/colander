@@ -4156,7 +4156,7 @@ class TestTupleSchema(unittest.TestCase):
         self.assertEqual(schema.children[0], node)
 
 
-class TestFunctional(object):
+class FunctionalBase(object):
     def test_deserialize_ok(self):
         import colander.tests
 
@@ -4433,7 +4433,7 @@ class TestFunctional(object):
         self.assertEqual(errors, expected)
 
 
-class TestImperative(unittest.TestCase, TestFunctional):
+class TestImperative(unittest.TestCase, FunctionalBase):
     def _makeSchema(self, name='schema'):
         import colander
 
@@ -4472,7 +4472,7 @@ class TestImperative(unittest.TestCase, TestFunctional):
         return schema
 
 
-class TestDeclarative(unittest.TestCase, TestFunctional):
+class TestDeclarative(unittest.TestCase, FunctionalBase):
     def _makeSchema(self, name='schema'):
         import colander
 
@@ -4503,7 +4503,7 @@ class TestDeclarative(unittest.TestCase, TestFunctional):
         return schema
 
 
-class TestUltraDeclarative(unittest.TestCase, TestFunctional):
+class TestUltraDeclarative(unittest.TestCase, FunctionalBase):
     def _makeSchema(self, name='schema'):
         import colander
 
@@ -4547,7 +4547,7 @@ class TestUltraDeclarative(unittest.TestCase, TestFunctional):
         return schema
 
 
-class TestDeclarativeWithInstantiate(unittest.TestCase, TestFunctional):
+class TestDeclarativeWithInstantiate(unittest.TestCase, FunctionalBase):
     def _makeSchema(self, name='schema'):
         import colander
 
