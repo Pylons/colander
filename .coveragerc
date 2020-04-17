@@ -1,0 +1,15 @@
+[run]
+parallel = true
+source =
+    colander
+
+[paths]
+source =
+    src/colander
+    */src/colander
+    */site-packages/colander
+
+[report]
+show_missing = true
+precision = 2
+
