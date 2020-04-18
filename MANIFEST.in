@@ -1,15 +1,22 @@
-graft colander
+graft src/colander
+graft tests
 graft docs
-prune docs/_build
-prune docs/.gitignore
-
-include README.rst CHANGES.rst
-include CONTRIBUTORS.txt LICENSE.txt COPYRIGHT.txt
-
-include .flake8 setup.cfg pyproject.toml
-include tox.ini .travis.yml rtd.txt
-include contributing.md RELEASING.txt TODO.txt
 graft .github
 
-global-exclude __pycache__ *.py[cod]
-global-exclude .DS_Store
+include README.rst
+include CHANGES.txt
+include HISTORY.txt
+include RELEASING.txt
+include LICENSE.txt
+include contributing.md
+include CONTRIBUTORS.txt
+include COPYRIGHT.txt
+include CHANGES.rst
+
+include setup.cfg pyproject.toml
+include .coveragerc .flake8
+include tox.ini rtd.txt
+
+exclude TODO.txt
+
+recursive-exclude * __pycache__ *.py[cod]

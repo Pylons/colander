@@ -1709,7 +1709,7 @@ class GlobalObject(SchemaType):
                 value = self.package.__name__
             else:
                 value = self.package.__name__ + value
-        return pkg_resources.EntryPoint.parse('x=%s' % value).load(False)
+        return pkg_resources.EntryPoint.parse('x=%s' % value).resolve()
 
     def _zope_dottedname_style(self, node, value):
         """ package.module.attr style """

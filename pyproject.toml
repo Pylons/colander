@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools >= 41", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 79
@@ -11,6 +12,7 @@ exclude = '''
   | \.mypy_cache
   | \.tox
   | \.venv
+  | \.pytest_cache
   | dist
   | build
   | docs
