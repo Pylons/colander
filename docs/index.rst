@@ -6,7 +6,7 @@ Colander
 
 Colander is useful as a system for validating and deserializing data obtained
 via XML, JSON, an HTML form post or any other equally simple data
-serialization.  It runs on Python 2.6, 2.7, 3.2, 3.3, 3.4, pypy and pypy3.
+serialization.  It is tested on Python 2.7, 3.5, and 3.6, and PyPy.
 Colander can be used to:
 
 - Define a data schema.
@@ -48,6 +48,8 @@ of objects, including:
 
 - A Python ``datetime.date`` object.
 
+- A Python ``enum.Enum`` object.
+
 Colander allows additional data structures to be serialized and
 deserialized by allowing a developer to define new "types".
 
@@ -58,7 +60,7 @@ internationalizable.
    :maxdepth: 2
 
    basics.rst
-   null.rst
+   null_and_drop.rst
    extending.rst
    binding.rst
    manipulation.rst

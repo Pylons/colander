@@ -115,12 +115,18 @@ html_theme_options = dict(github_url='https://github.com/Pylons/colander')
 # bottom, using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-html_use_smartypants = False
+# Do not use smart quotes.
+smartquotes = False
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# Control display of sidebars and include ethical ads from RTD
+html_sidebars = {'**': [
+    'localtoc.html',
+    'ethicalads.html',
+    'relations.html',
+    'sourcelink.html',
+    'searchbox.html',
+]}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

@@ -1,0 +1,164 @@
+# German (Germany) translations for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.5.2\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-09-18 22:57+0200\n"
+"PO-Revision-Date: 2016-09-18 23:02+0200\n"
+"Last-Translator: Andreas Kaiser <kaiser@xo7.de>\n"
+"Language: de\n"
+"Language-Team: repoze developers <repoze-dev@lists.repoze.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+"X-Generator: Poedit 1.8.9\n"
+
+#: colander/__init__.py:294
+msgid "Invalid value"
+msgstr "Ungültiger Wert"
+
+#: colander/__init__.py:340
+msgid "String does not match expected pattern"
+msgstr "Die Zeichenkette entspricht nicht dem erwarteten Muster"
+
+#: colander/__init__.py:359
+msgid "Invalid email address"
+msgstr "Ungültige E-Mail-Adresse"
+
+#: colander/__init__.py:387
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} ist kleiner als der erlaubte Mindestwert (${min})"
+
+#: colander/__init__.py:388
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} ist größer als der erlaubte Höchstwert (${max})"
+
+#: colander/__init__.py:435
+msgid "Shorter than minimum length ${min}"
+msgstr "Kürzer als erlaubt, die Mindestlänge beträgt ${min}"
+
+#: colander/__init__.py:436
+msgid "Longer than maximum length ${max}"
+msgstr "Länger als erlaubt, die Maximallänge beträgt ${max}"
+
+#: colander/__init__.py:464
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" ist nicht in der Auswahl ${choices}"
+
+#: colander/__init__.py:479
+msgid "\"${val}\" must not be one of ${choices}"
+msgstr "\"${val}\" darf nichts von ${choices} sein"
+
+#: colander/__init__.py:501
+msgid "One or more of the choices you made was not acceptable"
+msgstr "Mindestens eine Auswahl war nicht akzeptabel"
+
+#: colander/__init__.py:523 colander/__init__.py:528
+msgid "\"${val}\" is not a valid credit card number"
+msgstr "\"${val}\" ist keine gültige Kreditkartennummer"
+
+#: colander/__init__.py:549
+msgid "Must be a URL"
+msgstr "Muss eine URL sein"
+
+#: colander/__init__.py:553
+msgid "Invalid UUID string"
+msgstr "Ungültige UUID Zeichenkette"
+
+#: colander/__init__.py:650
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" ist kein Mapping: ${err}"
+
+#: colander/__init__.py:694
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "Unbekannte Schlüssel im Mapping: ${val}"
+
+#: colander/__init__.py:789 colander/__init__.py:1020
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" ist nicht iterierbar"
+
+#: colander/__init__.py:797
+msgid ""
+"\"${val}\" has an incorrect number of elements (expected ${exp}, was "
+"${was})"
+msgstr "Ungültige Anzahl von Elementen (${was}, erwartet: ${exp})"
+
+#: colander/__init__.py:936 colander/__init__.py:967
+msgid "${cstruct} is not iterable"
+msgstr "${cstruct} ist nicht iterierbar"
+
+#: colander/__init__.py:1254
+msgid "${val} cannot be serialized: ${err}"
+msgstr "${val} kann nicht serialisiert werden: ${err}"
+
+#: colander/__init__.py:1275
+msgid "${val} is not a string: ${err}"
+msgstr "${val} ist keine Zeichenkette: ${err}"
+
+#: colander/__init__.py:1295 colander/__init__.py:1306
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" ist keine Zahl"
+
+#: colander/__init__.py:1454
+msgid "${val} is not a string"
+msgstr "${val} ist keine Zeichenkette"
+
+#: colander/__init__.py:1465
+msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
+msgstr ""
+"\"${val}\" ist weder in (${false_choices}) noch in (${true_choices}) "
+"enthalten"
+
+#: colander/__init__.py:1525 colander/__init__.py:1542
+#: colander/__init__.py:1552
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "relativer Name \"${val}\" ist ohne Paket nicht auflösbar"
+
+#: colander/__init__.py:1582
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" hat kein __name__ Attribut"
+
+#: colander/__init__.py:1591
+msgid "\"${val}\" is not a string"
+msgstr "${val} ist keine Zeichenkette"
+
+#: colander/__init__.py:1600
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "Der Dotted-Name \"${name}\" kann nicht importiert werden"
+
+#: colander/__init__.py:1648 colander/__init__.py:1722
+msgid "Invalid date"
+msgstr "Ungültiges Datum"
+
+#: colander/__init__.py:1662
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" ist kein Datetime-Object"
+
+#: colander/__init__.py:1733
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" ist kein Date-Object"
+
+#: colander/__init__.py:1794
+msgid "Invalid time"
+msgstr "Ungültige Uhrzeit"
+
+#: colander/__init__.py:1804
+msgid "\"${val}\" is not a time object"
+msgstr "\"${val}\" ist kein Time-Objekt"
+
+#: colander/tests/test_colander.py:334 colander/tests/test_colander.py:341
+msgid "fail ${val}"
+msgstr "fehlgeschlagen"
+
+#: colander/tests/test_colander.py:537
+msgid "${val}: ${choices}"
+msgstr "\"${val}”: ${choices}"
+
+msgid "Required"
+msgstr "Pflichtangabe"

@@ -19,11 +19,11 @@ serialization might look something like this:
    :linenos:
 
    {
-    'name':'keith',
-    'age':'20',
-    'friends':[('1', 'jim'),('2', 'bob'), ('3', 'joe'), ('4', 'fred')],
-    'phones':[{'location':'home', 'number':'555-1212'},
-              {'location':'work', 'number':'555-8989'},],
+        'name': 'keith',
+        'age': '20',
+        'friends': [('1', 'jim'), ('2', 'bob'), ('3', 'joe'), ('4', 'fred')],
+        'phones': [{'location': 'home', 'number': '555-1212'},
+                   {'location': 'work', 'number': '555-8989'}],
    }
 
 Let's further imagine you'd like to make sure, on demand, that a
@@ -43,12 +43,12 @@ different types.
 
    class Friend(colander.TupleSchema):
        rank = colander.SchemaNode(colander.Int(),
-                                 validator=colander.Range(0, 9999))
+                                  validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
        location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
+                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
@@ -60,7 +60,7 @@ different types.
    class Person(colander.MappingSchema):
        name = colander.SchemaNode(colander.String())
        age = colander.SchemaNode(colander.Int(),
-                                validator=colander.Range(0, 200))
+                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
 
@@ -154,8 +154,8 @@ value ``1``).
    which are passed during schema node construction by someone constructing a
    schema for a particular purpose are not used internally by Colander; they
    are instead only meaningful to higher-level systems which consume Colander
-   schemas.  Abitrary keyword arguments are allowed to a schema node
-   constructor in Colander 0.9+.  Prior version disallow them.
+   schemas.  Arbitrary keyword arguments are allowed to a schema node
+   constructor in Colander 0.9+.  Prior versions disallow them.
 
 Subclassing SchemaNode
 ++++++++++++++++++++++
@@ -171,7 +171,7 @@ The imperative style that looks like this still works, of course:
 .. code-block:: python
 
      ranged_int = colander.SchemaNode(
-         schema_type=colander.Int,
+         typ=colander.Int(),
          validator=colander.Range(0, 10),
          default=10,
          title='Ranged Int'
@@ -238,7 +238,7 @@ example this will *not* work:
 
 This will result in::
 
-        TypeError: avalidator() takes exactly 3 arguments (2 given)
+        TypeError: validator() takes exactly 3 arguments (2 given)
 
 However, if you treat the thing being decorated as a function instead of a
 method (remove the ``self`` argument from the argument list), it will
@@ -351,8 +351,9 @@ its class attribute name.  For example:
    import colander
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
+       location = colander.SchemaNode(
+           colander.String(),
+           validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
 The name of the schema node defined via ``location =
@@ -375,8 +376,9 @@ Earlier we defined a schema:
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
-       location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
+       location = colander.SchemaNode(
+           colander.String(),
+           validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
@@ -388,7 +390,7 @@ Earlier we defined a schema:
    class Person(colander.MappingSchema):
        name = colander.SchemaNode(colander.String())
        age = colander.SchemaNode(colander.Int(),
-                                validator=colander.Range(0, 200))
+                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
 
@@ -409,15 +411,15 @@ Deserializing A Valid Serialization
 .. code-block:: python
    :linenos:
 
-     cstruct = {
-            'name':'keith',
-            'age':'20',
-            'friends':[('1', 'jim'),('2', 'bob'), ('3', 'joe'), ('4', 'fred')],
-            'phones':[{'location':'home', 'number':'555-1212'},
-                      {'location':'work', 'number':'555-8989'},],
-            }
-     schema = Person()
-     deserialized = schema.deserialize(cstruct)
+   cstruct = {
+       'name': 'keith',
+       'age': '20',
+       'friends': [('1', 'jim'), ('2', 'bob'), ('3', 'joe'), ('4', 'fred')],
+       'phones': [{'location': 'home', 'number': '555-1212'},
+                  {'location': 'work', 'number': '555-8989'}],
+   }
+   schema = Person()
+   deserialized = schema.deserialize(cstruct)
 
 When ``schema.deserialize(cstruct)`` is called, because all the data in
 the schema is valid, and the structure represented by ``cstruct``
@@ -426,13 +428,13 @@ conforms to the schema, ``deserialized`` will be the following:
 .. code-block:: python
    :linenos:
 
-     {
-     'name':'keith',
-     'age':20,
-     'friends':[(1, 'jim'),(2, 'bob'), (3, 'joe'), (4, 'fred')],
-     'phones':[{'location':'home', 'number':'555-1212'},
-               {'location':'work', 'number':'555-8989'},],
-     }
+   {
+       'name': 'keith',
+       'age': 20,
+       'friends': [(1, 'jim'), (2, 'bob'), (3, 'joe'), (4, 'fred')],
+       'phones': [{'location': 'home', 'number': '555-1212'},
+                  {'location': 'work', 'number': '555-8989'}],
+   }
 
 Note that all the friend rankings have been converted to integers,
 likewise for the age.
@@ -450,17 +452,17 @@ validation error?
 .. code-block:: python
    :linenos:
 
-     import colander
+   import colander
 
-     cstruct = {
-            'name':'keith',
-            'age':'-1',
-            'friends':[('1', 'jim'),('t', 'bob'), ('3', 'joe'), ('4', 'fred')],
-            'phones':[{'location':'bar', 'number':'555-1212'},
-                      {'location':'work', 'number':'555-8989'},],
-            }
-     schema = Person()
-     schema.deserialize(cstruct)
+   cstruct = {
+       'name': 'keith',
+       'age': '-1',
+       'friends': [('1', 'jim'), ('t', 'bob'), ('3', 'joe'), ('4', 'fred')],
+       'phones': [{'location': 'bar', 'number': '555-1212'},
+                  {'location': 'work', 'number': '555-8989'}],
+   }
+   schema = Person()
+   schema.deserialize(cstruct)
 
 The ``deserialize`` method will raise an exception, and the ``except``
 clause above will be invoked, causing an error message to be printed.
@@ -469,9 +471,9 @@ It will print something like:
 .. code-block:: python
    :linenos:
 
-   Invalid: {'age':'-1 is less than minimum value 0',
-            'friends.1.0':'"t" is not a number',
-            'phones.0.location:'"bar" is not one of "home", "work"'}
+   Invalid: {'age': '-1 is less than minimum value 0',
+             'friends.1.0': '"t" is not a number',
+             'phones.0.location': '"bar" is not one of "home", "work"'}
 
 The above error is telling us that:
 
@@ -489,30 +491,30 @@ dictionary:
 .. code-block:: python
    :linenos:
 
-     import colander
+   import colander
 
-     cstruct = {
-            'name':'keith',
-            'age':'-1',
-            'friends':[('1', 'jim'),('t', 'bob'), ('3', 'joe'), ('4', 'fred')],
-            'phones':[{'location':'bar', 'number':'555-1212'},
-                      {'location':'work', 'number':'555-8989'},],
-            }
-     schema = Person()
-     try:
-         schema.deserialize(cstruct)
-     except colander.Invalid, e:
-         errors = e.asdict()
-         print errors
+   cstruct = {
+       'name': 'keith',
+       'age': '-1',
+       'friends': [('1', 'jim'), ('t', 'bob'), ('3', 'joe'), ('4', 'fred')],
+       'phones': [{'location': 'bar', 'number': '555-1212'},
+                  {'location': 'work', 'number': '555-8989'}],
+   }
+   schema = Person()
+   try:
+       schema.deserialize(cstruct)
+   except colander.Invalid, e:
+       errors = e.asdict()
+       print errors
 
 This will print something like:
 
 .. code-block:: python
    :linenos:
 
-   {'age':'-1 is less than minimum value 0',
-    'friends.1.0':'"t" is not a number',
-    'phones.0.location:'"bar" is not one of "home", "work"'}
+   {'age': '-1 is less than minimum value 0',
+    'friends.1.0': '"t" is not a number',
+    'phones.0.location': '"bar" is not one of "home", "work"'}
 
 :exc:`colander.Invalid` Exceptions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -562,8 +564,8 @@ which the exception is related.
 
   Translation strings are objects which behave like Unicode objects but have
   extra metadata associated with them for use in translation systems.  See
-  `http://docs.repoze.org/projects/translationstring/dev/
-  <http://docs.pylonsproject.org/projects/translationstring/dev/>`_ for
+  `https://docs.pylonsproject.org/projects/translationstring/en/latest/
+  <https://docs.pylonsproject.org/projects/translationstring/en/latest/>`_ for
   documentation about translation strings.  All error messages used by
   Colander internally are translation strings, which means they can be
   translated to other languages.  In particular, they are suitable for use as
@@ -591,7 +593,7 @@ The following schema uses `htmllaundry`__ and a
 :class:`~colander.interfaces.Preparer` to do the correct thing in both
 cases:
 
-__ http://pypi.python.org/pypi/htmllaundry/
+__ https://pypi.org/project/htmllaundry/
 
 .. code-block:: python
    :linenos:
@@ -619,9 +621,10 @@ a list of functions to the `preparer` kwarg, like so:
 
    class Page(colander.MappingSchema):
        title = colander.SchemaNode(colander.String())
-       content = colander.SchemaNode(colander.String(),
-                                     preparer=[strip_whitespace, remove_multiple_spaces],
-                                     validator=colander.Length(1))
+       content = colander.SchemaNode(
+           colander.String(),
+           preparer=[strip_whitespace, remove_multiple_spaces],
+           validator=colander.Length(1))
 
 Serialization
 -------------
@@ -651,12 +654,12 @@ We can serialize a matching data structure:
 .. code-block:: python
    :linenos:
 
-     appstruct = {'age':20, 'name':'Bob'}
+     appstruct = {'age': 20, 'name': 'Bob'}
      schema = Person()
      serialized = schema.serialize(appstruct)
 
-The value for ``serialized`` above will be ``{'age':'20',
-'name':'Bob'}``.  Note that the ``age`` integer has become a string.
+The value for ``serialized`` above will be ``{'age': '20',
+'name': 'Bob'}``.  Note that the ``age`` integer has become a string.
 
 Serialization and deserialization are not completely symmetric,
 however.  Although schema-driven data conversion happens during
@@ -675,20 +678,20 @@ using the ``serialize`` method of the schema:
 .. code-block:: python
    :linenos:
 
-     appstruct = {'age':20}
+     appstruct = {'age': 20}
      schema = Person()
      serialized = schema.serialize(appstruct)
 
-The value for ``serialized`` above will be ``{'age':'20',
-'name':colander.null}``.  Note the ``age`` integer has become a
+The value for ``serialized`` above will be ``{'age': '20',
+'name': colander.null}``.  Note the ``age`` integer has become a
 string, and the missing ``name`` attribute has been replaced with
 :attr:`colander.null`.  Above, even though we did not include the
 ``name`` attribute in the appstruct we fed to ``serialize``, an error
 is *not* raised.  For more information about :attr:`colander.null`
 substitution during serialization, see :ref:`serializing_null`.
 
-The corollary: it is the responsibility of the developer to ensure he
-serializes "the right" data; :mod:`colander` will not raise an error
+The corollary: it is the responsibility of the developer to ensure they
+serialize "the right" data; :mod:`colander` will not raise an error
 when asked to serialize something that is partially nonsense.
 
 Inheriting Schemas
@@ -751,28 +754,16 @@ Multiple inheritance also works:
    import pprint
 
    class One(colander.MappingSchema):
-       a = colander.SchemaNode(
-           colander.Int(),
-           )
-       b = colander.SchemaNode(
-           colander.Int(),
-           )
+       a = colander.SchemaNode(colander.Int())
+       b = colander.SchemaNode(colander.Int())
 
    class Two(colander.MappingSchema):
-       a = colander.SchemaNode(
-           colander.String(),
-           )
-       c = colander.SchemaNode(
-           colander.String(),
-           )
+       a = colander.SchemaNode(colander.String())
+       c = colander.SchemaNode(colander.String())
 
    class Three(One, Two):
-       b = colander.SchemaNode(
-           colander.Bool(),
-           )
-       d = colander.SchemaNode(
-           colander.Bool(),
-           )
+       b = colander.SchemaNode(colander.Bool())
+       d = colander.SchemaNode(colander.Bool())
 
    s = Three()
    pprint.pprint([(x, x.typ) for x in s.children])
@@ -803,46 +794,19 @@ then the next deepest, and so on.  For example:
 .. code-block:: python
 
       class One(colander.MappingSchema):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a1',
-              )
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b1',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d1',
-              )
+          a = colander.SchemaNode(colander.String(), id='a1')
+          b = colander.SchemaNode(colander.String(), id='b1')
+          d = colander.SchemaNode(colander.String(), id='d1')
 
       class Two(One):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a2',
-              )
-          c = colander.SchemaNode(
-              colander.String(),
-              id='c2',
-              )
-          e = colander.SchemaNode(
-              colander.String(),
-              id='e2',
-              )
+          a = colander.SchemaNode(colander.String(), id='a2')
+          c = colander.SchemaNode(colander.String(), id='c2')
+          e = colander.SchemaNode(colander.String(), id='e2')
 
       class Three(Two):
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b3',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d3',
-              )
-          f = colander.SchemaNode(
-              colander.String(),
-              id='f3',
-              )
+          b = colander.SchemaNode(colander.String(), id='b3')
+          d = colander.SchemaNode(colander.String(), id='d3')
+          f = colander.SchemaNode(colander.String(), id='f3')
 
       three = Three()
 
@@ -861,46 +825,19 @@ Multiple inheritance works the same way:
 .. code-block:: python
 
       class One(colander.MappingSchema):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a1',
-              )
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b1',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d1',
-              )
+          a = colander.SchemaNode(colander.String(), id='a1')
+          b = colander.SchemaNode(colander.String(), id='b1')
+          d = colander.SchemaNode(colander.String(), id='d1')
 
       class Two(colander.MappingSchema):
-          a = colander.SchemaNode(
-              colander.String(),
-              id='a2',
-              )
-          c = colander.SchemaNode(
-              colander.String(),
-              id='c2',
-              )
-          e = colander.SchemaNode(
-              colander.String(),
-              id='e2',
-              )
+          a = colander.SchemaNode(colander.String(), id='a2')
+          c = colander.SchemaNode(colander.String(), id='c2')
+          e = colander.SchemaNode(colander.String(), id='e2')
 
       class Three(Two, One):
-          b = colander.SchemaNode(
-              colander.String(),
-              id='b3',
-              )
-          d = colander.SchemaNode(
-              colander.String(),
-              id='d3',
-              )
-          f = colander.SchemaNode(
-              colander.String(),
-              id='f3',
-              )
+          b = colander.SchemaNode(colander.String(), id='b3')
+          d = colander.SchemaNode(colander.String(), id='d3')
+          f = colander.SchemaNode(colander.String(), id='f3')
 
       three = Three()
 
@@ -947,9 +884,8 @@ constructor:
      class SomeSchema(MappingSchema):
          title = 'Some Schema'
          thisnamewillbeignored = colander.SchemaNode(
-                                             colander.String(),
-                                             name='title'
-                                             )
+             colander.String(),
+             name='title')
 
 Note that such a workaround is only required if the conflicting names are
 attached to the *exact same* class definition.  Colander scrapes off schema
@@ -1008,8 +944,9 @@ schema, then the schema definition can be made more succinct using the
 
            @colander.instantiate()
            class phone(colander.MappingSchema):
-               location = colander.SchemaNode(colander.String(),
-                                              validator=colander.OneOf(['home', 'work']))
+               location = colander.SchemaNode(
+                   colander.String(),
+                   validator=colander.OneOf(['home', 'work']))
                number = colander.SchemaNode(colander.String())
 
 If you need to pass parameters when using this style of schema
@@ -1048,12 +985,12 @@ schema configuration.  Here's our previous declarative schema:
 
    class Friend(colander.TupleSchema):
        rank = colander.SchemaNode(colander.Int(),
-                                 validator=colander.Range(0, 9999))
+                                  validator=colander.Range(0, 9999))
        name = colander.SchemaNode(colander.String())
 
    class Phone(colander.MappingSchema):
        location = colander.SchemaNode(colander.String(),
-                                     validator=colander.OneOf(['home', 'work']))
+                                      validator=colander.OneOf(['home', 'work']))
        number = colander.SchemaNode(colander.String())
 
    class Friends(colander.SequenceSchema):
@@ -1065,7 +1002,7 @@ schema configuration.  Here's our previous declarative schema:
    class Person(colander.MappingSchema):
        name = colander.SchemaNode(colander.String())
        age = colander.SchemaNode(colander.Int(),
-                                validator=colander.Range(0, 200))
+                                 validator=colander.Range(0, 200))
        friends = Friends()
        phones = Phones()
 
@@ -1078,22 +1015,24 @@ We can imperatively construct a completely equivalent schema like so:
 
    friend = colander.SchemaNode(colander.Tuple())
    friend.add(colander.SchemaNode(colander.Int(),
-                                 validator=colander.Range(0, 9999),
+                                  validator=colander.Range(0, 9999),
               name='rank'))
    friend.add(colander.SchemaNode(colander.String(), name='name'))
 
-   phone = colander.SchemaNode(colander.Mapping())
-   phone.add(colander.SchemaNode(colander.String(),
-                                validator=colander.OneOf(['home', 'work']),
-                                name='location'))
+   phone = colander.SchemaNode(
+       colander.Mapping(),
+       colander.SchemaNode(
+           colander.String(),
+           validator=colander.OneOf(['home', 'work']),
+           name='location'))
    phone.add(colander.SchemaNode(colander.String(), name='number'))
 
    schema = colander.SchemaNode(colander.Mapping())
    schema.add(colander.SchemaNode(colander.String(), name='name'))
    schema.add(colander.SchemaNode(colander.Int(), name='age',
-                                 validator=colander.Range(0, 200)))
-   schema.add(colander.SchemaNode(colander.Sequence(), friend, name='friends'))
-   schema.add(colander.SchemaNode(colander.Sequence(), phone, name='phones'))
+                                  validator=colander.Range(0, 200)))
+   schema.add(colander.SequenceSchema(friend, name='friends'))
+   schema.add(colander.SequenceSchema(phone, name='phones'))
 
 Defining a schema imperatively is a lot uglier than defining a schema
 declaratively, but it's often more useful when you need to define a
@@ -1109,14 +1048,14 @@ a schema created declaratively:
 .. code-block:: python
    :linenos:
 
-     data = {
-            'name':'keith',
-            'age':'20',
-            'friends':[('1', 'jim'),('2', 'bob'), ('3', 'joe'), ('4', 'fred')],
-            'phones':[{'location':'home', 'number':'555-1212'},
-                      {'location':'work', 'number':'555-8989'},],
-            }
-     deserialized = schema.deserialize(data)
+   data = {
+       'name': 'keith',
+       'age': '20',
+       'friends': [('1', 'jim'), ('2', 'bob'), ('3', 'joe'), ('4', 'fred')],
+       'phones': [{'location': 'home', 'number': '555-1212'},
+                  {'location': 'work', 'number': '555-8989'}],
+   }
+   deserialized = schema.deserialize(data)
 
 Gotchas
 -------
@@ -1163,4 +1102,3 @@ module scope before mutating any of its subnodes:
 :meth:`colander.SchemaNode.clone` clones all the nodes in the schema,
 so you can work with a "deep copy" of the schema without disturbing the
 "template" schema nodes defined at a higher scope.
-
