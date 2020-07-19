@@ -507,15 +507,13 @@ class OneOf(object):
     _MSG_ERR = _('"${val}" is not one of ${choices}')
     
     def __init__(self, choices, msg_err=_MSG_ERR)):
+        self.msg_err = msg_err
         self.choices = choices
 
     def __call__(self, node, value):
         if value not in self.choices:
             choices = ', '.join(['%s' % x for x in self.choices])
-            err = _(
-                self.msg_err,
-                mapping={'val': value, 'choices': choices},
-            )
+            err = _(self.msg_err, mapping={'val': value, 'choices': choices})
             raise Invalid(node, err)
 
 
