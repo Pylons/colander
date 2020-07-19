@@ -506,7 +506,7 @@ class OneOf(object):
 
     _MSG_ERR = _('"${val}" is not one of ${choices}')
     
-    def __init__(self, choices, msg_err=_MSG_ERR)):
+    def __init__(self, choices, msg_err=_MSG_ERR):
         self.msg_err = msg_err
         self.choices = choices
 
