@@ -504,14 +504,16 @@ class OneOf(object):
     """ Validator which succeeds if the value passed to it is one of
     a fixed set of values """
 
-    def __init__(self, choices):
+    _MSG_ERR = _('"${val}" is not one of ${choices}')
+    
+    def __init__(self, choices, msg_err=_MSG_ERR)):
         self.choices = choices
 
     def __call__(self, node, value):
         if value not in self.choices:
             choices = ', '.join(['%s' % x for x in self.choices])
             err = _(
-                '"${val}" is not one of ${choices}',
+                self.msg_err,
                 mapping={'val': value, 'choices': choices},
             )
             raise Invalid(node, err)
