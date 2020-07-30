@@ -2631,6 +2631,17 @@ class TestDateTime(unittest.TestCase):
         self.assertEqual(result.isoformat(), dt.isoformat())
         self.assertEqual(result.tzinfo, None)
 
+    def test_deserialize_invalid_type(self):
+        from colander import Invalid
+
+        typ = self._makeOne(default_tzinfo=None, format='%d/%m/%Y')
+        node = DummySchemaNode(None)
+        self.assertRaises(Invalid, typ.deserialize, node, 10012001)
+
+        class Anon():
+            pass
+        self.assertRaises(Invalid, typ.deserialize, node, Anon())
+
 
 class TestDate(unittest.TestCase):
     def _makeOne(self, *arg, **kw):
@@ -2744,6 +2755,25 @@ class TestDate(unittest.TestCase):
         node = DummySchemaNode(None)
         result = typ.deserialize(node, formatted)
         self.assertEqual(result, date)
+
+    def test_deserialize_date_with_custom_format_invalid_type(self):
+        from colander import Invalid
+
+        typ = self._makeOne(format='%d/%m/%Y')
+        node = DummySchemaNode(None)
+        self.assertRaises(Invalid, typ.deserialize, node, 123)
+
+        class Anon():
+            pass
+        self.assertRaises(Invalid, typ.deserialize, node, Anon())
+
+    def test_deserialize_date_with_incorrect_format(self):
+        from colander import Invalid
+
+        typ = self._makeOne(format='%d/%m/%Y')
+        node = DummySchemaNode(None)
+        self.assertRaises(Invalid, typ.deserialize, node, "2001-01-01")
+        self.assertRaises(Invalid, typ.deserialize, node, "01012001")
 
 
 class TestTime(unittest.TestCase):
