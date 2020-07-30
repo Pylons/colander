@@ -2640,6 +2640,7 @@ class TestDateTime(unittest.TestCase):
 
         class Anon:
             pass
+
         self.assertRaises(Invalid, typ.deserialize, node, Anon())
 
 
@@ -2765,6 +2766,7 @@ class TestDate(unittest.TestCase):
 
         class Anon:
             pass
+
         self.assertRaises(Invalid, typ.deserialize, node, Anon())
 
     def test_deserialize_date_with_incorrect_format(self):
