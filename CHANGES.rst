@@ -5,6 +5,12 @@ unreleased
 
 - Add support for Python 3.7 and 3.8.
 
+- Fix deserializer on ``Date`` and ``DateTime`` fields to correctly catch
+  ``ValueError`` and ``TypeError`` exception, which can arise when using custom
+  formats on the field. Instead of allowing these exceptions to propogate
+  replace then with an ``Invalid`` exception instead.
+  See https://github.com/Pylons/colander/pull/338
+
 1.7.0 (2019-02-01)
 ==================
 
