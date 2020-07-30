@@ -2638,7 +2638,7 @@ class TestDateTime(unittest.TestCase):
         node = DummySchemaNode(None)
         self.assertRaises(Invalid, typ.deserialize, node, 10012001)
 
-        class Anon():
+        class Anon:
             pass
         self.assertRaises(Invalid, typ.deserialize, node, Anon())
 
@@ -2763,7 +2763,7 @@ class TestDate(unittest.TestCase):
         node = DummySchemaNode(None)
         self.assertRaises(Invalid, typ.deserialize, node, 123)
 
-        class Anon():
+        class Anon:
             pass
         self.assertRaises(Invalid, typ.deserialize, node, Anon())
 
