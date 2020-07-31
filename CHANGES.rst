@@ -7,7 +7,7 @@ unreleased
 
 - Fix deserializer on ``Date`` and ``DateTime`` fields to correctly catch
   ``ValueError`` and ``TypeError`` exception, which can arise when using custom
-  formats on the field. Instead of allowing these exceptions to propogate
+  formats on the field. Instead of allowing these exceptions to propagate,
   replace then with an ``Invalid`` exception instead.
   See https://github.com/Pylons/colander/pull/338
 
