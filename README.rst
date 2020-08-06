@@ -22,7 +22,7 @@ An extensible package which can be used to:
 - serialize an arbitrary data structure to a data structure composed
   of strings, mappings, and lists.
 
-It is tested on Python 2.7, 3.5, 3.6, 3.7, and PyPy.
+It is tested on Python 2.7, 3.5, 3.6, 3.7, and 3.8, and PyPy and PyPy3.
 
 Please see https://docs.pylonsproject.org/projects/colander/en/latest/
 for documentation.
