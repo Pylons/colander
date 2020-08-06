@@ -1,6 +1,7 @@
 graft src/colander
 graft tests
 graft docs
+prune docs/_build
 graft .github
 
 include README.rst
