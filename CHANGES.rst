@@ -1,3 +1,8 @@
+1.8.1 (2020-08-06)
+==================
+
+- Fix the broken wheels in 1.8.0 to include the locale data.
+
 1.8.0 (2020-08-05)
 ==================
 
