@@ -3888,6 +3888,26 @@ class TestDeferred(unittest.TestCase):
         inst = self._makeOne(wrapped)
         self.assertEqual(inst.__doc__, None)
         self.assertFalse('__name__' in inst.__dict__)
+    
+    def test_deferred_with_insert_before(self):
+        def wrapped_func(node, kw):
+            return colander.SchemaNode(
+                colander.Int(),
+                insert_before='name2',
+            )
+        
+        deferred_node = self._makeOne(wrapped_func)
+        class MySchema(colander.Schema):
+            name2 = colander.SchemaNode(colander.Int())
+            name3 = colander.SchemaNode(colander.Int())
+            name1 = deferred_node
+            name4 = colander.SchemaNode(colander.Int())
+        
+        inst = MySchema().bind()
+        self.assertEqual(
+            [x.name for x in inst.children],
+            ['name1', 'name2', 'name3', 'name4'],
+        )
 
 
 class TestSchema(unittest.TestCase):
