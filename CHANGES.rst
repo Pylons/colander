@@ -1,3 +1,10 @@
+Unreleased
+==========
+
+- Fix handling of ``insert_before`` on deferred nodes so that it orders the
+  new node correctly instead of always appending to the end of
+  ``node.children`` after binding.
+
 1.8.2 (2020-08-07)
 ==================
 
