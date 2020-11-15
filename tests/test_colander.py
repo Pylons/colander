@@ -2209,7 +2209,10 @@ class TestGlobalObject(unittest.TestCase):
     def test_zope_dottedname_style_irrresolveable_absolute(self):
         typ = self._makeOne()
         self.assertRaises(
-            ImportError, typ._zope_dottedname_style, None, 'tests.nonexisting',
+            ImportError,
+            typ._zope_dottedname_style,
+            None,
+            'tests.nonexisting',
         )
 
     def test__zope_dottedname_style_resolve_relative(self):
