@@ -53,7 +53,7 @@ null = _null()
 
 
 class _drop(object):
-    """ Represents a value that will be dropped from the schema if it
+    """Represents a value that will be dropped from the schema if it
     is missing during *serialization* or *deserialization*.  Passed as
     a value to the `missing` or `default` keyword argument
     of :class:`SchemaNode`.
@@ -113,7 +113,7 @@ class Invalid(Exception):
         self.children = []
 
     def messages(self):
-        """ Return an iterable of error messages for this exception using the
+        """Return an iterable of error messages for this exception using the
         ``msg`` attribute of this error node.  If the ``msg`` attribute is
         iterable, it is returned.  If it is not iterable, and is
         non-``None``, a single-element list containing the ``msg`` value is
@@ -125,7 +125,7 @@ class Invalid(Exception):
         return [self.msg]
 
     def add(self, exc, pos=None):
-        """ Add a child exception; ``exc`` must be an instance of
+        """Add a child exception; ``exc`` must be an instance of
         :class:`colander.Invalid` or a subclass.
 
         ``pos`` is a value important for accurate error reporting.  If
@@ -145,7 +145,7 @@ class Invalid(Exception):
         self.children.append(exc)
 
     def __setitem__(self, name, msg):
-        """ Add a subexception related to a child node with the
+        """Add a subexception related to a child node with the
         message ``msg``. ``name`` must be present in the names of the
         set of child nodes of this exception's node; if this is not
         so, a :exc:`KeyError` is raised.
@@ -170,7 +170,7 @@ class Invalid(Exception):
         raise KeyError(name)
 
     def paths(self):
-        """ A generator which returns each path through the exception
+        """A generator which returns each path through the exception
         graph.  Each path is represented as a tuple of exception
         nodes.  Within each tuple, the leftmost item will represent
         the root schema node, the rightmost item will represent the
@@ -196,7 +196,7 @@ class Invalid(Exception):
         return str(self.node.name)
 
     def asdict(self, translate=None, separator='; '):
-        """ Return a dictionary containing a basic
+        """Return a dictionary containing a basic
         (non-language-translated) error report for this exception.
 
         If ``translate`` is supplied, it must be a callable taking a
@@ -225,7 +225,7 @@ class Invalid(Exception):
         return errors
 
     def __str__(self):
-        """ Return a pretty-formatted string representation of the
+        """Return a pretty-formatted string representation of the
         result of an execution of this exception's ``asdict`` method"""
         return pprint.pformat(self.asdict())
 
@@ -242,7 +242,7 @@ class UnsupportedFields(Invalid):
 
 
 class All(object):
-    """ Composite validator which succeeds if none of its
+    """Composite validator which succeeds if none of its
     subvalidators raises an :class:`colander.Invalid` exception"""
 
     def __init__(self, *validators):
@@ -264,7 +264,7 @@ class All(object):
 
 
 class Any(All):
-    """ Composite validator which succeeds if at least one of its
+    """Composite validator which succeeds if at least one of its
     subvalidators does not raise an :class:`colander.Invalid` exception."""
 
     def __call__(self, node, value):
@@ -278,7 +278,7 @@ class Any(All):
 
 
 class Function(object):
-    """ Validator which accepts a function and an optional message;
+    """Validator which accepts a function and an optional message;
     the function is called with the ``value`` during validation.
 
     If the function returns anything falsy (``None``, ``False``, the
@@ -341,25 +341,25 @@ class Function(object):
 
 
 class Regex(object):
-    """ Regular expression validator.
+    """Regular expression validator.
 
-        Initialize it with the string regular expression ``regex`` that will
-        be compiled and matched against ``value`` when validator is called. It
-        uses Python's :py:func:`re.match`, which only matches at the beginning
-        of the string and not at the beginning of each line. To match the
-        entire string, enclose the regular expression with ``^`` and ``$``.
-        If ``msg`` is supplied, it will be the error message to be used;
-        otherwise, defaults to 'String does not match expected pattern'.
+    Initialize it with the string regular expression ``regex`` that will
+    be compiled and matched against ``value`` when validator is called. It
+    uses Python's :py:func:`re.match`, which only matches at the beginning
+    of the string and not at the beginning of each line. To match the
+    entire string, enclose the regular expression with ``^`` and ``$``.
+    If ``msg`` is supplied, it will be the error message to be used;
+    otherwise, defaults to 'String does not match expected pattern'.
 
-        The ``regex`` expression behaviour can be modified by specifying
-        any ``flags`` value taken by ``re.compile``.
+    The ``regex`` expression behaviour can be modified by specifying
+    any ``flags`` value taken by ``re.compile``.
 
-        The ``regex`` argument may also be a pattern object (the
-        result of ``re.compile``) instead of a string.
+    The ``regex`` argument may also be a pattern object (the
+    result of ``re.compile``) instead of a string.
 
-        When calling, if ``value`` matches the regular expression,
-        validation succeeds; otherwise, :exc:`colander.Invalid` is
-        raised with the ``msg`` error message.
+    When calling, if ``value`` matches the regular expression,
+    validation succeeds; otherwise, :exc:`colander.Invalid` is
+    raised with the ``msg`` error message.
     """
 
     def __init__(self, regex, msg=None, flags=0):
@@ -391,9 +391,9 @@ EMAIL_RE = (
 
 
 class Email(Regex):
-    """ Email address validator. If ``msg`` is supplied, it will be
-        the error message to be used when raising :exc:`colander.Invalid`;
-        otherwise, defaults to 'Invalid email address'.
+    """Email address validator. If ``msg`` is supplied, it will be
+    the error message to be used when raising :exc:`colander.Invalid`;
+    otherwise, defaults to 'Invalid email address'.
     """
 
     def __init__(self, msg=None):
@@ -404,7 +404,7 @@ class Email(Regex):
 
 
 class Range(object):
-    """ Validator which succeeds if the value it is passed is greater
+    """Validator which succeeds if the value it is passed is greater
     or equal to ``min`` and less than or equal to ``max``.  If ``min``
     is not specified, or is specified as ``None``, no lower bound
     exists.  If ``max`` is not specified, or is specified as ``None``,
@@ -456,29 +456,29 @@ class Range(object):
 
 class Length(object):
     """Validator which succeeds if the value passed to it has a
-        length between a minimum and maximum, expressed in the
-        optional ``min`` and ``max`` arguments.
-        The value can be any sequence, most often a string.
+    length between a minimum and maximum, expressed in the
+    optional ``min`` and ``max`` arguments.
+    The value can be any sequence, most often a string.
 
-        If ``min`` is not specified, or is specified as ``None``,
-        no lower bound exists.  If ``max`` is not specified, or
-        is specified as ``None``, no upper bound exists.
+    If ``min`` is not specified, or is specified as ``None``,
+    no lower bound exists.  If ``max`` is not specified, or
+    is specified as ``None``, no upper bound exists.
 
-        The default error messages are "Shorter than minimum length ${min}"
-        and "Longer than maximum length ${max}". These can be customized:
+    The default error messages are "Shorter than minimum length ${min}"
+    and "Longer than maximum length ${max}". These can be customized:
 
-        ``min_err`` is used to form the ``msg`` of the
-        :exc:`colander.Invalid` error when reporting a validation failure
-        caused by a value not meeting the minimum length.  If ``min_err`` is
-        specified, it must be a string.  The string may contain the
-        replacement target ``${min}``.
+    ``min_err`` is used to form the ``msg`` of the
+    :exc:`colander.Invalid` error when reporting a validation failure
+    caused by a value not meeting the minimum length.  If ``min_err`` is
+    specified, it must be a string.  The string may contain the
+    replacement target ``${min}``.
 
-        ``max_err`` is used to form the ``msg`` of the
-        :exc:`colander.Invalid` error when reporting a validation failure
-        caused by a value exceeding the maximum length.  If ``max_err`` is
-        specified, it must be a string.  The string may contain the
-        replacement target ``${max}``.
-        """
+    ``max_err`` is used to form the ``msg`` of the
+    :exc:`colander.Invalid` error when reporting a validation failure
+    caused by a value exceeding the maximum length.  If ``max_err`` is
+    specified, it must be a string.  The string may contain the
+    replacement target ``${max}``.
+    """
 
     _MIN_ERR = _('Shorter than minimum length ${min}')
     _MAX_ERR = _('Longer than maximum length ${max}')
@@ -501,8 +501,8 @@ class Length(object):
 
 
 class OneOf(object):
-    """ Validator which succeeds if the value passed to it is one of
-    a fixed set of values """
+    """Validator which succeeds if the value passed to it is one of
+    a fixed set of values"""
 
     _MSG_ERR = _('"${val}" is not one of ${choices}')
 
@@ -518,7 +518,7 @@ class OneOf(object):
 
 
 class NoneOf(object):
-    """ Validator which succeeds if the value passed to it is none of a
+    """Validator which succeeds if the value passed to it is none of a
     fixed set of values.
 
     ``msg_err`` is used to form the ``msg`` of the :exc:`colander.Invalid`
@@ -545,7 +545,7 @@ class NoneOf(object):
 
 
 class ContainsOnly(object):
-    """ Validator which succeeds if the value passed to is a sequence and each
+    """Validator which succeeds if the value passed to is a sequence and each
     element in the sequence is also in the sequence passed as ``choices``.
     This validator is useful when attached to a schemanode with, e.g. a
     :class:`colander.Set` or another sequencetype.
@@ -566,7 +566,7 @@ class ContainsOnly(object):
 
 
 def luhnok(node, value):
-    """ Validator which checks to make sure that the value passes a luhn
+    """Validator which checks to make sure that the value passes a luhn
     mod-10 checksum (credit cards).  ``value`` must be a string, not an
     integer."""
     try:
@@ -676,7 +676,7 @@ class SchemaType(object):
 
 
 class Mapping(SchemaType):
-    """ A type which represents a mapping of names to nodes.
+    """A type which represents a mapping of names to nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the named keys and values in the mapping.
@@ -877,7 +877,7 @@ class Positional(object):
 
 
 class Tuple(Positional, SchemaType):
-    """ A type which represents a fixed-length sequence of nodes.
+    """A type which represents a fixed-length sequence of nodes.
 
     The subnodes of the :class:`colander.SchemaNode` that wraps
     this type imply the positional elements of the tuple in the order
@@ -1022,7 +1022,7 @@ class Tuple(Positional, SchemaType):
 
 
 class Set(SchemaType):
-    """ A type representing a non-overlapping set of items.
+    """A type representing a non-overlapping set of items.
     Deserializes an iterable to a ``set`` object.
 
     If the :attr:`colander.null` value is passed to the serialize
@@ -1053,7 +1053,7 @@ class Set(SchemaType):
 
 
 class List(SchemaType):
-    """ Type representing an ordered sequence of items.
+    """Type representing an ordered sequence of items.
 
     Deserializes an iterable to a ``list`` object.
 
@@ -1293,7 +1293,7 @@ Seq = Sequence
 
 
 class String(SchemaType):
-    """ A type representing a Unicode string.
+    """A type representing a Unicode string.
 
     This type constructor accepts two arguments:
 
@@ -1446,7 +1446,7 @@ class Number(SchemaType):
 
 
 class Integer(Number):
-    """ A type representing an integer.
+    """A type representing an integer.
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1479,7 +1479,7 @@ Int = Integer
 
 
 class Float(Number):
-    """ A type representing a float.
+    """A type representing a float.
 
     If the :attr:`colander.null` value is passed to the serialize
     method of this class, the :attr:`colander.null` value will be
@@ -1537,7 +1537,7 @@ class Decimal(Number):
 
 
 class Money(Decimal):
-    """ A type representing a money value with two digit precision.
+    """A type representing a money value with two digit precision.
     Deserialization returns an instance of the Python ``decimal.Decimal``
     type (quantized to two decimal places, rounded up).
 
@@ -1554,7 +1554,7 @@ class Money(Decimal):
 
 
 class Boolean(SchemaType):
-    """ A type representing a boolean object.
+    """A type representing a boolean object.
 
     The constructor accepts these keyword arguments:
 
@@ -1650,7 +1650,7 @@ Bool = Boolean
 
 
 class GlobalObject(SchemaType):
-    """ A type representing an importable Python object.  This type
+    """A type representing an importable Python object.  This type
     serializes 'global' Python objects (objects which can be imported)
     to dotted Python names.
 
@@ -1794,7 +1794,7 @@ class GlobalObject(SchemaType):
 
 
 class DateTime(SchemaType):
-    """ A type representing a Python ``datetime.datetime`` object.
+    """A type representing a Python ``datetime.datetime`` object.
 
     This type serializes python ``datetime.datetime`` objects to a
     `ISO8601 <https://en.wikipedia.org/wiki/ISO_8601>`_ string format.
@@ -1890,7 +1890,7 @@ class DateTime(SchemaType):
 
 
 class Date(SchemaType):
-    """ A type representing a Python ``datetime.date`` object.
+    """A type representing a Python ``datetime.date`` object.
 
     This type serializes python ``datetime.date`` objects to a
     `ISO8601 <https://en.wikipedia.org/wiki/ISO_8601>`_ string format.
@@ -1968,7 +1968,7 @@ class Date(SchemaType):
 
 
 class Time(SchemaType):
-    """ A type representing a Python ``datetime.time`` object.
+    """A type representing a Python ``datetime.time`` object.
 
     .. note:: This type is new as of Colander 0.9.3.
 
@@ -2266,7 +2266,7 @@ class _SchemaNode(object):
 
     @property
     def required(self):
-        """ A property which returns ``True`` if the ``missing`` value
+        """A property which returns ``True`` if the ``missing`` value
         related to this node was not specified.
 
         A return value of ``True`` implies that a ``missing`` value wasn't
@@ -2278,7 +2278,7 @@ class _SchemaNode(object):
         return self.missing is required
 
     def serialize(self, appstruct=null):
-        """ Serialize the :term:`appstruct` to a :term:`cstruct` based
+        """Serialize the :term:`appstruct` to a :term:`cstruct` based
         on the schema represented by this node and return the
         cstruct.
 
@@ -2297,7 +2297,7 @@ class _SchemaNode(object):
         return cstruct
 
     def flatten(self, appstruct):
-        """ Create and return a data structure which is a flattened
+        """Create and return a data structure which is a flattened
         representation of the passed in struct based on the schema represented
         by this node.  The return data structure is a dictionary; its keys are
         dotted names.  Each dotted name represents a path to a location in the
@@ -2307,7 +2307,7 @@ class _SchemaNode(object):
         return flat
 
     def unflatten(self, fstruct):
-        """ Create and return a data structure with nested substructures based
+        """Create and return a data structure with nested substructures based
         on the schema represented by this node using the flattened
         representation passed in. This is the inverse operation to
         :meth:`colander.SchemaNode.flatten`."""
@@ -2315,17 +2315,17 @@ class _SchemaNode(object):
         return self.typ.unflatten(self, paths, fstruct)
 
     def set_value(self, appstruct, dotted_name, value):
-        """ Uses the schema to set a value in a nested datastructure from a
-        dotted name path. """
+        """Uses the schema to set a value in a nested datastructure from a
+        dotted name path."""
         self.typ.set_value(self, appstruct, dotted_name, value)
 
     def get_value(self, appstruct, dotted_name):
-        """ Traverses the nested data structure using the schema and retrieves
+        """Traverses the nested data structure using the schema and retrieves
         the value specified by the dotted name path."""
         return self.typ.get_value(self, appstruct, dotted_name)
 
     def deserialize(self, cstruct=null):
-        """ Deserialize the :term:`cstruct` into an :term:`appstruct` based
+        """Deserialize the :term:`cstruct` into an :term:`appstruct` based
         on the schema, run this :term:`appstruct` through the
         preparer, if one is present, then validate the
         prepared appstruct.  The ``cstruct`` value is deserialized into an
@@ -2390,13 +2390,12 @@ class _SchemaNode(object):
         self.children.append(node)
 
     def insert(self, index, node):
-        """ Insert a subnode into the position ``index``.  ``node`` must be
+        """Insert a subnode into the position ``index``.  ``node`` must be
         a SchemaNode."""
         self.children.insert(index, node)
 
     def add_before(self, name, node):
-        """ Insert a subnode into the position before the node named ``name``
-        """
+        """Insert a subnode into the position before the node named ``name``"""
         for pos, sub in enumerate(self.children[:]):
             if sub.name == name:
                 self.insert(pos, node)
@@ -2404,7 +2403,7 @@ class _SchemaNode(object):
         raise KeyError('No such node named %s' % name)
 
     def get(self, name, default=None):
-        """ Return the subnode associated with ``name`` or ``default`` if no
+        """Return the subnode associated with ``name`` or ``default`` if no
         such node exists."""
         for node in self.children:
             if node.name == name:
@@ -2412,7 +2411,7 @@ class _SchemaNode(object):
         return default
 
     def clone(self):
-        """ Clone the schema node and return the clone.  All subnodes
+        """Clone the schema node and return the clone.  All subnodes
         are also cloned recursively.  Attributes present in node
         dictionaries are preserved."""
         cloned = self.__class__(self.typ)
@@ -2421,7 +2420,7 @@ class _SchemaNode(object):
         return cloned
 
     def bind(self, **kw):
-        """ Resolve any deferred values attached to this schema node
+        """Resolve any deferred values attached to this schema node
         and its children (recursively), using the keywords passed as
         ``kw`` as input to each deferred value.  This function
         *clones* the schema it is called upon and returns the cloned
@@ -2452,7 +2451,7 @@ class _SchemaNode(object):
             self.after_bind(self, kw)
 
     def cstruct_children(self, cstruct):
-        """ Will call the node's type's ``cstruct_children`` method with this
+        """Will call the node's type's ``cstruct_children`` method with this
         node as a first argument, and ``cstruct`` as a second argument."""
         cstruct_children = getattr(self.typ, 'cstruct_children', None)
         if cstruct_children is None:
@@ -2484,7 +2483,7 @@ class _SchemaNode(object):
         return val
 
     def __setitem__(self, name, newnode):
-        """ Replace a subnode by name.  ``newnode`` must be a SchemaNode.  If
+        """Replace a subnode by name.  ``newnode`` must be a SchemaNode.  If
         a subnode named ``name`` doesn't already exist, calling this method
         is the same as setting the node's name to ``name`` and calling the
         ``add`` method with the node (it will be appended to the children
@@ -2513,7 +2512,7 @@ class _SchemaNode(object):
         )
 
     def raise_invalid(self, msg, node=None):
-        """ Raise a :exc:`colander.Invalid` exception with the message
+        """Raise a :exc:`colander.Invalid` exception with the message
         ``msg``.  ``node``, if supplied, should be an instance of a
         :class:`colander.SchemaNode`.  If it is not supplied, ``node`` will
         be this node.  Example usage::
@@ -2580,7 +2579,7 @@ class SequenceSchema(SchemaNode):
             )
 
     def clone(self):
-        """ Clone the schema node and return the clone.  All subnodes
+        """Clone the schema node and return the clone.  All subnodes
         are also cloned recursively.  Attributes present in node
         dictionaries are preserved."""
 
@@ -2596,7 +2595,7 @@ class SequenceSchema(SchemaNode):
 
 
 class deferred(object):
-    """ A decorator which can be used to define deferred schema values
+    """A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
 
     def __init__(self, wrapped):
