@@ -2109,22 +2109,26 @@ class Enum(SchemaType):
         return self.values[result]
 
 
+def _add_node_child(node, child):
+    insert_before = getattr(child, 'insert_before', None)
+    exists = node.get(child.name, _marker) is not _marker
+    # use exists for microspeed; we could just call __setitem__
+    # exclusively, but it does an enumeration that's unnecessary in the
+    # common (nonexisting) case (.add is faster)
+    if insert_before is None:
+        if exists:
+            node[child.name] = child
+        else:
+            node.add(child)
+    else:
+        if exists:
+            del node[child.name]
+        node.add_before(insert_before, child)
+
+
 def _add_node_children(node, children):
     for n in children:
-        insert_before = getattr(n, 'insert_before', None)
-        exists = node.get(n.name, _marker) is not _marker
-        # use exists for microspeed; we could just call __setitem__
-        # exclusively, but it does an enumeration that's unnecessary in the
-        # common (nonexisting) case (.add is faster)
-        if insert_before is None:
-            if exists:
-                node[n.name] = n
-            else:
-                node.add(n)
-        else:
-            if exists:
-                del node[n.name]
-            node.add_before(insert_before, n)
+        _add_node_child(node, n)
 
 
 class _SchemaNode(object):
@@ -2437,7 +2441,11 @@ class _SchemaNode(object):
             if isinstance(v, deferred):
                 v = v(self, kw)
                 if isinstance(v, SchemaNode):
-                    self[k] = v
+                    if not v.name:
+                        v.name = k
+                    if v.raw_title is _marker:
+                        v.title = k.replace('_', ' ').title()
+                    _add_node_child(self, v)
                 else:
                     setattr(self, k, v)
         if getattr(self, 'after_bind', None):
