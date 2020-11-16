@@ -2125,9 +2125,11 @@ def _add_node_child(node, child):
             del node[child.name]
         node.add_before(insert_before, child)
 
+
 def _add_node_children(node, children):
     for n in children:
         _add_node_child(node, n)
+
 
 class _SchemaNode(object):
     """
