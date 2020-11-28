@@ -1,5 +1,7 @@
-Unreleased
-==========
+1.8.3 (2020-11-28)
+==================
+
+- Add support for Python 3.9.
 
 - Fix handling of ``insert_before`` on deferred nodes so that it inserts the
   new node before the specified node instead of always appending to the end of
