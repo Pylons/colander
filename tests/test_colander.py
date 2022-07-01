@@ -506,6 +506,68 @@ class TestEmail(unittest.TestCase):
         self.assertRaises(Invalid, validator, None, 'name1,name2@here.info')
 
 
+class TestDataURL(unittest.TestCase):
+    def _makeOne(self):
+        from colander import DataURL
+
+        return DataURL()
+
+    def test_valid_data_urls(self):
+        validator = self._makeOne()
+        self.assertEqual(validator(None, 'data:,'), None)
+        self.assertEqual(validator(None, 'data:,foo'), None)
+        self.assertEqual(validator(None, 'data:;base64,'), None)
+        self.assertEqual(validator(None, 'data:;base64,Zm9vCg=='), None)
+        self.assertEqual(validator(None, 'data:text/plain,foo'), None)
+        self.assertEqual(
+            validator(None, 'data:text/plain;base64,Zm9vCg=='), None
+        )
+        self.assertEqual(validator(None, 'data:text/plain,foo%20bar'), None)
+        self.assertEqual(validator(None, 'data:text/plain,%F0%9F%A4%93'), None)
+
+    def test_invalid_data_urls(self):
+        validator = self._makeOne()
+        msg = 'Not a data URL'
+        e = invalid_exc(validator, None, '')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'foo')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'data:foo')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'data:;base64')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'data:;base32,')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'data:text/plain;charset=ASCII,foo')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(
+            validator, None, 'data:text/plain;charset=ASCII;base64,Zm9vCg=='
+        )
+        self.assertEqual(e.msg, msg)
+
+    def test_invalid_mimetypes(self):
+        validator = self._makeOne()
+        msg = 'Invalid MIME type'
+        e = invalid_exc(validator, None, 'data:no/mime,foo')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'data:no-mime;base64,Zm9vCg==')
+        self.assertEqual(e.msg, msg)
+
+    def test_invalid_base64_data(self):
+        validator = self._makeOne()
+        msg = 'Invalid Base64 encoded data'
+        e = invalid_exc(validator, None, 'data:;base64,Zm9vCg')
+        self.assertEqual(e.msg, msg)
+        e = invalid_exc(validator, None, 'data:text/plain;base64,Zm*vCg==')
+        self.assertEqual(e.msg, msg)
+
+    def test_invalid_mimetypes_and_base64(self):
+        validator = self._makeOne()
+        msg = ['Invalid MIME type', 'Invalid Base64 encoded data']
+        e = invalid_exc(validator, None, 'data:no/mime;base64,Zm9vCg')
+        self.assertEqual(e.msg, msg)
+
+
 class TestLength(unittest.TestCase):
     def _makeOne(self, **kw):
         from colander import Length
