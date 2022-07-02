@@ -19,7 +19,7 @@ _ = translationstring.TranslationStringFactory('colander')
 
 
 class _required(object):
-    """ Represents a required value in colander-related operations. """
+    """Represents a required value in colander-related operations."""
 
     def __repr__(self):
         return '<colander.required>'
@@ -34,7 +34,7 @@ _marker = required  # bw compat
 
 
 class _null(object):
-    """ Represents a null value in colander-related operations. """
+    """Represents a null value in colander-related operations."""
 
     def __nonzero__(self):
         return False
@@ -649,7 +649,7 @@ uuid = Regex(UUID_REGEX, _('Invalid UUID string'), re.IGNORECASE)
 
 
 class SchemaType(object):
-    """ Base class for all schema types """
+    """Base class for all schema types"""
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}
@@ -1418,7 +1418,7 @@ Str = String
 
 
 class Number(SchemaType):
-    """ Abstract base class for float, int, decimal """
+    """Abstract base class for float, int, decimal"""
 
     num = None
 
@@ -1693,7 +1693,7 @@ class GlobalObject(SchemaType):
         self.package = package
 
     def _pkg_resources_style(self, node, value):
-        """ package.module:attr style """
+        """package.module:attr style"""
         import pkg_resources
 
         if value.startswith('.') or value.startswith(':'):
@@ -1712,7 +1712,7 @@ class GlobalObject(SchemaType):
         return pkg_resources.EntryPoint.parse('x=%s' % value).resolve()
 
     def _zope_dottedname_style(self, node, value):
-        """ package.module.attr style """
+        """package.module.attr style"""
         module = self.package and self.package.__name__ or None
         if value == '.':
             if self.package is None:
@@ -2386,7 +2386,7 @@ class _SchemaNode(object):
         return appstruct
 
     def add(self, node):
-        """ Append a subnode to this node. ``node`` must be a SchemaNode."""
+        """Append a subnode to this node. ``node`` must be a SchemaNode."""
         self.children.append(node)
 
     def insert(self, index, node):
@@ -2469,14 +2469,14 @@ class _SchemaNode(object):
         return cstruct_children(self, cstruct)
 
     def __delitem__(self, name):
-        """ Remove a subnode by name """
+        """Remove a subnode by name"""
         for idx, node in enumerate(self.children[:]):
             if node.name == name:
                 return self.children.pop(idx)
         raise KeyError(name)
 
     def __getitem__(self, name):
-        """ Get a subnode by name. """
+        """Get a subnode by name."""
         val = self.get(name, _marker)
         if val is _marker:
             raise KeyError(name)
@@ -2496,11 +2496,11 @@ class _SchemaNode(object):
         self.add(newnode)
 
     def __iter__(self):
-        """ Iterate over the children nodes of this schema node """
+        """Iterate over the children nodes of this schema node"""
         return iter(self.children)
 
     def __contains__(self, name):
-        """ Return True if subnode named ``name`` exists in this node """
+        """Return True if subnode named ``name`` exists in this node"""
         return self.get(name, _marker) is not _marker
 
     def __repr__(self):
