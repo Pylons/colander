@@ -15,8 +15,8 @@ jobs:
                     '3.8',
                     '3.9',
                     '3.10',
-                    'pypy2',
-                    'pypy3',
+                    'pypy2.7',
+                    'pypy3.8',
                 ]
                 architecture: ['x64']
         name: "Python: ${{ matrix.py }}"
