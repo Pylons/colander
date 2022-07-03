@@ -25,7 +25,6 @@ if PY2:
     def is_nonstr_iter(v):
         return hasattr(v, '__iter__')
 
-
 else:
 
     def is_nonstr_iter(v):
