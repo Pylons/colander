@@ -89,7 +89,7 @@ The resulting flattened structure would look like this:
      'phones.1.number': '555-8989',
      }
 
-The process can be reversed using :meth:`colandar.SchemaNode.unflatten`:
+The process can be reversed using :meth:`colander.SchemaNode.unflatten`:
 
 .. code-block:: python
    :linenos:
