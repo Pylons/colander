@@ -291,7 +291,7 @@ class Function(object):
     If the function returns a stringlike object (a ``str`` or
     ``unicode`` object) that is *not* the empty string , a
     :exc:`colander.Invalid` exception is raised using the stringlike
-    value returned from the function as the exeption message
+    value returned from the function as the exception message
     (validation fails).
 
     If the function returns anything *except* a stringlike object
