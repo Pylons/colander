@@ -685,6 +685,45 @@ class Test_url_validator(unittest.TestCase):
 
         self.assertRaises(Invalid, self._callFUT, val)
 
+    def test_slashless_qs(self):
+        val = "http://example.com?k=v"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_slashless_fragment(self):
+        val = "http://example.com#fragment"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_auth_user(self):
+        val = "http://user@example.com"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_auth_user_password(self):
+        val = "http://user:password@example.com"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_i18n_idna(self):
+        val = "http://xn--vck8cuc4a.com"
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
+    def test_i18n_raw(self):
+        val = text_(
+            b"http://\xe3\x82\xb5\xe3\x83\xb3\xe3\x83\x97\xe3\x83\xab.com",
+            "utf-8",
+        )
+
+        result = self._callFUT(val)
+        self.assertEqual(result, None)
+
 
 class Test_file_uri_validator(unittest.TestCase):
     def _callFUT(self, val):
