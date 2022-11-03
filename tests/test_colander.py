@@ -640,89 +640,111 @@ class Test_url_validator(unittest.TestCase):
 
         return url(None, val)
 
-    def test_it_success(self):
-        val = 'http://example.com'
+    def _assert_success(self, val):
         result = self._callFUT(val)
         self.assertEqual(result, None)
 
-    def test_it_failure(self):
-        val = 'not-a-url'
+    def _assert_failure(self, val):
         from colander import Invalid
 
         self.assertRaises(Invalid, self._callFUT, val)
+
+    def test_it_success(self):
+        self._assert_success('http://example.com')
+
+    def test_it_failure(self):
+        self._assert_failure('not-a-url')
 
     def test_add_sample_dos(self):
         # In the old regex (colander <=1.6) this would cause a catastrophic
         # backtracking that would cause the regex engine to go into an infinite
         # loop.
-        val = "http://www.mysite.com/(tttttttttttttttttttttt.jpg"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_website_no_scheme(self):
-        val = "www.mysite.com"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_ipv6(self):
-        val = "http://[2001:db8::0]/"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_ipv4(self):
-        val = "http://192.0.2.1/"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_file_raises(self):
-        from colander import Invalid
-
-        val = "file:///this/is/a/file.jpg"
-
-        self.assertRaises(Invalid, self._callFUT, val)
-
-    def test_slashless_qs(self):
-        val = "http://example.com?k=v"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_slashless_fragment(self):
-        val = "http://example.com#fragment"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_auth_user(self):
-        val = "http://user@example.com"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_auth_user_password(self):
-        val = "http://user:password@example.com"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_i18n_idna(self):
-        val = "http://xn--vck8cuc4a.com"
-
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
-
-    def test_i18n_raw(self):
-        val = text_(
-            b"http://\xe3\x82\xb5\xe3\x83\xb3\xe3\x83\x97\xe3\x83\xab.com",
-            "utf-8",
+        self._assert_success(
+            "http://www.mysite.com/(tttttttttttttttttttttt.jpg"
         )
 
-        result = self._callFUT(val)
-        self.assertEqual(result, None)
+    def test_no_scheme(self):
+        self._assert_success("www.mysite.com")
+
+    def test_file_scheme_raises(self):
+        self._assert_failure("file:///this/is/a/file.jpg")
+
+    def test_auth_user(self):
+        self._assert_success("http://user@mysite.com")
+
+    def test_auth_user_blank_password(self):
+        self._assert_success("http://user:@mysite.com")
+
+    def test_auth_user_password(self):
+        self._assert_success("http://user:password@mysite.com")
+
+    def test_auth_user_password_with_quoted_atmark(self):
+        self._assert_success("http://user:pass%40word@mysite.com")
+
+    def test_host_ipv6(self):
+        self._assert_success("http://[2001:db8::0]/")
+
+    def test_host_ipv4(self):
+        self._assert_success("http://192.0.2.1/")
+
+    def test_host_fqdn_dot_finished(self):
+        self._assert_success("http://www.mysite.com.")
+
+    def test_host_fqdn_dot_started_raises(self):
+        self._assert_failure("http://.mysite.com")
+
+    def test_host_fqdn_hyphen_contains(self):
+        self._assert_success("http://www.my-site.com")
+
+    def test_host_fqdn_hyphen_finished_raises(self):
+        self._assert_failure("http://www.mysite-.com")
+
+    def test_host_fqdn_hyphen_started_raises(self):
+        self._assert_failure("http://www.-mysite.com")
+
+    def test_host_i18n_idna(self):
+        self._assert_success("http://xn--vck8cuc4a.com")
+
+    def test_host_i18n_raw(self):
+        self._assert_success(
+            text_(
+                b"http://\xe3\x82\xb5\xe3\x83\xb3\xe3\x83\x97\xe3\x83\xab.com",
+                "utf-8",
+            )
+        )
+
+    def test_host_localhost(self):
+        self._assert_success("http://localhost/")
+
+    def test_host_no_fqdn_failure(self):
+        self._assert_failure("http://mysite")
+
+    def test_port(self):
+        self._assert_success("http://mysite.com:8080")
+
+    def test_no_port_raises(self):
+        self._assert_failure("http://mysite.com:/path")
+
+    def test_wrong_port_raises(self):
+        self._assert_failure("http://mysite.com:aaa")
+
+    def test_qs(self):
+        self._assert_success("http://mysite.com/path?k=v")
+
+    def test_fragment(self):
+        self._assert_success("http://mysite.com/path#fragment")
+
+    def test_qs_fragment(self):
+        self._assert_success("http://mysite.com/path?k=v#fragment")
+
+    def test_slashless_qs(self):
+        self._assert_success("http://mysite.com?k=v")
+
+    def test_slashless_fragment(self):
+        self._assert_success("http://mysite.com#fragment")
+
+    def test_trailing_space_raises(self):
+        self._assert_failure("http://mysite.com ")
 
 
 class Test_file_uri_validator(unittest.TestCase):
