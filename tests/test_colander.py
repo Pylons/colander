@@ -780,7 +780,7 @@ class Test_url_validator(unittest.TestCase):
 
     def test_host_i18n_raw(self):
         self._assert_success(
-            text_(
+            str(
                 b"http://\xe3\x82\xb5\xe3\x83\xb3\xe3\x83\x97\xe3\x83\xab.com",
                 "utf-8",
             )

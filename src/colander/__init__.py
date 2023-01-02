@@ -444,9 +444,7 @@ class DataURL(Regex):
         self.url_err = url_err
         self.mimetype_err = mimetype_err
         self.base64_err = base64_err
-        super().__init__(
-            DATA_URL_REGEX, msg=url_err, flags=re.IGNORECASE
-        )
+        super().__init__(DATA_URL_REGEX, msg=url_err, flags=re.IGNORECASE)
 
     def __call__(self, node, value):
         match_ = self.match_object.match(value)
