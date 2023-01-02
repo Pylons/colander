@@ -435,7 +435,7 @@ class DataURL(Regex):
         self.url_err = url_err
         self.mimetype_err = mimetype_err
         self.base64_err = base64_err
-        super(DataURL, self).__init__(
+        super().__init__(
             DATA_URL_REGEX, msg=url_err, flags=re.IGNORECASE
         )
 
@@ -667,7 +667,7 @@ def _luhnok(value):
 
 
 def _make_url_regex_src():
-    ul = u"\u00a1-\uffff"  # Unicode letters range (must not be a raw string).
+    ul = "\u00a1-\uffff"  # Unicode letters range (must not be a raw string).
 
     # IP patterns
     ipv4_re = (
@@ -738,7 +738,7 @@ class SchemaType:
         if listitem:
             selfname = prefix
         else:
-            selfname = '{}{}'.format(prefix, node.name)
+            selfname = f'{prefix}{node.name}'
         result[selfname.rstrip('.')] = appstruct
         return result
 
@@ -914,7 +914,7 @@ class Mapping(SchemaType):
             selfprefix = prefix
         else:
             if node.name:
-                selfprefix = '{}{}.'.format(prefix, node.name)
+                selfprefix = f'{prefix}{node.name}.'
             else:
                 selfprefix = prefix
 
@@ -1052,7 +1052,7 @@ class Tuple(Positional, SchemaType):
         if listitem:
             selfprefix = prefix
         else:
-            selfprefix = '{}{}.'.format(prefix, node.name)
+            selfprefix = f'{prefix}{node.name}.'
 
         for num, subnode in enumerate(node.children):
             substruct = appstruct[num]
@@ -1315,12 +1315,12 @@ class Sequence(Positional, SchemaType):
         if listitem:
             selfprefix = prefix
         else:
-            selfprefix = '{}{}.'.format(prefix, node.name)
+            selfprefix = f'{prefix}{node.name}.'
 
         childnode = node.children[0]
 
         for num, subval in enumerate(appstruct):
-            subname = '{}{}'.format(selfprefix, num)
+            subname = f'{selfprefix}{num}'
             subprefix = subname + '.'
             result.update(
                 childnode.typ.flatten(
@@ -1340,7 +1340,7 @@ class Sequence(Positional, SchemaType):
         def rewrite_subpath(subpath):
             if '.' in subpath:
                 suffix = subpath.split('.', 1)[1]
-                return '{}.{}'.format(child_name, suffix)
+                return f'{child_name}.{suffix}'
             return child_name
 
         mapstruct = _unflatten_mapping(
