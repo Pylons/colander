@@ -1,5 +1,17 @@
-1.8.4 (Unreleased)
-==================
+unreleased
+==========
+
+- Drop support for Python 2.7, 3.4, 3.5, 3.6.
+
+- Add support for Python 3.10, 3.11.
+
+- **[breaking]** If a ``bytes`` object is serialized by a ``String`` schema
+  node with the ``encoding`` parameter specified, it will be passed through
+  directly to ``str`` first, causing it to come out with a ``b''`` prefix. In
+  order to serialize it properly, it should be decoded to a string first.
+  Previously, when the ``encoding`` parameter was specified it would be decoded
+  and re-encoded, effectively passing it through untouched, despite not being a
+  string type.
 
 - Add IDN support to ``colander.url``.
 
