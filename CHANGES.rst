@@ -57,7 +57,6 @@ unreleased
   replace then with an ``Invalid`` exception instead.
   See https://github.com/Pylons/colander/pull/338
 
->>>>>>> master
 1.7.0 (2019-02-01)
 ==================
 
