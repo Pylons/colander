@@ -1,3 +1,3 @@
 # For the benefit of TestGlobalObject
-class ImportableClass(object):
+class ImportableClass:
     pass

@@ -1,26 +1,21 @@
-# coding=utf-8
 import base64
 import copy
 import datetime
 import decimal
 import functools
+from iso8601 import iso8601
 import itertools
 import mimetypes
 import pprint
 import re
 import translationstring
-import warnings
 import types
-
-from iso8601 import iso8601
-
-from .compat import text_, text_type, string_types, xrange, is_nonstr_iter
-
+import warnings
 
 _ = translationstring.TranslationStringFactory('colander')
 
 
-class _required(object):
+class _required:
     """Represents a required value in colander-related operations."""
 
     def __repr__(self):
@@ -35,7 +30,7 @@ required = _required()
 _marker = required  # bw compat
 
 
-class _null(object):
+class _null:
     """Represents a null value in colander-related operations."""
 
     def __nonzero__(self):
@@ -54,7 +49,7 @@ class _null(object):
 null = _null()
 
 
-class _drop(object):
+class _drop:
     """Represents a value that will be dropped from the schema if it
     is missing during *serialization* or *deserialization*.  Passed as
     a value to the `missing` or `default` keyword argument
@@ -185,8 +180,7 @@ class Invalid(Exception):
                 yield tuple(stack)
 
             for child in node.children:
-                for path in traverse(child, stack):
-                    yield path
+                yield from traverse(child, stack)
 
             stack.pop()
 
@@ -239,11 +233,11 @@ class UnsupportedFields(Invalid):
     """
 
     def __init__(self, node, fields, msg=None):
-        super(UnsupportedFields, self).__init__(node, msg)
+        super().__init__(node, msg)
         self.fields = fields
 
 
-class All(object):
+class All:
     """Composite validator which succeeds if none of its
     subvalidators raises an :class:`colander.Invalid` exception"""
 
@@ -271,7 +265,7 @@ class Any(All):
 
     def __call__(self, node, value):
         try:
-            return super(Any, self).__call__(node, value)
+            return super().__call__(node, value)
         except Invalid as e:
             if len(e.msg) < len(self.validators):
                 # At least one validator did not fail:
@@ -279,25 +273,24 @@ class Any(All):
             raise
 
 
-class Function(object):
+class Function:
     """Validator which accepts a function and an optional message;
     the function is called with the ``value`` during validation.
 
-    If the function returns anything falsy (``None``, ``False``, the
+    If the function returns anything falsey (``None``, ``False``, the
     empty string, ``0``, an object with a ``__nonzero__`` that returns
     ``False``, etc) when called during validation, an
     :exc:`colander.Invalid` exception is raised (validation fails);
     its msg will be the value of the ``msg`` argument passed to this
     class' constructor.
 
-    If the function returns a stringlike object (a ``str`` or
-    ``unicode`` object) that is *not* the empty string , a
-    :exc:`colander.Invalid` exception is raised using the stringlike
-    value returned from the function as the exeption message
+    If the function returns a ``str`` object that is *not* the empty string,
+    a :exc:`colander.Invalid` exception is raised using the string
+    value returned from the function as the exception message
     (validation fails).
 
-    If the function returns anything *except* a stringlike object
-    object which is truthy (e.g. ``True``, the integer ``1``, an
+    If the function returns anything *except* a string object
+    which is truthy (e.g. ``True``, the integer ``1``, an
     object with a ``__nonzero__`` that returns ``True``, etc), an
     :exc:`colander.Invalid` exception is *not* raised (validation
     succeeds).
@@ -333,7 +326,7 @@ class Function(object):
                     self.msg, mapping={'val': value}
                 ),
             )
-        if isinstance(result, string_types):
+        if isinstance(result, str):
             raise Invalid(
                 node,
                 translationstring.TranslationString(
@@ -342,7 +335,7 @@ class Function(object):
             )
 
 
-class Regex(object):
+class Regex:
     """Regular expression validator.
 
     Initialize it with the string regular expression ``regex`` that will
@@ -365,7 +358,7 @@ class Regex(object):
     """
 
     def __init__(self, regex, msg=None, flags=0):
-        if isinstance(regex, string_types):
+        if isinstance(regex, str):
             self.match_object = re.compile(regex, flags)
         else:
             self.match_object = regex
@@ -399,10 +392,9 @@ class Email(Regex):
     """
 
     def __init__(self, msg=None):
-        email_regex = text_(EMAIL_RE)
         if msg is None:
             msg = _("Invalid email address")
-        super(Email, self).__init__(email_regex, msg=msg)
+        super().__init__(EMAIL_RE, msg=msg)
 
 
 # Regex for data URLs, loosely based on MDN:
@@ -420,13 +412,14 @@ DATA_URL_REGEX = (
 
 
 class DataURL(Regex):
-    """A data URL validator. If ``url_msg`` is supplied, it will be the error
-    message to be used when raising :exc:`colander.Invalid` for a syntactically
-    incorrect data URL, defaults to 'Not a data URL'. If, however, the data
-    URL string is syntactically correct but contains an invalid MIME type,
-    ``mimetype_err`` is raised (defaults to 'Invalid MIME type'); for incorrectly
-    encoded Base64 data, ``base64_err`` is raised (defaults to  'Invalid Base64
-    encoded data').
+    """A data URL validator.
+
+    If ``url_msg`` is supplied, it will be the error message to be used when
+    raising :exc:`colander.Invalid` for a syntactically incorrect data URL,
+    defaults to 'Not a data URL'. If, however, the data URL string is
+    syntactically correct but contains an invalid MIME type, ``mimetype_err``
+    is raised (defaults to 'Invalid MIME type'); for incorrectly encoded Base64
+    data, ``base64_err`` is raised (defaults to 'Invalid Base64 encoded data').
     """
 
     _URL_ERR = _("Not a data URL")
@@ -439,12 +432,11 @@ class DataURL(Regex):
         mimetype_err=_MIMETYPE_ERR,
         base64_err=_BASE64_ERR,
     ):
-        data_url_regex = text_(DATA_URL_REGEX)
         self.url_err = url_err
         self.mimetype_err = mimetype_err
         self.base64_err = base64_err
         super(DataURL, self).__init__(
-            data_url_regex, msg=url_err, flags=re.IGNORECASE
+            DATA_URL_REGEX, msg=url_err, flags=re.IGNORECASE
         )
 
     def __call__(self, node, value):
@@ -466,7 +458,7 @@ class DataURL(Regex):
             raise Invalid(node, excs)
 
 
-class Range(object):
+class Range:
     """Validator which succeeds if the value it is passed is greater
     or equal to ``min`` and less than or equal to ``max``.  If ``min``
     is not specified, or is specified as ``None``, no lower bound
@@ -517,7 +509,7 @@ class Range(object):
                 raise Invalid(node, max_err)
 
 
-class Length(object):
+class Length:
     """Validator which succeeds if the value passed to it has a
     length between a minimum and maximum, expressed in the
     optional ``min`` and ``max`` arguments.
@@ -563,7 +555,7 @@ class Length(object):
                 raise Invalid(node, max_err)
 
 
-class OneOf(object):
+class OneOf:
     """Validator which succeeds if the value passed to it is one of
     a fixed set of values"""
 
@@ -580,7 +572,7 @@ class OneOf(object):
             raise Invalid(node, err)
 
 
-class NoneOf(object):
+class NoneOf:
     """Validator which succeeds if the value passed to it is none of a
     fixed set of values.
 
@@ -607,7 +599,7 @@ class NoneOf(object):
         raise Invalid(node, err)
 
 
-class ContainsOnly(object):
+class ContainsOnly:
     """Validator which succeeds if the value passed to is a sequence and each
     element in the sequence is also in the sequence passed as ``choices``.
     This validator is useful when attached to a schemanode with, e.g. a
@@ -711,7 +703,7 @@ UUID_REGEX = (
 uuid = Regex(UUID_REGEX, _('Invalid UUID string'), re.IGNORECASE)
 
 
-class SchemaType(object):
+class SchemaType:
     """Base class for all schema types"""
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
@@ -719,7 +711,7 @@ class SchemaType(object):
         if listitem:
             selfname = prefix
         else:
-            selfname = '%s%s' % (prefix, node.name)
+            selfname = '{}{}'.format(prefix, node.name)
         result[selfname.rstrip('.')] = appstruct
         return result
 
@@ -895,7 +887,7 @@ class Mapping(SchemaType):
             selfprefix = prefix
         else:
             if node.name:
-                selfprefix = '%s%s.' % (prefix, node.name)
+                selfprefix = '{}{}.'.format(prefix, node.name)
             else:
                 selfprefix = prefix
 
@@ -930,7 +922,7 @@ class Mapping(SchemaType):
         return appstruct[path]
 
 
-class Positional(object):
+class Positional:
     """
     Marker abstract base class meaning 'this type has children which
     should be addressed by position instead of name' (e.g. via seq[0],
@@ -1033,7 +1025,7 @@ class Tuple(Positional, SchemaType):
         if listitem:
             selfprefix = prefix
         else:
-            selfprefix = '%s%s.' % (prefix, node.name)
+            selfprefix = '{}{}.'.format(prefix, node.name)
 
         for num, subnode in enumerate(node.children):
             substruct = appstruct[num]
@@ -1055,7 +1047,7 @@ class Tuple(Positional, SchemaType):
             next_name, rest = path.split('.', 1)
         else:
             next_name, rest = path, None
-        for index, next_node in enumerate(node.children):
+        for index, next_node in enumerate(node.children):  # noqa B007
             if next_node.name == next_name:
                 break
         else:
@@ -1074,7 +1066,7 @@ class Tuple(Positional, SchemaType):
             name, rest = path.split('.', 1)
         else:
             name, rest = path, None
-        for index, next_node in enumerate(node.children):
+        for index, next_node in enumerate(node.children):  # noqa B007
             if next_node.name == name:
                 break
         else:
@@ -1191,7 +1183,7 @@ class Sequence(Positional, SchemaType):
         if (
             hasattr(value, '__iter__')
             and not hasattr(value, 'get')
-            and not isinstance(value, string_types)
+            and not isinstance(value, str)
         ):
             return list(value)
         if accept_scalar:
@@ -1296,12 +1288,12 @@ class Sequence(Positional, SchemaType):
         if listitem:
             selfprefix = prefix
         else:
-            selfprefix = '%s%s.' % (prefix, node.name)
+            selfprefix = '{}{}.'.format(prefix, node.name)
 
         childnode = node.children[0]
 
         for num, subval in enumerate(appstruct):
-            subname = '%s%s' % (selfprefix, num)
+            subname = '{}{}'.format(selfprefix, num)
             subprefix = subname + '.'
             result.update(
                 childnode.typ.flatten(
@@ -1321,13 +1313,13 @@ class Sequence(Positional, SchemaType):
         def rewrite_subpath(subpath):
             if '.' in subpath:
                 suffix = subpath.split('.', 1)[1]
-                return '%s.%s' % (child_name, suffix)
+                return '{}.{}'.format(child_name, suffix)
             return child_name
 
         mapstruct = _unflatten_mapping(
             node, paths, fstruct, get_child, rewrite_subpath
         )
-        return [mapstruct[str(index)] for index in xrange(len(mapstruct))]
+        return [mapstruct[str(index)] for index in range(len(mapstruct))]
 
     def set_value(self, node, appstruct, path, value):
         if '.' in path:
@@ -1356,7 +1348,10 @@ Seq = Sequence
 
 
 class String(SchemaType):
-    """A type representing a Unicode string.
+    """A type representing a text string.
+
+    It is always an error to deserialize a non-text/binary type. Binary types
+    are only accepted if the ``encoding`` argument is specified.
 
     This type constructor accepts two arguments:
 
@@ -1367,46 +1362,32 @@ class String(SchemaType):
        this type will not do any special encoding of the appstruct it is
        provided, nor will the ``deserialize`` method of this type do
        any special decoding of the cstruct it is provided; inputs and
-       outputs will be assumed to be Unicode.  ``encoding`` defaults
+       outputs will be assumed to be text.  ``encoding`` defaults
        to ``None``.
 
        If ``encoding`` is ``None``:
 
-       - A Unicode input value to ``serialize`` is returned untouched.
+       - Any value to ``serialize`` is run through the ``str`` function to
+         convert to text, and the result is returned.
 
-       - A non-Unicode input value to ``serialize`` is run through the
-         ``unicode()`` function without an ``encoding`` parameter
-         (``unicode(value)``) and the result is returned.
-
-       - A Unicode input value to ``deserialize`` is returned untouched.
-
-       - A non-Unicode input value to ``deserialize`` is run through the
-         ``unicode()`` function without an ``encoding`` parameter
-         (``unicode(value)``) and the result is returned.
+       - A text input value to ``deserialize`` is returned untouched.
 
        If ``encoding`` is not ``None``:
 
-       - A Unicode input value to ``serialize`` is run through the
-         ``unicode`` function with the encoding parameter
-         (``unicode(value, encoding)``) and the result (a ``str``
-         object) is returned.
+       - Any value to ``serialize`` is run through the ``str`` function to
+         convert to text. The value is then encoded to binary with
+         the encoding parameter (``bytes(value, encoding)``) and the result
+         (a ``bytes`` object) is returned.
 
-       - A non-Unicode input value to ``serialize`` is converted to a
-         Unicode using the encoding (``unicode(value, encoding)``);
-         subsequently the Unicode object is re-encoded to a ``str``
-         object using the encoding and returned.
+       - A text input value to ``deserialize`` is returned untouched.
 
-       - A Unicode input value to ``deserialize`` is returned
-         untouched.
+       - A binary input value to ``deserialize`` is decoded to text using
+         the encoding parameter (``str(value, encoding)``) and the result is
+         returned.
 
-       - A non-Unicode input value to ``deserialize`` is converted to
-         a ``str`` object using ``str(value``).  The resulting str
-         value is converted to Unicode using the encoding
-         (``unicode(value, encoding)``) and the result is returned.
-
-       A corollary: If a string (as opposed to a unicode object) is
+       A corollary: If a ``bytes`` (as opposed to a ``str`` object) is
        provided as a value to either the serialize or deserialize
-       method of this type, and the type also has an non-None
+       method of this type, and the type also has an non-``None``
        ``encoding``, the string must be encoded with the type's
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
@@ -1429,16 +1410,11 @@ class String(SchemaType):
             return null
 
         try:
-            if isinstance(appstruct, (text_type, bytes)):
-                encoding = self.encoding
-                if encoding:
-                    result = text_(appstruct, encoding).encode(encoding)
-                else:
-                    result = text_type(appstruct)
-            else:
-                result = text_type(appstruct)
-                if self.encoding:
-                    result = result.encode(self.encoding)
+            result = appstruct
+            if not isinstance(result, str):
+                result = str(result)
+            if self.encoding:
+                result = result.encode(self.encoding)
             return result
         except Exception as e:
             raise Invalid(
@@ -1451,20 +1427,17 @@ class String(SchemaType):
 
     def deserialize(self, node, cstruct):
         if cstruct == '' and self.allow_empty:
-            return text_type('')
+            return ''
 
         if not cstruct:
             return null
 
         try:
-            result = cstruct
-            if isinstance(result, (text_type, bytes)):
-                if self.encoding:
-                    result = text_(cstruct, self.encoding)
-                else:
-                    result = text_type(cstruct)
-            else:
-                raise Invalid(node)
+            if isinstance(cstruct, str):
+                return cstruct
+            if self.encoding and isinstance(cstruct, bytes):
+                return str(cstruct, self.encoding)
+            raise Invalid(node)
         except Exception as e:
             raise Invalid(
                 node,
@@ -1473,8 +1446,6 @@ class String(SchemaType):
                     mapping={'val': cstruct, 'err': e},
                 ),
             )
-
-        return result
 
 
 Str = String
@@ -1535,7 +1506,7 @@ class Integer(Number):
 
             self.num = _strict_int
 
-        super(Integer, self).__init__()
+        super().__init__()
 
 
 Int = Integer
@@ -1613,7 +1584,7 @@ class Money(Decimal):
     """
 
     def __init__(self):
-        super(Money, self).__init__(decimal.Decimal('.01'), decimal.ROUND_UP)
+        super().__init__(decimal.Decimal('.01'), decimal.ROUND_UP)
 
 
 class Boolean(SchemaType):
@@ -1837,7 +1808,7 @@ class GlobalObject(SchemaType):
         if not cstruct:
             return null
 
-        if not isinstance(cstruct, string_types):
+        if not isinstance(cstruct, str):
             raise Invalid(
                 node, _('"${val}" is not a string', mapping={'val': cstruct})
             )
@@ -2194,7 +2165,7 @@ def _add_node_children(node, children):
         _add_node_child(node, n)
 
 
-class _SchemaNode(object):
+class _SchemaNode:
     """
     Fundamental building block of schemas.
 
@@ -2415,7 +2386,7 @@ class _SchemaNode(object):
 
         if self.preparer is not None:
             # if the preparer is a function, call a single preparer
-            if hasattr(self.preparer, '__call__'):
+            if callable(self.preparer):
                 appstruct = self.preparer(appstruct)
             # if the preparer is a list, call each separate preparer
             elif is_nonstr_iter(self.preparer):
@@ -2657,16 +2628,12 @@ class SequenceSchema(SchemaNode):
         return cloned
 
 
-class deferred(object):
+class deferred:
     """A decorator which can be used to define deferred schema values
     (missing values, widgets, validators, etc.)"""
 
     def __init__(self, wrapped):
-        try:
-            functools.update_wrapper(self, wrapped)
-        except AttributeError:
-            # non-function (raises in Python 2)
-            self.__doc__ = getattr(wrapped, '__doc__', None)
+        functools.update_wrapper(self, wrapped)
         self.wrapped = wrapped
 
     def __call__(self, node, kw):
@@ -2725,7 +2692,7 @@ def _unflatten_mapping(
     return appstruct
 
 
-class instantiate(object):
+class instantiate:
     """
     A decorator which can be used to instantiate :class:`SchemaNode`
     elements inline within a class definition.
@@ -2739,3 +2706,9 @@ class instantiate(object):
 
     def __call__(self, class_):
         return class_(*self.args, **self.kw)
+
+
+def is_nonstr_iter(v):
+    if isinstance(v, str):
+        return False
+    return hasattr(v, '__iter__')

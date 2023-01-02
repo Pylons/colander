@@ -23,7 +23,7 @@ def Validator(node, value):
     """
 
 
-class Type(object):
+class Type:
     def serialize(self, node, appstruct):
         """
         Serialize the :term:`appstruct` represented by ``appstruct``
