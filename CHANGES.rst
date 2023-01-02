@@ -1,12 +1,63 @@
-Unreleased
-==================
+unreleased
+==========
 
-- :class:`colander.All` now supports :attr:`colander.Invalid.msg` being ``None``
-  or a list, otherwise :meth:`colander.Invalid.asdict` crashes with
+- Drop support for Python 2.7, 3.4, 3.5, 3.6.
+
+- Add support for Python 3.10, 3.11.
+
+- **[breaking]** If a ``bytes`` object is serialized by a ``String`` schema
+  node with the ``encoding`` parameter specified, it will be passed through
+  directly to ``str`` first, causing it to come out with a ``b''`` prefix. In
+  order to serialize it properly, it should be decoded to a string first.
+  Previously, when the ``encoding`` parameter was specified it would be decoded
+  and re-encoded, effectively passing it through untouched, despite not being a
+  string type.
+
+- Add a new ``colander.DataURL`` validator.
+  See https://github.com/Pylons/colander/pull/348
+
+- Add IDN support to ``colander.url``.
+  See https://github.com/Pylons/colander/pull/352
+
+- ``colander.All`` now supports ``colander.Invalid.msg`` being ``None`` or a
+  list, otherwise ``colander.Invalid.asdict`` crashes with
   ``TypeError: sequence item 1: expected str instance, NoneType found``.
   See https://github.com/Pylons/colander/pull/333 and
   https://github.com/Pylons/colander/issues/194
 
+1.8.3 (2020-11-28)
+==================
+
+- Add support for Python 3.9.
+
+- Fix handling of ``insert_before`` on deferred nodes so that it inserts the
+  new node before the specified node instead of always appending to the end of
+  ``node.children`` after binding.
+
+1.8.2 (2020-08-07)
+==================
+
+- Fix the broken wheels in 1.8.1 and 1.8.0 to include the locale data. **sigh**
+
+1.8.1 (2020-08-06)
+==================
+
+- Fix the broken wheels in 1.8.0 to include the locale data.
+
+1.8.0 (2020-08-05)
+==================
+
+- Drop support for Python 3.4.
+
+- Add support for Python 3.7 and 3.8.
+
+- Fix deserializer on ``Date`` and ``DateTime`` fields to correctly catch
+  ``ValueError`` and ``TypeError`` exception, which can arise when using custom
+  formats on the field. Instead of allowing these exceptions to propagate,
+  replace then with an ``Invalid`` exception instead.
+  See https://github.com/Pylons/colander/pull/338
+
+>>>>>>> master
 1.7.0 (2019-02-01)
 ==================
 

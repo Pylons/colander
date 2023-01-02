@@ -61,9 +61,6 @@ Prepare master for further development (major releases only)
 Marketing and communications
 ----------------------------
 
-- Check `https://wiki.python.org/moin/WebServers
-  <https://wiki.python.org/moin/WebServers>`_.
-
 - Announce to Twitter.
 
 ```
