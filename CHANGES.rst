@@ -13,7 +13,11 @@ unreleased
   and re-encoded, effectively passing it through untouched, despite not being a
   string type.
 
+- Add a new ``colander.DataURL`` validator.
+  See https://github.com/Pylons/colander/pull/348
+
 - Add IDN support to ``colander.url``.
+  See https://github.com/Pylons/colander/pull/352
 
 1.8.3 (2020-11-28)
 ==================
