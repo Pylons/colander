@@ -13,6 +13,8 @@ unreleased
   and re-encoded, effectively passing it through untouched, despite not being a
   string type.
 
+- Add IDN support to ``colander.url``.
+
 1.8.3 (2020-11-28)
 ==================
 

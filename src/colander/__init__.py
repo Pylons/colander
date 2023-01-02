@@ -662,26 +662,53 @@ def _luhnok(value):
     return checksum
 
 
-# Gingerly lifted from Django 1.3.x:
-# https://github.com/django/django/blob/stable/1.3.x/django/core/validators.py#L45
-# <3 y'all!
-URL_REGEX = (
-    # {http,ftp}s:// (not required)
-    r'^((?:http|ftp)s?://)?'
-    # Domain
-    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'
-    r'(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
-    # Localhost
-    r'localhost|'
-    # IPv6 address
-    r'\[[a-f0-9:]+\]|'
-    # IPv4 address
-    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-    # Optional port
-    r'(?::\d+)?'
-    # Path
-    r'(?:/?|[/?]\S+)$'
-)
+# port from Django 4.1.x:
+# https://github.com/django/django/blob/stable/4.1.x/django/core/validators.py#L70
+
+
+def _make_url_regex_src():
+    ul = u"\u00a1-\uffff"  # Unicode letters range (must not be a raw string).
+
+    # IP patterns
+    ipv4_re = (
+        r"(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)"
+        r"(?:\.(?:0|25[0-5]|2[0-4][0-9]|1[0-9]?[0-9]?|[1-9][0-9]?)){3}"
+    )
+    ipv6_re = r"\[[0-9a-f:.]+\]"  # (simple regex, validated later)
+
+    # Host patterns
+    hostname_re = (
+        (r"[a-z" + ul + r"0-9]")
+        + r"(?:"
+        + (r"[a-z" + ul + r"0-9-]{0,61}")
+        + (r"[a-z" + ul + r"0-9]")
+        + r")?"
+    )
+    # Max length for domain name labels is 63 characters per RFC 1034 sec. 3.1
+    domain_re = r"(?:\.(?!-)[a-z" + ul + r"0-9-]{1,63}(?<!-))*"
+    tld_re = (
+        r"\."  # dot
+        r"(?!-)"  # can't start with a dash
+        r"(?:[a-z" + ul + "-]{2,63}"  # domain label
+        r"|xn--[a-z0-9]{1,59})"  # or punycode label
+        r"(?<!-)"  # can't end with a dash
+        r"\.?"  # may have a trailing dot
+    )
+    host_re = "(" + hostname_re + domain_re + tld_re + "|localhost)"
+
+    return (
+        # {http,ftp}s:// (not required)
+        r"^((?:http|ftp)s?://)?"
+        r"(?:[^\s:@/]+(?::[^\s:@/]*)?@)?"  # user:pass authentication
+        r"(?:" + ipv4_re + "|" + ipv6_re + "|" + host_re + ")"
+        r"(?::[0-9]{1,5})?"  # port
+        r"(?:[/?#][^\s]*)?"  # resource path
+        r"\Z"
+    )
+
+
+URL_REGEX = _make_url_regex_src()
+del _make_url_regex_src
 
 url = Regex(URL_REGEX, msg=_('Must be a URL'), flags=re.IGNORECASE)
 
