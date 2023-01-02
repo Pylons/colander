@@ -184,10 +184,10 @@ class TestInvalid(unittest.TestCase):
         node1 = DummySchemaNode(None, 'node1')
         validator1 = DummyValidator('validator1')
         validator2 = DummyValidatorWithMsgNone()
-        validator = All(validator1, validator2)
+        validator = All(All(validator1, validator2))
         exc = invalid_exc(validator, node1, None)
-        # TypeError: sequence item 1: expected str instance, NoneType found
-        exc.asdict()
+        result = exc.asdict()
+        self.assertEqual(result, {'node1': 'validator1'})
 
     def test___str__(self):
         from colander import Positional
