@@ -4098,7 +4098,6 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(schema.children[0], node)
 
     def test_schema_with_cloned_nodes(self):
-
         test_node = colander.SchemaNode(colander.String())
 
         class TestSchema(colander.Schema):
@@ -4109,6 +4108,93 @@ class TestSchema(unittest.TestCase):
         expected = {'a': 'foo', 'b': 'bar'}
         result = node.serialize(expected)
         self.assertEqual(result, expected)
+
+
+class TestMappingSchema(unittest.TestCase):
+    def test_succeed(self):
+        import colander
+
+        class MySchema(colander.MappingSchema):
+            pass
+
+        node = MySchema()
+        self.assertTrue(isinstance(node, colander.SchemaNode))
+        self.assertEqual(node.typ.__class__, colander.Mapping)
+
+    def test_imperative_with_implicit_schema_type(self):
+        import colander
+
+        node = colander.SchemaNode(colander.String())
+        schema = colander.MappingSchema(node)
+        self.assertEqual(schema.schema_type, colander.Mapping)
+        self.assertEqual(schema.children[0], node)
+
+    def test_deserialize_missing_drop(self):
+        import colander
+
+        class MySchema(colander.MappingSchema):
+            a = colander.SchemaNode(
+                colander.String(), default='abc', missing=colander.drop
+            )
+
+        node = MySchema()
+        result = node.deserialize({})
+        self.assertEqual(result, {})
+        result = node.deserialize({'a': colander.null})
+        self.assertEqual(result, {})
+        result = node.deserialize({'a': ''})
+        self.assertEqual(result, {})
+
+    def test_deserialize_missing_value(self):
+        import colander
+
+        class MySchema(colander.MappingSchema):
+            a = colander.SchemaNode(
+                colander.String(), default=colander.drop, missing='abc'
+            )
+
+        node = MySchema()
+        result = node.deserialize({})
+        self.assertEqual(result, {'a': 'abc'})
+        result = node.deserialize({'a': colander.null})
+        self.assertEqual(result, {'a': 'abc'})
+
+    def test_serialize_default_drop(self):
+        import colander
+
+        class MySchema(colander.MappingSchema):
+            a = colander.SchemaNode(
+                colander.String(), default=colander.drop, missing='def'
+            )
+
+        node = MySchema()
+        result = node.serialize({})
+        self.assertEqual(result, {})
+        result = node.serialize({'a': colander.null})
+        self.assertEqual(result, {})
+
+    def test_serialize_default_value(self):
+        import colander
+
+        class MySchema(colander.MappingSchema):
+            a = colander.SchemaNode(
+                colander.String(), default='abc', missing=colander.drop
+            )
+
+        node = MySchema()
+        result = node.serialize({})
+        self.assertEqual(result, {'a': 'abc'})
+        result = node.serialize({'a': colander.null})
+        self.assertEqual(result, {'a': 'abc'})
+
+    def test_clone_with_mapping_schema(self):
+        import colander
+
+        thingnode = colander.SchemaNode(colander.String(), name='foo')
+        schema = colander.MappingSchema(colander.Mapping(), thingnode)
+        result = schema.clone()
+        self.assertFalse(result.children[0] is thingnode)
+        self.assertEqual(result.children[0].name, thingnode.name)
 
 
 class TestSequenceSchema(unittest.TestCase):
@@ -4155,23 +4241,65 @@ class TestSequenceSchema(unittest.TestCase):
         self.assertEqual(schema.schema_type, colander.Sequence)
         self.assertEqual(schema.children[0], node)
 
-    def test_deserialize_drop(self):
+    def test_deserialize_missing_drop(self):
+        import colander
+
         class MySchema(colander.SequenceSchema):
-            a = colander.SchemaNode(colander.String(), missing=colander.drop)
+            a = colander.SchemaNode(
+                colander.String(), default='abc', missing=colander.drop
+            )
 
         node = MySchema()
         result = node.deserialize([None])
         self.assertEqual(result, [])
         result = node.deserialize([colander.null])
         self.assertEqual(result, [])
+        result = node.deserialize([''])
+        self.assertEqual(result, [])
 
-    def test_serialize_drop_default(self):
+    def test_deserialize_missing_value(self):
+        import colander
+
         class MySchema(colander.SequenceSchema):
-            a = colander.SchemaNode(colander.String(), default=colander.drop)
+            a = colander.SchemaNode(
+                colander.String(), default=colander.drop, missing='abc'
+            )
 
         node = MySchema()
+        result = node.deserialize([None])
+        self.assertEqual(result, ['abc'])
+        result = node.deserialize([colander.null])
+        self.assertEqual(result, ['abc'])
+
+    def test_serialize_default_drop(self):
+        import colander
+
+        class MySchema(colander.SequenceSchema):
+            a = colander.SchemaNode(
+                colander.String(), default=colander.drop, missing='abc'
+            )
+
+        node = MySchema()
+        result = node.serialize([])
+        self.assertEqual(result, [])
         result = node.serialize([colander.null])
         self.assertEqual(result, [])
+
+    def test_serialize_default_value(self):
+        import colander
+
+        class MySchema(colander.SequenceSchema):
+            a = colander.SchemaNode(
+                colander.String(), default='abc', missing=colander.drop
+            )
+
+        node = MySchema()
+        # NOTE: This test fails--but what *should* it do
+        # when a Sequence has a subnode with a default?
+        # result = node.serialize([])
+        # self.assertEqual(result, ['abc'])
+        result = node.serialize([colander.null])
+        self.assertEqual(result, ['abc'])
 
     def test_clone_with_sequence_schema(self):
 
@@ -4183,6 +4311,8 @@ class TestSequenceSchema(unittest.TestCase):
         self.assertEqual(len(schema.children), len(clone.children))
         self.assertIsNot(schema.children[0], clone.children[0])
         self.assertEqual(schema.children[0].name, clone.children[0].name)
+        self.assertFalse(clone.children[0] is thingnode)
+        self.assertEqual(clone.children[0].name, thingnode.name)
 
 
 class TestTupleSchema(unittest.TestCase):

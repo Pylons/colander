@@ -856,7 +856,7 @@ class Mapping(SchemaType):
             children.append(subval)
         return children
 
-    def _impl(self, node, value, callback):
+    def _impl(self, node, value, callback, default_or_missing):
         value = self._validate(node, value)
 
         error = None
@@ -865,7 +865,10 @@ class Mapping(SchemaType):
         for num, subnode in enumerate(node.children):
             name = subnode.name
             subval = value.pop(name, null)
-            if subval is drop or (subval is null and subnode.default is drop):
+            if subval is drop or (
+                subval is null
+                and getattr(subnode, default_or_missing, None) is drop
+            ):
                 continue
             try:
                 sub_result = callback(subnode, subval)
@@ -904,7 +907,7 @@ class Mapping(SchemaType):
         def callback(subnode, subappstruct):
             return subnode.serialize(subappstruct)
 
-        return self._impl(node, appstruct, callback)
+        return self._impl(node, appstruct, callback, 'default')
 
     def deserialize(self, node, cstruct):
         if cstruct is null:
@@ -913,7 +916,7 @@ class Mapping(SchemaType):
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
-        return self._impl(node, cstruct, callback)
+        return self._impl(node, cstruct, callback, 'missing')
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}
@@ -1232,7 +1235,7 @@ class Sequence(Positional, SchemaType):
             return SequenceItems([])
         return SequenceItems(cstruct)
 
-    def _impl(self, node, value, callback, accept_scalar):
+    def _impl(self, node, value, callback, default_or_missing, accept_scalar):
         if accept_scalar is None:
             accept_scalar = self.accept_scalar
 
@@ -1243,7 +1246,10 @@ class Sequence(Positional, SchemaType):
 
         subnode = node.children[0]
         for num, subval in enumerate(value):
-            if subval is drop or (subval is null and subnode.default is drop):
+            if subval is drop or (
+                subval is null
+                and getattr(subnode, default_or_missing, None) is drop
+            ):
                 continue
             try:
                 sub_result = callback(subnode, subval)
@@ -1287,7 +1293,7 @@ class Sequence(Positional, SchemaType):
         def callback(subnode, subappstruct):
             return subnode.serialize(subappstruct)
 
-        return self._impl(node, appstruct, callback, accept_scalar)
+        return self._impl(node, appstruct, callback, 'default', accept_scalar)
 
     def deserialize(self, node, cstruct, accept_scalar=None):
         """
@@ -1315,7 +1321,7 @@ class Sequence(Positional, SchemaType):
         def callback(subnode, subcstruct):
             return subnode.deserialize(subcstruct)
 
-        return self._impl(node, cstruct, callback, accept_scalar)
+        return self._impl(node, cstruct, callback, 'missing', accept_scalar)
 
     def flatten(self, node, appstruct, prefix='', listitem=False):
         result = {}

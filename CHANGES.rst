@@ -25,6 +25,13 @@ unreleased
   See https://github.com/Pylons/colander/pull/333 and
   https://github.com/Pylons/colander/issues/194
 
+- Fixed an issue with ``colander.Mapping`` and ``colander.Sequence``
+  where a ``default`` value of ``drop`` caused missing values to be dropped
+  during deserialization. (Only ``missing`` values should affect
+  deserialization, and only ``default`` values should affect serialization.)
+  Added many new test cases for ``MappingSchema`` and ``SequenceSchema``.
+  See https://github.com/Pylons/colander/pull/264
+
 1.8.3 (2020-11-28)
 ==================
 

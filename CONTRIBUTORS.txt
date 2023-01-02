@@ -136,6 +136,7 @@ Contributors
 - Bert JW Regeer, 2016/02/16
 - Steve Piercy, 2016/02/26
 - Sergiu Bivol, 2016/04/23
+- Michael Lenaghan, 2016/05/27
 - Denis Nasyrov, 2016/08/23
 - Gabriela Surita, 2017/01/31
 - Manuel Vázquez, 2018/11/22
