@@ -1,6 +1,4 @@
-# -*- coding:utf-8 -*-
 import unittest
-from colander.compat import text_, text_type
 import colander
 import tests
 
@@ -1691,7 +1689,7 @@ class TestString(unittest.TestCase):
         self.assertTrue(e.msg)
 
     def test_deserialize_unicode_from_None(self):
-        uni = text_(b'\xe3\x81\x82', 'utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.deserialize(node, uni)
@@ -1705,7 +1703,7 @@ class TestString(unittest.TestCase):
         self.assertRaises(colander.Invalid, typ.deserialize, node, value)
 
     def test_deserialize_from_utf8(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf8 = uni.encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
@@ -1713,7 +1711,7 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, uni)
 
     def test_deserialize_from_utf16(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf16 = uni.encode('utf-16')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
@@ -1754,17 +1752,17 @@ class TestString(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, value)
-        self.assertEqual(result, text_type(value))
+        self.assertEqual(result, str(value))
 
     def test_serialize_unicode_to_None(self):
-        value = text_('abc')
+        value = 'abc'
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, value)
         self.assertEqual(result, value)
 
     def test_serialize_to_utf8(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf8 = uni.encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
@@ -1772,22 +1770,22 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, utf8)
 
     def test_serialize_to_utf16(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf16 = uni.encode('utf-16')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
         result = typ.serialize(node, uni)
         self.assertEqual(result, utf16)
 
-    def test_serialize_string_with_high_unresolveable_high_order_chars(self):
+    def test_serialize_bytes(self):
         not_utf8 = b'\xff\xfe\xf8\x00'
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
-        e = invalid_exc(typ.serialize, node, not_utf8)
-        self.assertTrue('cannot be serialized' in e.msg)
+        result = typ.serialize(node, not_utf8)
+        self.assertEqual(result, str(not_utf8).encode('utf8'))
 
     def test_serialize_encoding_with_non_string_type(self):
-        utf8 = text_type('123').encode('utf-8')
+        utf8 = str('123').encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
         result = typ.serialize(node, 123)

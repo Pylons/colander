@@ -1,4 +1,3 @@
-# coding=utf-8
 import copy
 import datetime
 import decimal
@@ -11,9 +10,6 @@ import warnings
 import types
 
 from iso8601 import iso8601
-
-from .compat import text_, text_type, string_types, xrange, is_nonstr_iter
-
 
 _ = translationstring.TranslationStringFactory('colander')
 
@@ -281,21 +277,20 @@ class Function(object):
     """Validator which accepts a function and an optional message;
     the function is called with the ``value`` during validation.
 
-    If the function returns anything falsy (``None``, ``False``, the
+    If the function returns anything falsey (``None``, ``False``, the
     empty string, ``0``, an object with a ``__nonzero__`` that returns
     ``False``, etc) when called during validation, an
     :exc:`colander.Invalid` exception is raised (validation fails);
     its msg will be the value of the ``msg`` argument passed to this
     class' constructor.
 
-    If the function returns a stringlike object (a ``str`` or
-    ``unicode`` object) that is *not* the empty string , a
-    :exc:`colander.Invalid` exception is raised using the stringlike
+    If the function returns a ``str`` object that is *not* the empty string,
+    a :exc:`colander.Invalid` exception is raised using the string
     value returned from the function as the exception message
     (validation fails).
 
-    If the function returns anything *except* a stringlike object
-    object which is truthy (e.g. ``True``, the integer ``1``, an
+    If the function returns anything *except* a string object
+    which is truthy (e.g. ``True``, the integer ``1``, an
     object with a ``__nonzero__`` that returns ``True``, etc), an
     :exc:`colander.Invalid` exception is *not* raised (validation
     succeeds).
@@ -331,7 +326,7 @@ class Function(object):
                     self.msg, mapping={'val': value}
                 ),
             )
-        if isinstance(result, string_types):
+        if isinstance(result, str):
             raise Invalid(
                 node,
                 translationstring.TranslationString(
@@ -363,7 +358,7 @@ class Regex(object):
     """
 
     def __init__(self, regex, msg=None, flags=0):
-        if isinstance(regex, string_types):
+        if isinstance(regex, str):
             self.match_object = re.compile(regex, flags)
         else:
             self.match_object = regex
@@ -397,10 +392,9 @@ class Email(Regex):
     """
 
     def __init__(self, msg=None):
-        email_regex = text_(EMAIL_RE)
         if msg is None:
             msg = _("Invalid email address")
-        super(Email, self).__init__(email_regex, msg=msg)
+        super(Email, self).__init__(EMAIL_RE, msg=msg)
 
 
 class Range(object):
@@ -1128,7 +1122,7 @@ class Sequence(Positional, SchemaType):
         if (
             hasattr(value, '__iter__')
             and not hasattr(value, 'get')
-            and not isinstance(value, string_types)
+            and not isinstance(value, str)
         ):
             return list(value)
         if accept_scalar:
@@ -1264,7 +1258,7 @@ class Sequence(Positional, SchemaType):
         mapstruct = _unflatten_mapping(
             node, paths, fstruct, get_child, rewrite_subpath
         )
-        return [mapstruct[str(index)] for index in xrange(len(mapstruct))]
+        return [mapstruct[str(index)] for index in range(len(mapstruct))]
 
     def set_value(self, node, appstruct, path, value):
         if '.' in path:
@@ -1293,7 +1287,10 @@ Seq = Sequence
 
 
 class String(SchemaType):
-    """A type representing a Unicode string.
+    """A type representing a text string.
+
+    It is always an error to deserialize a non-text/binary type. Binary types
+    are only accepted if the ``encoding`` argument is specified.
 
     This type constructor accepts two arguments:
 
@@ -1304,46 +1301,32 @@ class String(SchemaType):
        this type will not do any special encoding of the appstruct it is
        provided, nor will the ``deserialize`` method of this type do
        any special decoding of the cstruct it is provided; inputs and
-       outputs will be assumed to be Unicode.  ``encoding`` defaults
+       outputs will be assumed to be text.  ``encoding`` defaults
        to ``None``.
 
        If ``encoding`` is ``None``:
 
-       - A Unicode input value to ``serialize`` is returned untouched.
+       - Any value to ``serialize`` is run through the ``str`` function to
+         convert to text, and the result is returned.
 
-       - A non-Unicode input value to ``serialize`` is run through the
-         ``unicode()`` function without an ``encoding`` parameter
-         (``unicode(value)``) and the result is returned.
-
-       - A Unicode input value to ``deserialize`` is returned untouched.
-
-       - A non-Unicode input value to ``deserialize`` is run through the
-         ``unicode()`` function without an ``encoding`` parameter
-         (``unicode(value)``) and the result is returned.
+       - A text input value to ``deserialize`` is returned untouched.
 
        If ``encoding`` is not ``None``:
 
-       - A Unicode input value to ``serialize`` is run through the
-         ``unicode`` function with the encoding parameter
-         (``unicode(value, encoding)``) and the result (a ``str``
-         object) is returned.
+       - Any value to ``serialize`` is run through the ``str`` function to
+         convert to text. The value is then encoded to binary with
+         the encoding parameter (``bytes(value, encoding)``) and the result
+         (a ``bytes`` object) is returned.
 
-       - A non-Unicode input value to ``serialize`` is converted to a
-         Unicode using the encoding (``unicode(value, encoding)``);
-         subsequently the Unicode object is re-encoded to a ``str``
-         object using the encoding and returned.
+       - A text input value to ``deserialize`` is returned untouched.
 
-       - A Unicode input value to ``deserialize`` is returned
-         untouched.
+       - A binary input value to ``deserialize`` is decoded to text using
+         the encoding parameter (``str(value, encoding)``) and the result is
+         returned.
 
-       - A non-Unicode input value to ``deserialize`` is converted to
-         a ``str`` object using ``str(value``).  The resulting str
-         value is converted to Unicode using the encoding
-         (``unicode(value, encoding)``) and the result is returned.
-
-       A corollary: If a string (as opposed to a unicode object) is
+       A corollary: If a ``bytes`` (as opposed to a ``str`` object) is
        provided as a value to either the serialize or deserialize
-       method of this type, and the type also has an non-None
+       method of this type, and the type also has an non-``None``
        ``encoding``, the string must be encoded with the type's
        encoding.  If this is not true, an :exc:`colander.Invalid`
        error will result.
@@ -1366,16 +1349,11 @@ class String(SchemaType):
             return null
 
         try:
-            if isinstance(appstruct, (text_type, bytes)):
-                encoding = self.encoding
-                if encoding:
-                    result = text_(appstruct, encoding).encode(encoding)
-                else:
-                    result = text_type(appstruct)
-            else:
-                result = text_type(appstruct)
-                if self.encoding:
-                    result = result.encode(self.encoding)
+            result = appstruct
+            if not isinstance(result, str):
+                result = str(result)
+            if self.encoding:
+                result = result.encode(self.encoding)
             return result
         except Exception as e:
             raise Invalid(
@@ -1388,20 +1366,17 @@ class String(SchemaType):
 
     def deserialize(self, node, cstruct):
         if cstruct == '' and self.allow_empty:
-            return text_type('')
+            return ''
 
         if not cstruct:
             return null
 
         try:
-            result = cstruct
-            if isinstance(result, (text_type, bytes)):
-                if self.encoding:
-                    result = text_(cstruct, self.encoding)
-                else:
-                    result = text_type(cstruct)
-            else:
-                raise Invalid(node)
+            if isinstance(cstruct, str):
+                return cstruct
+            if self.encoding and isinstance(cstruct, bytes):
+                return str(cstruct, self.encoding)
+            raise Invalid(node)
         except Exception as e:
             raise Invalid(
                 node,
@@ -1774,7 +1749,7 @@ class GlobalObject(SchemaType):
         if not cstruct:
             return null
 
-        if not isinstance(cstruct, string_types):
+        if not isinstance(cstruct, str):
             raise Invalid(
                 node, _('"${val}" is not a string', mapping={'val': cstruct})
             )
@@ -2676,3 +2651,9 @@ class instantiate(object):
 
     def __call__(self, class_):
         return class_(*self.args, **self.kw)
+
+
+def is_nonstr_iter(v):
+    if isinstance(v, str):
+        return False
+    return hasattr(v, '__iter__')
