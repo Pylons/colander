@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools >= 41", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+target_version = ["py37"]
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.pytest_cache
+  | dist
+  | build
+  | docs
+  | env.*
+)/
+'''
+
+# This next section only exists for people that have their editors
+# automatically call isort, black already sorts entries on its own when run.
+[tool.isort]
+profile = "black"
+py_version = 3
+combine_as_imports = true
+line_length = 79
+force_sort_within_sections = true
+no_lines_before = "THIRDPARTY"
+sections = "FUTURE,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+default_section = "THIRDPARTY"
+known_first_party = "hupper"

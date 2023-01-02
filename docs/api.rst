@@ -83,6 +83,8 @@ Validators
 
   .. autoclass:: Email
 
+  .. autoclass:: DataURL
+
   .. autofunction:: luhnok
 
   .. attribute:: url
@@ -132,6 +134,8 @@ Types
   .. autoclass:: Date
 
   .. autoclass:: Time
+
+  .. autoclass:: Enum
 
 Schema-Related
 ~~~~~~~~~~~~~~

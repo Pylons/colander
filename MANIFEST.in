@@ -1,0 +1,23 @@
+graft src/colander
+graft tests
+graft docs
+prune docs/_build
+graft .github
+
+include README.rst
+include CHANGES.txt
+include HISTORY.txt
+include RELEASING.txt
+include LICENSE.txt
+include contributing.md
+include CONTRIBUTORS.txt
+include COPYRIGHT.txt
+include CHANGES.rst
+
+include setup.cfg pyproject.toml
+include .coveragerc .flake8 pytest.ini
+include tox.ini rtd.txt
+
+exclude TODO.txt
+
+recursive-exclude * __pycache__ *.py[cod]

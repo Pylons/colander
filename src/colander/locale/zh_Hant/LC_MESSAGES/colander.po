@@ -1,0 +1,158 @@
+# Chinese (Traditional) translations for colander.
+# While this is meant to be a traditional chinese translation, since it was done
+# By someone from Taiwan, it might have regional specialites.
+# This file is distributed under the same license as the colander project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.8\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-09-18 22:57+0200\n"
+"PO-Revision-Date: 2017-03-21 11:07+0100\n"
+"Last-Translator: \n"
+"Language-Team: zh_Hant\n"
+"Language: zh_Hant\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 1.3\n"
+"X-Generator: Poedit 1.8.12\n"
+
+#: colander/__init__.py:294
+msgid "Invalid value"
+msgstr "無效值"
+
+#: colander/__init__.py:340
+msgid "String does not match expected pattern"
+msgstr "字符串和要求的模式不匹配"
+
+#: colander/__init__.py:359
+msgid "Invalid email address"
+msgstr "無效的郵件地址"
+
+#: colander/__init__.py:387
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} 低於最低限值 ${min}"
+
+#: colander/__init__.py:388
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} 大於最高限值 ${max}"
+
+#: colander/__init__.py:435
+msgid "Shorter than minimum length ${min}"
+msgstr "短於最小長度 ${min}"
+
+#: colander/__init__.py:436
+msgid "Longer than maximum length ${max}"
+msgstr "長於最大長度 ${max}"
+
+#: colander/__init__.py:464
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" 不是這些值 ${choices} 中的一個"
+
+#: colander/__init__.py:479
+msgid "\"${val}\" must not be one of ${choices}"
+msgstr "\"${val}\" 不能是 ${choices}"
+
+#: colander/__init__.py:501
+msgid "One or more of the choices you made was not acceptable"
+msgstr "您做出的一個或多個選擇是不可接受的"
+
+#: colander/__init__.py:523 colander/__init__.py:528
+msgid "\"${val}\" is not a valid credit card number"
+msgstr "\"${val}\" 不是有效的信用卡號碼"
+
+#: colander/__init__.py:549
+msgid "Must be a URL"
+msgstr "必須是網址"
+
+#: colander/__init__.py:553
+msgid "Invalid UUID string"
+msgstr "UUID 字符串無效"
+
+#: colander/__init__.py:650
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" 不是一個映射類型: ${err}"
+
+#: colander/__init__.py:694
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "無法識別的鍵: \"${val}\""
+
+#: colander/__init__.py:789 colander/__init__.py:1020
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" 不可迭代"
+
+#: colander/__init__.py:797
+msgid ""
+"\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr "\"${val}\" 的元素個數不正確 (要求 ${exp}, 實際 ${was})"
+
+#: colander/__init__.py:936 colander/__init__.py:967
+msgid "${cstruct} is not iterable"
+msgstr "${cstruct} 不可迭代"
+
+#: colander/__init__.py:1254
+msgid "${val} cannot be serialized: ${err}"
+msgstr "${val} 不可序列化: ${err}"
+
+#: colander/__init__.py:1275
+msgid "${val} is not a string: ${err}"
+msgstr "${val} 不是字符串: ${err}"
+
+#: colander/__init__.py:1295 colander/__init__.py:1306
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" 不是數字"
+
+#: colander/__init__.py:1454
+msgid "${val} is not a string"
+msgstr "${val} 不是字符串"
+
+#: colander/__init__.py:1465
+msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
+msgstr ""
+
+#: colander/__init__.py:1525 colander/__init__.py:1542
+#: colander/__init__.py:1552
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "相關名字 \"${val}\" 無法找到"
+
+#: colander/__init__.py:1582
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" 没有 __name__"
+
+#: colander/__init__.py:1591
+msgid "\"${val}\" is not a string"
+msgstr "\"${val}\" 不是字符串"
+
+#: colander/__init__.py:1600
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "點名字 \"${name}\" 無法匯入"
+
+#: colander/__init__.py:1648 colander/__init__.py:1722
+msgid "Invalid date"
+msgstr "無效日期"
+
+#: colander/__init__.py:1662
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" 不是一個時間日期對象"
+
+#: colander/__init__.py:1733
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" 不是一個日期對象"
+
+#: colander/__init__.py:1794
+msgid "Invalid time"
+msgstr "時間無效"
+
+#: colander/__init__.py:1804
+msgid "\"${val}\" is not a time object"
+msgstr "\"${val}\" 不是時間對象"
+
+#: colander/tests/test_colander.py:334 colander/tests/test_colander.py:341
+msgid "fail ${val}"
+msgstr ""
+
+#: colander/tests/test_colander.py:537
+msgid "${val}: ${choices}"
+msgstr "${val}  ${choices}"

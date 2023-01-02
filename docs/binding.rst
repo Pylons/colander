@@ -29,7 +29,7 @@ scope.
 What Is Schema Binding?
 -----------------------
 
-- Any values passed as a keyword argument to a SchemaNode
+- Any value passed as a keyword argument to a SchemaNode
   (e.g. ``description``, ``missing``, etc.)  may be an instance of the
   ``colander.deferred`` class.  Instances of the ``colander.deferred`` class
   are callables which accept two positional arguments: a ``node`` and a
@@ -120,43 +120,56 @@ Let's take a look at an example:
           categories = kw.get('categories', [])
           return deform.widget.RadioChoiceWidget(values=categories)
 
+      @colander.deferred
+      def deferred_author_node(node, kw):
+          if kw.get('with_author'):
+              return colander.SchemaNode(
+                  colander.String(),
+                  title='Author',
+                  description='Blog author',
+                  validator=colander.Length(min=3, max=100),
+                  widget=deform.widget.TextInputWidget(),
+              )
+
       class BlogPostSchema(colander.Schema):
           title = colander.SchemaNode(
               colander.String(),
-              title = 'Title',
-              description = 'Blog post title',
-              validator = colander.Length(min=5, max=100),
-              widget = deform.widget.TextInputWidget(),
+              title='Title',
+              description='Blog post title',
+              validator=colander.Length(min=5, max=100),
+              widget=deform.widget.TextInputWidget(),
               )
           date = colander.SchemaNode(
               colander.Date(),
-              title = 'Date',
-              missing = deferred_date_missing,
-              description = deferred_date_description,
-              validator = deferred_date_validator,
-              widget = deform.widget.DateInputWidget(),
+              title='Date',
+              missing=deferred_date_missing,
+              description=deferred_date_description,
+              validator=deferred_date_validator,
+              widget=deform.widget.DateInputWidget(),
               )
           body = colander.SchemaNode(
               colander.String(),
-              title = 'Body',
-              description = deferred_body_description,
-              validator = deferred_body_validator,
-              widget = deferred_body_widget,
+              title='Body',
+              description=deferred_body_description,
+              validator=deferred_body_validator,
+              widget=deferred_body_widget,
               )
           category = colander.SchemaNode(
               colander.String(),
-              title = 'Category',
-              description = 'Blog post category',
-              validator = deferred_category_validator,
-              widget = deferred_category_widget,
+              title='Category',
+              description='Blog post category',
+              validator=deferred_category_validator,
+              widget=deferred_category_widget,
               )
+          author = deferred_author_node
 
       schema = BlogPostSchema().bind(
-          max_date = datetime.date.max,
-          max_bodylen = 5000,
-          body_type = 'richtext',
-          default_date = datetime.date.today(),
-          categories = [('one', 'One'), ('two', 'Two')]
+          max_date=datetime.date.max,
+          max_bodylen=5000,
+          body_type='richtext',
+          default_date=datetime.date.today(),
+          categories=[('one', 'One'), ('two', 'Two')]
+          with_author=True,
           )
 
 We use ``colander.deferred`` in its preferred manner here: as a
@@ -193,6 +206,9 @@ resolved.  In the above example:
 - The ``category`` node's ``widget`` will be of the type
   ``RadioChoiceWidget``, and the values it will be provided will be
   ``[('one', 'One'), ('two', 'Two')]``.
+
+- The ``author`` node will only exist if the schema is bound
+  with ``with_author=True``.
 
 ``after_bind``
 --------------

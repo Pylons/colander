@@ -182,15 +182,15 @@ the schema node with the effective value.
 ===================== ===================== ===========================
 Value                 Default               Result
 ===================== ===================== ===========================
-colander.null         value                 value serialized
-<missing>             value                 value serialized
 colander.null         colander.null         null serialized
+colander.null         <missing>             null serialized
+colander.null         value                 value serialized
 <missing>             colander.null         null serialized
+<missing>             <missing>             null serialized
+<missing>             value                 value serialized
+value                 colander.null         value serialized
 value                 <missing>             value serialized
 value_a               value_b               value_a serialized
-value                 colander.null         value serialized
-colander.null         <missing>             null serialized
-colander.null         value                 null serialized
 ===================== ===================== ===========================
 
 .. note::
@@ -199,7 +199,7 @@ colander.null         value                 null serialized
    key present in a :class:`colander.MappingSchema` is not present in a
    mapping passed to its :meth:`colander.SchemaNode.serialize` method.  In
    reality, ``<missing>`` means exactly the same thing as
-   :attr:`colanderr.null`, because the :class:`colander.Mapping` type does
+   :attr:`colander.null`, because the :class:`colander.Mapping` type does
    the equivalent of ``mapping.get(keyname, colander.null)`` to find a
    subvalue during serialization.
 
@@ -305,13 +305,14 @@ of the schema node with the effective value.
 ===================== ===================== ===========================
 Value                 Missing               Result
 ===================== ===================== ===========================
+colander.null         colander.null         colander.null used
 colander.null         <missing>             Invalid exception raised
-<missing>             <missing>             Invalid exception raised
 colander.null         value                 value used
-<missing>             value                 value used
 <missing>             colander.null         colander.null used
-value                 <missing>             value used
+<missing>             <missing>             Invalid exception raised
+<missing>             value                 value used
 value                 colander.null         value used
+value                 <missing>             value used
 value_a               value_b               value_a used
 ===================== ===================== ===========================
 
