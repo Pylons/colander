@@ -1,6 +1,5 @@
-# -*- coding:utf-8 -*-
 import unittest
-from colander.compat import text_, text_type
+
 import colander
 import tests
 
@@ -103,8 +102,7 @@ class TestInvalid(unittest.TestCase):
 
     def test_asdict_with_all_validator(self):
         # see https://github.com/Pylons/colander/pull/27
-        from colander import All
-        from colander import Positional
+        from colander import All, Positional
 
         node1 = DummySchemaNode(None, 'node1')
         node2 = DummySchemaNode(Positional(), 'node2')
@@ -466,8 +464,9 @@ class TestRegex(unittest.TestCase):
         self.assertRaises(Invalid, self._makeOne('a{2,4}'), None, 'ba')
 
     def test_regex_not_string(self):
-        from colander import Invalid
         import re
+
+        from colander import Invalid
 
         regex = re.compile('[0-9]+')
         self.assertEqual(self._makeOne(regex)(None, '01'), None)
@@ -1406,7 +1405,7 @@ class TestSet(unittest.TestCase):
         typ = self._makeOne()
         node = DummySchemaNode(typ)
         result = typ.deserialize(node, ('a',))
-        self.assertEqual(result, set(('a',)))
+        self.assertEqual(result, {'a'})
 
     def test_deserialize_empty_set(self):
         typ = self._makeOne()
@@ -1476,8 +1475,7 @@ class TestSequence(unittest.TestCase):
         return Sequence(**kw)
 
     def test_alias(self):
-        from colander import Seq
-        from colander import Sequence
+        from colander import Seq, Sequence
 
         self.assertEqual(Seq, Sequence)
 
@@ -1645,8 +1643,7 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(typ.get_value(node1, appstruct, '1.0'), 3)
 
     def test_cstruct_children_cstruct_is_null(self):
-        from colander import null
-        from colander import SequenceItems
+        from colander import SequenceItems, null
 
         typ = self._makeOne()
         result = typ.cstruct_children(None, null)
@@ -1667,8 +1664,7 @@ class TestString(unittest.TestCase):
         return String(encoding, allow_empty)
 
     def test_alias(self):
-        from colander import Str
-        from colander import String
+        from colander import Str, String
 
         self.assertEqual(Str, String)
 
@@ -1691,7 +1687,7 @@ class TestString(unittest.TestCase):
         self.assertTrue(e.msg)
 
     def test_deserialize_unicode_from_None(self):
-        uni = text_(b'\xe3\x81\x82', 'utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.deserialize(node, uni)
@@ -1705,7 +1701,7 @@ class TestString(unittest.TestCase):
         self.assertRaises(colander.Invalid, typ.deserialize, node, value)
 
     def test_deserialize_from_utf8(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf8 = uni.encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
@@ -1713,7 +1709,7 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, uni)
 
     def test_deserialize_from_utf16(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf16 = uni.encode('utf-16')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
@@ -1754,17 +1750,17 @@ class TestString(unittest.TestCase):
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, value)
-        self.assertEqual(result, text_type(value))
+        self.assertEqual(result, str(value))
 
     def test_serialize_unicode_to_None(self):
-        value = text_('abc')
+        value = 'abc'
         node = DummySchemaNode(None)
         typ = self._makeOne()
         result = typ.serialize(node, value)
         self.assertEqual(result, value)
 
     def test_serialize_to_utf8(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf8 = uni.encode('utf-8')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
@@ -1772,22 +1768,22 @@ class TestString(unittest.TestCase):
         self.assertEqual(result, utf8)
 
     def test_serialize_to_utf16(self):
-        uni = text_(b'\xe3\x81\x82', encoding='utf-8')
+        uni = str(b'\xe3\x81\x82', 'utf-8')
         utf16 = uni.encode('utf-16')
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-16')
         result = typ.serialize(node, uni)
         self.assertEqual(result, utf16)
 
-    def test_serialize_string_with_high_unresolveable_high_order_chars(self):
+    def test_serialize_bytes(self):
         not_utf8 = b'\xff\xfe\xf8\x00'
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
-        e = invalid_exc(typ.serialize, node, not_utf8)
-        self.assertTrue('cannot be serialized' in e.msg)
+        result = typ.serialize(node, not_utf8)
+        self.assertEqual(result, str(not_utf8).encode('utf8'))
 
     def test_serialize_encoding_with_non_string_type(self):
-        utf8 = text_type('123').encode('utf-8')
+        utf8 = b'123'
         node = DummySchemaNode(None)
         typ = self._makeOne('utf-8')
         result = typ.serialize(node, 123)
@@ -1801,8 +1797,7 @@ class TestInteger(unittest.TestCase):
         return Integer(strict=strict)
 
     def test_alias(self):
-        from colander import Int
-        from colander import Integer
+        from colander import Int, Integer
 
         self.assertEqual(Int, Integer)
 
@@ -2098,8 +2093,7 @@ class TestBoolean(unittest.TestCase):
         return Boolean()
 
     def test_alias(self):
-        from colander import Bool
-        from colander import Boolean
+        from colander import Bool, Boolean
 
         self.assertEqual(Bool, Boolean)
 
@@ -2427,7 +2421,7 @@ class TestGlobalObject(unittest.TestCase):
             e = invalid_exc(typ.deserialize, node, name)
             self.assertEqual(
                 e.msg.interpolate(),
-                'The dotted name "{0}" cannot be imported'.format(name),
+                f'The dotted name "{name}" cannot be imported',
             )
 
     def test_serialize_fail(self):
@@ -3221,9 +3215,7 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(e.msg, 'Wrong')
 
     def test_deserialize_with_unbound_validator(self):
-        from colander import Invalid
-        from colander import deferred
-        from colander import UnboundDeferredError
+        from colander import Invalid, UnboundDeferredError, deferred
 
         typ = DummyType()
 
@@ -3238,8 +3230,7 @@ class TestSchemaNode(unittest.TestCase):
         self.assertRaises(Invalid, node.bind(foo='foo').deserialize, None)
 
     def test_deserialize_value_is_null_no_missing(self):
-        from colander import null
-        from colander import Invalid
+        from colander import Invalid, null
 
         typ = DummyType()
         node = self._makeOne(typ)
@@ -3286,9 +3277,7 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.deserialize(null), null)
 
     def test_deserialize_appstruct_deferred(self):
-        from colander import null
-        from colander import deferred
-        from colander import Invalid
+        from colander import Invalid, deferred, null
 
         typ = DummyType()
         node = self._makeOne(typ)
@@ -3325,8 +3314,7 @@ class TestSchemaNode(unittest.TestCase):
         self.assertEqual(node.serialize(), 'abc')
 
     def test_serialize_default_deferred(self):
-        from colander import deferred
-        from colander import null
+        from colander import deferred, null
 
         typ = DummyType()
         node = self._makeOne(typ)
@@ -3870,7 +3858,7 @@ class TestDeferred(unittest.TestCase):
         self.assertEqual(inst.__name__, 'wrapped_func')
 
     def test_w_callable_instance_no_name(self):
-        class Wrapped(object):
+        class Wrapped:
             """CLASS"""
 
             def __call__(self, node, kw):
@@ -3883,7 +3871,7 @@ class TestDeferred(unittest.TestCase):
         self.assertFalse('__name__' in inst.__dict__)
 
     def test_w_callable_instance_no_name_or_doc(self):
-        class Wrapped(object):
+        class Wrapped:
             def __call__(self, node, kw):
                 pass  # pragma: no cover
 
@@ -3916,8 +3904,7 @@ class TestDeferred(unittest.TestCase):
 
 class TestSchema(unittest.TestCase):
     def test_alias(self):
-        from colander import Schema
-        from colander import MappingSchema
+        from colander import MappingSchema, Schema
 
         self.assertEqual(Schema, MappingSchema)
 
@@ -4082,7 +4069,7 @@ class TestTupleSchema(unittest.TestCase):
         self.assertEqual(schema.children[0], node)
 
 
-class FunctionalBase(object):
+class FunctionalBase:
     def test_deserialize_ok(self):
 
         data = {
@@ -4506,8 +4493,9 @@ class Test_null(unittest.TestCase):
         self.assertEqual(repr(null), '<colander.null>')
 
     def test_pickling(self):
-        from colander import null
         import pickle
+
+        from colander import null
 
         self.assertTrue(pickle.loads(pickle.dumps(null)) is null)
 
@@ -4519,8 +4507,9 @@ class Test_required(unittest.TestCase):
         self.assertEqual(repr(required), '<colander.required>')
 
     def test_pickling(self):
-        from colander import required
         import pickle
+
+        from colander import required
 
         self.assertTrue(pickle.loads(pickle.dumps(required)) is required)
 
@@ -4532,17 +4521,18 @@ class Test_drop(unittest.TestCase):
         self.assertEqual(repr(drop), '<colander.drop>')
 
     def test_pickling(self):
-        from colander import drop
         import pickle
+
+        from colander import drop
 
         self.assertTrue(pickle.loads(pickle.dumps(drop)) is drop)
 
 
-class Dummy(object):
+class Dummy:
     pass
 
 
-class DummySchemaNode(object):
+class DummySchemaNode:
     def __init__(self, typ, name='', exc=None, default=None):
         self.typ = typ
         self.name = name
@@ -4571,7 +4561,7 @@ class DummySchemaNode(object):
                 return child
 
 
-class DummyValidator(object):
+class DummyValidator:
     def __init__(self, msg=None, children=None):
         self.msg = msg
         self.children = children
@@ -4585,14 +4575,14 @@ class DummyValidator(object):
             raise e
 
 
-class Uncooperative(object):
+class Uncooperative:
     def __str__(self):
         raise ValueError('I wont cooperate')
 
     __unicode__ = __str__
 
 
-class DummyType(object):
+class DummyType:
     def serialize(self, node, value):
         return value
 
