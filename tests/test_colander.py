@@ -177,6 +177,18 @@ class TestInvalid(unittest.TestCase):
                 },
             )
 
+    def test_asdict_with_msg_none(self):
+        # see https://github.com/Pylons/colander/pull/333
+        from colander import All
+
+        node1 = DummySchemaNode(None, 'node1')
+        validator1 = DummyValidator('validator1')
+        validator2 = DummyValidatorWithMsgNone()
+        validator = All(validator1, validator2)
+        exc = invalid_exc(validator, node1, None)
+        # TypeError: sequence item 1: expected str instance, NoneType found
+        exc.asdict()
+
     def test___str__(self):
         from colander import Positional
 
@@ -4696,6 +4708,14 @@ class DummyValidator:
             e = Invalid(node, self.msg)
             self.children and e.children.extend(self.children)
             raise e
+
+
+class DummyValidatorWithMsgNone:
+    def __call__(self, node, value):
+        from colander import Invalid
+
+        e = Invalid(node)
+        raise e
 
 
 class Uncooperative:
