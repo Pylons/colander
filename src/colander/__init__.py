@@ -1,9 +1,11 @@
+import base64
 import copy
 import datetime
 import decimal
 import functools
 from iso8601 import iso8601
 import itertools
+import mimetypes
 import pprint
 import re
 import translationstring
@@ -393,6 +395,67 @@ class Email(Regex):
         if msg is None:
             msg = _("Invalid email address")
         super().__init__(EMAIL_RE, msg=msg)
+
+
+# Regex for data URLs, loosely based on MDN:
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs
+DATA_URL_REGEX = (
+    # data: (required)
+    r'^data:'
+    # optional mime type
+    r'([^;]*)?'
+    # optional base64 identifier
+    r'(;base64)?'
+    # actual data follows the comma
+    r',(.*)$'
+)
+
+
+class DataURL(Regex):
+    """A data URL validator.
+
+    If ``url_msg`` is supplied, it will be the error message to be used when
+    raising :exc:`colander.Invalid` for a syntactically incorrect data URL,
+    defaults to 'Not a data URL'. If, however, the data URL string is
+    syntactically correct but contains an invalid MIME type, ``mimetype_err``
+    is raised (defaults to 'Invalid MIME type'); for incorrectly encoded Base64
+    data, ``base64_err`` is raised (defaults to 'Invalid Base64 encoded data').
+    """
+
+    _URL_ERR = _("Not a data URL")
+    _MIMETYPE_ERR = _("Invalid MIME type")
+    _BASE64_ERR = _("Invalid Base64 encoded data")
+
+    def __init__(
+        self,
+        url_err=_URL_ERR,
+        mimetype_err=_MIMETYPE_ERR,
+        base64_err=_BASE64_ERR,
+    ):
+        self.url_err = url_err
+        self.mimetype_err = mimetype_err
+        self.base64_err = base64_err
+        super(DataURL, self).__init__(
+            DATA_URL_REGEX, msg=url_err, flags=re.IGNORECASE
+        )
+
+    def __call__(self, node, value):
+        match_ = self.match_object.match(value)
+        if match_ is None:
+            raise Invalid(node, self.url_err)
+        excs = []
+        mime, is_base64_data, data = match_.groups()
+        if mime and mime not in mimetypes.types_map.values():
+            excs.append(self.mimetype_err)
+        try:
+            if is_base64_data:
+                base64.standard_b64decode(data)
+        except Exception:
+            excs.append(self.base64_err)
+        if len(excs) == 1:
+            raise Invalid(node, excs[0])
+        elif len(excs) == 2:
+            raise Invalid(node, excs)
 
 
 class Range:

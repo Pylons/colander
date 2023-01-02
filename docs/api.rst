@@ -83,6 +83,8 @@ Validators
 
   .. autoclass:: Email
 
+  .. autoclass:: DataURL
+
   .. autofunction:: luhnok
 
   .. attribute:: url
