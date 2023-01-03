@@ -53,6 +53,7 @@ Extract new messages:
     $ PY=.tox/py311/bin/python
     $ "$PY" setup.py extract_messages
     $ find src/colander/locale -type d -depth 1 -exec basename {} \; | xargs -n 1 "$PY" setup.py update_catalog -l
+    $ find src/colander/locale -type d -depth 1 -exec basename {} \; | xargs -n 1 "$PY" setup.py compile_catalog -l
 
 Contributing documentation
 --------------------------
