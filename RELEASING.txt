@@ -64,17 +64,13 @@ Marketing and communications
 - Announce to Twitter.
 
 ```
-colander 1.x released.
+colander 2.x released.
 
 PyPI
-https://pypi.org/project/colander/1.x/
+https://pypi.org/project/colander/2.x/
 
-=== One time only for new version, first pre-release ===
-What's New
-https://docs.pylonsproject.org/projects/colander/en/latest/#id2
-=== For all subsequent pre-releases ===
 Changes
-https://docs.pylonsproject.org/projects/colander/en/latest/#change-history
+https://docs.pylonsproject.org/projects/colander/en/latest/changes.html
 
 Documentation:
 https://docs.pylonsproject.org/projects/colander/en/latest/
@@ -86,20 +82,17 @@ https://github.com/Pylons/colander/issues
 - Announce to maillist.
 
 ```
-colander 1.X.X has been released.
+colander 2.X.X has been released.
 
 The full changelog is here:
-https://docs.pylonsproject.org/projects/colander/en/latest/#change-history
-
-What's New In colander 1.X:
-https://docs.pylonsproject.org/projects/colander/en/latest/#id2
+https://docs.pylonsproject.org/projects/colander/en/latest/changes.html
 
 Documentation:
 https://docs.pylonsproject.org/projects/colander/en/latest/
 
 You can install it via PyPI:
 
-  pip install colander==1.X
+  pip install colander==2.X
 
 Enjoy, and please report any issues you find to the issue tracker at
 https://github.com/Pylons/colander/issues
