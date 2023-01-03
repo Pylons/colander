@@ -4294,10 +4294,8 @@ class TestSequenceSchema(unittest.TestCase):
             )
 
         node = MySchema()
-        # NOTE: This test fails--but what *should* it do
-        # when a Sequence has a subnode with a default?
-        # result = node.serialize([])
-        # self.assertEqual(result, ['abc'])
+        result = node.serialize([])
+        self.assertEqual(result, [])
         result = node.serialize([colander.null])
         self.assertEqual(result, ['abc'])
 
