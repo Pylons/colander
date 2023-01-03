@@ -32,6 +32,9 @@ unreleased
   Added many new test cases for ``MappingSchema`` and ``SequenceSchema``.
   See https://github.com/Pylons/colander/pull/264
 
+- Remove the dependency on ``setuptools`` for resolving pkg_resources-style
+  importable paths in ``colander.GlobalObject``.
+
 1.8.3 (2020-11-28)
 ==================
 

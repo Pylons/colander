@@ -1768,8 +1768,6 @@ class GlobalObject(SchemaType):
 
     def _pkg_resources_style(self, node, value):
         """package.module:attr style"""
-        import pkg_resources
-
         if value.startswith('.') or value.startswith(':'):
             if not self.package:
                 raise Invalid(
@@ -1783,7 +1781,8 @@ class GlobalObject(SchemaType):
                 value = self.package.__name__
             else:
                 value = self.package.__name__ + value
-        return pkg_resources.EntryPoint.parse('x=%s' % value).resolve()
+        value = value.replace(':', '.', 1)
+        return self._zope_dottedname_style(node, value)
 
     def _zope_dottedname_style(self, node, value):
         """package.module.attr style"""
