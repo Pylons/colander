@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colander 0.5.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-09-18 22:57+0200\n"
+"POT-Creation-Date: 2023-01-02 19:48-0600\n"
 "PO-Revision-Date: 2016-09-18 23:02+0200\n"
 "Last-Translator: Andreas Kaiser <kaiser@xo7.de>\n"
 "Language: de\n"
@@ -16,149 +16,172 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
-"X-Generator: Poedit 1.8.9\n"
+"Generated-By: Babel 2.11.0\n"
 
-#: colander/__init__.py:294
+#: src/colander/__init__.py:319
 msgid "Invalid value"
 msgstr "Ungültiger Wert"
 
-#: colander/__init__.py:340
+#: src/colander/__init__.py:375
 msgid "String does not match expected pattern"
 msgstr "Die Zeichenkette entspricht nicht dem erwarteten Muster"
 
-#: colander/__init__.py:359
+#: src/colander/__init__.py:405
 msgid "Invalid email address"
 msgstr "Ungültige E-Mail-Adresse"
 
-#: colander/__init__.py:387
+#: src/colander/__init__.py:434
+msgid "Not a data URL"
+msgstr ""
+
+# | msgid "Invalid time"
+#: src/colander/__init__.py:435
+#, fuzzy
+msgid "Invalid MIME type"
+msgstr "Ungültige Uhrzeit"
+
+#: src/colander/__init__.py:436
+msgid "Invalid Base64 encoded data"
+msgstr ""
+
+#: src/colander/__init__.py:494
 msgid "${val} is less than minimum value ${min}"
 msgstr "${val} ist kleiner als der erlaubte Mindestwert (${min})"
 
-#: colander/__init__.py:388
+#: src/colander/__init__.py:495
 msgid "${val} is greater than maximum value ${max}"
 msgstr "${val} ist größer als der erlaubte Höchstwert (${max})"
 
-#: colander/__init__.py:435
+#: src/colander/__init__.py:545
 msgid "Shorter than minimum length ${min}"
 msgstr "Kürzer als erlaubt, die Mindestlänge beträgt ${min}"
 
-#: colander/__init__.py:436
+#: src/colander/__init__.py:546
 msgid "Longer than maximum length ${max}"
 msgstr "Länger als erlaubt, die Maximallänge beträgt ${max}"
 
-#: colander/__init__.py:464
+#: src/colander/__init__.py:569
 msgid "\"${val}\" is not one of ${choices}"
 msgstr "\"${val}\" ist nicht in der Auswahl ${choices}"
 
-#: colander/__init__.py:479
+#: src/colander/__init__.py:593
 msgid "\"${val}\" must not be one of ${choices}"
 msgstr "\"${val}\" darf nichts von ${choices} sein"
 
-#: colander/__init__.py:501
+#: src/colander/__init__.py:616
 msgid "One or more of the choices you made was not acceptable"
 msgstr "Mindestens eine Auswahl war nicht akzeptabel"
 
-#: colander/__init__.py:523 colander/__init__.py:528
+#: src/colander/__init__.py:639 src/colander/__init__.py:648
 msgid "\"${val}\" is not a valid credit card number"
 msgstr "\"${val}\" ist keine gültige Kreditkartennummer"
 
-#: colander/__init__.py:549
+#: src/colander/__init__.py:720
 msgid "Must be a URL"
 msgstr "Muss eine URL sein"
 
-#: colander/__init__.py:553
+#: src/colander/__init__.py:731
+msgid "Must be a file:// URI scheme"
+msgstr ""
+
+#: src/colander/__init__.py:737
 msgid "Invalid UUID string"
 msgstr "Ungültige UUID Zeichenkette"
 
-#: colander/__init__.py:650
+#: src/colander/__init__.py:839
 msgid "\"${val}\" is not a mapping type: ${err}"
 msgstr "\"${val}\" ist kein Mapping: ${err}"
 
-#: colander/__init__.py:694
+#: src/colander/__init__.py:889
 msgid "Unrecognized keys in mapping: \"${val}\""
 msgstr "Unbekannte Schlüssel im Mapping: ${val}"
 
-#: colander/__init__.py:789 colander/__init__.py:1020
+#: src/colander/__init__.py:990 src/colander/__init__.py:1230
 msgid "\"${val}\" is not iterable"
 msgstr "\"${val}\" ist nicht iterierbar"
 
-#: colander/__init__.py:797
+#: src/colander/__init__.py:998
 msgid ""
 "\"${val}\" has an incorrect number of elements (expected ${exp}, was "
 "${was})"
 msgstr "Ungültige Anzahl von Elementen (${was}, erwartet: ${exp})"
 
-#: colander/__init__.py:936 colander/__init__.py:967
+#: src/colander/__init__.py:1141 src/colander/__init__.py:1172
 msgid "${cstruct} is not iterable"
 msgstr "${cstruct} ist nicht iterierbar"
 
-#: colander/__init__.py:1254
+#: src/colander/__init__.py:1462
 msgid "${val} cannot be serialized: ${err}"
 msgstr "${val} kann nicht serialisiert werden: ${err}"
 
-#: colander/__init__.py:1275
+#: src/colander/__init__.py:1484
 msgid "${val} is not a string: ${err}"
 msgstr "${val} ist keine Zeichenkette: ${err}"
 
-#: colander/__init__.py:1295 colander/__init__.py:1306
+#: src/colander/__init__.py:1507 src/colander/__init__.py:1518
 msgid "\"${val}\" is not a number"
 msgstr "\"${val}\" ist keine Zahl"
 
-#: colander/__init__.py:1454
+#: src/colander/__init__.py:1697
 msgid "${val} is not a string"
 msgstr "${val} ist keine Zeichenkette"
 
-#: colander/__init__.py:1465
+#: src/colander/__init__.py:1709
 msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
 msgstr ""
 "\"${val}\" ist weder in (${false_choices}) noch in (${true_choices}) "
 "enthalten"
 
-#: colander/__init__.py:1525 colander/__init__.py:1542
-#: colander/__init__.py:1552
+#: src/colander/__init__.py:1775 src/colander/__init__.py:1794
+#: src/colander/__init__.py:1806
 msgid "relative name \"${val}\" irresolveable without package"
 msgstr "relativer Name \"${val}\" ist ohne Paket nicht auflösbar"
 
-#: colander/__init__.py:1582
+#: src/colander/__init__.py:1843
 msgid "\"${val}\" has no __name__"
 msgstr "\"${val}\" hat kein __name__ Attribut"
 
-#: colander/__init__.py:1591
+#: src/colander/__init__.py:1852
 msgid "\"${val}\" is not a string"
 msgstr "${val} ist keine Zeichenkette"
 
-#: colander/__init__.py:1600
+#: src/colander/__init__.py:1862
 msgid "The dotted name \"${name}\" cannot be imported"
 msgstr "Der Dotted-Name \"${name}\" kann nicht importiert werden"
 
-#: colander/__init__.py:1648 colander/__init__.py:1722
+#: src/colander/__init__.py:1915 src/colander/__init__.py:2005
 msgid "Invalid date"
 msgstr "Ungültiges Datum"
 
-#: colander/__init__.py:1662
+#: src/colander/__init__.py:1932
 msgid "\"${val}\" is not a datetime object"
 msgstr "\"${val}\" ist kein Datetime-Object"
 
-#: colander/__init__.py:1733
+#: src/colander/__init__.py:2020
 msgid "\"${val}\" is not a date object"
 msgstr "\"${val}\" ist kein Date-Object"
 
-#: colander/__init__.py:1794
+#: src/colander/__init__.py:2085
 msgid "Invalid time"
 msgstr "Ungültige Uhrzeit"
 
-#: colander/__init__.py:1804
+#: src/colander/__init__.py:2096
 msgid "\"${val}\" is not a time object"
 msgstr "\"${val}\" ist kein Time-Objekt"
 
-#: colander/tests/test_colander.py:334 colander/tests/test_colander.py:341
-msgid "fail ${val}"
-msgstr "fehlgeschlagen"
+# | msgid "\"${val}\" is not one of ${choices}"
+#: src/colander/__init__.py:2161 src/colander/__init__.py:2177
+#, fuzzy
+msgid "\"${val}\" is not a valid \"${cls}\""
+msgstr "\"${val}\" ist nicht in der Auswahl ${choices}"
 
-#: colander/tests/test_colander.py:537
-msgid "${val}: ${choices}"
-msgstr "\"${val}”: ${choices}"
-
+#: src/colander/__init__.py:2297
 msgid "Required"
 msgstr "Pflichtangabe"
+
+#~ msgid "fail ${val}"
+#~ msgstr "fehlgeschlagen"
+
+#~ msgid "${val}: ${choices}"
+#~ msgstr "\"${val}”: ${choices}"
+

@@ -7,150 +7,181 @@ msgid ""
 msgstr ""
 "Project-Id-Version: colander 1.0b1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-11-16 14:23+0900\n"
+"POT-Creation-Date: 2023-01-02 19:48-0600\n"
 "PO-Revision-Date: 2015-03-04 10:03+0200\n"
 "Last-Translator: Daniel Dourvaris <dan@car.gr>\n"
+"Language: el\n"
 "Language-Team: el <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 1.3\n"
+"Generated-By: Babel 2.11.0\n"
 
-#: colander/__init__.py:240
+#: src/colander/__init__.py:319
 msgid "Invalid value"
 msgstr "Λάθος στοιχείο"
 
-#: colander/__init__.py:283
+#: src/colander/__init__.py:375
 msgid "String does not match expected pattern"
 msgstr "Το κείμενο δέν αντιστοιχεί στην μακέτα"
 
-#: colander/__init__.py:302
+#: src/colander/__init__.py:405
 msgid "Invalid email address"
 msgstr "Λάθος διεύθηνση email"
 
-#: colander/__init__.py:330
+#: src/colander/__init__.py:434
+msgid "Not a data URL"
+msgstr ""
+
+# | msgid "Invalid time"
+#: src/colander/__init__.py:435
+#, fuzzy
+msgid "Invalid MIME type"
+msgstr "Λάθος ώρα"
+
+#: src/colander/__init__.py:436
+msgid "Invalid Base64 encoded data"
+msgstr ""
+
+#: src/colander/__init__.py:494
 msgid "${val} is less than minimum value ${min}"
 msgstr "${val} είναι λιγότερο απο το ελάχιστο ${min}"
 
-#: colander/__init__.py:331
+#: src/colander/__init__.py:495
 msgid "${val} is greater than maximum value ${max}"
 msgstr "${val} είναι μεγαλύτερο απο το μέγιστο ${max}"
 
-#: colander/__init__.py:363
+#: src/colander/__init__.py:545
 msgid "Shorter than minimum length ${min}"
 msgstr "Λιγότερο απο το ελάχιστο ${min} στοιχεία"
 
-#: colander/__init__.py:369
+#: src/colander/__init__.py:546
 msgid "Longer than maximum length ${max}"
 msgstr "Μεγαλύτερο απο το μέγιστο ${max} χαρακτήρες"
 
-#: colander/__init__.py:382
+#: src/colander/__init__.py:569
 msgid "\"${val}\" is not one of ${choices}"
 msgstr "\"${val}\" δέν είναι ενα απο ${choices}"
 
-#: colander/__init__.py:392
+# | msgid "\"${val}\" is not one of ${choices}"
+#: src/colander/__init__.py:593
+#, fuzzy
+msgid "\"${val}\" must not be one of ${choices}"
+msgstr "\"${val}\" δέν είναι ενα απο ${choices}"
+
+#: src/colander/__init__.py:616
 msgid "One or more of the choices you made was not acceptable"
 msgstr "Ενα η παραπάνω απο τις επιλογές δέν ήταν αποδεχτό"
 
-#: colander/__init__.py:414 colander/__init__.py:419
+#: src/colander/__init__.py:639 src/colander/__init__.py:648
 msgid "\"${val}\" is not a valid credit card number"
 msgstr "\"${val}\" δέν είναι έγκυρη πιστοτική κάρτα"
 
-#: colander/__init__.py:440
+#: src/colander/__init__.py:720
 msgid "Must be a URL"
 msgstr "Πρέπει να είναι URL"
 
-#: colander/__init__.py:536
+#: src/colander/__init__.py:731
+msgid "Must be a file:// URI scheme"
+msgstr ""
+
+#: src/colander/__init__.py:737
+msgid "Invalid UUID string"
+msgstr ""
+
+#: src/colander/__init__.py:839
 msgid "\"${val}\" is not a mapping type: ${err}"
 msgstr "\"${val}\" δέν είναι τύπου mapping: ${err}"
 
-#: colander/__init__.py:578
+#: src/colander/__init__.py:889
 msgid "Unrecognized keys in mapping: \"${val}\""
 msgstr "Αγνωστα keys στο mapping: \"${val}\""
 
-#: colander/__init__.py:674 colander/__init__.py:905
+#: src/colander/__init__.py:990 src/colander/__init__.py:1230
 msgid "\"${val}\" is not iterable"
 msgstr "\"${val}\" δέν είναι λίστα"
 
-#: colander/__init__.py:682
+#: src/colander/__init__.py:998
 msgid ""
 "\"${val}\" has an incorrect number of elements (expected ${exp}, was "
 "${was})"
-msgstr ""
-"\"${val}\" έχει λάθος νούμερο στοιχέιων (ήθελε ${exp}, έχει "
-"${was})"
+msgstr "\"${val}\" έχει λάθος νούμερο στοιχέιων (ήθελε ${exp}, έχει ${was})"
 
-#: colander/__init__.py:821 colander/__init__.py:852
+#: src/colander/__init__.py:1141 src/colander/__init__.py:1172
 msgid "${cstruct} is not iterable"
 msgstr "${cstruct} δέν είναι λίστα"
 
-#: colander/__init__.py:1124
+#: src/colander/__init__.py:1462
 msgid "${val} cannot be serialized: ${err}"
 msgstr "${val} δέν μπορεί να γίνει serialize:${err}"
 
-#: colander/__init__.py:1142
+#: src/colander/__init__.py:1484
 msgid "${val} is not a string: ${err}"
 msgstr "${val} δέν είναι κείμενο: ${err}"
 
-#: colander/__init__.py:1162 colander/__init__.py:1173
+#: src/colander/__init__.py:1507 src/colander/__init__.py:1518
 msgid "\"${val}\" is not a number"
 msgstr "\"${val}\" δέν είναι νούμερο"
 
-#: colander/__init__.py:1317
+#: src/colander/__init__.py:1697
 msgid "${val} is not a string"
 msgstr "${val} δέν είναι κείμενο"
 
-#: colander/__init__.py:1328
+#: src/colander/__init__.py:1709
 msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
 msgstr "\"${val}\" ούτε στο (${false_choices}) είναι, ούτε στο (${true_choices})"
 
-#: colander/__init__.py:1388 colander/__init__.py:1405
-#: colander/__init__.py:1415
+#: src/colander/__init__.py:1775 src/colander/__init__.py:1794
+#: src/colander/__init__.py:1806
 msgid "relative name \"${val}\" irresolveable without package"
 msgstr ""
 
-#: colander/__init__.py:1445
+#: src/colander/__init__.py:1843
 msgid "\"${val}\" has no __name__"
 msgstr "\"${val}\" δέν έχει __name__"
 
-#: colander/__init__.py:1454
+#: src/colander/__init__.py:1852
 msgid "\"${val}\" is not a string"
 msgstr "\"${val}\" δέν είναι κείμενο"
 
-#: colander/__init__.py:1463
+#: src/colander/__init__.py:1862
 msgid "The dotted name \"${name}\" cannot be imported"
 msgstr ""
 
-#: colander/__init__.py:1511 colander/__init__.py:1587
+#: src/colander/__init__.py:1915 src/colander/__init__.py:2005
 msgid "Invalid date"
 msgstr "Λάθος ημερομηνία"
 
-#: colander/__init__.py:1527
+#: src/colander/__init__.py:1932
 msgid "\"${val}\" is not a datetime object"
 msgstr "\"${val}\" δέν είναι τύπου datetime"
 
-#: colander/__init__.py:1598
+#: src/colander/__init__.py:2020
 msgid "\"${val}\" is not a date object"
 msgstr "\"${val}\" δέν είναι τύπου date"
 
-#: colander/__init__.py:1659
+#: src/colander/__init__.py:2085
 msgid "Invalid time"
 msgstr "Λάθος ώρα"
 
-#: colander/__init__.py:1670
+#: src/colander/__init__.py:2096
 msgid "\"${val}\" is not a time object"
 msgstr "\"${val}\" δέν είναι τύπου time"
 
-#: colander/__init__.py:1795
+# | msgid "\"${val}\" is not one of ${choices}"
+#: src/colander/__init__.py:2161 src/colander/__init__.py:2177
+#, fuzzy
+msgid "\"${val}\" is not a valid \"${cls}\""
+msgstr "\"${val}\" δέν είναι ενα απο ${choices}"
+
+#: src/colander/__init__.py:2297
 msgid "Required"
 msgstr "Απαραίτητο"
 
-#: colander/tests/test_colander.py:295 colander/tests/test_colander.py:302
-msgid "fail ${val}"
-msgstr "λάθος ${val}"
+#~ msgid "fail ${val}"
+#~ msgstr "λάθος ${val}"
 
-#: colander/tests/test_colander.py:469
-msgid "${val}: ${choices}"
-msgstr "${val}: ${choices}"
+#~ msgid "${val}: ${choices}"
+#~ msgstr "${val}: ${choices}"
 
