@@ -1,5 +1,5 @@
-unreleased
-==========
+2.0 (2022-01-02)
+================
 
 - Drop support for Python 2.7, 3.4, 3.5, 3.6.
 
@@ -31,6 +31,11 @@ unreleased
   deserialization, and only ``default`` values should affect serialization.)
   Added many new test cases for ``MappingSchema`` and ``SequenceSchema``.
   See https://github.com/Pylons/colander/pull/264
+
+- Remove the dependency on ``setuptools`` for resolving pkg_resources-style
+  importable paths in ``colander.GlobalObject``.
+
+- Refresh localization files with Babel 2.11.
 
 1.8.3 (2020-11-28)
 ==================

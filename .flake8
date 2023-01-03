@@ -6,7 +6,5 @@ ignore =
     W503
     # W504: line break after binary operator (flake8 is not PEP8 compliant)
     W504
-exclude =
-    colander/compat.py
 show-source = True
 max-line-length = 79

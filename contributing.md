@@ -35,9 +35,9 @@ To run everything configured in the `tox.ini` file:
 
     $ tox
 
-To run tests on Python 2 and 3, and ensure full coverage, but exclude building of docs:
+To run tests and ensure full coverage, but exclude building of docs:
 
-    $ tox -e py2-cover,py3-cover,coverage
+    $ tox -e py311,coverage
 
 To build the docs only:
 
@@ -45,6 +45,14 @@ To build the docs only:
 
 See the `tox.ini` file for details.
 
+Updating localizations
+----------------------
+
+Extract new messages:
+
+    $ PY=.tox/py311/bin/python
+    $ "$PY" setup.py extract_messages
+    $ find src/colander/locale -type d -depth 1 -exec basename {} \; | xargs -n 1 "$PY" setup.py update_catalog -l
 
 Contributing documentation
 --------------------------
