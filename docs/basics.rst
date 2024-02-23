@@ -773,11 +773,11 @@ Here's what's printed when the above is run:
 .. code-block:: text
 
    [(<colander.SchemaNode object at 14868560 (named a)>,
-     <colander.String object at 0xe25f90>),
-    (<colander.SchemaNode object at 14868816 (named b)>,
-     <colander.Boolean object at 0xe2e110>),
-    (<colander.SchemaNode object at 14868688 (named c)>,
-     <colander.String object at 0xe2e090>),
+     <colander.Integer object at 0xe25f90>),
+    (<colander.SchemaNode object at 14868816 (named c)>,
+     <colander.String object at 0xe2e110>),
+    (<colander.SchemaNode object at 14868688 (named b)>,
+     <colander.Boolean object at 0xe2e090>),
     (<colander.SchemaNode object at 14868944 (named d)>,
      <colander.Boolean object at 0xe2e190>)]
 
