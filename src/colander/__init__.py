@@ -2736,7 +2736,7 @@ class instantiate:
     A decorator which can be used to instantiate :class:`SchemaNode`
     elements inline within a class definition.
 
-    All parameters passed to the decorator and passed along to the
+    All parameters passed to the decorator are passed along to the
     :class:`SchemaNode` during instantiation.
     """
 
