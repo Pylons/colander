@@ -322,6 +322,7 @@ class Function:
                 'The "message" argument has been deprecated, use "msg" '
                 'instead.',
                 DeprecationWarning,
+                stacklevel=2,
             )
             msg = message
         self.msg = msg
