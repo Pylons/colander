@@ -781,6 +781,12 @@ Here's what's printed when the above is run:
     (<colander.SchemaNode object at 14868944 (named d)>,
      <colander.Boolean object at 0xe2e190>)]
 
+.. note::
+
+   The order of the children in the output above might seem suprising:
+   it is governed by how Python's multiple-inheritance works (the
+   ``__mro__`` order).
+
 This feature only works with mapping schemas.  A "mapping schema" is schema
 defined as a class which inherits from :class:`colander.Schema` or
 :class:`colander.MappingSchema`.
