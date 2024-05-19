@@ -107,7 +107,7 @@ class Invalid(Exception):
         self.children = []
 
     def messages(self):
-        """Return an iterable of error messages for this exception
+        """Return an iterable of error messages for this exception.
 
         Uses the ``msg`` attribute of this error node.
 
