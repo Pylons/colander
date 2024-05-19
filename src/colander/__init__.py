@@ -200,7 +200,7 @@ class Invalid(Exception):
         return str(self.node.name)
 
     def asdict(self, translate=None, separator='; '):
-        """Return a dict holdign a basic error report for this exception.
+        """Return a dict holding a basic error report for this exception.
 
         The values in the dict will **not** be language-translated by
         default.
