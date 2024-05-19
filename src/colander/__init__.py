@@ -499,7 +499,7 @@ class Range:
     specified, it must be a string.  The string may contain the
     replacement targets ``${min}`` and ``${val}``, representing the
     minimum value and the provided value respectively.  If not
-    provided, ``min_err` defaults to ``'${val} is less than minimum value
+    provided, ``min_err`` defaults to ``'${val} is less than minimum value
     ${min}'``.
 
     ``max_err`` is used to form the ``msg`` of the
