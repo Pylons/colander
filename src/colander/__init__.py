@@ -307,7 +307,7 @@ class Function:
     the function as the exception message (validation fails).
 
     If ``function`` returns anything which is truthy *except* a string object
-    (e.g. ``True``, the integer ``1``, an object with a ``__nonzero__`` that
+    (e.g., ``True``, the integer ``1``, an object with a ``__nonzero__`` that
     returns ``True``, etc), do **not** raise :exc:`colander.Invalid`
     (validation succeeds).
 
