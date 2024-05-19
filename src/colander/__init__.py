@@ -297,7 +297,7 @@ class Function:
 
     If ``function`` returns anything falsey (``None``, ``False``, the
     empty string, ``0``, an object with a ``__nonzero__`` that returns
-    ``False``, etc), raise :exc:`colander.Invalid` (validation fails);
+    ``False``, etc.), raise :exc:`colander.Invalid` (validation fails);
 
     The ``msg`` of the raised exception will be the value of the ``msg``
     argument passed to this class' constructor.
