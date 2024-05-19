@@ -236,7 +236,7 @@ class Invalid(Exception):
 
 
 class UnsupportedFields(Invalid):
-    """Raised when unknown fields are found in the cstruct during deserialize."""
+    """Raised by a mapping schema which finds unknown fields cstruct."""
 
     def __init__(self, node, fields, msg=None):
         super().__init__(node, msg)
