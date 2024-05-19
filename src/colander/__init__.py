@@ -540,7 +540,7 @@ class Length:
     """Enforces that the length of a value falls within a given range.
 
     Raises if the value's length does not fall within the range described
-    byt the supplied ``min`` and ``max``arguments.
+    by the supplied ``min`` and ``max`` arguments.
 
     The value can be any sequence, most often a string.
 
