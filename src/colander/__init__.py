@@ -236,8 +236,8 @@ class Invalid(Exception):
 
 
 class UnsupportedFields(Invalid):
-    """Raised when unknown fields are found in the cstruct during deserialize.
-    """
+    """Raised when unknown fields are found in the cstruct during deserialize."""
+
     def __init__(self, node, fields, msg=None):
         super().__init__(node, msg)
         self.fields = fields
@@ -248,6 +248,7 @@ class All:
 
     Succeeds if none of its subvalidators raises :class:`colander.Invalid`.
     """
+
     def __init__(self, *validators):
         self.validators = validators
 
@@ -280,6 +281,7 @@ class Any(All):
     Succeeds if at least one of its subvalidators does not raise
     :class:`colander.Invalid`.
     """
+
     def __call__(self, node, value):
         try:
             return super().__call__(node, value)
@@ -316,6 +318,7 @@ class Function:
 
     The ``message`` parameter is deprecated: use ``msg`` instead.
     """
+
     def __init__(self, function, msg=None, message=None):
         self.function = function
         if msg is not None and message is not None:
@@ -378,6 +381,7 @@ class Regex:
     If ``value`` does not match the regular expression, raises
     :exc:`colander.Invalid`  with the ``msg`` error message.
     """
+
     def __init__(self, regex, msg=None, flags=0):
         if isinstance(regex, str):
             self.match_object = re.compile(regex, flags)
@@ -413,6 +417,7 @@ class Email(Regex):
     when raising :exc:`colander.Invalid`; otherwise, defaults to
     'Invalid email address'.
     """
+
     def __init__(self, msg=None):
         if msg is None:
             msg = _("Invalid email address")
@@ -448,6 +453,7 @@ class DataURL(Regex):
     passes the uses the supplied ``base64_err`` message (defaults to
     'Invalid Base64 encoded data').
     """
+
     _URL_ERR = _("Not a data URL")
     _MIMETYPE_ERR = _("Invalid MIME type")
     _BASE64_ERR = _("Invalid Base64 encoded data")
@@ -511,6 +517,7 @@ class Range:
     provided, it defaults to ``'${val} is greater than maximum value
     ${max}'``.
     """
+
     _MIN_ERR = _('${val} is less than minimum value ${min}')
     _MAX_ERR = _('${val} is greater than maximum value ${max}')
 
@@ -565,6 +572,7 @@ class Length:
     specified, it must be a string.  The string may contain the
     replacement target ``${max}``.
     """
+
     _MIN_ERR = _('Shorter than minimum length ${min}')
     _MAX_ERR = _('Longer than maximum length ${max}')
 
@@ -594,6 +602,7 @@ class OneOf:
     ``${choices}`` and ``${val}``, representing the set of forbidden values
     and the provided value respectively.
     """
+
     _MSG_ERR = _('"${val}" is not one of ${choices}')
 
     def __init__(self, choices, msg_err=_MSG_ERR):
@@ -616,6 +625,7 @@ class NoneOf:
     ``${choices}`` and ``${val}``, representing the set of forbidden values
     and the provided value respectively.
     """
+
     _MSG_ERR = _('"${val}" must not be one of ${choices}')
 
     def __init__(self, choices, msg_err=_MSG_ERR):
@@ -638,6 +648,7 @@ class ContainsOnly:
     Useful when attached to a schemanode with, e.g., a :class:`colander.Set`
     or another sequencetype.
     """
+
     err_template = _('One or more of the choices you made was not acceptable')
 
     def __init__(self, choices):
