@@ -207,7 +207,7 @@ class Invalid(Exception):
 
         If ``translate`` is supplied, it must be a callable taking a
         translation string as its sole argument and returning a localized,
-        interpolated string.  If so, the values in returned dict **will* be
+        interpolated string.  If so, the values in returned dict **will** be
         language-translated.
 
         If ``separator`` is supplied, error messages are joined with that.
