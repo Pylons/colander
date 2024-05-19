@@ -555,7 +555,7 @@ class Length:
 
     ``min_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
-    where the value's length is less than ``min``  If ``min_err`` is
+    where the value's length is less than ``min``. If ``min_err`` is
     specified, it must be a string.  The string may contain the
     replacement target ``${min}``.
 
