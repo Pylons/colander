@@ -504,7 +504,7 @@ class Range:
 
     ``max_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
-    where the value exceeding the maximum.  If ``max_err`` is
+    where the value exceeds the maximum.  If ``max_err`` is
     specified, it must be a string.  The string may contain the
     replacement targets ``${max}`` and ``${val}``, representing the
     maximum value and the provided value respectively.  If it is not
