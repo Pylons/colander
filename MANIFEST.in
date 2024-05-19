@@ -15,6 +15,7 @@ include CHANGES.rst
 include setup.cfg pyproject.toml
 include .coveragerc .flake8 pytest.ini
 include tox.ini rtd.txt
+include .readthedocs.yaml
 
 exclude TODO.txt
 
