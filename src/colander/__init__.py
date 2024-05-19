@@ -635,7 +635,7 @@ class NoneOf:
 class ContainsOnly:
     """Enforces that each element in a sequence value is one of a fixeed set.
 
-    Useful when attached to a schemanode with, e.g. a :class:`colander.Set`
+    Useful when attached to a schemanode with, e.g., a :class:`colander.Set`
     or another sequencetype.
     """
     err_template = _('One or more of the choices you made was not acceptable')
