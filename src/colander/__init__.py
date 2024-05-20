@@ -33,11 +33,8 @@ _marker = required  # bw compat
 class _null:
     """Represents a null value in colander-related operations."""
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
-
-    # py3 compat
-    __bool__ = __nonzero__
 
     def __repr__(self):
         return '<colander.null>'
@@ -75,17 +72,17 @@ def interpolate(msgs):
 
 
 class UnboundDeferredError(Exception):
-    """
-    An exception raised by :meth:`SchemaNode.deserialize` when an attempt
-    is made to deserialize a node which has an unbound :class:`deferred`
-    validator.
+    """Raised by :meth:`SchemaNode.deserialize`
+
+    Raised when an attempt is made to deserialize a node which has an unbound
+    :class:`deferred` validator.
     """
 
 
 class Invalid(Exception):
-    """
-    An exception raised by data types and validators indicating that
-    the value for a particular node was not valid.
+    """Raised by data types / validators
+
+    Raised if the value for a particular node is not valid.
 
     The constructor receives a mandatory ``node`` argument.  This must
     be an instance of the :class:`colander.SchemaNode` class, or at
@@ -110,11 +107,16 @@ class Invalid(Exception):
         self.children = []
 
     def messages(self):
-        """Return an iterable of error messages for this exception using the
-        ``msg`` attribute of this error node.  If the ``msg`` attribute is
-        iterable, it is returned.  If it is not iterable, and is
-        non-``None``, a single-element list containing the ``msg`` value is
-        returned.  If the value is ``None``, an empty list is returned."""
+        """Return an iterable of error messages for this exception.
+
+        Uses the ``msg`` attribute of this error node.
+
+        If the ``msg`` attribute is iterable, return it.
+
+        If it is not iterable, and is non-``None``, return a single-element
+        list containing the ``msg`` value.
+
+        If the value is ``None``, an empty list is returned."""
         if is_nonstr_iter(self.msg):
             return self.msg
         if self.msg is None:
@@ -122,11 +124,13 @@ class Invalid(Exception):
         return [self.msg]
 
     def add(self, exc, pos=None):
-        """Add a child exception; ``exc`` must be an instance of
-        :class:`colander.Invalid` or a subclass.
+        """Add a child exception to the list of children for this exception.
 
-        ``pos`` is a value important for accurate error reporting.  If
-        it is provided, it must be an integer representing the
+        ``exc`` must be an instance of :class:`colander.Invalid` or a subclass.
+
+        ``pos`` is a value important for accurate error reporting.
+
+        If it is provided, it must be an integer representing the
         position of ``exc`` relative to all other subexceptions of
         this exception node.  For example, if the exception being
         added is about the third child of the exception which is
@@ -142,10 +146,10 @@ class Invalid(Exception):
         self.children.append(exc)
 
     def __setitem__(self, name, msg):
-        """Add a subexception related to a child node with the
-        message ``msg``. ``name`` must be present in the names of the
-        set of child nodes of this exception's node; if this is not
-        so, a :exc:`KeyError` is raised.
+        """Add a subexception for a named child node.
+
+        ``name`` must be present in the names of the set of child nodes
+        of this exception's node; if this is not so, raises a :exc:`KeyError`.
 
         For example, if the exception upon which ``__setitem__`` is
         called has a node attribute, and that node attribute has
@@ -167,11 +171,15 @@ class Invalid(Exception):
         raise KeyError(name)
 
     def paths(self):
-        """A generator which returns each path through the exception
-        graph.  Each path is represented as a tuple of exception
-        nodes.  Within each tuple, the leftmost item will represent
+        """A generator yielding each path through the exception graph.
+
+        Each yielded path is represented as a tuple of exception
+        nodes.
+
+        Within each tuple, the leftmost item will represent
         the root schema node, the rightmost item will represent the
-        leaf schema node."""
+        leaf schema node.
+        """
 
         def traverse(node, stack):
             stack.append(node)
@@ -192,12 +200,15 @@ class Invalid(Exception):
         return str(self.node.name)
 
     def asdict(self, translate=None, separator='; '):
-        """Return a dictionary containing a basic
-        (non-language-translated) error report for this exception.
+        """Return a dict holding a basic error report for this exception.
+
+        The values in the dict will **not** be language-translated by
+        default.
 
         If ``translate`` is supplied, it must be a callable taking a
         translation string as its sole argument and returning a localized,
-        interpolated string.
+        interpolated string.  If so, the values in returned dict **will** be
+        language-translated.
 
         If ``separator`` is supplied, error messages are joined with that.
         """
@@ -221,16 +232,11 @@ class Invalid(Exception):
         return errors
 
     def __str__(self):
-        """Return a pretty-formatted string representation of the
-        result of an execution of this exception's ``asdict`` method"""
         return pprint.pformat(self.asdict())
 
 
 class UnsupportedFields(Invalid):
-    """
-    Exception used when schema object detect unknown fields in the
-    cstruct during deserialize.
-    """
+    """Raised by a mapping schema which finds unknown fields cstruct."""
 
     def __init__(self, node, fields, msg=None):
         super().__init__(node, msg)
@@ -238,8 +244,10 @@ class UnsupportedFields(Invalid):
 
 
 class All:
-    """Composite validator which succeeds if none of its
-    subvalidators raises an :class:`colander.Invalid` exception"""
+    """Composite validator
+
+    Succeeds if none of its subvalidators raises :class:`colander.Invalid`.
+    """
 
     def __init__(self, *validators):
         self.validators = validators
@@ -262,15 +270,17 @@ class All:
                     else:
                         messages.append(exception.msg)
                 children.extend(exception.children)
-
             exc = Invalid(node, messages)
             exc.children.extend(children)
             raise exc
 
 
 class Any(All):
-    """Composite validator which succeeds if at least one of its
-    subvalidators does not raise an :class:`colander.Invalid` exception."""
+    """Composite validator
+
+    Succeeds if at least one of its subvalidators does not raise
+    :class:`colander.Invalid`.
+    """
 
     def __call__(self, node, value):
         try:
@@ -283,31 +293,30 @@ class Any(All):
 
 
 class Function:
-    """Validator which accepts a function and an optional message;
-    the function is called with the ``value`` during validation.
+    """Validator accepting a function and an optional message.
 
-    If the function returns anything falsey (``None``, ``False``, the
+    ``function`` is called with ``value`` during validation.
+
+    If ``function`` returns anything falsey (``None``, ``False``, the
     empty string, ``0``, an object with a ``__nonzero__`` that returns
-    ``False``, etc) when called during validation, an
-    :exc:`colander.Invalid` exception is raised (validation fails);
-    its msg will be the value of the ``msg`` argument passed to this
-    class' constructor.
+    ``False``, etc.), raise :exc:`colander.Invalid` (validation fails);
 
-    If the function returns a ``str`` object that is *not* the empty string,
-    a :exc:`colander.Invalid` exception is raised using the string
-    value returned from the function as the exception message
-    (validation fails).
+    The ``msg`` of the raised exception will be the value of the ``msg``
+    argument passed to this class' constructor.
 
-    If the function returns anything *except* a string object
-    which is truthy (e.g. ``True``, the integer ``1``, an
-    object with a ``__nonzero__`` that returns ``True``, etc), an
-    :exc:`colander.Invalid` exception is *not* raised (validation
-    succeeds).
+    If ``function`` returns a ``str`` object that is *not* the empty string,
+    raise :exc:`colander.Invalid` using the string value returned from
+    the function as the exception message (validation fails).
+
+    If ``function`` returns anything which is truthy *except* a string object
+    (e.g., ``True``, the integer ``1``, an object with a ``__nonzero__`` that
+    returns ``True``, etc), do **not** raise :exc:`colander.Invalid`
+    (validation succeeds).
 
     The default value for the ``msg`` when not provided via the
     constructor is ``Invalid value``.
 
-    The ``message`` parameter has been deprecated, use ``msg`` instead.
+    The ``message`` parameter is deprecated: use ``msg`` instead.
     """
 
     def __init__(self, function, msg=None, message=None):
@@ -348,11 +357,15 @@ class Function:
 class Regex:
     """Regular expression validator.
 
-    Initialize it with the string regular expression ``regex`` that will
-    be compiled and matched against ``value`` when validator is called. It
-    uses Python's :py:func:`re.match`, which only matches at the beginning
-    of the string and not at the beginning of each line. To match the
-    entire string, enclose the regular expression with ``^`` and ``$``.
+    ``regex`` is a regular expression pattern that will be compiled and
+    matched against ``value`` when validator is called.
+
+    The compiled regex uses Python's :py:func:`re.match`, which only matches
+    at the beginning of the string and not at the beginning of each line.
+
+    To match the entire string, enclose the regular expression with
+    ``^`` and ``$``.
+
     If ``msg`` is supplied, it will be the error message to be used;
     otherwise, defaults to 'String does not match expected pattern'.
 
@@ -362,9 +375,11 @@ class Regex:
     The ``regex`` argument may also be a pattern object (the
     result of ``re.compile``) instead of a string.
 
-    When calling, if ``value`` matches the regular expression,
-    validation succeeds; otherwise, :exc:`colander.Invalid` is
-    raised with the ``msg`` error message.
+    When called with ``value`` matching the regular expression,
+    no exception is raised (validation succeeds);
+
+    If ``value`` does not match the regular expression, raises
+    :exc:`colander.Invalid`  with the ``msg`` error message.
     """
 
     def __init__(self, regex, msg=None, flags=0):
@@ -396,9 +411,11 @@ EMAIL_RE = (
 
 
 class Email(Regex):
-    """Email address validator. If ``msg`` is supplied, it will be
-    the error message to be used when raising :exc:`colander.Invalid`;
-    otherwise, defaults to 'Invalid email address'.
+    """Email address validator.
+
+    If ``msg`` is supplied, it will be the error message to be used
+    when raising :exc:`colander.Invalid`; otherwise, defaults to
+    'Invalid email address'.
     """
 
     def __init__(self, msg=None):
@@ -422,14 +439,19 @@ DATA_URL_REGEX = (
 
 
 class DataURL(Regex):
-    """A data URL validator.
+    """Data URL validator.
 
     If ``url_msg`` is supplied, it will be the error message to be used when
     raising :exc:`colander.Invalid` for a syntactically incorrect data URL,
-    defaults to 'Not a data URL'. If, however, the data URL string is
-    syntactically correct but contains an invalid MIME type, ``mimetype_err``
-    is raised (defaults to 'Invalid MIME type'); for incorrectly encoded Base64
-    data, ``base64_err`` is raised (defaults to 'Invalid Base64 encoded data').
+    defaults to 'Not a data URL'.
+
+    If, however, the data URL string is syntactically correct but contains an
+    invalid MIME type, uses the supplied ``mimetype_err`` message (defaults to
+    Invalid MIME type')
+
+    If the data URL string is an incorrectly encoded Base64 value,
+    passes the uses the supplied ``base64_err`` message (defaults to
+    'Invalid Base64 encoded data').
     """
 
     _URL_ERR = _("Not a data URL")
@@ -467,24 +489,28 @@ class DataURL(Regex):
 
 
 class Range:
-    """Validator which succeeds if the value it is passed is greater
-    or equal to ``min`` and less than or equal to ``max``.  If ``min``
-    is not specified, or is specified as ``None``, no lower bound
-    exists.  If ``max`` is not specified, or is specified as ``None``,
-    no upper bound exists.
+    """Enforces that a value lies within a given range.
+
+    Raises if the value it is less than ``min`` or greater than ``max``.
+
+    If ``min`` is not specified, or is specified as ``None``,
+    no lower bound is checked.
+
+    If ``max`` is not specified, or is specified as ``None``,
+    no upper bound is checked.
 
     ``min_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
-    caused by a value not meeting the minimum.  If ``min_err`` is
+    where the value is less than minimum.  If ``min_err`` is
     specified, it must be a string.  The string may contain the
     replacement targets ``${min}`` and ``${val}``, representing the
-    minimum value and the provided value respectively.  If it is not
-    provided, it defaults to ``'${val} is less than minimum value
+    minimum value and the provided value respectively.  If not
+    provided, ``min_err`` defaults to ``'${val} is less than minimum value
     ${min}'``.
 
     ``max_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
-    caused by a value exceeding the maximum.  If ``max_err`` is
+    where the value exceeds the maximum.  If ``max_err`` is
     specified, it must be a string.  The string may contain the
     replacement targets ``${max}`` and ``${val}``, representing the
     maximum value and the provided value respectively.  If it is not
@@ -518,27 +544,31 @@ class Range:
 
 
 class Length:
-    """Validator which succeeds if the value passed to it has a
-    length between a minimum and maximum, expressed in the
-    optional ``min`` and ``max`` arguments.
+    """Enforces that the length of a value falls within a given range.
+
+    Raises if the value's length does not fall within the range described
+    by the supplied ``min`` and ``max`` arguments.
+
     The value can be any sequence, most often a string.
 
     If ``min`` is not specified, or is specified as ``None``,
-    no lower bound exists.  If ``max`` is not specified, or
-    is specified as ``None``, no upper bound exists.
+    no lower bound on the length is checked.
+
+    If ``max`` is not specified, or is specified as ``None``,
+    no upper bound on the length is checked.
 
     The default error messages are "Shorter than minimum length ${min}"
     and "Longer than maximum length ${max}". These can be customized:
 
     ``min_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
-    caused by a value not meeting the minimum length.  If ``min_err`` is
+    where the value's length is less than ``min``. If ``min_err`` is
     specified, it must be a string.  The string may contain the
     replacement target ``${min}``.
 
     ``max_err`` is used to form the ``msg`` of the
     :exc:`colander.Invalid` error when reporting a validation failure
-    caused by a value exceeding the maximum length.  If ``max_err`` is
+    where the value's length is greater than ``max``.  If ``max_err`` is
     specified, it must be a string.  The string may contain the
     replacement target ``${max}``.
     """
@@ -564,8 +594,14 @@ class Length:
 
 
 class OneOf:
-    """Validator which succeeds if the value passed to it is one of
-    a fixed set of values"""
+    """Enforces that a value is one of a fixed set of values.
+
+    ``msg_err`` is used to form the ``msg`` of the :exc:`colander.Invalid`
+    error when reporting a validation failure.  If ``msg_err`` is specified,
+    it must be a string.  The string may contain the replacement targets
+    ``${choices}`` and ``${val}``, representing the set of forbidden values
+    and the provided value respectively.
+    """
 
     _MSG_ERR = _('"${val}" is not one of ${choices}')
 
@@ -581,8 +617,7 @@ class OneOf:
 
 
 class NoneOf:
-    """Validator which succeeds if the value passed to it is none of a
-    fixed set of values.
+    """Enforces that a value is *not* one of a fixed set of values.
 
     ``msg_err`` is used to form the ``msg`` of the :exc:`colander.Invalid`
     error when reporting a validation failure.  If ``msg_err`` is specified,
@@ -608,10 +643,10 @@ class NoneOf:
 
 
 class ContainsOnly:
-    """Validator which succeeds if the value passed to is a sequence and each
-    element in the sequence is also in the sequence passed as ``choices``.
-    This validator is useful when attached to a schemanode with, e.g. a
-    :class:`colander.Set` or another sequencetype.
+    """Enforces that each element in a sequence value is one of a fixeed set.
+
+    Useful when attached to a schemanode with, e.g., a :class:`colander.Set`
+    or another sequencetype.
     """
 
     err_template = _('One or more of the choices you made was not acceptable')
@@ -629,9 +664,10 @@ class ContainsOnly:
 
 
 def luhnok(node, value):
-    """Validator which checks to make sure that the value passes a luhn
-    mod-10 checksum (credit cards).  ``value`` must be a string, not an
-    integer."""
+    """Enforces that the value passes a luhn mod-10 checksum (credit cards).
+
+    ``value`` must be a string, not an integer.
+    """
     try:
         checksum = _luhnok(value)
     except ValueError:
