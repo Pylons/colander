@@ -12,3 +12,9 @@ source =
 [report]
 show_missing = true
 precision = 2
+exclude_also =
+    def __repr__
+
+    if 0:
+
+    raise NotImplementedError
