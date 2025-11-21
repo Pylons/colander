@@ -39,7 +39,7 @@ jobs:
         name: "Python: ${{ matrix.py }}-${{ matrix.architecture }} on ${{ matrix.os }}"
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Setup python
               uses: actions/setup-python@v5
               with:
@@ -52,7 +52,7 @@ jobs:
         runs-on: ubuntu-latest
         name: Validate coverage
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Setup python 3.10
               uses: actions/setup-python@v5
               with:
@@ -65,7 +65,7 @@ jobs:
         runs-on: ubuntu-latest
         name: Build the documentation
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Setup python
               uses: actions/setup-python@v5
               with:
@@ -77,7 +77,7 @@ jobs:
         runs-on: ubuntu-latest
         name: Lint the package
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Setup python
               uses: actions/setup-python@v5
               with:
