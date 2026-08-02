@@ -13,7 +13,7 @@ include COPYRIGHT.txt
 include CHANGES.rst
 
 include setup.cfg pyproject.toml
-include .coveragerc .flake8 pytest.ini
+include .coveragerc .flake8 .mailmap pytest.ini
 include tox.ini rtd.txt
 include .readthedocs.yaml
 
